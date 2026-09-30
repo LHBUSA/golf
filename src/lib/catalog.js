@@ -1,6 +1,6 @@
 export const ALL_ACCESS_URL = 'https://propbetedge.ai/pro';
 export const routes = [
-{path:'/',label:'Home',title:'A deeper view of the game.',description:'Players. Courses. Championships. Connected.',indexable:false},
+{path:'/',label:'Home',title:'Read the game between the shots.',description:'Players. Courses. Championships. Connected.',indexable:false},
 {path:'/today',label:'Today',title:'The golf day, in focus.',description:'Tournament context across the men’s and women’s game.',empty:'Today’s tournament coverage is not available yet.'},
 {path:'/live',label:'Live',title:'Follow every turning point.',description:'Live leaderboards, round context and scorecards from verified sources.',empty:'Live scoring is unavailable.'},
 {path:'/tournaments',label:'Tournaments',title:'The story of every tournament.',description:'PGA TOUR at the center. LPGA, majors and the global game in view.',empty:'Tournament editions have not been added yet.'},
@@ -28,7 +28,6 @@ export function routeFor(path) {
  const known = routes.find(r=>r.path===clean);
  if(known) return known;
  const major = majors.find(m=>'/majors/'+m[2]===clean);
- if(major) return {path:clean,label:major[0],title:major[0],description:major[1]+' major championship history.',empty:'Championship editions and results have not been added yet.'};
+ if(major) return {path:clean,label:major[0],title:major[0],description:major[1]+' major championship history.',empty:'Championship editions and results have not been added yet.',major};
  return {path:clean,label:'Not found',title:'This page is out of bounds.',description:'Return to the golf intelligence home.',empty:'The requested page could not be found.',notFound:true};
 }
-
