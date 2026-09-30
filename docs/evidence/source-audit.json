@@ -1,0 +1,62 @@
+{
+  "audited_at": "2026-09-30",
+  "method": "Read-only public documentation via web research tool; no hidden data endpoints, cookies, login or challenge bypass. Search snippets are discovery, not direct access evidence.",
+  "observations": [
+    {
+      "source": "pga-tour",
+      "url": "https://www.pgatour.com/company/terms-of-use",
+      "result": "403 Forbidden",
+      "action": "STOP; no retry or alternate-host requests"
+    },
+    {
+      "source": "owgr",
+      "url": "https://www.owgr.com/terms-and-conditions",
+      "result": "Public terms available; paragraphs 32–43 reserve reproduction and ban scraping",
+      "action": "REJECT website ingestion"
+    },
+    {
+      "source": "lpga",
+      "url": "https://www.lpga.com/terms-and-conditions",
+      "result": "Heading/navigation only returned; substantive terms unavailable",
+      "action": "HOLD; no endpoint probing"
+    },
+    {
+      "source": "rolex",
+      "url": "https://www.rolexrankings.com/legal-notice",
+      "result": "Commercial redistribution requires written agreement",
+      "action": "OWNER DECISION"
+    },
+    {
+      "source": "usga",
+      "url": "https://www.usga.org/terms-and-conditions.html",
+      "result": "Personal non-commercial limited website access",
+      "action": "OWNER DECISION"
+    },
+    {
+      "source": "dpworld",
+      "url": "https://www.europeantour.com/terms-of-use",
+      "result": "Personal extracts; no commercial data grant",
+      "action": "OWNER DECISION"
+    },
+    {
+      "source": "randa",
+      "url": "https://www.theopen.com/legal/website-terms-and-conditions",
+      "result": "Commercial content use requires licence",
+      "action": "OWNER DECISION"
+    },
+    {
+      "source": "wikidata",
+      "url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+      "result": "Structured data CC0; API use subject to access policy",
+      "action": "Metadata-only APPROVED"
+    },
+    {
+      "source": "commons",
+      "url": "https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia",
+      "result": "File-level licence / attribution / non-copyright restriction review required",
+      "action": "Discovery APPROVED; assets individually reviewed"
+    }
+  ],
+  "robots_probe": "Not performed. Tool-read documents are not proof of robot permission. Safe canary records direct HTTP responses separately.",
+  "limitations": "Not a legal opinion or exhaustive live feed certification. No production graph created, source captures ingested or commercial obligations accepted."
+}

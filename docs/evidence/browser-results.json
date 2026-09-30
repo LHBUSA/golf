@@ -1,0 +1,5224 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\Workers\\golf\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "D:\\Workers\\golf\\playwright.config.js",
+    "rootDir": "D:/Workers/golf/tests/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/Workers/golf/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/Workers/golf/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "docs/evidence/browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 5175 --strictPort",
+      "url": "http://127.0.0.1:5175",
+      "reuseExistingServer": true,
+      "timeout": 60000
+    }
+  },
+  "suites": [
+    {
+      "title": "foundation.spec.js",
+      "file": "foundation.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "320 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:32.425Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-d786006dffdbaa974bec",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:34.768Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8d2c32061436190b3751",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 754,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:35.507Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-827df67c91f69871e49f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 783,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:36.278Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-6eb4f9066ce3034ef9fa",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 678,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:37.082Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f78b6dad525d1d29bca9",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 670,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:37.777Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e82741fa59eb9ebd8b89",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 584,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:38.464Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8543666380bb0a4e960c",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 652,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:39.064Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-3503bcf51a97f62c76f1",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 668,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:39.739Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-bfdb745df04210a99d0d",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 654,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:40.425Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-dcb6694a28d277f57f3b",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 681,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:41.092Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-85d885e12301ad17c82a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 625,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:41.784Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ab9821dde72d43003e5a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 588,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:42.419Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ac0df2628f55280eec61",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 653,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:43.020Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-157b28770834d13a042f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 617,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:43.683Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-3c13749278b77083a8b5",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 624,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:44.310Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-be34ae0e6c532ecc5f20",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 675,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:44.944Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-a7f4195b1e70c2b79f00",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 692,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:45.632Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-db38e95d000caed100c2",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 825,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:46.338Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-b4b0b4370197687c3d8d",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 723,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:47.177Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-0d8b0dc574d4ddb01754",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "320 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:47.916Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-3d27300bc2ac8c174c1e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 685,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:48.515Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-d912dc1eff8a912001a6",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:49.211Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-15fc545e99d48f58009b",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:49.881Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8c16d35ba62cef9f39fa",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 683,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:50.507Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-2d65692ef0470177065c",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 609,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:51.200Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-fff6874ce838f1dd5326",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 578,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:51.819Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-85c185d8f93bd2682248",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 555,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:52.407Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-6474174cf8aab98282d9",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:52.974Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ade34d79732d742b082f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 676,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:53.577Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-35272f23127e7a2a920e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 629,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:54.264Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-d4b571d6634501b0a909",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 623,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:54.905Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e00833672b2951482158",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:55.539Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f425ebdd580b4d3668e0",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 607,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:56.125Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-83b475c0ee0c258edb03",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 693,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:56.745Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-9f36a2d1c2b7fadbd83c",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 565,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:57.457Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-6bc7f3f6924eb98a5d90",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 588,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:58.033Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e3374a5a5d2ec1a2b679",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 586,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:58.634Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f1df8371f0aa458c7523",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 574,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:59.232Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-4552a4799cb3347f16fb",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 561,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:56:59.817Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-bd2e850388e33c683042",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 590,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:00.389Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f297bb25ea1774f8bef1",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "360 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 623,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:00.990Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-4974704795480898a09e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1202,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:01.624Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-1393a4db7e237e110fc2",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 622,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:02.837Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-5d2e7303c14868465c72",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:03.469Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-921447b438c6c689d9ed",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 645,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:04.099Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-0cc47f1c3529888304ce",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 572,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:04.756Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-a40fcd900c4258f57774",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 619,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:05.340Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-a49a243d4be9955af614",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:05.971Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-01b55e33d46833f72d8f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 738,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:06.643Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-dcbe41546d612baec93e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 637,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:07.396Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ce747b0db2784c99213c",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:08.042Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-47d7b5e3223a447295c4",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 649,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:08.630Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-aac544967ef5ff419e00",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 638,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:09.292Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-972043d9fa7922049b92",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 586,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:09.943Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-61230372a6a9e6713193",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 598,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:10.541Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-03a41913881f92056813",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 600,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:11.152Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8b4ec7c2238299ab8d7a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:11.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-c9d12fce32243e742a2f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:12.391Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-16887911b1ab3c3bcf70",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 597,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:13.006Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e145be205dcacea86714",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 641,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:13.618Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-671ed6f202c06e2b4223",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 638,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:14.278Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8915b3b2d7a6ed831175",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "390 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 744,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:14.933Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-52241b6b5275714747ff",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 949,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:15.693Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-a83e1fee38c2c19576c8",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:16.662Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-b3ed6ecc066770500c0a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 741,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:17.444Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ca2d5e3a7882d3c55abd",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 663,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:18.203Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-bf99389e5ec6409ecf12",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 770,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:18.877Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ffef3563ee386353809e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 632,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:19.663Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-2328b3a8058118d1f835",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 627,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:20.311Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-dd33973fed6215f2ddb6",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 664,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:20.951Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-0f11657bb89e7b49bc8f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:21.626Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-5e22eea55c57f2913bbe",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 581,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:22.253Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-2d5980fbe6aac0c835d2",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 604,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:22.848Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-d81dc58b2043cd07e9f8",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 644,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:23.466Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-56c177c288c4f7138e40",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 640,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:24.127Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-7a6bfd9801581dd93d94",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 679,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:24.781Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-4848d2778001cfee7994",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:25.471Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-0df739bdddb549f2fe5b",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 657,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:26.147Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-eef970d359fb56cff983",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 750,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:26.819Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-613b5f7cd87360c4e7ec",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 621,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:27.586Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8ebb7eacdc7c65d06712",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 625,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:28.223Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-b709811e967ab7b63b59",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 608,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:28.862Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e773871e4a46a8fcc7fd",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "430 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 556,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:29.486Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e730e983144412b3f9b5",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 714,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:30.052Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ddbb03e2943d9a50f3fb",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 633,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:30.777Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-892718981944454527cc",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:31.420Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-14232787f9aa23d76076",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:32.024Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-b380ec0edb6516fad49b",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 543,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:32.613Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-48ae8889337ea91ebb9b",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 609,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:33.166Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e5070c083485949d9b75",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 547,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:33.787Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ab41e84fd1067134e643",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 609,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:34.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-aa627a7468753137310b",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 563,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:34.966Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-b75dfe1f702e6485d534",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 568,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:35.540Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-534c814ba156e44be9e0",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 581,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:36.120Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8202fbdb59e68cc4f8ea",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 555,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:36.712Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-c225b8f2039a62c3a7a0",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 549,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:37.278Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-25476a4670cbe334d9ba",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 544,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:37.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8fd0d27dd9fc74425d2f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:38.399Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-344e63ea09c5ecc537c2",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 605,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:39.004Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-87ccd7c65b875b8f7813",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 634,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:39.628Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-2c35447205223dc125b7",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 598,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:40.275Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-297ed5206e34fecf3d84",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 650,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:40.887Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-53d4480ea761d07601d2",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 768,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:41.548Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-a6adc01b72deab4a23eb",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "768 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 637,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:42.330Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f9c28901b94729f92ebc",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 850,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:42.977Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-4778e43bd452871ff999",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 633,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:43.837Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-35ed273835b65d4f066a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 710,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:44.481Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-27f59ee3182e48b926c0",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:45.206Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-7063c9d389595e681612",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 749,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:45.924Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-2decdea3118228b3a823",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 783,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:46.690Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-409fb2423fda9f8ae89a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:47.489Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ea61b242a4aaeb82cee8",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 725,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:48.216Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-cbf0696eb35037692ce5",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:48.956Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-35671689a2bdea0693ea",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 606,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:49.646Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-23a9c23cc2510d322d57",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 622,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:50.266Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-c10d095ab0288448815e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 693,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:50.902Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-c2b9ee6255229a56d738",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 580,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:51.610Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-4380729cfd9d4ae9867a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 562,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:52.201Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-4e87f0b72d8248d19948",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 576,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:52.774Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f3e16018062e069a0eb8",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 645,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:53.362Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-b2bc9fae04d4183f3fd4",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 603,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:54.022Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-396d1f4a30d1ea554df4",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 752,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:54.638Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-64e2511150cd3764484f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 563,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:55.402Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-206f331b789ddd28bd96",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 567,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:55.979Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-002a9e4e48df390839b8",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1024 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 582,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:56.559Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e92ddc5f02cfed35e84e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 / layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1158,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:57.153Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-0903ae35903273bcdebb",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /today layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 599,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:58.324Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-d365f105eea18e464310",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /live layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 624,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:58.933Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f9d9dceb7d78826813d6",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /tournaments layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 648,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:57:59.569Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e2388dd66ff7ed92973a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /players layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 590,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:00.229Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-26bb8161cc1851fd8272",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /courses layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:00.833Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f7a33805d2b20255e6bc",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /rankings layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 621,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:01.419Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-d9f6fb504032b3842810",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 617,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:02.055Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-9f7c15414e479351a2f6",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /pbecast layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 715,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:02.686Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-abd08c2ea63789f20162",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /news layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 605,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:03.411Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-e695af2ffbbad16d347f",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /intelligence layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 620,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:04.027Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-c40f23759a8244668b97",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /all-access layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 663,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:04.660Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-eeb94da12d33aa084c21",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/masters layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 665,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:05.339Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-35de583683288705a9bd",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/pga-championship layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 582,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:06.016Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-efd982adc2593681604a",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/us-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 662,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:06.610Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-85610fa8e94d6da0e75e",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/the-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 634,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:07.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-38ac8253142bb2176110",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/chevron layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:07.934Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-03624b28835cc4a27614",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/us-womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:08.566Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-ce03fe8b5a3d3bb53cd0",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/womens-pga layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 658,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:09.251Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-1a63ad2f27bdb3ab78f2",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/evian layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 629,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:09.924Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-71896f78a84716256db7",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "1440 /majors/womens-open layout/accessibility/console",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 711,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:10.566Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-fdfcda1f9228d89b0cd1",
+          "file": "foundation.spec.js",
+          "line": 4,
+          "column": 26
+        },
+        {
+          "title": "mobile menu navigates and Escape restores focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 523,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:11.293Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-52acc17c0ce7ddc859a8",
+          "file": "foundation.spec.js",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "tour filter updates visible coverage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 453,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:11.831Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-f18d6bcaa39f4f040b69",
+          "file": "foundation.spec.js",
+          "line": 15,
+          "column": 1
+        },
+        {
+          "title": "All Access links existing network product",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 205,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:12.299Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-afe0143d05e1092c5b7f",
+          "file": "foundation.spec.js",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "built shell works without JavaScript and first response metadata",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 191,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-30T19:58:12.532Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "789d2deceed3445544d6-8922075a61a795d50bf1",
+          "file": "foundation.spec.js",
+          "line": 17,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-30T19:56:30.240Z",
+    "duration": 103219.994,
+    "expected": 151,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

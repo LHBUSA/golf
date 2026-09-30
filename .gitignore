@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env*
+!.env.example
+.wrangler/
+.raw/
+test-results/
+playwright-report/
+
+supabase/.temp/

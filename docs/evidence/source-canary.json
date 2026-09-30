@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-30T16:06:56.962Z",
+  "mode": "metadata_only",
+  "requests": [
+    {
+      "id": "wikidata",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q1.json",
+      "status": 200,
+      "bytes": 214841,
+      "sha256": "6fc3c63e6917ee3774cf1aa03641085ce02c4abcbbc9cb28d4ae3e9daed2b7b4",
+      "result": "reachable_metadata",
+      "data_ingested": false
+    },
+    {
+      "id": "commons",
+      "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&meta=siteinfo&siprop=general",
+      "status": 200,
+      "bytes": 3862,
+      "sha256": "6f28a7ef81f02de1dea9e13d92087263bc4bd1d244edddcc64069da39d1e7090",
+      "result": "reachable_metadata",
+      "data_ingested": false
+    }
+  ]
+}
