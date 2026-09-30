@@ -21,7 +21,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "masters",
@@ -42,7 +43,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "pga-america",
@@ -63,7 +65,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "usga",
@@ -84,7 +87,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "randa",
@@ -105,7 +109,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "dpworld",
@@ -126,7 +131,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "ryder",
@@ -147,7 +153,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "presidents",
@@ -168,7 +175,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "lpga",
@@ -189,7 +197,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "chevron",
@@ -210,7 +219,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "evian",
@@ -231,7 +241,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "womens-pga",
@@ -252,7 +263,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "womens-open",
@@ -273,7 +285,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "owgr",
@@ -294,7 +307,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "rolex",
@@ -315,7 +329,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "fedex",
@@ -336,7 +351,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "race-dubai",
@@ -357,7 +373,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "cme",
@@ -378,7 +395,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "wikidata",
@@ -399,7 +417,8 @@
       "attribution": "Voluntary provenance credit; asset licence governs",
       "refresh_cadence": "Manual canary now; proposed weekly metadata refresh after review",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "commons",
@@ -420,7 +439,8 @@
       "attribution": "Per-file author and licence; mandatory where required",
       "refresh_cadence": "Manual canary now; proposed weekly metadata refresh after review",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "polyhaven",
@@ -441,7 +461,8 @@
       "attribution": "Voluntary provenance credit; asset licence governs",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "government",
@@ -462,7 +483,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "espn",
@@ -483,7 +505,8 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     },
     {
       "id": "datagolf",
@@ -504,7 +527,14 @@
       "attribution": "Attribution alone does not grant reuse rights",
       "refresh_cadence": "Disabled; negotiated/documented cadence required",
       "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version."
+      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
+      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
     }
-  ]
+  ],
+  "owner_approval": {
+    "statement": "all sources approved",
+    "recorded_at": "2026-09-30",
+    "scope": "Owner authorization to pursue evaluation and source-owner permission/licensing discussions for every registered candidate.",
+    "limitation": "Does not alter a candidate source’s audited operational verdict, create third-party permission, grant a licence, clear access controls, authorize paid purchases/contracts, or authorize ingestion. Existing 401/403/challenge barriers remain stop conditions."
+  }
 }

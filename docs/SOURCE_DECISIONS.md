@@ -1,5 +1,7 @@
 # Source decisions — 2026-09-30
 
+OWNER APPROVAL (2026-09-30): The owner stated “all sources approved.” This is recorded in `data/source-registry/sources.json` as authorization to pursue evaluation and permission/licensing discussions for every candidate. It does not change third-party access, copyright, contract terms, or the audited operational verdict. Ingestion remains disabled for HOLD, REJECT, and OWNER DECISION sources; 401/403/challenge barriers remain hard stops, and no paid purchase or agreement is authorized by this statement alone.
+
 APPROVED: Wikidata structured CC0 metadata through documented access, references/identity reviewed; Commons metadata discovery with individual photo gating; Poly Haven documented CC0 photographic assets by manual download. None is a live scoring feed.
 
 REJECT: OWGR website ingestion. [Terms](https://www.owgr.com/terms-and-conditions) expressly prohibit scraping/data mining and reserve reproduction. No ranking endpoint probes. A future written licensed alternative is a separate owner-reviewed source.
