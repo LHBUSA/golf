@@ -17,10 +17,12 @@ export function articleSlug(p){
   case 'major_history':return slugify(`${ev} history ${yr}`);
   case 'player_form':return slugify(`${v('player')} form ${yr} ${ev}`);
   case 'course_intelligence':return slugify(`${v('course')} course dna ${yr} ${ev}`);
+  case 'play_suspended':return slugify(`${yr} ${ev} ${v('round_word')} round play suspended`);
+  case 'playoff':return slugify(`${yr} ${ev} playoff`);
   default:return slugify(p.topic);
  }
 }
-const QUICK={final:['winner','to_par','total','margin','runner_up','course'],preview:['start_day','course','par','yards','purse','field_size','defending'],round_recap:['leaders','lead_score','lead_margin','round_average','low_round'],notable_round:['player','round_strokes','round_to_par','vs_field','birdies'],cut:['cut_line','made_cut','missed_major_champions'],course_weather:['max_gust','max_rain','max_temp','forecast_point','forecast_issued'],major_history:['editions_in_record','last_champions'],player_form:['player','recent_top10','recent_starts','form_vs_field'],course_intelligence:['dna_editions','difficulty','difficulty_pct','spread']};
+const QUICK={final:['winner','to_par','total','margin','runner_up','course'],preview:['start_day','course','par','yards','purse','field_size','defending'],round_recap:['leaders','lead_score','lead_margin','round_average','low_round'],notable_round:['player','round_strokes','round_to_par','vs_field','birdies'],cut:['cut_line','made_cut','missed_major_champions'],course_weather:['max_gust','max_rain','max_temp','forecast_point','forecast_issued'],major_history:['editions_in_record','last_champions'],player_form:['player','recent_top10','recent_starts','form_vs_field'],course_intelligence:['dna_editions','difficulty','difficulty_pct','spread'],play_suspended:['leaders','lead_score','snapshot_time'],playoff:['playoff_players','playoff_score']};
 const METHOD={
  final:'Facts are frozen from the published final leaderboard and round scores. Margin, comeback position and hole difficulty are computed from those scores; career counts cover events in our record.',
  preview:'Facts are frozen from the published schedule, field and tournament history in our record. Field form is strokes per round against the field over recent full-field events.',
@@ -30,7 +32,9 @@ const METHOD={
  course_weather:'Hourly NOAA National Weather Service forecast summarized over 7am–7pm local time on tournament days. A forecast, not observed conditions.',
  major_history:'Champions are those recorded in our tournament history; earlier editions may be missing from the record.',
  player_form:'Form is the player’s most recent full-field starts in our record and strokes per round against the field.',
- course_intelligence:'Course DNA aggregates full-field editions at this course in our record.'};
+ course_intelligence:'Course DNA aggregates full-field editions at this course in our record.',
+ play_suspended:'Status and scores from the ESPN live scoring snapshot at the time shown.',
+ playoff:'Players and scores from the ESPN live scoring snapshot.'};
 // Chart order: the writer's intents first (validated), then any packet chart the type always shows.
 const ALWAYS={final:['leaderboard'],round_recap:['leaderboard'],preview:['past_winners'],course_weather:['weather'],cut:['leaderboard'],notable_round:['scorecard'],major_history:['past_winners'],player_form:['player_form'],course_intelligence:['course_dna']};
 export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior=null,now=new Date().toISOString(),status='published'}){

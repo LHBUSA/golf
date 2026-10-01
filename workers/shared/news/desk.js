@@ -65,6 +65,16 @@ export function deskDraft(p){
   d.dek=`Measured across {f:dna_editions} full-field editions in our record.`;
   d.sections.push(S('Scoring',has('difficulty')?`Across {f:dna_editions} full-field editions, the field has averaged {f:difficulty} strokes to par per round at ${course}.`:null,has('difficulty_pct')?'That ranks in the {f:difficulty_pct} for difficulty among measured courses.':null,has('spread')?'Round scores spread by {f:spread} strokes (standard deviation).':null));
   d.seo_title=`{f:course} Course DNA`;d.social_headline=`How {f:course} plays`;
+ }else if(p.type==='play_suspended'){
+  d.headline=`Play suspended in the {f:round_word} round of the {f:event}`;
+  d.dek=`ESPN reports play suspended${course?` at ${course}`:''}.${has('leaders')?' {f:leaders} led at {f:lead_score} when play stopped.':''}`;
+  d.sections.push(S('Where things stand',`Play in the {f:round_word} round of ${event} is suspended in the ESPN scoring feed.`,has('leaders')?'At the stoppage, {f:leaders} led at {f:lead_score}.':null,'Scores are as of {f:snapshot_time}.'));
+  d.seo_title=`{f:event}: play suspended in the {f:round_word} round`;d.social_headline=`Play suspended at the {f:event}`;
+ }else if(p.type==='playoff'){
+  d.headline=`{f:playoff_players} head to a playoff at the {f:event}`;
+  d.dek=`{f:playoff_players} finished regulation tied${has('playoff_score')?' at {f:playoff_score}':''}.`;
+  d.sections.push(S('Tied after regulation',`${event} goes to a playoff between {f:playoff_players}${has('playoff_score')?', tied at {f:playoff_score}':''}.`,course?`The playoff is at ${course}.`:null));
+  d.seo_title=`{f:event} playoff: {f:playoff_players}`;d.social_headline=`Playoff at the {f:event}`;
  }else return null;
  d.seo_description=d.dek;
  return d;

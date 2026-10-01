@@ -45,7 +45,7 @@ export function validateDraft(packet,draft,{resolve=()=>'/'}={}){
  const subjects=[packet.entities.find(x=>x.key==='p1')?.name,packet.facts.find(f=>f.id==='event')?.display,packet.facts.find(f=>f.id==='course')?.display].filter(Boolean);
  if(subjects.length&&!subjects.some(n=>hl.includes(n)))reasons.push('headline_missing_subject');
  const words=(draft.sections||[]).flatMap(s=>s.paragraphs).map(p=>plain(segments(p,packet,resolve,{links:false}))).join(' ').split(/\s+/).filter(Boolean).length;
- if(words<35)reasons.push('too_short:'+words);if(words>1400)reasons.push('too_long:'+words);
+ const minWords={play_suspended:15,playoff:15}[packet.type]??35;if(words<minWords)reasons.push('too_short:'+words);if(words>1400)reasons.push('too_long:'+words);
  return {ok:!reasons.length,reasons:[...new Set(reasons)],facts_used:[...used],words};
 }
 // Entity hrefs are owned by the application.

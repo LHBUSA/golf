@@ -11,7 +11,7 @@ const f1=v=>Number(v).toFixed(1);
 // ---------------------------------------------------------------- charts
 function leaderboard(c){
  const n=c.rounds||Math.max(...c.rows.map(r=>r.rounds.length));
- return `<div class="table-wrap" tabindex="0" role="region" aria-label="${e(c.title)}"><table class="index-table story-board"><caption>${e(c.title)}</caption><thead><tr><th scope="col">Pos</th><th scope="col">Player</th><th scope="col" class="num">To par</th>${Array.from({length:n},(_,i)=>`<th scope="col" class="num">R${i+1}</th>`).join('')}</tr></thead><tbody>${c.rows.map(r=>`<tr><td>${e(r.pos)}</td><th scope="row">${a('/player/'+r.slug,r.name)}</th><td class="num">${e(toPar(r.to_par))}</td>${Array.from({length:n},(_,i)=>`<td class="num">${e(r.rounds[i]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ return `<div class="table-wrap" tabindex="0" role="region" aria-label="${e(c.title)}"><table class="index-table story-board"><caption>${e(c.title)}</caption><thead><tr><th scope="col">Pos</th><th scope="col">Player</th><th scope="col" class="num">To par</th>${Array.from({length:n},(_,i)=>`<th scope="col" class="num">R${i+1}</th>`).join('')}</tr></thead><tbody>${c.rows.map(r=>`<tr><td>${e(r.pos)}</td><th scope="row">${r.slug?a('/player/'+r.slug,r.name):e(r.name)}</th><td class="num">${e(toPar(r.to_par))}</td>${Array.from({length:n},(_,i)=>`<td class="num">${e(r.rounds[i]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 function progress(c){
  const s=c.series.filter(x=>x.points.length>=2);if(!s.length)return '';

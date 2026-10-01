@@ -1,7 +1,8 @@
 // Golf Newsroom V4 story types. Each type: detect(ctx) -> candidates, build(ctx, cand) -> Packet (unfrozen).
 // Materiality is deterministic and scored from facts; there is no quota and no filler.
 import {Packet,toParWords,toParShort,posWords,list,dayName,addDays,roundWord,ORD} from './facts.js';
-import {roundsComplete,standingsAfter,roundStats,holeDifficulty,weatherDays,r1,mean} from './golf-math.js';
+import {roundsComplete,standingsAfter,roundStats,holeDifficulty,weatherDays,r1,mean,boardFromSnapshot} from './golf-math.js';
+import {liveState,toParText} from '../live.js';
 const MIN_MATERIAL=3;
 export const THRESHOLD=MIN_MATERIAL;
 const nameOf=ed=>ed.tournament?.name||ed.name.replace(/^\d{4}\s+/,'');
@@ -52,10 +53,13 @@ export const TYPES={
  // ---------------------------------------------------------------- ROUND RECAPS (R1-R3)
  round_recap:{label:'Round recap',category:'ROUND RECAP',
   detect(ctx){return ctx.window.filter(e=>e.status!=='completed'&&e.starts_on&&daysBetween(e.starts_on,ctx.today)>=0&&daysBetween(ctx.today,e.ends_on||e.starts_on)>=-1).map(e=>({type:'round_recap',topic:null,edition:e.slug}));},
-  async build(ctx,c){const ed=await ctx.ed(c.edition);if(!ed||ed.status==='completed')return null;const n=roundsComplete(ed.leaderboard);if(n<1||n>3)return null;
+  async build(ctx,c){const ed0=await ctx.ed(c.edition);if(!ed0||ed0.status==='completed')return null;
+   // The live ESPN snapshot is fresher than the projection; use it when it has more completed rounds.
+   const snap=ctx.live?await ctx.live(c.edition):null,lb=boardFromSnapshot(snap),useLive=roundsComplete(lb)>roundsComplete(ed0.leaderboard);
+   const ed=useLive?{...ed0,leaderboard:lb}:ed0;const n=roundsComplete(ed.leaderboard);if(n<1||n>3)return null;
    // Recaps are timely: only within a day of the round's scheduled date.
    if(ed.starts_on&&daysBetween(addDays(ed.starts_on,n-1),ctx.today)>1)return null;
-   const P=new Packet({type:'round_recap',topic:`round:${ed.slug}:${n}`,as_of:ctx.as_of,source:sourceOf(ed),capture:ed.provenance?.id});editionFacts(P,ed);P.context.round=n;
+   const P=new Packet({type:'round_recap',topic:`round:${ed.slug}:${n}`,as_of:ctx.as_of,source:useLive?'ESPN (live scoring snapshot)':sourceOf(ed),capture:useLive?snap.capture_id||null:ed.provenance?.id});editionFacts(P,ed);P.context.round=n;P.context.live_snapshot=useLive?snap.fetched_at:null;
    const st=standingsAfter(ed.leaderboard,n);if(st.length<20)return null;const leaders=st.filter(s=>s.position===1);
    P.fact('round_word',roundWord(n),null,'Round');P.fact('round_number',n,String(n),'Round number');
    P.fact('leaders',leaders.map(s=>s.player.name),list(leaders.map(s=>s.player.name)),leaders.length>1?'Co-leaders':'Leader');
@@ -192,6 +196,26 @@ export const TYPES={
    P.chart('course_dna',{type:'course_dna',title:`${co.name} Course DNA`,course:{name:co.name,slug:co.slug},dimensions:(dna.dimensions||[]).filter(d=>d.value!==null).map(d=>({code:d.code,label:d.label,value:d.value,unit:d.unit,percentile:d.percentile,confidence:d.confidence}))});
    P.material(3,'measured course DNA');
    P.limit('Course DNA is measured from full-field editions in our record; setups can change year to year.');
+   return P;}},
+ // ---------------------------------------------------------------- LIVE SIGNALS (from ESPN snapshots)
+ play_suspended:{label:'Play suspended',category:'LIVE',
+  detect(ctx){return ctx.window.filter(e=>e.status!=='completed').map(e=>({type:'play_suspended',topic:null,edition:e.slug}));},
+  async build(ctx,c){const snap=ctx.live?await ctx.live(c.edition):null;if(!snap)return null;const st=liveState(snap,ctx.now?Date.parse(ctx.now):Date.now());if(st.state!=='suspended')return null;
+   const ed=await ctx.ed(c.edition);if(!ed)return null;
+   const P=new Packet({type:'play_suspended',topic:`suspended:${ed.slug}:${st.round}`,as_of:ctx.as_of,source:'ESPN (live scoring snapshot)',capture:snap.capture_id||null});editionFacts(P,ed);
+   P.fact('round_word',roundWord(st.round),null,'Round');
+   const lead=snap.players.filter(p=>p.status==='active'&&p.position_num===1);if(lead.length){P.fact('leaders',lead.map(p=>p.name),list(lead.map(p=>p.name)),'Leading at the suspension');P.fact('lead_score',lead[0].total_to_par,toParText(lead[0].total_to_par),'Leading score');lead.slice(0,3).forEach((p,i)=>p.slug&&P.entity('p'+(i+1),'player',p.slug,p.name));}
+   P.fact('snapshot_time',snap.fetched_at,new Date(snap.fetched_at).toUTCString().replace(' GMT',' UTC'),'Scoring snapshot');
+   P.material(3,'play suspended');P.limit('The suspension reason is not part of the scoring feed; we do not speculate about it.');
+   return P;}},
+ playoff:{label:'Playoff',category:'LIVE',
+  detect(ctx){return [...ctx.window,...ctx.recent].filter(e=>e.ends_on&&daysBetween(e.ends_on,ctx.today)<=1&&daysBetween(e.ends_on,ctx.today)>=0).map(e=>({type:'playoff',topic:'playoff:'+e.slug,edition:e.slug}));},
+  async build(ctx,c){const snap=ctx.live?await ctx.live(c.edition):null;const pp=(snap?.players||[]).filter(p=>p.playoff===true);if(pp.length<2)return null;const ed=await ctx.ed(c.edition);if(!ed)return null;
+   const P=new Packet({type:'playoff',topic:c.topic,as_of:ctx.as_of,source:'ESPN (live scoring snapshot)',capture:snap.capture_id||null});editionFacts(P,ed);
+   P.fact('playoff_players',pp.map(p=>p.name),list(pp.map(p=>p.name)),'Players in the playoff');P.fact('playoff_count',pp.length,String(pp.length),'Players in the playoff',{unit:'players'});
+   if(pp[0].total_to_par!==null)P.fact('playoff_score',pp[0].total_to_par,toParWords(pp[0].total_to_par),'Score after regulation');
+   pp.slice(0,4).forEach((p,i)=>p.slug&&P.entity('p'+(i+1),'player',p.slug,p.name));
+   P.material(4,'playoff');P.limit('Playoff hole results appear when ESPN posts them; the final story records the winner.');
    return P;}},
  // ---------------------------------------------------------------- VERIFIED-ONLY TYPES (sources on hold)
  equipment_change:{label:'Equipment change',category:'EQUIPMENT',verified_only:true,detect(){return [];},async build(){return null;}},
