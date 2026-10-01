@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-01T18:39:03.121Z",
+ "as_of": "2026-10-01T18:51:59.378Z",
  "coverage": {
   "players": 1786,
   "players_with_results": 1786,
@@ -70,9 +70,9 @@
   "eligible_women": 27,
   "tiers": {
    "men:MEDIUM": 60,
-   "women:INSUFFICIENT": 163,
-   "men:INSUFFICIENT": 161,
    "women:LIMITED": 27,
+   "men:INSUFFICIENT": 161,
+   "women:INSUFFICIENT": 163,
    "men:LIMITED": 80
   },
   "dimensions_live": 8,

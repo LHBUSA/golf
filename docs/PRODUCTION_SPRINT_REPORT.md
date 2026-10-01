@@ -1,3 +1,54 @@
+# Golf Phase 2 — product depth (2026-10-01)
+
+Owner decisions this sprint: Wikipedia CC BY-SA 4.0 approved as a results source; Wikimedia Commons CC BY / CC BY-SA photographs approved with attribution. No paid source, licence purchase, Stripe product or billing change. PGA TOUR (403), OWGR (scraping banned), ESPN, LPGA site and Data Golf untouched.
+
+## Production
+
+| Component | Version | Rollback |
+|---|---|---|
+| main | final commit of this sprint (see git log) | 136f16b |
+| Vercel `golf` | production deployment of final main (786d3fe = dpl_9VwDinnNosxqKg6PPc86SJhBPndS verified 158/158) | dpl_2esZmJj7uHEQrGAYSuZes9sZzUBJ (136f16b) |
+| golf-api | 80cfc31a-25c6-4211-9d09-8cfb66075122 | 20f3cc91-95d2-4430-982d-fd8673d57f8a |
+| golf-ingest (cron */10) | 00e6048b-e764-4ca0-8316-da5d5ba57572 | 8d9ccf92-20b2-4e37-87a3-4fa3b3126bc3 (manual-only bootstrap) |
+| golf-news (PUBLISH_ENABLED, manual runs) | 2055a4bd-840d-4725-91ac-b9f8bc1a50fb | 1724136b-690b-4165-8bab-6d8af3c43869 |
+
+New resources: KV `golf-state` (734f4f363026466da1f505da5f338dfc), R2 `golf-public` (projection, derivatives, news). SPORTS rows are append/update with ledger; nothing destructive to roll back. To stop ingestion set `golf_sources.automated_access=false` for a source (each lane checks before claiming its lease).
+
+## Data (projection 2026-10-01 18:51 UTC)
+
+| Measure | Before | Now |
+|---|---:|---:|
+| Players (verified Wikidata humans in golf) | 9 | 1,786 |
+| Tournaments (series) | 6 | 115 |
+| Editions | 8 | 997 (763 championship editions 1860–2026 + 234 PGA TOUR/LPGA 2024–26 schedule events) |
+| Leaderboards | 0 | 247 (100 full field; men 130 / 91, women 117 / 9) |
+| Results (finishes) | 8 | 15,327 |
+| Player rounds | 0 | 44,447 |
+| Hole scores (validated final-round cards) | 0 | 17,190 |
+| Courses / venues | 4 | 151; 235 versioned championship setups |
+| Men's majors / women's majors editions | 4 / 4 | 479 / 235 (leaderboards for every major 2000–2026: 107 men, 117 women) |
+| Photos (rights-approved, displayed) | 0 | 712 players + 60 courses |
+| Published stories | 0 | 2 (2026 Open; 2026 Women's British Open) |
+
+Player media coverage: 39.9% of all 1,786 players; top-50 active men 70%, top-50 active women 64%, major champions 71.1% (of 360), 2026 leaderboard fields 45.5% (257 players), prominent players (home, recent winners, featured matchups) 67.3% — below the 80% soft target because Wikidata P18 images do not exist for the rest; every other player gets the identity treatment. Course media 39.7%; recent major venues 12/19.
+
+Player DNA (Results DNA): 8 dimensions live, 13 held (shot statistics and par-type scoring have no approved source). Eligible (Limited+ confidence, 24 months): men 140 (Medium 60, Limited 80), women 27 (Limited 27). No player reaches High in 24 months because majors + The Players supply about 40 rounds at most; regular PGA TOUR/LPGA events in 2024–26 mostly have no per-event Wikipedia article (82+ verified missing), and women have only 9 full-field leaderboards. Course DNA: 13 courses with ≥2 full-field editions (percentiles), 36 with ≥1. Course Fit: 208 player×course pairs, components only, overall score not published.
+
+Current events: PGA TOUR and LPGA 2024–2026 schedules (dates, locations, champions) refresh every 6 h; 12 upcoming events listed; status labels come from schedule dates only. Live scoring, tee times, groups, shot data and rankings: unavailable, shown as explicit unavailable states.
+
+## Known gaps and holds
+
+- `golf_write_batch` allowlist migration (rounds/scorecards/holes/media through the transactional RPC) prepared but NOT applied: the Management API path requires a credential the agent was not permitted to read. Those tables use the JS writer with the same comparison and ledger. Owner can apply when convenient.
+- 5 historical edition articles hit timeouts and retry automatically; 2 held (no leaderboard table), 2 Tour Championship articles held (article winner ≠ schedule winner), rows whose published rounds do not sum are held (finish kept).
+- Real subscriber / revoked-session production proof: still unavailable (accepted gap). Signed-out and invalid-session premium requests return 403 with no data (verified in production).
+- propbetedge.ai home does not link Golf (read-only check). Cross-repo task for the network home, not changed here.
+
+## QA
+
+Unit 92/92 (parsers on CC BY-SA fixtures, planners, writer, DNA tiers/cohorts/time safety, views, news gates, access, source safety). Production browser 158/158 at 320/360/390/430/768/1024/1440: axe WCAG 2.1 AA, no overflow, no console errors, no broken images, no inline styles (CSP), menu/filters/search/matchup canonicalization/PBEcast/no-JS/premium denial/links/SEO. Coverage evidence: `docs/evidence/phase2-coverage.json`.
+
+---
+
 # Golf production sprint — 2026-10-01
 
 The sprint implemented real canonical storage, ingestion, public APIs, populated static pages with progressive canonical refresh, network All Access registration, observed PBEcast archive context and a held newsroom pipeline. This is a real metadata and selected major-history product. It is not accepted as a complete live golf product: no permitted current schedule/scoring feed or comparable statistical sample has been established.

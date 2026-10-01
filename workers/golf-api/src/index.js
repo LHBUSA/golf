@@ -71,8 +71,8 @@ export default {
      const d=await doc(env,'editions/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const e=publicEdition(d);
      const cov={coverage:e.coverage,rows_listed:e.results_source?.rows_listed??null,rows_stored:e.results_source?.rows_stored??null,field_complete:e.coverage==='full_field'},src={source:e.results_source?`Wikipedia (CC BY-SA 4.0): ${e.results_source.attribution}`:'Wikidata (CC0)',provenance:e.provenance};
      if(!sub)return ok(e,{...src,coverage:cov});
-     if(sub==='leaderboard'||sub==='field'){if(!e.leaderboard.length)return json(unavailable(ix,e.coverage==='winner_only'?'winner_only_history':'leaderboard_not_published_in_source',{coverage:cov}),200,PUBLIC_CACHE);return ok(sub==='field'?e.leaderboard.map(r=>({player:r.player,status:r.status})):e.leaderboard,{...src,coverage:cov});}
-     if(sub==='rounds'){const rows=e.leaderboard.filter(r=>r.rounds.length);if(!rows.length)return json(unavailable(ix,'round_scores_not_available',{coverage:cov}),200,PUBLIC_CACHE);return ok({rounds:rows.map(r=>({player:r.player,rounds:r.rounds,holes:r.holes})),timeline:e.timeline,par:e.par,layout:e.layout},{...src,coverage:cov});}
+     if(sub==='leaderboard'||sub==='field'){if(!e.leaderboard.length||['winner_only','schedule_only'].includes(e.coverage))return json(unavailable(ix,e.coverage==='winner_only'?'winner_only_history':'leaderboard_not_published_in_source',{coverage:cov}),200,PUBLIC_CACHE);return ok(sub==='field'?e.leaderboard.map(r=>({player:r.player,status:r.status})):e.leaderboard,{...src,coverage:cov});}
+     if(sub==='rounds'){const rows=['winner_only','schedule_only'].includes(e.coverage)?[]:e.leaderboard.filter(r=>r.rounds.length);if(!rows.length)return json(unavailable(ix,'round_scores_not_available',{coverage:cov}),200,PUBLIC_CACHE);return ok({rounds:rows.map(r=>({player:r.player,rounds:r.rounds,holes:r.holes})),timeline:e.timeline,par:e.par,layout:e.layout},{...src,coverage:cov});}
      if(sub==='history')return ok(e.past_editions,{coverage:{editions:e.past_editions.length}});
      return json({error:'not_found'},404);
     }
