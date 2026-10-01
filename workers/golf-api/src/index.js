@@ -1,8 +1,13 @@
 import {golfAccess} from '../../shared/access.js';
+import {publicEvent,orderEvents,FRESH_SECONDS,STALE_SECONDS} from '../../shared/live.js';
+import {renderNews,feed,newsSitemap,newsUrlset,newsIndex} from './news-ssr.js';
+// The card renderer (wasm + fonts) loads only for /og requests.
+const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
 import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
+const LIVE_CACHE='public, max-age=60, s-maxage=60';
 const json=(body,status=200,cache='no-store')=>Response.json(body,{status,headers:headers(cache)});
 const PUBLIC_CACHE='public, max-age=120, s-maxage=300';
 let memo={at:0,index:null};
@@ -13,7 +18,7 @@ function envelope(ix,data,{availability='available',coverage=null,reason=null,so
  return {data,availability,reason,source:source||ix?.sources?.map(s=>s.name+' ('+s.licence+')').join('; ')||null,as_of:ix?.as_of||null,source_age_seconds:age,stale:age===null||age>2*86400,coverage:coverage||ix?.coverage||null,provenance,method,contract_version:CONTRACT};
 }
 const unavailable=(ix,reason,extra={})=>envelope(ix,null,{availability:'unavailable',reason,...extra});
-const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish']);
+const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost']);
 export default {
  async fetch(request,env={}){
   const url=new URL(request.url),path=url.pathname;
@@ -27,8 +32,8 @@ export default {
   if(request.method!=='GET'&&request.method!=='HEAD')return json({error:'method_not_allowed'},405);
   if(path==='/v1/membership'){const access=await golfAccess(request,env);return json({membership:access.membership,verification:access.reason});}
   // Media derivatives: content-addressed, rights-reviewed images only.
-  const m=path.match(/^\/v1\/media\/([0-9a-f]{64})\/(160|320|640|960)\.(avif|webp)$/);
-  if(m){const o=await env.PUBLIC?.get(`media/${m[1]}/${m[2]}.${m[3]}`);if(!o)return json({error:'not_found'},404);return new Response(o.body,{headers:{'content-type':m[3]==='avif'?'image/avif':'image/webp','cache-control':'public, max-age=31536000, immutable','x-content-type-options':'nosniff'}});}
+  const m=path.match(/^\/v1\/media\/([0-9a-f]{64})\/(160|320|640|960)\.(avif|webp|jpg)$/);
+  if(m){const o=await env.PUBLIC?.get(`media/${m[1]}/${m[2]}.${m[3]}`);if(!o)return json({error:'not_found'},404);return new Response(o.body,{headers:{'content-type':m[3]==='avif'?'image/avif':m[3]==='jpg'?'image/jpeg':'image/webp','cache-control':'public, max-age=31536000, immutable','x-content-type-options':'nosniff'}});}
   const parts=path.replace(/^\/v1\//,'').split('/').filter(Boolean);
   // Premium intelligence: authorization before any read.
   if(parts[0]==='intelligence'){
@@ -47,7 +52,13 @@ export default {
    return json({...envelope(ix,data,{method:ix.methods}),membership:access.membership});
   }
   const ix=await index(env);
-  if(path==='/health')return json({ok:Boolean(ix),mode:'production_projection',contract:CONTRACT,as_of:ix?.as_of||null,coverage:ix?.coverage||null,live_scoring:false},ix?200:503);
+  // Server-rendered newsroom and feeds (proxied by the frontend for /news, /feed.xml and news sitemaps).
+  {const og=path.match(/^\/og\/([a-z]+)\/([a-z0-9-]+)\.png$/);if(og){try{return await ogImage(env,og[1],og[2]);}catch(e){console.error(JSON.stringify({worker:'golf-api',og_error:e.message}));return new Response('Card unavailable',{status:503,headers:{'retry-after':'60'}});}}}
+  if(path==='/feed.xml')return feed(env);
+  if(path==='/news-sitemap.xml')return newsSitemap(env);
+  if(path==='/sitemaps/news.xml')return newsUrlset(env);
+  if(path==='/render/news'||/^\/render\/news\/[a-z0-9-]+$/.test(path)){if(!ix)return new Response('Service unavailable',{status:503});try{return await renderNews(env,ix,path.replace(/^\/render/,''));}catch(e){console.error(JSON.stringify({worker:'golf-api',ssr_error:e.message}));return new Response('Service unavailable',{status:503,headers:{'retry-after':'60'}});}}
+  if(path==='/health')return json({ok:Boolean(ix),mode:'production_projection',contract:CONTRACT,as_of:ix?.as_of||null,coverage:ix?.coverage||null,live_scoring:'espn-core-observed'},ix?200:503);
   if(!ix)return json(unavailable(null,'projection_unavailable'),503);
   const [col,id,sub]=parts;
   const ok=(data,opts)=>json(envelope(ix,data,opts),200,PUBLIC_CACHE);
@@ -61,10 +72,27 @@ export default {
     }
     case 'graph':return ok({as_of:ix.as_of,coverage:ix.coverage,source_state:ix.source_state});
     case 'source-health':{const r=env.INGEST?.fetch?await env.INGEST.fetch('https://golf-internal/health').then(r=>r.json()).catch(()=>null):null;return json(envelope(ix,r||{source_state:ix.source_state},{availability:r?'available':'partial'}));}
-    case 'today':return ok({current:ix.current,upcoming:ix.upcoming,recent:ix.recent},{availability:ix.current.length||ix.upcoming.length?'available':'partial',reason:'Status comes from published tour season schedules; live scoring is not connected.'});
-    case 'live':return json(envelope(ix,{in_progress_by_schedule:ix.current,leaderboards:null},{availability:'unavailable',reason:'approved_live_scoring_feed_not_established',coverage:{live_scoring:false,tee_times:false,hole_by_hole_live:false}}),200,PUBLIC_CACHE);
+    case 'today':return ok({current:ix.current,upcoming:ix.upcoming,recent:ix.recent},{availability:ix.current.length||ix.upcoming.length?'available':'partial',reason:'Schedule status from tour season schedules; observed scoring for current events is at /v1/live.'});
+    case 'live':{
+     // Observed ESPN scoring. State comes from the live contract: never from dates alone.
+     const cur=await env.PUBLIC.get('live/v1/current.json').then(o=>o?o.json():null).catch(()=>null);const now=Date.now();
+     if(id){const snap=await env.PUBLIC.get('live/v1/events/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);
+      if(sub==='movement'){const mv=await env.PUBLIC.get('live/v1/movement/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);return json({source:'ESPN Golf core API (observed snapshots)',edition:id,points:mv?.points||[]},200,LIVE_CACHE);}
+      if(!snap)return json({availability:'unavailable',edition:id,event:null},200,LIVE_CACHE);
+      const ev=publicEvent(snap,now),me=snap.players.filter(p=>p.holes?.length).map(p=>({slug:p.slug,name:p.name,round:p.current_round,holes:p.holes}));
+      // Weather join: the forecast hour covering now (NWS), with the forecast point's precision.
+      let weather_now=null;try{const w=await env.PUBLIC.get('weather/v1/forecast/'+snap.edition.id+'.json').then(o=>o?o.json():null);if(w?.hours?.length){const h=w.hours.filter(x=>Date.parse(x.t)<=now).at(-1);if(h&&now-Date.parse(h.t)<2*3600000)weather_now={...h,precision:w.precision||'venue',locality:w.locality?.label||null,issued:w.forecast_update_time||w.fetched_at,age_seconds:Math.round((now-Date.parse(w.fetched_at))/1000),source:w.source};}}catch{}
+      return json({availability:ev.state==='unavailable'?'unavailable':'available',source:'ESPN Golf core API',as_of:snap.fetched_at,freshness_seconds:ev.age_seconds,event:ev,hole_scores:me,weather_now},200,LIVE_CACHE);}
+     const who=url.searchParams.get('player');
+     if(who){for(const s of cur?.events||[]){const p=s.players.find(x=>x.slug===who);if(p){const ev=publicEvent(s,now);return json({availability:'available',source:'ESPN Golf core API',event:{...ev,leaderboard:[]},player:ev.leaderboard.find(x=>x.slug===who)},200,LIVE_CACHE);}}return json({availability:'unavailable',player:null},200,LIVE_CACHE);}
+     const events=orderEvents((cur?.events||[]).map(s=>publicEvent(s,now))).map(ev=>({...ev,leaderboard:ev.leaderboard.slice(0,Number(url.searchParams.get('top'))||10)}));
+     const fresh=events.filter(e=>['live','suspended','round_complete'].includes(e.state));
+     return json({availability:events.some(e=>e.state!=='unavailable')?'available':'unavailable',source:'ESPN Golf core API',as_of:cur?.as_of||null,freshness_seconds:fresh.length?Math.min(...fresh.map(e=>e.age_seconds)):null,contract:{fresh_seconds:FRESH_SECONDS,stale_seconds:STALE_SECONDS,live_requires:'ESPN in-progress status + posted scores + snapshot within fresh_seconds'},events},200,LIVE_CACHE);}
     case 'rankings':return json(unavailable(ix,'licensed_ranking_source_not_established',{coverage:{official_rankings:false,pbe_rating:'research only; not published'}}),200,PUBLIC_CACHE);
-    case 'news':{const o=await env.PUBLIC.get('news/v1/index.json');const n=o?JSON.parse(await o.text()):[];return ok(n,{availability:n.length?'available':'unavailable',reason:n.length?null:'no_story_has_passed_all_publication_gates'});}
+    case 'news':{
+     if(id){const o=await env.PUBLIC.get('news/v2/articles/'+id+'.json');const a=o?JSON.parse(await o.text()):null;if(!a||a.status!=='published')return json({error:'not_found'},404);return ok(a);}
+     const v2=await newsIndex(env);const o=await env.PUBLIC.get('news/v1/index.json');const v1=o?JSON.parse(await o.text()):[];
+     return ok(v2.length?v2:v1,{availability:v2.length||v1.length?'available':'unavailable',reason:v2.length||v1.length?null:'no_story_has_passed_all_publication_gates'});}
     case 'search':return ok(searchIndex(ix,url.searchParams.get('q')||'',Number(url.searchParams.get('limit'))||12));
     case 'tournaments':{
      if(!id){let rows=ix.editions;const d=url.searchParams.get('division'),major=url.searchParams.get('major'),year=url.searchParams.get('year'),series=url.searchParams.get('series');if(d)rows=rows.filter(r=>r.division===d);if(major)rows=rows.filter(r=>r.is_major===(major==='true'));if(year)rows=rows.filter(r=>String(r.year)===year);if(series)rows=rows.filter(r=>r.series_key===series);return ok(rows,{coverage:{editions:rows.length,with_leaderboards:rows.filter(r=>!['winner_only','schedule_only'].includes(r.coverage)).length}});}

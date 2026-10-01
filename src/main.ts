@@ -5,6 +5,8 @@ import {initAnalytics,track,pageType,destination} from './analytics.js';
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
 // @ts-ignore
 import {portrait,e} from './lib/ui.js';
+// @ts-ignore
+import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow} from './lib/live-ui.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -45,7 +47,7 @@ if(m&&$('[data-matchup-finder]')){const [a,b]=[m[1],m[2]].sort();if(a!==m[1])loc
 // PBEcast edition switching
 const castSel=$<HTMLSelectElement>('[data-cast-select]');
 function bindCast(){$<HTMLSelectElement>('[data-cast-select]')?.addEventListener('change',ev=>{const v=(ev.target as HTMLSelectElement).value;history.replaceState(null,'','/pbecast?tournament='+encodeURIComponent(v));loadCast(v);});}
-async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);bindCast();}}
+async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);bindCast();hydrateLive();}}
 if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournament');if(q&&q!==castSel.value)loadCast(q);}
 // Premium modules: values are requested only after server-side All Access verification.
 async function premium(){
@@ -68,7 +70,26 @@ if(location.pathname==='/all-access'){
 const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live};
 const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[location.pathname];
 if(stamp){fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).then(ix=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
- if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main)main.innerHTML=hub(ix);}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
+ if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
+
+// ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
+const LIVE_SHOWN=new Set(['live','stale','suspended','round_complete','pre','final']);
+async function hydrateLive(){
+ const hero=$('[data-live-hero]'),rails=$$('[data-live-rail]'),board=$('[data-live-board]'),pl=$('[data-live-player]'),cast=$('[data-live-cast]'),page=$('[data-live-page]');
+ const get=(q:string)=>api('live'+q).then(r=>r.ok?r.json():null).catch(()=>null);
+ if(hero||rails.length||page){const r=await get('?top=500');const events=(r?.events||[]).filter((x:any)=>LIVE_SHOWN.has(x.state));
+  if(events.length){
+   if(hero){const pref=hero.getAttribute('data-edition');const ev=events.find((x:any)=>x.state!=='final')||events[0];if(ev&&(ev.state!=='final'||ev.edition.slug===pref))hero.innerHTML=heroLive(ev);}
+   for(const rail of rails)rail.innerHTML=liveRail(events);
+   if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${liveBoard(ev,{limit:40})}</section>`).join('');
+  }}
+ if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const r=slug?await get('/'+encodeURIComponent(slug)):null;
+  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}`;}if(cast)cast.innerHTML=pbecastLive(r.event,r.hole_scores);}}
+ if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final')pl.innerHTML=playerLive(r.event,r.player);}
+}
+hydrateLive();
+// Keep live views current while visible (the API is cached for one minute at the edge).
+setInterval(()=>{if(document.visibilityState==='visible'&&$('[data-live-hero],[data-live-rail],[data-live-board],[data-live-player],[data-live-cast],[data-live-page]'))hydrateLive();},120000);
 // ---- Observational analytics (single GA4 instance; allowlisted, slug-only parameters)
 {
  const pt=pageType(location.pathname),parts=location.pathname.split('/').filter(Boolean);

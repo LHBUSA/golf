@@ -1,80 +1,122 @@
-import {store,stableId} from '../../shared/store.js';import {adminAllowed} from '../../shared/admin.js';import {freezePacket,validateDraft,renderDraft} from './pipeline.js';
+// Golf Newsroom V4. Source change -> materiality -> entities -> frozen packet -> editor -> gates -> plans -> publish or hold.
+// The packet owns truth. The model (when configured) writes tokenized prose only; the application renders values and links.
+import {store,stableId} from '../../shared/store.js';
+import {adminAllowed} from '../../shared/admin.js';
+import {TYPES,THRESHOLD} from '../../shared/news/types.js';
+import {changedFacts} from '../../shared/news/facts.js';
+import {deskDraft,DESK_VERSION} from '../../shared/news/desk.js';
+import {validateDraft,resolveHref,QUALITY_VERSION} from '../../shared/news/validate.js';
+import {editorialPass,EDITOR_VERSION} from '../../shared/news/editor.js';
+import {articleSlug,buildArticle,pickHero,summaryOf} from '../../shared/news/plan.js';
+export {buildStory} from './legacy.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
-const EDITORIAL='golf-final-desk/2.0.0',QUALITY='golf-gates/2.0.0';
-const toPar=v=>v===0?'even par':v<0?Math.abs(v)+' under par':v+' over par';
-const names=rows=>rows.map(r=>r.player?.name).filter(Boolean);
-const list=a=>a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' and '+a.at(-1);
-async function doc(env,key){const o=await env.PUBLIC.get('projection/v2/'+key);return o?JSON.parse(await o.text()):null;}
-// One material story per completed edition with a published leaderboard: the final result.
-export async function buildStory(ed){
- const board=ed.leaderboard||[],w=board.find(r=>r.winner);
- if(ed.status!=='completed'||!w?.player?.slug||['winner_only','schedule_only','none'].includes(ed.coverage))return {skip:'not_material'};
- const cap=ed.provenance?.id;if(!cap)return {skip:'no_capture'};
- const facts=[{id:'event',capture_id:cap,value:ed.name},{id:'championship',capture_id:cap,value:ed.tournament?.name||ed.name},{id:'winner',capture_id:cap,value:w.player.name}];
- if(ed.course)facts.push({id:'course',capture_id:cap,value:ed.course.name});
- if(Number.isInteger(w.strokes))facts.push({id:'total',capture_id:cap,value:w.strokes});
- if(Number.isInteger(w.to_par))facts.push({id:'to_par',capture_id:cap,value:w.to_par,display:toPar(w.to_par)});
- if(w.rounds?.length)facts.push({id:'winner_rounds',capture_id:cap,value:w.rounds.map(r=>r.strokes).join('-'),display:list(w.rounds.map(r=>String(r.strokes)))});
- const second=board.filter(r=>r.status==='finished'&&r.position===2);
- if(second.length)facts.push({id:'runner_up',capture_id:cap,value:list(names(second))});
- if(Number.isFinite(w.margin)&&w.margin>0)facts.push({id:'margin',capture_id:cap,value:w.margin,display:w.margin===1?'one stroke':w.margin+' strokes'});
- const t3=ed.timeline?.find(t=>t.after_round===3);if(t3)facts.push({id:'r3_leaders',capture_id:cap,value:list(t3.leaders.map(l=>l.name))});
- if(ed.results_source?.cut&&Number.isInteger(ed.results_source.cut.score_to_par))facts.push({id:'cut',capture_id:cap,value:ed.results_source.cut.score_to_par,display:toPar(ed.results_source.cut.score_to_par)});
- if(ed.results_source?.made_cut)facts.push({id:'made_cut',capture_id:cap,value:ed.results_source.made_cut});
- const has=id=>facts.some(f=>f.id===id);
- const paragraphs=[{kind:'fact_sentence',template:has('course')?'{winner} won the {event} at {course}.':'{winner} won the {event}.'}];
- if(has('total')&&has('to_par'))paragraphs.push({kind:'fact_sentence',template:'The winning total was {total}, {to_par}.'});
- if(has('winner_rounds'))paragraphs.push({kind:'fact_sentence',template:'{winner} posted rounds of {winner_rounds}.'});
- if(w.margin===0&&has('runner_up'))paragraphs.push({kind:'fact_sentence',template:'The title was decided in a playoff over {runner_up}.'});
- else if(has('margin')&&has('runner_up'))paragraphs.push({kind:'fact_sentence',template:'The margin over {runner_up} was {margin}.'});
- if(has('r3_leaders'))paragraphs.push({kind:'fact_sentence',template:'{r3_leaders} held the lead after the third round.'});
- if(has('cut')&&has('made_cut'))paragraphs.push({kind:'fact_sentence',template:'The cut fell at {cut}, with {made_cut} players advancing to the weekend.'});
- const packet=await freezePacket({event_key:'final:'+ed.slug,capture_ids:[cap],materiality:'tournament_final',facts});
- return {packet,draft:{title:`${w.player.name} wins ${/^the /i.test(ed.tournament?.name||'')?ed.tournament.name:'the '+(ed.tournament?.name||'tournament')}`,paragraphs},ed,winner:w};
+const DAY=86400000,days=(a,b)=>Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/DAY);
+// Topics whose facts are expected to move (forecasts, fields): changes are updates, not corrections.
+const UPDATE_TYPES=new Set(['preview','course_weather','major_history','course_intelligence','player_form']);
+async function getJSON(bucket,key){const o=await bucket.get(key);return o?JSON.parse(await o.text()):null;}
+const putJSON=(bucket,key,v)=>bucket.put(key,JSON.stringify(v),{httpMetadata:{contentType:'application/json'}});
+export function makeCtx(env,ix,{today=new Date().toISOString().slice(0,10),editions=[]}={}){
+ const memo=new Map(),get=k=>{if(!memo.has(k))memo.set(k,getJSON(env.PUBLIC,'projection/v2/'+k).catch(()=>null));return memo.get(k);};
+ const ixPlayers=new Map((ix.players||[]).map(p=>[p.slug,p])),forced=new Set(editions);
+ const window=ix.editions.filter(e=>forced.has(e.slug)||e.status!=='completed'&&e.starts_on&&days(today,e.starts_on)<=10&&days(e.ends_on||e.starts_on,today)<=1);
+ const recent=ix.editions.filter(e=>forced.has(e.slug)||e.status==='completed'&&e.ends_on&&days(e.ends_on,today)>=0&&days(e.ends_on,today)<=14);
+ return {ix,today,as_of:ix.as_of,window,recent,forced,ed:s=>get('editions/'+s+'.json'),pl:s=>get('players/'+s+'.json'),co:s=>get('courses/'+s+'.json'),ixPlayer:s=>ixPlayers.get(s)};
 }
-async function run(env,{publish}){
- const db=store(env);if(!db||!env.PUBLIC)return {error:'unconfigured'};
- const ix=await doc(env,'index.json');if(!ix)return {error:'projection_unavailable'};
- const horizon=new Date(Date.parse(ix.as_of)-75*86400000).toISOString().slice(0,10);
- const candidates=ix.editions.filter(e=>e.status==='completed'&&e.ends_on&&e.ends_on>=horizon&&e.ends_on<=ix.as_of.slice(0,10)&&!['winner_only','schedule_only'].includes(e.coverage)).slice(0,20);
- const out={mode:publish?'publish':'shadow',candidates:candidates.length,published:0,validated:0,held:0,duplicates:0,skipped:0,stories:[]};
- const published=[];try{published.push(...JSON.parse(await (await env.PUBLIC.get('news/v1/index.json'))?.text()||'[]'));}catch{}
- for(const c of candidates){
-  const ed=await doc(env,'editions/'+c.slug+'.json');if(!ed){out.skipped++;continue;}
-  const s=await buildStory(ed);if(s.skip){out.skipped++;continue;}
-  const prior=(await db('golf_articles','select=id,status&dedupe_key=eq.'+encodeURIComponent(s.packet.event_key)))[0];
-  // A validated shadow draft may be promoted on a later publish run; published stories are never duplicated.
-  if(prior&&prior.status==='published'&&publish){
-   // Editorial correction: same frozen facts (packet hash), different headline -> correct and disclose.
-   const story=published.find(x=>x.slug===ed.slug);
-   if(story&&story.packet_sha256===s.packet.hash&&story.headline!==s.draft.title){const now=new Date().toISOString();(story.corrections||=[]).push({at:now,field:'headline',from:story.headline,to:s.draft.title});story.headline=s.draft.title;await db('golf_articles','dedupe_key=eq.'+encodeURIComponent(s.packet.event_key),{method:'PATCH',headers:{prefer:'return=minimal'},body:JSON.stringify({headline:s.draft.title})});out.corrected=(out.corrected||0)+1;out.dirty=true;continue;}
-   out.duplicates++;continue;}
-  if(prior&&!publish){out.duplicates++;continue;}
-  const verdict=validateDraft(s.packet,s.draft,[]),reasons=[...verdict.reasons];
-  if(!s.winner.player?.slug)reasons.push('identity_unresolved');
-  const ok=!reasons.length,status=ok&&publish?'published':ok?'validated':'held',now=new Date().toISOString();
-  const photo=s.winner.player?.photo?.derivatives?s.winner.player.photo:null;
-  const id=await stableId('packet:'+s.packet.hash),articleId=await stableId('article:'+s.packet.hash);
-  await db('golf_news_packets','on_conflict=event_key',{method:'POST',headers:{prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({id,event_key:s.packet.event_key,sha256:s.packet.hash,packet_version:s.packet.version,materiality:s.packet.materiality,facts:s.packet.facts,evidence:{capture_ids:s.packet.capture_ids,source:'golf projection '+ix.as_of,edition:'/tournament/'+ed.slug,results_source:ed.results_source?.attribution||null}})});
-  const packetId=(await db('golf_news_packets','select=id&event_key=eq.'+encodeURIComponent(s.packet.event_key)))[0]?.id||id;
-  for(const capture_id of s.packet.capture_ids)await db('golf_news_packet_captures','on_conflict=packet_id,capture_id',{method:'POST',headers:{prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({packet_id:packetId,capture_id})});
-  const article={id:prior?.id||articleId,packet_id:packetId,slug:ed.slug,headline:s.draft.title,body:s.draft.paragraphs,status,hold_reasons:ok?(publish?[]:['shadow_mode']):reasons,dedupe_key:s.packet.event_key,numeric_claims:s.packet.facts.filter(f=>typeof f.value==='number'),editorial_version:EDITORIAL,quality_version:QUALITY,media_id:null,published_at:status==='published'?now:null};
-  await db('golf_articles','on_conflict=dedupe_key',{method:'POST',headers:{prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(article)});
-  out.stories.push({slug:ed.slug,status,reasons});out[status]++;
-  if(status==='published')published.unshift({slug:ed.slug,headline:s.draft.title,kicker:(ed.is_major?(ed.division==='women'?'Women’s major':'Men’s major'):(ed.tours?.[0]||'Golf')).toUpperCase()+' · FINAL',paragraphs:renderDraft(s.packet,s.draft),edition:'/tournament/'+ed.slug,winner:'/player/'+s.winner.player.slug,photo,published_at:now,packet_sha256:s.packet.hash,source_note:`Facts frozen from ${ed.results_source?.attribution||'the canonical record'} (CC BY-SA 4.0) and Wikidata (CC0). Every number traces to packet ${s.packet.hash.slice(0,12)}.`});
- }
- if(out.published||out.dirty)await env.PUBLIC.put('news/v1/index.json',JSON.stringify(published.slice(0,60)),{httpMetadata:{contentType:'application/json'}});
- return out;
+// One run at a time (cron and admin share this lease).
+async function lease(env,ms){
+ const now=Date.now(),cur=await env.STATE.get('news:lease',{type:'json'});if(cur&&cur.until>now)return null;
+ const token=crypto.randomUUID();await env.STATE.put('news:lease',JSON.stringify({token,until:now+ms}),{expirationTtl:Math.max(60,Math.ceil(ms/1000))});
+ const check=await env.STATE.get('news:lease',{type:'json'});return check?.token===token?token:null;
 }
+export async function run(env,{mode='shadow',force=false,types=null,editions=[],limit=60,today}={}){
+ if(!env.PUBLIC||!env.STATE||!env.PRIVATE)return {error:'unconfigured'};
+ const token=await lease(env,9*60000);if(!token)return {status:'busy'};
+ const started=new Date().toISOString(),db=store(env),PRIV=env.PRIVATE;
+ const out={mode,started,candidates:0,built:0,below_threshold:0,unchanged:0,shadow:0,published:0,updated:0,held:0,skipped:{},editor:{openai:0,desk:0,errors:0,unavailable:null,usd:0},stories:[]};
+ try{
+  const ix=await getJSON(env.PUBLIC,'projection/v2/index.json');if(!ix)return {...out,error:'projection_unavailable'};
+  const ctx=makeCtx(env,ix,{today:today||new Date().toISOString().slice(0,10),editions});
+  const canary=new Set(String(env.NEWS_CANARY_TYPES||'').split(',').filter(Boolean));
+  const cands=[];for(const [k,T] of Object.entries(TYPES)){if(T.verified_only||types&&!types.includes(k))continue;for(const c of T.detect(ctx))if(!editions.length||editions.includes(c.edition))cands.push(c);}
+  out.candidates=cands.length;
+  const index=await getJSON(env.PUBLIC,'news/v2/index.json')||[];let indexDirty=false;
+  for(const c of cands.slice(0,limit)){
+   let P;try{P=await TYPES[c.type].build(ctx,c);}catch(e){out.skipped['build_error:'+c.type]=(out.skipped['build_error:'+c.type]||0)+1;console.error(JSON.stringify({worker:'golf-news',build_error:e.message,stack:String(e.stack).slice(0,300),c}));continue;}
+   if(!P){out.skipped[c.type]=(out.skipped[c.type]||0)+1;continue;}
+   const packet=await P.freeze();out.built++;
+   if(packet.materiality.score<THRESHOLD){out.below_threshold++;out.stories.push({topic:packet.topic,status:'below_threshold',materiality:packet.materiality});continue;}
+   const recKey='news:topic:'+packet.topic,rec=await env.STATE.get(recKey,{type:'json'});
+   const wantsPublish=mode==='publish'||mode==='canary'&&canary.has(packet.type);
+   if(rec&&rec.packet_sha===packet.hash&&!force&&(rec.state==='published'||!wantsPublish)){out.unchanged++;continue;}
+   await putJSON(PRIV,'news/v2/packets/'+packet.hash+'.json',packet);
+   // Draft: the topic's validated draft re-renders with new facts (tokens), else the editor (new topics only), else the desk.
+   const desk=deskDraft(packet),deskV=validateDraft(packet,desk,{resolve:resolveHref});
+   let chosen=null,editor={mode:'desk',version:DESK_VERSION},editorLog=null;
+   const prevDraft=rec?.draft_key?await getJSON(PRIV,rec.draft_key):null;
+   if(prevDraft){const v=validateDraft(packet,prevDraft.draft,{resolve:resolveHref});if(v.ok){chosen=prevDraft.draft;editor=prevDraft.editor;}}
+   if(!chosen&&!rec&&mode!=='desk'){
+    const ep=await editorialPass(env,packet,desk,{resolve:resolveHref});editorLog={status:ep.status,reason:ep.reason||null,attempts:ep.attempts||[],usd:ep.usd||0,model:ep.model||null,draft:ep.draft||null};
+    if(ep.status==='unavailable')out.editor.unavailable=ep.reason;else if(ep.status==='error')out.editor.errors++;
+    out.editor.usd+=ep.usd||0;
+    if(ep.status==='validated'){chosen=ep.draft;editor={mode:'openai',model:ep.model,version:EDITOR_VERSION};out.editor.openai++;}
+   }
+   if(!chosen&&deskV.ok){chosen=desk;editor={mode:'desk',version:DESK_VERSION};out.editor.desk++;}
+   let slug=rec?.slug||articleSlug(packet);
+   if(!rec){const owner=await env.STATE.get('news:slug:'+slug);if(owner&&owner!==packet.topic)slug=slug+'-'+packet.hash.slice(0,6);}
+   const hold=chosen?[]:deskV.reasons,publishable=Boolean(chosen)&&wantsPublish,now=new Date().toISOString();
+   const prior=rec?.state==='published'?await getJSON(env.PUBLIC,'news/v2/articles/'+slug+'.json'):null;
+   const article=chosen?buildArticle({packet,draft:chosen,editor,slug,ctx,hero:await pickHero(packet,ctx),prior,now,status:publishable?'published':'shadow'}):null;
+   if(article&&prior&&prior.packet_sha256!==packet.hash){
+    const prevPacket=await getJSON(PRIV,'news/v2/packets/'+prior.packet_sha256+'.json');const ch=changedFacts(prevPacket,packet);
+    const kind=UPDATE_TYPES.has(packet.type)?'update':'correction';
+    article.revisions.push({at:now,kind,packet_sha256:packet.hash,changed:ch});article.revisions=article.revisions.slice(-50);
+    if(kind==='correction'&&ch.length){const pf=new Map((prevPacket?.facts||[]).map(f=>[f.id,f]));const facts=ch.filter(id=>pf.has(id)).map(id=>({fact:id,label:pf.get(id).label,was:pf.get(id).display,now:packet.facts.find(f=>f.id===id)?.display??null}));if(facts.length)article.corrections.push({at:now,facts});}
+   }
+   const draftKey='news/v2/drafts/'+packet.topic.replace(/[^a-z0-9:-]/gi,'_')+'.json';
+   if(chosen)await putJSON(PRIV,draftKey,{draft:chosen,editor,packet_sha256:packet.hash});
+   let state;
+   if(publishable){
+    await putJSON(env.PUBLIC,'news/v2/articles/'+slug+'.json',article);
+    const i=index.findIndex(x=>x.slug===slug),sum=summaryOf(article);if(i>=0)index[i]=sum;else index.unshift(sum);indexDirty=true;
+    state='published';if(prior)out.updated++;else out.published++;
+    if(db){try{
+     const packetId=await stableId('packet4:'+packet.topic);
+     await db('golf_news_packets','on_conflict=event_key',{method:'POST',headers:{prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:packetId,event_key:packet.topic,sha256:packet.hash,packet_version:packet.version,materiality:packet.type,facts:packet.facts,evidence:{entities:packet.entities,charts:packet.charts,limits:packet.limits,context:packet.context}})});
+     const pid=(await db('golf_news_packets','select=id&event_key=eq.'+encodeURIComponent(packet.topic)))[0]?.id||packetId;
+     const existing=(await db('golf_articles','select=id&dedupe_key=eq.'+encodeURIComponent(packet.topic)))[0];
+     await db('golf_articles','on_conflict=dedupe_key',{method:'POST',headers:{prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:existing?.id||await stableId('article4:'+packet.topic),packet_id:pid,slug,headline:article.headline_text,body:article,status:'published',hold_reasons:[],dedupe_key:packet.topic,numeric_claims:article.evidence.filter(f=>typeof packet.facts.find(x=>x.id===f.fact)?.value==='number'),editorial_version:editor.mode==='openai'?EDITOR_VERSION:DESK_VERSION,quality_version:QUALITY_VERSION,media_id:null,published_at:article.published_at})});
+    }catch(e){out.db_error=String(e.message).slice(0,200);}}
+   }else{
+    state=chosen?'shadow_validated':'held';if(chosen)out.shadow++;else out.held++;
+    await putJSON(PRIV,'news/v2/shadow/'+slug+'.json',{article,packet_sha256:packet.hash,topic:packet.topic,type:packet.type,hold_reasons:hold,desk_validation:deskV,editor:editorLog,materiality:packet.materiality,at:now});
+   }
+   const record={topic:packet.topic,type:packet.type,slug,state:rec?.state==='published'&&!publishable?'published':state,packet_sha:packet.hash,draft_key:chosen?draftKey:rec?.draft_key||null,editor:editor.mode,hold_reasons:hold,first_seen:rec?.first_seen||now,updated_at:now,published_at:publishable?(rec?.published_at||now):rec?.published_at||null};
+   await env.STATE.put(recKey,JSON.stringify(record));if(!rec)await env.STATE.put('news:slug:'+slug,packet.topic);
+   out.stories.push({topic:packet.topic,slug,status:state,editor:editor.mode,materiality:packet.materiality.score,hold,editor_log:editorLog?{status:editorLog.status,reason:editorLog.reason,reasons:editorLog.attempts.map(a=>a.reasons)}:null});
+  }
+  if(indexDirty){index.sort((a,b)=>String(b.published_at).localeCompare(String(a.published_at)));await putJSON(env.PUBLIC,'news/v2/index.json',index.slice(0,1000));}
+  out.finished=new Date().toISOString();out.editor.usd=Math.round(out.editor.usd*1e6)/1e6;
+  await env.STATE.put('news:health',JSON.stringify({...out,stories:out.stories.slice(0,80)}));
+  return out;
+ }finally{const cur=await env.STATE.get('news:lease',{type:'json'});if(cur?.token===token)await env.STATE.delete('news:lease');}
+}
+async function listDocs(bucket,prefix,limit){const l=await bucket.list({prefix,limit});const rows=[];for(const o of l.objects)rows.push(await getJSON(bucket,o.key));return rows;}
 export default {
  async fetch(request,env={}){
-  const path=new URL(request.url).pathname;
-  if(path==='/health')return json({mode:env.PUBLISH_ENABLED==='true'?'publish_gated':'shadow',publication_enabled:env.PUBLISH_ENABLED==='true',automatic_publication:false});
-  if(!['/admin/news-shadow','/admin/news-publish'].includes(path)||request.method!=='POST')return json({error:'not_found'},404);
+  const url=new URL(request.url),path=url.pathname;
+  if(path==='/health'){const h=await env.STATE?.get('news:health',{type:'json'}).catch(()=>null);return json({mode:env.NEWS_MODE||'shadow',publication_enabled:env.PUBLISH_ENABLED==='true',canary_types:env.NEWS_CANARY_TYPES||'',openai_configured:Boolean(env.OPENAI_API_KEY),last_run:h?{started:h.started,finished:h.finished,mode:h.mode,candidates:h.candidates,built:h.built,published:h.published,updated:h.updated,shadow:h.shadow,held:h.held,below_threshold:h.below_threshold,editor:h.editor}:null});}
+  if(!['/admin/news-shadow','/admin/news-publish','/admin/news-drafts','/admin/news-cost'].includes(path)||request.method!=='POST')return json({error:'not_found'},404);
   if(!await adminAllowed(request,env))return json({error:'unauthorized'},401);
+  const q=k=>url.searchParams.get(k),L=k=>(q(k)||'').split(',').filter(Boolean);
+  if(path==='/admin/news-drafts')return json(q('published')?await listDocs(env.PUBLIC,'news/v2/articles/',Number(q('limit'))||100):await listDocs(env.PRIVATE,'news/v2/shadow/',Number(q('limit'))||100));
+  if(path==='/admin/news-cost'){const d=q('day')||new Date().toISOString().slice(0,10);return json(await env.STATE.get('news:openai:'+d,{type:'json'})||{day:d,calls:0,usd:0});}
   const publish=path==='/admin/news-publish';
   if(publish&&env.PUBLISH_ENABLED!=='true')return json({error:'publication_disabled'},409);
-  return json(await run(env,{publish}));
+  const mode=publish?(q('mode')==='publish'?'publish':'canary'):(q('desk')?'desk':'shadow');
+  return json(await run(env,{mode,force:q('force')==='1',types:L('types').length?L('types'):null,editions:L('editions'),today:q('today')||undefined}));
  },
- async scheduled(){console.log(JSON.stringify({worker:'golf-news',status:'manual_runs_only'}));}
+ async scheduled(event,env,ctx){
+  const m=env.NEWS_MODE||'shadow',mode=['shadow','canary','publish'].includes(m)?m:'shadow';
+  ctx.waitUntil(run(env,{mode}).then(r=>console.log(JSON.stringify({worker:'golf-news',mode,published:r.published,updated:r.updated,shadow:r.shadow,held:r.held,candidates:r.candidates,error:r.error||r.status||null}))));
+ }
 };

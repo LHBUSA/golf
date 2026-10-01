@@ -1,0 +1,27 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {liveState,freshness,publicEvent,orderEvents,leaders,toParNum,FRESH_SECONDS} from '../workers/shared/live.js';
+import {normalizeCompetitor} from '../workers/golf-ingest/src/live.js';
+const NOW=Date.parse('2026-10-01T22:00:00Z');
+const ago=s=>new Date(NOW-s*1000).toISOString();
+const st=(name,state,period=1,completed=false)=>({name,state,period,completed,detail:''});
+const P=(o={})=>({slug:'a',name:'A',status:'active',position_num:1,position_display:'1',tied:false,total_to_par:-5,today_to_par:-5,today_strokes:31,thru:9,rounds:[{round:1,strokes:31,to_par:-5,complete:false}],...o});
+const snap=(event_status,fetched,players=[P()])=>({fetched_at:fetched,event_status,players,edition:{name:'X'}});
+test('live: a date window alone is never live',()=>{assert.equal(liveState(null,NOW).state,'unavailable');assert.equal(liveState(snap(st('STATUS_SCHEDULED','pre'),ago(60),[P({thru:null,rounds:[],total_to_par:null})]),NOW).state,'pre');});
+test('live: ESPN in-progress + fresh posted scores = LIVE with the round',()=>{const s=liveState(snap(st('STATUS_IN_PROGRESS','in',1),ago(4*60)),NOW);assert.equal(s.state,'live');assert.equal(s.label,'LIVE · ROUND 1');assert.equal(s.freshness,'fresh');});
+test('live: stale snapshot is never labelled live',()=>{const s=liveState(snap(st('STATUS_IN_PROGRESS','in',1),ago(34*60)),NOW);assert.equal(s.state,'stale');assert.equal(s.label,'SCORING UPDATE DELAYED');assert.notEqual(s.state,'live');assert.equal(liveState(snap(st('STATUS_IN_PROGRESS','in',1),ago(2*3600)),NOW).state,'unavailable');});
+test('live: freshness threshold boundary',()=>{assert.equal(freshness({fetched_at:ago(FRESH_SECONDS)},NOW).freshness,'fresh');assert.equal(freshness({fetched_at:ago(FRESH_SECONDS+1)},NOW).freshness,'stale');});
+test('live: in-progress status without any posted score is not live',()=>{assert.equal(liveState(snap(st('STATUS_IN_PROGRESS','in',1),ago(60),[P({thru:0,rounds:[{round:1,strokes:null,to_par:null}],total_to_par:null})]),NOW).state,'pre');});
+test('live: final is final; suspended renders honestly',()=>{assert.equal(liveState(snap(st('STATUS_FINAL','post',4,true),ago(3*3600)),NOW).state,'final');const s=liveState(snap(st('STATUS_SUSPENDED','in',2),ago(60)),NOW);assert.equal(s.state,'suspended');assert.equal(s.label,'PLAY SUSPENDED');assert.equal(liveState(snap(st('STATUS_SUSPENDED','in',2),ago(40*60)),NOW).state,'stale');});
+test('live: competitor normalization keeps nulls null and never invents a hole',()=>{
+ const pre=normalizeCompetitor('1',{period:1,type:{name:'STATUS_SCHEDULED'},teeTime:'2026-10-02T13:00Z',startHole:10},{items:[{period:1,value:null,displayValue:null}]});
+ assert.equal(pre.thru,null);assert.equal(pre.today_to_par,null);assert.equal(pre.total_to_par,null);assert.equal(pre.hole,null);assert.equal(pre.tee_time,'2026-10-02T13:00Z');assert.equal(pre.rounds[0].strokes,null);
+ const mid=normalizeCompetitor('2',{period:1,thru:9,hole:9,startHole:1,position:{id:'14',displayName:'T14',isTie:true},type:{name:'STATUS_IN_PROGRESS'}},{items:[{period:1,value:31,displayValue:'-5',linescores:Array.from({length:9},(_,i)=>({period:i+1,value:3,par:4,scoreType:{name:'BIRDIE'}}))}]});
+ assert.equal(mid.position_display,'T14');assert.equal(mid.tied,true);assert.equal(mid.total_to_par,-5);assert.equal(mid.today_to_par,-5);assert.equal(mid.rounds[0].complete,false);assert.equal(mid.holes.length,9);
+ const lpga=normalizeCompetitor('3',{period:1,thru:17,startHole:10,position:{id:'1',displayName:'T1',isTie:true},type:{name:'STATUS_IN_PROGRESS'}},{items:[{period:1,value:62,displayValue:'-5'}]});
+ assert.equal(lpga.holes,null);assert.equal(lpga.hole,null);assert.equal(lpga.total_to_par,-5);
+ const cut=normalizeCompetitor('4',{period:2,thru:18,type:{name:'STATUS_CUT'}},{items:[{period:1,value:74,displayValue:'+3'},{period:2,value:75,displayValue:'+4'}]});assert.equal(cut.status,'cut');assert.equal(cut.total_to_par,7);
+});
+test('live: to-par parsing never turns junk or null into zero',()=>{assert.equal(toParNum(null),null);assert.equal(toParNum('-'),null);assert.equal(toParNum('E'),0);assert.equal(toParNum('−3'),-3);assert.equal(toParNum('+2'),2);});
+test('live: leaders and ordering do not prefer a division',()=>{const s=snap(st('STATUS_IN_PROGRESS','in',1),ago(60),[P({slug:'a',total_to_par:-6,position_num:1}),P({slug:'b',total_to_par:-6,position_num:1,tied:true}),P({slug:'c',total_to_par:-4,position_num:3})]);const l=leaders(s);assert.equal(l.leaders.length,2);assert.equal(l.within2,3);
+ const ev=[{state:'live',players:30,edition:{name:'Women'}},{state:'live',players:120,edition:{name:'Men'}},{state:'pre',players:150,edition:{name:'Z'}}];assert.deepEqual(orderEvents(ev).map(e=>e.edition.name),['Men','Women','Z']);
+ const pub=publicEvent(s,NOW);assert.equal(pub.state,'live');assert.equal(pub.leaderboard[0].today_strokes,31);});
