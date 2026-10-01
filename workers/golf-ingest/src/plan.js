@@ -10,11 +10,13 @@ export const seriesByQid=new Map(SERIES.map(s=>[s.qid,s]));
 const ID=(table,key)=>stableId(table+':'+key);
 export class Plan{constructor(){this.rows=[];this.held=[];}async add(table,key,capture_id,fields){const id=await ID(table,key);this.rows.push({table,row:{id,capture_id,...fields}});return id;}hold(item){this.held.push(item);}}
 // A person enters the canonical graph only as a distinct Wikidata human classified as a golfer.
-export function playerEligible(f){return Boolean(f&&f.qid&&f.name&&f.human&&f.golfer);}
-export async function planPlayer(plan,f){
- if(!playerEligible(f)){plan.hold({kind:'player',provider_id:f?.qid,reason:'identity_requires_human_golfer',capture_id:f?.capture_id});return null;}
+// Golf context (linked from a leaderboard row, or asserted as a championship winner) can stand in for a
+// missing golf classification on Wikidata; the entity must still be a distinct human with a name.
+export function playerEligible(f,context=null){return Boolean(f&&f.qid&&f.name&&f.human&&(f.golfer||context));}
+export async function planPlayer(plan,f,context=null){
+ if(!playerEligible(f,context)){plan.hold({kind:'player',provider_id:f?.qid,reason:'identity_requires_human_golfer',capture_id:f?.capture_id});return null;}
  const id=await plan.add('golf_players',f.qid,f.capture_id,{full_name:f.name,slug:slug(f.name,f.qid),birth_date:f.birth_date,nationality_code:f.country?.iso||null,identity_status:'verified'});
- await plan.add('golf_player_identities',f.qid,f.capture_id,{player_id:id,source_id:'wikidata',provider_id:f.qid,evidence:{basis:'distinct Wikidata human entity classified as golfer (sport or occupation); no cross-source name merge',entity_modified:f.modified,country_name:f.country?.label||null,country_qid:f.country?.qid||null,citizenships:f.citizenships,sport_countries:f.sport_countries,sex:f.sex,birth_year:f.birth_year,external_ids:f.external_ids,image:f.image,enwiki_article:f.article,reference_status:'source assertions; references retained in capture, not independently reverified'},verified_at:'2026-10-01T00:00:00Z'});
+ await plan.add('golf_player_identities',f.qid,f.capture_id,{player_id:id,source_id:'wikidata',provider_id:f.qid,evidence:{basis:f.golfer?'distinct Wikidata human entity classified as golfer (sport or occupation); no cross-source name merge':'distinct Wikidata human entity in golf context ('+context+'); no cross-source name merge',name_source:f.name_source||'wikidata_label',entity_modified:f.modified,country_name:f.country?.label||null,country_qid:f.country?.qid||null,citizenships:f.citizenships,sport_countries:f.sport_countries,sex:f.sex,birth_year:f.birth_year,external_ids:f.external_ids,image:f.image,enwiki_article:f.article,reference_status:'source assertions; references retained in capture, not independently reverified'},verified_at:'2026-10-01T00:00:00Z'});
  return id;
 }
 export function editionStatus({winner,starts_on,ends_on,year,cancelled},today){
@@ -32,7 +34,7 @@ export async function planCatalog({series,editions,players,venues,existing},now=
  for(const v of venues){if(!v.golf_venue||!v.name){plan.hold({kind:'course',provider_id:v.qid,reason:'venue_not_verified_as_golf_course'});continue;}
   const cid=await plan.add('golf_courses',v.qid,v.capture_id,{name:v.name,slug:slug(v.name,v.qid),country_code:v.country_code,locality:v.locality,latitude:v.latitude,longitude:v.longitude});cids.set(v.qid,cid);
   await plan.add('golf_course_layouts',v.qid+':metadata',v.capture_id,{course_id:cid,version_label:'Venue metadata only; tournament routing unavailable',par:null,yardage:null,routing_basis:null,specifications:{coverage:'venue identity only',wikidata_id:v.qid,description:v.description,country_name:v.country_name,architects:v.architects,opened_year:v.opened_year,image:v.image,enwiki_article:v.article,entity_modified:v.modified}});}
- for(const p of players){const id=await planPlayer(plan,p);if(id)pids.set(p.qid,id);}
+ for(const p of players){const id=await planPlayer(plan,p,'championship_winner_assertion');if(id)pids.set(p.qid,id);}
  for(const e of editions){
   const cfg=seriesByQid.get(e.series),tid=tids.get(e.series);if(!cfg||!tid)continue;
   const key=e.series+':'+e.year;if(seenKey.has(key)){plan.hold({kind:'edition',provider_id:e.qid,reason:'duplicate_series_year'});continue;}seenKey.add(key);
@@ -53,6 +55,9 @@ export async function planCatalog({series,editions,players,venues,existing},now=
 export async function planResults({edition,parsed,capture,titleToQid,facts,course},now=new Date()){
  const plan=new Plan(),cap=capture.id,today=now.toISOString().slice(0,10);
  const resolved=parsed.rows.map(r=>{const q=r.player.title?titleToQid.get(r.player.title):null,f=q?facts.get(q):null;return {...r,qid:q||null,fact:f||null};});
+ // Tied first place (playoff) is resolved only by the Wikidata champion assertion, matched by QID.
+ const tiedFirst=resolved.filter(r=>r.status==='finished'&&r.position===1&&r.tied);
+ if(tiedFirst.length>1&&edition.winnerQid&&tiedFirst.some(r=>r.qid===edition.winnerQid)){const losers=tiedFirst.filter(r=>r.qid!==edition.winnerQid);for(const r of tiedFirst){if(r.qid===edition.winnerQid){r.tied=false;r.playoff='won';}else{r.position=2;r.tied=losers.length>1;r.playoff='lost';}}parsed.playoff=true;}
  const firsts=resolved.filter(r=>r.status==='finished'&&r.position===1&&!r.tied);
  if(edition.winnerQid&&firsts.length===1&&firsts[0].qid!==edition.winnerQid){plan.hold({kind:'edition_results',provider_id:edition.key,reason:'winner_conflict_between_sources',detail:{wikidata:edition.winnerQid,article:firsts[0].qid}});return {plan,summary:{status:'held',reason:'winner_conflict'}};}
  const pids=new Map();
@@ -61,7 +66,7 @@ export async function planResults({edition,parsed,capture,titleToQid,facts,cours
   if(!r.qid){plan.hold({kind:'player',provider_id:'enwiki:'+r.player.title,reason:'article_without_wikidata_item',capture_id:cap});continue;}
   if(pids.has(r.qid))continue;
   if(r.fact?.existing){pids.set(r.qid,r.fact._id);continue;}
-  const id=await planPlayer(plan,r.fact||{qid:r.qid,capture_id:cap});if(id)pids.set(r.qid,id);
+  const id=await planPlayer(plan,r.fact||{qid:r.qid,capture_id:cap},'linked_from_leaderboard_row');if(id)pids.set(r.qid,id);
  }
  const old=edition.old||{},ib=parsed.infobox||{};
  const par=parsed.course?.par??ib.par??null,yards=parsed.course?.yards??ib.yards??null;

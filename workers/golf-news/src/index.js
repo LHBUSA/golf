@@ -36,7 +36,7 @@ async function run(env,{publish}){
  const db=store(env);if(!db||!env.PUBLIC)return {error:'unconfigured'};
  const ix=await doc(env,'index.json');if(!ix)return {error:'projection_unavailable'};
  const horizon=new Date(Date.parse(ix.as_of)-75*86400000).toISOString().slice(0,10);
- const candidates=ix.recent.filter(e=>e.ends_on&&e.ends_on>=horizon&&!['winner_only','schedule_only'].includes(e.coverage)).slice(0,20);
+ const candidates=ix.editions.filter(e=>e.status==='completed'&&e.ends_on&&e.ends_on>=horizon&&e.ends_on<=ix.as_of.slice(0,10)&&!['winner_only','schedule_only'].includes(e.coverage)).slice(0,20);
  const out={mode:publish?'publish':'shadow',candidates:candidates.length,published:0,validated:0,held:0,duplicates:0,skipped:0,stories:[]};
  const published=[];try{published.push(...JSON.parse(await (await env.PUBLIC.get('news/v1/index.json'))?.text()||'[]'));}catch{}
  for(const c of candidates){

@@ -2,7 +2,7 @@ import './data.css';
 import './product.css';
 import {initAnalytics} from './analytics.js';
 // @ts-ignore shared JS modules
-import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup} from './lib/pages.js';
+import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
 // @ts-ignore
 import {portrait,e} from './lib/ui.js';
 initAnalytics();
@@ -21,7 +21,7 @@ if(table){const sel=$$<HTMLSelectElement>('[data-filter]');const count=$('[data-
 const grid=$('[data-player-grid]'),form=$<HTMLFormElement>('[data-player-filters]');
 if(grid&&form){
  const norm=(s:string)=>s.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase();
- const card=(p:any)=>`<article class="player-card">${portrait(p,{size:120,cls:'card-portrait'})}<div class="player-card-body"><h3><a class="player-link" href="/player/${e(p.slug)}">${e(p.name)}</a></h3><p>${e([p.country,p.division==='women'?'Women’s golf':'Men’s golf'].filter(Boolean).join(' · '))}</p><dl class="mini-stats"><div><dt>Wins</dt><dd>${e(p.wins_observed)}</dd></div><div><dt>Majors</dt><dd>${e(p.major_wins)}</dd></div><div><dt>Events</dt><dd>${e(p.events_observed)}</dd></div></dl>${p.scoring&&p.scoring.percentile!==null?`<div class="mini-bar"><span style="--w:${p.scoring.percentile}%"></span><b>${p.scoring.percentile}<small>th pct scoring</small></b></div>`:''}</div></article>`;
+ const card=(p:any)=>`<article class="player-card">${portrait(p,{size:120,cls:'card-portrait'})}<div class="player-card-body"><h3><a class="player-link" href="/player/${e(p.slug)}">${e(p.name)}</a></h3><p>${e([p.country,p.division==='women'?'Women’s golf':'Men’s golf'].filter(Boolean).join(' · '))}</p><dl class="mini-stats"><div><dt>Wins</dt><dd>${e(p.wins_observed)}</dd></div><div><dt>Majors</dt><dd>${e(p.major_wins)}</dd></div><div><dt>Events</dt><dd>${e(p.events_observed)}</dd></div></dl>${p.scoring&&p.scoring.percentile!==null?`<div class="mini-bar"><span data-w="${Math.round(p.scoring.percentile)}"></span><b>${p.scoring.percentile}<small>th pct scoring</small></b></div>`:''}</div></article>`;
  const run=async()=>{const ix=await index();if(!ix)return;const f=new FormData(form);const q=norm(String(f.get('q')||'')),div=f.get('division'),c=f.get('country'),sort=String(f.get('sort')||'events_observed');
   let rows=ix.players.filter((p:any)=>(!q||norm(p.name).includes(q))&&(!div||p.division===div)&&(!c||p.country_code===c));
   if(sort==='scoring'||sort==='form')rows=rows.filter((p:any)=>p[sort]&&p[sort].percentile!==null).sort((a:any,b:any)=>b[sort].percentile-a[sort].percentile);
@@ -63,3 +63,9 @@ if(location.pathname==='/all-access'){
  const badge=$('.entitlement-status .state');
  api('membership').then(r=>r.ok?r.json():null).then(b=>{if(!b?.membership)throw Error('membership_unavailable');if(badge)badge.innerHTML='<i aria-hidden="true"></i>'+(b.membership.entitled?'ALL ACCESS VERIFIED':'FREE READER');}).catch(()=>{if(badge)badge.innerHTML='<i aria-hidden="true"></i>VERIFICATION UNAVAILABLE';});
 }
+
+// Hub pages re-render from the live projection when it is newer than the static build.
+const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live};
+const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[location.pathname];
+if(stamp){fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).then(ix=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
+ if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main)main.innerHTML=hub(ix);}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}

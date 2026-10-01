@@ -28,13 +28,15 @@ export async function fileInfo(env,db,files){
 // subjects: [{kind:'player'|'course', entity_id, qid, file}]
 export async function runMedia(env,db,subjects,{limit=40,budgetMs=200000}={}){
  const started=Date.now(),existing=new Set((await db('golf_entity_media','select=identity_proof->>file&limit=5000')).map(r=>r.file));
- const todo=subjects.filter(s=>s.file&&!existing.has(s.file)).slice(0,limit);
+ // Files that can never pass (unsupported type, missing metadata) are remembered, not retried every run.
+ let skip={};try{skip=JSON.parse(await env.STATE?.get('media:skip')||'{}');}catch{}
+ const todo=subjects.filter(s=>s.file&&!existing.has(s.file)&&!skip[s.file]).slice(0,limit);
  const info=await fileInfo(env,db,todo.map(s=>s.file)),rows=[],out={lane:'media',candidates:todo.length,approved:0,held:0};
  for(const s of todo){
   if(Date.now()-started>budgetMs)break;
   const ii=info.get(s.file);if(!ii){out.held++;continue;}
   const verdict=licenceVerdict(ii.extmetadata);
-  if(!/^image\/(jpeg|png|webp)$/.test(ii.mime||'')){out.unsupported_type=(out.unsupported_type||0)+1;continue;}
+  if(!/^image\/(jpeg|png|webp)$/.test(ii.mime||'')){out.unsupported_type=(out.unsupported_type||0)+1;skip[s.file]='unsupported_type:'+ii.mime;continue;}
   const thumb=ii.thumburl||ii.url;let cap;
   try{cap=await capture(env,db,'commons',thumb,{parser:MEDIA_REVIEW,binary:true,maxBytes:6000000,accept:'image/webp,image/jpeg,image/png,image/*'});}
   catch(err){if(err instanceof SourceBlockedError)throw err;out.errors=(out.errors||0)+1;(out.error_samples||=[]).length<5&&out.error_samples.push(s.file+': '+err.message);continue;}
@@ -43,5 +45,6 @@ export async function runMedia(env,db,subjects,{limit=40,budgetMs=200000}={}){
   rows.push({table:'golf_entity_media',row:{id:await stableId('golf_entity_media:'+s.kind+':'+s.qid+':'+ii.sha1),...row}});
   verdict.approved?out.approved++:out.held++;
  }
+ if(env.STATE)await env.STATE.put('media:skip',JSON.stringify(skip));
  return {rows,out};
 }

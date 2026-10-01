@@ -54,11 +54,14 @@ export function parsePlayers(rows,countryMap=new Map()){
  const countries=v=>list(v).map(x=>{const q=qid(x),c=countryMap.get(q);return {qid:q,iso:c?.iso||null,label:c?.label||null};}).filter(x=>x.qid);
  return rows.map(r=>{
   const inst=list(r.inst).map(qid),sports=list(r.sports).map(qid),occs=list(r.occs).map(qid);
-  const golfer=sports.includes(GOLF)||occs.includes('Q13156709')||occs.includes('Q11303721');
+  const golfer=sports.includes(GOLF)||['Q13156709','Q11303721','Q490253'].some(o=>occs.includes(o));
   const sex=qid(r.sex),cit=countries(r.citizenships),cfs=countries(r.sportCountries);
   // Country for sport is the representation a golfer competes under; citizenship is the fallback.
   const rep=cfs.length===1?cfs[0]:cit.length===1?cit[0]:null;
-  return {qid:qid(r.p),name:r.pLabel||null,human:inst.includes('Q5'),golfer,birth_date:precise(r.dob,r.dobP),birth_year:r.dob&&Number(r.dobP)>=9?Number(r.dob.slice(0,4)):null,sex:sex==='Q6581097'?'male':sex==='Q6581072'?'female':null,country:rep,citizenships:cit,sport_countries:cfs,image:r.image?decodeURIComponent(r.image.split('/Special:FilePath/')[1]||'').replace(/_/g,' ')||null:null,external_ids:Object.fromEntries([['pga_tour',r.pga],['lpga',r.lpga],['dp_world_tour',r.euro],['owgr',r.owgr],['world_golf_hall_of_fame',r.hof]].filter(x=>x[1])),article:r.article?decodeURIComponent(r.article.split('/wiki/')[1]||'').replace(/_/g,' '):null,modified:r.mod};
+  const article=r.article?decodeURIComponent(r.article.split('/wiki/')[1]||'').replace(/_/g,' '):null;
+  // English label first; otherwise the entity's own enwiki sitelink title (same entity, not a name match).
+  const label=r.pLabel&&!/^Q\d+$/.test(r.pLabel)?r.pLabel:article?article.replace(/ \([^)]*\)$/,''):null;
+  return {qid:qid(r.p),name:label,name_source:r.pLabel&&!/^Q\d+$/.test(r.pLabel)?'wikidata_label':article?'enwiki_sitelink_title':null,human:inst.includes('Q5'),golfer,birth_date:precise(r.dob,r.dobP),birth_year:r.dob&&Number(r.dobP)>=9?Number(r.dob.slice(0,4)):null,sex:sex==='Q6581097'?'male':sex==='Q6581072'?'female':null,country:rep,citizenships:cit,sport_countries:cfs,image:r.image?decodeURIComponent(r.image.split('/Special:FilePath/')[1]||'').replace(/_/g,' ')||null:null,external_ids:Object.fromEntries([['pga_tour',r.pga],['lpga',r.lpga],['dp_world_tour',r.euro],['owgr',r.owgr],['world_golf_hall_of_fame',r.hof]].filter(x=>x[1])),article:r.article?decodeURIComponent(r.article.split('/wiki/')[1]||'').replace(/_/g,' '):null,modified:r.mod};
  }).filter(p=>p.qid);
 }
 export const venuesQuery=qids=>`SELECT ?v ?vLabel ?vDesc ?mod ?article (SAMPLE(?coord) AS ?coord_) (SAMPLE(?iso) AS ?iso_) (SAMPLE(?countryLabel) AS ?countryLabel_) (SAMPLE(?localityLabel) AS ?localityLabel_) (SAMPLE(?image) AS ?image_) (SAMPLE(?opened) AS ?opened_) (SAMPLE(?openedP) AS ?openedP_) (GROUP_CONCAT(DISTINCT ?inst;separator="|") AS ?inst_) (GROUP_CONCAT(DISTINCT ?sport;separator="|") AS ?sports) (GROUP_CONCAT(DISTINCT ?architectLabel;separator="|") AS ?architects) WHERE {

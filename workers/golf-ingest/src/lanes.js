@@ -99,7 +99,7 @@ export async function runSchedule(env,db,now=new Date()){
     if(!tId){tId=await plan.add('golf_tournaments',tKey,cap,{name:ev.title.replace(/ \([^)]*\)$/,''),slug:slug(ev.title.replace(/ \([^)]*\)$/,''),sq||'wp'),major_division:null,organizer:'Not supplied by source'});plannedTournaments.set(tKey,tId);}
     const old=existing.get(await stableId('golf_tournament_editions:'+edKey));
     const wq=ev.winner?.title?titleMap.get(ev.winner.title):null,wf=wq?facts.get(wq):null;let wpid=wq?known.get(wq):null;
-    if(wq&&!wpid&&wf){wpid=await planPlayer(plan,wf);if(wpid)known.set(wq,wpid);}
+    if(wq&&!wpid&&wf){wpid=await planPlayer(plan,wf,'tour_schedule_winner');if(wpid)known.set(wq,wpid);}
     const starts_on=old?.starts_on||ev.starts_on,ends_on=ev.ends_on||old?.ends_on||null;
     const rules={...(old?.rules||{}),source_name:`${y} ${ev.name}`,schedule:{article:art.capture.title,revision:art.capture.revision,tour,date_text:ev.date_text,location:ev.location,purse_text:ev.purse_text,winner_title:ev.winner?.title||null,winner_text:ev.winner_text},series_key:null,division:TOURS[tour].division,is_major:false,enwiki_article:old?.rules?.enwiki_article||null,winner_wikidata_id:wpid?wq:null};
     eid=await plan.add('golf_tournament_editions',edKey,cap,{tournament_id:tId,edition_key:String(y),starts_on,ends_on,status:editionStatus({winner:wpid,starts_on,ends_on,year:y,cancelled:ev.cancelled},today),format:'stroke',rules});

@@ -40,13 +40,15 @@ export async function runLane(lane,env,db,opts={}){
   return {lane,status:error instanceof SourceBlockedError?'blocked':'error',error:String(error.message).slice(0,500)};
  }
 }
-export async function project(env,db){const p=await buildProjection(db,env);await env.STATE.delete('projection:dirty');return p.summary;}
+export async function project(env,db){const started=new Date().toISOString();const p=await buildProjection(db,env);await env.STATE.put('projection:last',started);await env.STATE.delete('projection:dirty');return p.summary;}
 async function tick(env){
  const db=store(env);if(!db||!env.RAW||!env.STATE||!env.PUBLIC)return {status:'unconfigured'};
  const ls=await laneState(env),now=Date.now(),due=l=>!ls[l]?.last_ok||now-ls[l].last_ok>=LANES[l].cadenceMs;
  const lane=due('catalog')?'catalog':due('schedule')?'schedule':due('media')?'media':'results';
  const result=await runLane(lane,env,db);
- let projection=null;if(await env.STATE.get('projection:dirty'))projection=await project(env,db);
+ // Rebuild when a lane wrote since the last projection (KV flag or durable source-state timestamps).
+ const last=await env.STATE.get('projection:last')||'',writes=(await db('golf_source_state','select=last_write')).map(r=>r.last_write||'').sort().at(-1)||'';
+ let projection=null;if(await env.STATE.get('projection:dirty')||Date.parse(writes)>Date.parse(last||0))projection=await project(env,db);
  return {lane,result,projection};
 }
 export default {

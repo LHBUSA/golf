@@ -2,7 +2,7 @@ export class SourceBlockedError extends Error { constructor(reason){super(reason
 export async function safeFetch(url,{fetcher=fetch,allowedHosts,maxBytes=1024*1024,binary=false}={}){
  const target=new URL(url);
  if(target.protocol!=='https:'||!allowedHosts?.includes(target.hostname)) throw new SourceBlockedError('unapproved_host');
- const response=await fetcher(target.href,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{'user-agent':'PropBetEdgeGolfAudit/0.1 (+https://github.com/LHBUSA/golf)','accept':'application/json,text/plain,text/html'}});
+ const response=await fetcher(target.href,{redirect:'manual',signal:AbortSignal.timeout(25000),headers:{'user-agent':'PropBetEdgeGolfAudit/0.1 (+https://github.com/LHBUSA/golf)','accept':'application/json,text/plain,text/html'}});
  if([401,403,407,429].includes(response.status)) throw new SourceBlockedError('access_barrier_'+response.status);
  if(response.status>=300&&response.status<400) throw new SourceBlockedError('redirect_requires_review');
  if(!response.ok) throw new Error('source_http_'+response.status);
