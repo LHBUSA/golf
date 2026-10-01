@@ -30,7 +30,7 @@ export async function buildStory(ed){
  if(has('r3_leaders'))paragraphs.push({kind:'fact_sentence',template:'{r3_leaders} held the lead after the third round.'});
  if(has('cut')&&has('made_cut'))paragraphs.push({kind:'fact_sentence',template:'The cut fell at {cut}, with {made_cut} players advancing to the weekend.'});
  const packet=await freezePacket({event_key:'final:'+ed.slug,capture_ids:[cap],materiality:'tournament_final',facts});
- return {packet,draft:{title:`${w.player.name} wins the ${ed.tournament?.name||'tournament'}`,paragraphs},ed,winner:w};
+ return {packet,draft:{title:`${w.player.name} wins ${/^the /i.test(ed.tournament?.name||'')?ed.tournament.name:'the '+(ed.tournament?.name||'tournament')}`,paragraphs},ed,winner:w};
 }
 async function run(env,{publish}){
  const db=store(env);if(!db||!env.PUBLIC)return {error:'unconfigured'};
