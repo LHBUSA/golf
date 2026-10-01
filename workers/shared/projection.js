@@ -168,8 +168,8 @@ export function compute(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
  const pair=(x,y,reason)=>{const [a,b]=[x,y].sort((m,n)=>m.slug.localeCompare(n.slug));return {a:brief(a),b:brief(b),reason};};
  const featured=[];
  for(const div of ['men','women']){
-  const top=index.players.filter(p=>p.division===div&&p.scoring?.confidence==='HIGH').sort((a,b)=>b.scoring.percentile-a.scoring.percentile).slice(0,4);
-  for(let i=0;i<top.length;i++)for(let j=i+1;j<top.length&&featured.filter(f=>f.a.division===div).length<4;j++)featured.push(pair(top[i],top[j],div==='men'?'Top men’s scoring vs field (24 months)':'Top women’s scoring vs field (24 months)'));
+  const RANK={HIGH:3,MEDIUM:2,LIMITED:1};const top=index.players.filter(p=>p.division===div&&RANK[p.scoring?.confidence]&&p.scoring.percentile!==null).sort((a,b)=>RANK[b.scoring.confidence]-RANK[a.scoring.confidence]||b.scoring.percentile-a.scoring.percentile).slice(0,4);
+  for(let i=0;i<top.length;i++)for(let j=i+1;j<top.length&&featured.filter(f=>f.a.division===div).length<4;j++)featured.push(pair(top[i],top[j],div==='men'?'Men’s scoring-vs-field leaders (24 months)':'Women’s scoring-vs-field leaders (24 months)'));
   const champs=[...new Map(edList.filter(e=>e.is_major&&e.division===div&&e.winner).map(e=>[e.winner.slug,index.players.find(p=>p.slug===e.winner.slug)])).values()].filter(Boolean).slice(0,2);
   if(champs.length===2)featured.push(pair(champs[0],champs[1],div==='men'?'Latest men’s major champions':'Latest women’s major champions'));
  }

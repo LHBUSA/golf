@@ -1,0 +1,91 @@
+{
+ "as_of": "2026-10-01T18:39:03.121Z",
+ "coverage": {
+  "players": 1786,
+  "players_with_results": 1786,
+  "players_with_rounds": 1588,
+  "players_with_photo": 712,
+  "tournaments": 115,
+  "editions": 997,
+  "editions_with_leaderboards": 247,
+  "full_field_editions": 100,
+  "courses": 151,
+  "courses_with_photo": 60,
+  "results": 15327,
+  "rounds": 44447,
+  "hole_scores": 17190,
+  "men_majors": 479,
+  "women_majors": 235,
+  "pga_tour_events": 138,
+  "lpga_events": 96,
+  "dna_eligible": {
+   "men": 140,
+   "women": 27
+  },
+  "live_scoring": false,
+  "tee_times": false,
+  "official_rankings": false,
+  "shot_statistics": false
+ },
+ "player_media": {
+  "canonical_players": 1786,
+  "players_listed": 1786,
+  "approved_photos_displayed": 712,
+  "coverage_pct": 39.9,
+  "top50_men_pct": 70,
+  "top50_women_pct": 64,
+  "major_champions_pct": 71.1,
+  "major_champions": 360,
+  "field_2026_pct": 45.5,
+  "field_2026_players": 257,
+  "prominent_pct": 67.3,
+  "prominent": 52
+ },
+ "course_media": {
+  "courses": 151,
+  "with_photo": 60,
+  "pct": 39.7,
+  "recent_major_venues": 19,
+  "recent_major_venues_with_photo": 12
+ },
+ "player_stats": {
+  "with_results": 1786,
+  "with_rounds": 1588,
+  "with_season_rows": 1786,
+  "seasons": 27,
+  "metrics": [
+   "events",
+   "wins",
+   "top10",
+   "cuts made",
+   "rounds",
+   "scoring vs field",
+   "avg to par per round",
+   "major wins/top10/best",
+   "course history"
+  ]
+ },
+ "dna": {
+  "eligible_men": 140,
+  "eligible_women": 27,
+  "tiers": {
+   "men:MEDIUM": 60,
+   "women:INSUFFICIENT": 163,
+   "men:INSUFFICIENT": 161,
+   "women:LIMITED": 27,
+   "men:LIMITED": 80
+  },
+  "dimensions_live": 8,
+  "dimensions_held": 13
+ },
+ "course_dna": {
+  "eligible": 13,
+  "with_any_full_field": 36,
+  "layout_versions": 235
+ },
+ "course_fit": {
+  "pairs": 208,
+  "overall_score": "not published"
+ },
+ "news": 2
+}
