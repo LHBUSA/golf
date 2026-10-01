@@ -96,7 +96,9 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
  const delta=(x,c)=>{const f=fieldMean.get(x.edition_id+':'+c.round);return f?f.mean-c.strokes:null;};
  // ---- players
  const players=g.players.map(p=>{const i=ident.get(p.id)||{};const es=(entriesByPlayer.get(p.id)||[]);const divs=es.map(x=>x.e.division).filter(Boolean);const division=divs.length?(divs.filter(d=>d==='women').length>divs.length/2?'women':'men'):i.sex==='female'?'women':i.sex==='male'?'men':null;
-  return {id:p.id,slug:p.slug,name:p.full_name,birth_date:p.birth_date,birth_year:p.birth_date?Number(p.birth_date.slice(0,4)):i.birth_year?Number(i.birth_year):null,age:age(p.birth_date,asOf),country:i.country_name||espnIdent.get(p.id)?.citizenship||null,country_code:p.nationality_code,division:division||(espnIdent.get(p.id)?.gender==='FEMALE'?'women':espnIdent.get(p.id)?.gender==='MALE'?'men':null),external_ids:{...(i.external_ids||{}),...(espnIdent.get(p.id)?{espn:espnIdent.get(p.id).espn_id}:{})},wikidata_id:i.provider_id||null,bio:bioOf(espnIdent.get(p.id)),photo:media('player',p.id),provenance:captures.get(p.capture_id)||null};});
+  // ESPN headshot: hotlinked fallback only when no approved photo exists (never rehosted, never in share cards).
+  const hs=espnIdent.get(p.id)?.headshot,headshot=!media('player',p.id)&&typeof hs==='string'&&g.headshotsOk?.[hs]?.ok===true&&/^https:\/\/a\.espncdn\.com\/i\/headshots\/golf\/players\/full\/\d+\.png$/.test(hs)?hs:null;
+  return {id:p.id,slug:p.slug,name:p.full_name,birth_date:p.birth_date,birth_year:p.birth_date?Number(p.birth_date.slice(0,4)):i.birth_year?Number(i.birth_year):null,age:age(p.birth_date,asOf),country:i.country_name||espnIdent.get(p.id)?.citizenship||null,country_code:p.nationality_code,division:division||(espnIdent.get(p.id)?.gender==='FEMALE'?'women':espnIdent.get(p.id)?.gender==='MALE'?'men':null),external_ids:{...(i.external_ids||{}),...(espnIdent.get(p.id)?{espn:espnIdent.get(p.id).espn_id}:{})},wikidata_id:i.provider_id||null,bio:bioOf(espnIdent.get(p.id)),photo:media('player',p.id),headshot,provenance:captures.get(p.capture_id)||null};});
  const playerById=new Map(players.map(p=>[p.id,p]));
  const espnPlayer=id=>{const p=playerById.get(espnToPlayer.get(String(id)));return p?{slug:p.slug,name:p.name,photo:p.photo}:null;};
  // ---- DNA per division and window (time-safe: only editions ending on/before asOf)
@@ -245,7 +247,7 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   return {id:c.id,slug:c.slug,name:c.name,locality:c.locality,country_code:c.country_code,country:meta?.specifications?.country_name||null,latitude:c.latitude,longitude:c.longitude,description:meta?.specifications?.description||null,architects:meta?.specifications?.architects||[],opened_year:meta?.specifications?.opened_year||null,wikidata_id:meta?.specifications?.wikidata_id||null,photo:media('course',c.id),provenance:captures.get(c.capture_id)||null,
    editions:eds.map(e=>{const w=(entriesByEdition.get(e.id)||[]).find(x=>x.winner);const p=w&&playerById.get(w.player_id);return {slug:e.slug,name:e.name,year:e.year,division:e.division,is_major:e.is_major,coverage:e.coverage,par:e.par,yardage:e.layout?.yardage||null,winner:p?{slug:p.slug,name:p.name}:null,to_par:w?.to_par??null};}),
    dna:courseDna(c.id),player_history:leaders,contender_hole_scoring:contender};}
- const pSummary=d=>({slug:d.slug,name:d.name,country:d.country,country_code:d.country_code,division:d.division,age:d.age,photo:thumb(d.photo),...d.summary,scoring:d.dna?.l24m?.metrics?.scoring?{value:d.dna.l24m.metrics.scoring.value,percentile:d.dna.l24m.metrics.scoring.percentile,confidence:d.dna.l24m.metrics.scoring.confidence}:null,form:d.dna?.l24m?.metrics?.form?{value:d.dna.l24m.metrics.form.value,percentile:d.dna.l24m.metrics.form.percentile,confidence:d.dna.l24m.metrics.form.confidence}:null});
+ const pSummary=d=>({slug:d.slug,name:d.name,country:d.country,country_code:d.country_code,division:d.division,age:d.age,photo:thumb(d.photo),headshot:d.photo?null:d.headshot||null,...d.summary,scoring:d.dna?.l24m?.metrics?.scoring?{value:d.dna.l24m.metrics.scoring.value,percentile:d.dna.l24m.metrics.scoring.percentile,confidence:d.dna.l24m.metrics.scoring.confidence}:null,form:d.dna?.l24m?.metrics?.form?{value:d.dna.l24m.metrics.form.value,percentile:d.dna.l24m.metrics.form.percentile,confidence:d.dna.l24m.metrics.form.confidence}:null});
  function finalize({playerSummaries,courseSummaries,stats}){
  // ---- index (directories, search, home)
  const edSummary=e=>{const w=(entriesByEdition.get(e.id)||[]).find(x=>x.winner);const p=w&&playerById.get(w.player_id);return {id:e.id,slug:e.slug,name:e.name,tournament:e.tournament,series_key:e.series_key,year:e.year,starts_on:e.starts_on,ends_on:e.ends_on,status:e.status,division:e.division,is_major:e.is_major,tours:e.tours,course:e.course,coverage:e.coverage,winner:p?{slug:p.slug,name:p.name,photo:thumb(p.photo)}:null,winner_to_par:w?.to_par??null,location:e.schedule?.location||null};};
@@ -257,7 +259,7 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   current,upcoming,recent,editions:edList,players:playerSummaries.sort((a,b)=>b.events_observed-a.events_observed||a.name.localeCompare(b.name)),courses:courseSummaries.sort((a,b)=>b.editions_hosted-a.editions_hosted),
   series:Object.entries(SERIES_NAMES).map(([key,name])=>{const eds=edList.filter(e=>e.series_key===key);return {key,name,division:eds[0]?.division||null,editions:eds.length,first_year:eds.at(-1)?.year||null,latest:eds[0]||null};})};
  // Featured comparisons: same-division pairs only, canonical slug order (A vs B == B vs A).
- const brief=p=>({slug:p.slug,name:p.name,photo:thumb(p.photo),country:p.country,division:p.division});
+ const brief=p=>({slug:p.slug,name:p.name,photo:thumb(p.photo),headshot:p.photo?null:p.headshot||null,country:p.country,division:p.division});
  const pair=(x,y,reason)=>{const [a,b]=[x,y].sort((m,n)=>m.slug.localeCompare(n.slug));return {a:brief(a),b:brief(b),reason};};
  const featured=[];
  for(const div of ['men','women']){
@@ -290,6 +292,7 @@ async function sha(text){const h=await crypto.subtle.digest('SHA-256',new TextEn
 // Streaming publisher: each document is built, hashed, written if changed, then dropped.
 export async function buildProjection(db,env){
  const g=await loadGraph(db);const derivatives=new Set();
+ try{g.headshotsOk=JSON.parse(await env?.STATE?.get("espn:headshots:v1")||"{}");}catch{g.headshotsOk={};}
  if(env.PUBLIC){let cursor;do{const l=await env.PUBLIC.list({prefix:'media/',cursor,limit:1000});for(const o of l.objects){const m=o.key.match(/^media\/([0-9a-f]{64})\/640\.webp$/);if(m)derivatives.add(m[1]);}cursor=l.truncated?l.cursor:null;}while(cursor);}
  const c=prepare(g,{derivatives}),prefix='projection/v2/';
  let old={};try{old=JSON.parse(await (await env.PUBLIC.get(prefix+'manifest.json'))?.text()||'{}').docs||{};}catch{}

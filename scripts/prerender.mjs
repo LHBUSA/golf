@@ -28,7 +28,11 @@ await write('/404',route('/404',data));
 // Media credits: every approved image with author, licence and source.
 const credits=(b.index.media_credits||[]).filter(m=>m.derivatives);
 await write('/media-credits',{main:`<section class="page-heading data-heading"><div><p class="eyebrow">CREDITS</p><h1>Photograph credits</h1><p>Every player and course photograph, with author, licence and source. Images are resized only.</p></div></section><div class="page-body data-body"><div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="index-table"><thead><tr><th scope="col">Subject</th><th scope="col">Author</th><th scope="col">Licence</th><th scope="col">Source</th></tr></thead><tbody>${credits.map(m=>`<tr><td><a href="${escapeHtml(m.entity)}">${escapeHtml(m.name)}</a></td><td>${escapeHtml(m.author)}</td><td><a href="${escapeHtml(m.licence_url)}" rel="license">${escapeHtml(m.licence)}</a></td><td><a href="${escapeHtml(m.source_url)}">Wikimedia Commons</a></td></tr>`).join('')}</tbody></table></div></div>`,title:'Photograph credits',description:'Author, licence and source for every photograph.',indexable:false,schema:[]});
-await fs.writeFile('dist/_shell.html',template);
+// The SSR template references stable asset names (rewritten every deploy), so server-rendered news
+// pages never point at a previous build's hashed files after a deploy.
+let shellTpl=template;
+for(const m of template.matchAll(/\/assets\/(index-[A-Za-z0-9_-]+)\.(js|css)/g)){await fs.copyFile(`dist/assets/${m[1]}.${m[2]}`,`dist/assets/ssr-app.${m[2]}`);shellTpl=shellTpl.replace(`/assets/${m[1]}.${m[2]}`,`/assets/ssr-app.${m[2]}`);}
+await fs.writeFile('dist/_shell.html',shellTpl);
 await fs.writeFile('dist/robots.txt',`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /matchup-view\nDisallow: /_shell\nSitemap: ${SITE}/sitemap.xml\nSitemap: ${SITE}/news-sitemap.xml\n`);
 // Sitemap index: static children by entity type; news children are served live by golf-api.
 const groups={pages:[],players:[],tournaments:[],courses:[],matchups:[],majors:[]};

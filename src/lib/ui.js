@@ -19,6 +19,8 @@ export function portrait(p,{size=320,cls='portrait',eager=false,caption=false}={
  const ph=p?.photo;
  if(ph?.derivatives){const ws=[160,320,640].filter(w=>w<=Math.max(size*2,160));const ratio=ph.height&&ph.width?ph.height/ph.width:1.25;
   return `<figure class="${cls}"><picture><source type="image/avif" srcset="${ws.map(w=>media(ph.sha256,w,'avif')+' '+w+'w').join(', ')}" sizes="${size}px"><img src="${media(ph.sha256,ws.includes(320)?320:160,'webp')}" srcset="${ws.map(w=>media(ph.sha256,w,'webp')+' '+w+'w').join(', ')}" sizes="${size}px" width="${size}" height="${Math.round(size*ratio)}" alt="${e(p.name)}" ${eager?'fetchpriority="high"':'loading="lazy"'} decoding="async"></picture>${caption&&ph.licence?`<figcaption>Photo: ${e(ph.author)} · <a href="${e(ph.licence_url)}" rel="license">${e(ph.licence)}</a> · <a href="${e(ph.source_url)}">Wikimedia Commons</a></figcaption>`:''}</figure>`;}
+ // ESPN headshot (owner-approved ESPN source): hotlinked for the exact player, credited, never rehosted.
+ if(p?.headshot&&/^https:\/\/a\.espncdn\.com\/i\/headshots\/golf\/players\/full\/\d+\.png$/.test(p.headshot))return `<figure class="${cls} is-headshot"><img src="${e(p.headshot)}" alt="${e(p.name||'')}" ${eager?'fetchpriority="high"':'loading="lazy"'} width="${size}" height="${Math.round(size*0.73)}" referrerpolicy="no-referrer">${caption?'<figcaption>Photo: ESPN</figcaption>':''}</figure>`;
  return `<div class="${cls} identity-mark" aria-hidden="true"><span>${e(initials(p?.name))}</span>${p?.country_code?`<small>${e(p.country_code)}</small>`:''}</div>`;
 }
 export function courseImage(c,{cls='course-photo',eager=false,caption=true}={}){
