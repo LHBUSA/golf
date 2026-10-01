@@ -44,7 +44,12 @@ async function run(env,{publish}){
   const s=await buildStory(ed);if(s.skip){out.skipped++;continue;}
   const prior=(await db('golf_articles','select=id,status&dedupe_key=eq.'+encodeURIComponent(s.packet.event_key)))[0];
   // A validated shadow draft may be promoted on a later publish run; published stories are never duplicated.
-  if(prior&&(prior.status==='published'||!publish)){out.duplicates++;continue;}
+  if(prior&&prior.status==='published'&&publish){
+   // Editorial correction: same frozen facts (packet hash), different headline -> correct and disclose.
+   const story=published.find(x=>x.slug===ed.slug);
+   if(story&&story.packet_sha256===s.packet.hash&&story.headline!==s.draft.title){const now=new Date().toISOString();(story.corrections||=[]).push({at:now,field:'headline',from:story.headline,to:s.draft.title});story.headline=s.draft.title;await db('golf_articles','dedupe_key=eq.'+encodeURIComponent(s.packet.event_key),{method:'PATCH',headers:{prefer:'return=minimal'},body:JSON.stringify({headline:s.draft.title})});out.corrected=(out.corrected||0)+1;out.dirty=true;continue;}
+   out.duplicates++;continue;}
+  if(prior&&!publish){out.duplicates++;continue;}
   const verdict=validateDraft(s.packet,s.draft,[]),reasons=[...verdict.reasons];
   if(!s.winner.player?.slug)reasons.push('identity_unresolved');
   const ok=!reasons.length,status=ok&&publish?'published':ok?'validated':'held',now=new Date().toISOString();
@@ -58,7 +63,7 @@ async function run(env,{publish}){
   out.stories.push({slug:ed.slug,status,reasons});out[status]++;
   if(status==='published')published.unshift({slug:ed.slug,headline:s.draft.title,kicker:(ed.is_major?(ed.division==='women'?'Women’s major':'Men’s major'):(ed.tours?.[0]||'Golf')).toUpperCase()+' · FINAL',paragraphs:renderDraft(s.packet,s.draft),edition:'/tournament/'+ed.slug,winner:'/player/'+s.winner.player.slug,photo,published_at:now,packet_sha256:s.packet.hash,source_note:`Facts frozen from ${ed.results_source?.attribution||'the canonical record'} (CC BY-SA 4.0) and Wikidata (CC0). Every number traces to packet ${s.packet.hash.slice(0,12)}.`});
  }
- if(out.published)await env.PUBLIC.put('news/v1/index.json',JSON.stringify(published.slice(0,60)),{httpMetadata:{contentType:'application/json'}});
+ if(out.published||out.dirty)await env.PUBLIC.put('news/v1/index.json',JSON.stringify(published.slice(0,60)),{httpMetadata:{contentType:'application/json'}});
  return out;
 }
 export default {

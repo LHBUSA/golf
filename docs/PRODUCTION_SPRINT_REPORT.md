@@ -10,7 +10,7 @@ Owner decisions this sprint: Wikipedia CC BY-SA 4.0 approved as a results source
 | Vercel `golf` | production deployment of final main (786d3fe = dpl_9VwDinnNosxqKg6PPc86SJhBPndS verified 158/158) | dpl_2esZmJj7uHEQrGAYSuZes9sZzUBJ (136f16b) |
 | golf-api | 80cfc31a-25c6-4211-9d09-8cfb66075122 | 20f3cc91-95d2-4430-982d-fd8673d57f8a |
 | golf-ingest (cron */10) | 00e6048b-e764-4ca0-8316-da5d5ba57572 | 8d9ccf92-20b2-4e37-87a3-4fa3b3126bc3 (manual-only bootstrap) |
-| golf-news (PUBLISH_ENABLED, manual runs) | 2055a4bd-840d-4725-91ac-b9f8bc1a50fb | 1724136b-690b-4165-8bab-6d8af3c43869 |
+| golf-news (PUBLISH_ENABLED, manual runs) | 92b29cd4-6022-40eb-919c-b6339ed15d74 | 1724136b-690b-4165-8bab-6d8af3c43869 |
 
 New resources: KV `golf-state` (734f4f363026466da1f505da5f338dfc), R2 `golf-public` (projection, derivatives, news). SPORTS rows are append/update with ledger; nothing destructive to roll back. To stop ingestion set `golf_sources.automated_access=false` for a source (each lane checks before claiming its lease).
 
