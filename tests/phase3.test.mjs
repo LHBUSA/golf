@@ -53,3 +53,9 @@ test('global weather: MET Norway parsing keeps units honest and never invents gu
  assert.equal(h.t,'2026-10-02T08:00:00+09:00');assert.equal(h.temp_f,70);assert.equal(h.wind_mph,13);assert.equal(h.wind_dir,'NNE');assert.equal(h.gust_mph,null);assert.equal(h.pop,null);assert.equal(h.precip_mm,2.4);
  const e2=f.hours[1];assert.equal(e2.temp_f,null);assert.equal(e2.wind_mph,null);assert.equal(e2.wind_dir,null);
  assert.equal(W.geoKey(null,{city:'Ivins',state:'UT',country:'USA'}),'loc:ivins|ut|usa');assert.match(W.zoneFor(null,'Nowhere',-30).basis,/approximate solar time/);});
+test('projection hole reads survive the API 1000-row cap (no silently truncated scorecards)',async()=>{const {editionHoles}=await import('../workers/shared/projection.js');
+ const cards=Array.from({length:120},(_,i)=>({id:'c'+i,entry_id:'e'+i,golf_rounds:{round_number:1}}));
+ const holes=cards.flatMap(c=>Array.from({length:18},(_,h)=>({scorecard_id:c.id,strokes:4,score_to_par:0,golf_holes:{hole_number:h+1}})));
+ const db=async(t,q)=>{const lim=Math.min(1000,Number(q.match(/limit=(\d+)/)[1])),off=Number(q.match(/offset=(\d+)/)?.[1]||0);
+  if(t==='golf_scorecards')return cards.slice(off,off+lim);const ids=new Set(q.match(/scorecard_id=in\.\(([^)]*)\)/)[1].split(','));return holes.filter(h=>ids.has(h.scorecard_id)).slice(off,off+lim);};
+ const m=await editionHoles(db,'x');assert.equal(m.size,120);for(const a of m.values())assert.equal(a.length,18);});

@@ -1,0 +1,409 @@
+{
+ "generated_at": "2026-10-01T23:28:45.721Z",
+ "source": "sports.core.api.espn.com/v2/sports/golf (owner approved 2026-10-01)",
+ "site_api": "403 Access Denied (Akamai) for identified User-Agent; not used",
+ "leagues": [
+  {
+   "league": "pga",
+   "circuit": "PGA TOUR",
+   "earliest_season": 2001,
+   "latest_season": 2027,
+   "seasons": 27,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 49
+    },
+    {
+     "year": 2001,
+     "events": 50
+    },
+    {
+     "year": 2010,
+     "events": 51
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "AVAILABLE",
+    "tee_times": "AVAILABLE",
+    "groups": "AVAILABLE",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "AVAILABLE",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 186,
+    "results": 15335,
+    "rounds": 43149,
+    "tee_times": 33243,
+    "players": 1140,
+    "with_birth_date": 760,
+    "with_college": 498
+   }
+  },
+  {
+   "league": "lpga",
+   "circuit": "LPGA",
+   "earliest_season": 2002,
+   "latest_season": 2026,
+   "seasons": 25,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 32
+    },
+    {
+     "year": 2002,
+     "events": 31
+    },
+    {
+     "year": 2010,
+     "events": 28
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "NOT EXPOSED",
+    "tee_times": "AVAILABLE",
+    "groups": "NOT EXPOSED",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "AVAILABLE",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 77,
+    "results": 7245,
+    "rounds": 17226,
+    "tee_times": 14280,
+    "players": 605,
+    "with_birth_date": 372,
+    "with_college": 232
+   }
+  },
+  {
+   "league": "eur",
+   "circuit": "DP World Tour",
+   "earliest_season": 2009,
+   "latest_season": 2027,
+   "seasons": 19,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 35
+    },
+    {
+     "year": 2009,
+     "events": 44
+    },
+    {
+     "year": 2010,
+     "events": 44
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "NOT EXPOSED",
+    "tee_times": "AVAILABLE",
+    "groups": "NOT EXPOSED",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  },
+  {
+   "league": "champions-tour",
+   "circuit": "PGA TOUR Champions",
+   "earliest_season": 2007,
+   "latest_season": 2026,
+   "seasons": 19,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 29
+    },
+    {
+     "year": 2007,
+     "events": 29
+    },
+    {
+     "year": 2010,
+     "events": 26
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "AVAILABLE",
+    "tee_times": "AVAILABLE",
+    "groups": "AVAILABLE",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  },
+  {
+   "league": "ntw",
+   "circuit": "Korn Ferry Tour",
+   "earliest_season": 2007,
+   "latest_season": 2026,
+   "seasons": 19,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 25
+    },
+    {
+     "year": 2007,
+     "events": 32
+    },
+    {
+     "year": 2010,
+     "events": 29
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "AVAILABLE",
+    "tee_times": "AVAILABLE",
+    "groups": "AVAILABLE",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  },
+  {
+   "league": "liv",
+   "circuit": "LIV Golf",
+   "earliest_season": 2022,
+   "latest_season": 2026,
+   "seasons": 5,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 15
+    },
+    {
+     "year": 2022,
+     "events": 9
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "NOT EXPOSED",
+    "tee_times": "AVAILABLE",
+    "groups": "NOT EXPOSED",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  },
+  {
+   "league": "mens-olympics-golf",
+   "circuit": "Olympics (men)",
+   "earliest_season": 2016,
+   "latest_season": 2024,
+   "seasons": 3,
+   "events_sampled": [
+    {
+     "year": 2024,
+     "events": 1
+    },
+    {
+     "year": 2016,
+     "events": 1
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "PARTIAL",
+    "tee_times": "AVAILABLE",
+    "groups": "NOT EXPOSED",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  },
+  {
+   "league": "womens-olympics-golf",
+   "circuit": "Olympics (women)",
+   "earliest_season": 2016,
+   "latest_season": 2024,
+   "seasons": 3,
+   "events_sampled": [
+    {
+     "year": 2024,
+     "events": 1
+    },
+    {
+     "year": 2016,
+     "events": 1
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "AVAILABLE",
+    "rounds": "AVAILABLE",
+    "holes": "PARTIAL",
+    "tee_times": "AVAILABLE",
+    "groups": "NOT EXPOSED",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  },
+  {
+   "league": "tgl",
+   "circuit": "TGL",
+   "earliest_season": 2025,
+   "latest_season": 2027,
+   "seasons": 3,
+   "events_sampled": [
+    {
+     "year": 2026,
+     "events": 17
+    },
+    {
+     "year": 2025,
+     "events": 18
+    }
+   ],
+   "exposed": {
+    "events": "AVAILABLE",
+    "competitors": "NOT EXPOSED",
+    "rounds": "NOT EXPOSED",
+    "holes": "NOT EXPOSED",
+    "tee_times": "NOT EXPOSED",
+    "groups": "NOT EXPOSED",
+    "shots_plays": "NOT EXPOSED",
+    "season_stats": "UNKNOWN",
+    "bio": "AVAILABLE",
+    "venues": "AVAILABLE",
+    "venue_coordinates": "NOT EXPOSED",
+    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+   },
+   "stored": {
+    "editions": 0,
+    "results": 0,
+    "rounds": 0,
+    "tee_times": 0,
+    "players": 0,
+    "with_birth_date": 0,
+    "with_college": 0
+   }
+  }
+ ],
+ "stored_totals": {
+  "hole_scores": 549557,
+  "season_stat_rows": 28433,
+  "seasons": [
+   {
+    "label": "2026",
+    "tour": "PGA Tour"
+   },
+   {
+    "label": "2026",
+    "tour": "LPGA Tour"
+   },
+   {
+    "label": "2025",
+    "tour": "PGA Tour"
+   },
+   {
+    "label": "2025",
+    "tour": "LPGA Tour"
+   }
+  ]
+ }
+}

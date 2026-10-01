@@ -1,0 +1,67 @@
+{
+ "edition": "tour-championship-q1619413-2025",
+ "station": "72219013874 ATLANTA HARTSFIELD (NCEI ISD, public domain)",
+ "window": "7am-7pm EDT (11:00-23:00 UTC) FM-15 METARs",
+ "rounds": [
+  {
+   "round": 1,
+   "date": "2025-08-21",
+   "obs": 13,
+   "wind_mean_mph": 6.7,
+   "wind_max_mph": 18.3,
+   "gust_max_mph": 25.3,
+   "temp_f": [
+    73.0,
+    91.9
+   ],
+   "rain_mm": 0.0,
+   "field_avg": 67.27,
+   "n": 30
+  },
+  {
+   "round": 2,
+   "date": "2025-08-22",
+   "obs": 13,
+   "wind_mean_mph": 6.5,
+   "wind_max_mph": 9.2,
+   "gust_max_mph": null,
+   "temp_f": [
+    73.0,
+    82.9
+   ],
+   "rain_mm": 0.0,
+   "field_avg": 66.8,
+   "n": 30
+  },
+  {
+   "round": 3,
+   "date": "2025-08-23",
+   "obs": 13,
+   "wind_mean_mph": 11.9,
+   "wind_max_mph": 13.9,
+   "gust_max_mph": 24.2,
+   "temp_f": [
+    73.0,
+    79.0
+   ],
+   "rain_mm": 0.5,
+   "field_avg": 69.57,
+   "n": 30
+  },
+  {
+   "round": 4,
+   "date": "2025-08-24",
+   "obs": 13,
+   "wind_mean_mph": 6.4,
+   "wind_max_mph": 9.2,
+   "gust_max_mph": null,
+   "temp_f": [
+    72.0,
+    86.0
+   ],
+   "rain_mm": 0.0,
+   "field_avg": 67.63,
+   "n": 30
+  }
+ ]
+}

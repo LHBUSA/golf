@@ -27,7 +27,7 @@ export async function fileInfo(env,db,files){
 }
 // subjects: [{kind:'player'|'course', entity_id, qid, file}]
 export async function runMedia(env,db,subjects,{limit=40,budgetMs=200000}={}){
- const started=Date.now(),existing=new Set((await db('golf_entity_media','select=identity_proof->>file&limit=5000')).map(r=>r.file));
+ const started=Date.now(),existing=new Set();for(let o=0;;o+=1000){const pg=await db('golf_entity_media',`select=identity_proof->>file&order=id&limit=1000&offset=${o}`);pg.forEach(r=>existing.add(r.file));if(pg.length<1000)break;}
  // Files that can never pass (unsupported type, missing metadata) are remembered, not retried every run.
  let skip={};try{skip=JSON.parse(await env.STATE?.get('media:skip')||'{}');}catch{}
  const todo=subjects.filter(s=>s.file&&!existing.has(s.file)&&!skip[s.file]).slice(0,limit);

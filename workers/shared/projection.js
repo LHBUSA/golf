@@ -33,13 +33,15 @@ const SERIES_NAMES={'masters':'Masters Tournament','pga-championship':'PGA Champ
 // scorecard id in bounded chunks (indexed), instead of one embedded join over the whole hole table.
 export async function editionHoles(db,editionId){
  const out=new Map();
- const cards=await db('golf_scorecards',`select=id,entry_id,golf_rounds(round_number)&edition_id=eq.${editionId}&or=(holes_completed.is.null,holes_completed.gte.18)&limit=6000`);
+ const cards=[];for(let off=0;;off+=1000){const pg=await db('golf_scorecards',`select=id,entry_id,golf_rounds(round_number)&edition_id=eq.${editionId}&or=(holes_completed.is.null,holes_completed.gte.18)&order=id&limit=1000&offset=${off}`);cards.push(...pg);if(pg.length<1000)break;}
  const byCard=new Map(cards.map(c=>[c.id,c.entry_id+':'+c.golf_rounds?.round_number]));
  const ids=[...byCard.keys()];
- for(let i=0;i<ids.length;i+=150){const chunk=ids.slice(i,i+150);
-  for(let off=0;;off+=3000){const page=await db('golf_hole_scores',`select=scorecard_id,strokes,score_to_par,golf_holes(hole_number)&scorecard_id=in.(${chunk.join(',')})&order=id&limit=3000&offset=${off}`);
+ // The API caps a response at 1000 rows: page by exactly that, and never assume a short page means the end
+ // unless it is shorter than the cap.
+ for(let i=0;i<ids.length;i+=50){const chunk=ids.slice(i,i+50);
+  for(let off=0;;off+=1000){const page=await db('golf_hole_scores',`select=scorecard_id,strokes,score_to_par,golf_holes(hole_number)&scorecard_id=in.(${chunk.join(',')})&order=id&limit=1000&offset=${off}`);
    for(const h of page){const k=byCard.get(h.scorecard_id);if(!k)continue;if(!out.has(k))out.set(k,[]);out.get(k).push({hole:h.golf_holes?.hole_number,strokes:h.strokes,to_par:h.score_to_par});}
-   if(page.length<3000)break;}}
+   if(page.length<1000)break;}}
  for(const a of out.values())a.sort((x,y)=>x.hole-y.hole);return out;
 }
 // Per-edition hole maps are cached in R2 under a change signature (source fetch time + capture + status),
@@ -48,7 +50,7 @@ export function holesCache(db,env){
  const memo=new Map();
  return async e=>{
   if(memo.has(e.id))return memo.get(e.id);
-  const sig=[e.espn?.fetched_at||'',e.provenance?.id||'',e.status||'',e.coverage||'',e.layout?.id||''].join('|'),key='projection/cache/holes/'+e.id+'.json';
+  const sig=[e.espn?.fetched_at||'',e.provenance?.id||'',e.status||'',e.coverage||'',e.layout?.id||''].join('|'),key='projection/cache/holes/v2/'+e.id+'.json';
   // Editions still being played are always read fresh.
   if(e.status!=='completed'){const m=await editionHoles(db,e.id);memo.set(e.id,m);return m;}
   let m=null;

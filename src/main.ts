@@ -11,6 +11,8 @@ import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow} from './l
 import {videoTile,TYPE_LABEL} from './lib/video.js';
 // @ts-ignore
 import {fillRaw} from './lib/dna-ui.js';
+// @ts-ignore
+import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -51,7 +53,7 @@ if(m&&$('[data-matchup-finder]')){const [a,b]=[m[1],m[2]].sort();if(a!==m[1])loc
 // PBEcast edition switching
 const castSel=$<HTMLSelectElement>('[data-cast-select]');
 function bindCast(){$<HTMLSelectElement>('[data-cast-select]')?.addEventListener('change',ev=>{const v=(ev.target as HTMLSelectElement).value;history.replaceState(null,'','/pbecast?tournament='+encodeURIComponent(v));loadCast(v);});}
-async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);bindCast();hydrateLive();}}
+async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);bindCast();hydrateLive();initReplay();}}
 if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournament');if(q&&q!==castSel.value)loadCast(q);}
 // Premium modules: values are requested only after server-side All Access verification.
 async function premium(){
@@ -117,6 +119,45 @@ document.addEventListener('click',ev=>{
  const out=t.closest?.('[data-yt-out]') as HTMLElement|null;if(out){const box=out.closest('.yt') as HTMLElement;track('video_watch_on_youtube',{video_provider:'youtube',video_id:box?.dataset.yt||''});}
 });
 hydrateVideos();
+
+// ---- PBEcast replay controller: observed hole scores, reconstructed movement (labelled on the panel).
+async function initReplay(){
+ const root=$('[data-cast-replay]');if(!root||root.dataset.ready)return;root.dataset.ready='1';
+ const slug=root.getAttribute('data-edition')||'';
+ const [rr,er]=await Promise.all([api('tournaments/'+encodeURIComponent(slug)+'/rounds').then(r=>r.ok?r.json():null).catch(()=>null),api('tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);
+ // Only complete 18-hole cards are replayed; partial cards are never padded.
+ const rows=(rr?.data?.rounds||[]).map((r:any)=>({...r,holes:(r.holes||[]).filter((h:any)=>h.scores?.length===18)})).filter((r:any)=>r.holes.length).slice(0,60),layout=new Map<number,any>(((er?.data?.layout?.holes)||[]).map((h:any)=>[h.hole,h]));
+ if(!rows.length){root.hidden=true;return;}
+ const pSel=$<HTMLSelectElement>('[data-rc-player]',root)!,rSel=$<HTMLSelectElement>('[data-rc-round]',root)!,canvas=$('[data-rc-canvas]',root)!,card=$('[data-rc-card]',root)!,strip=$('[data-rc-strip]',root)!;
+ pSel.innerHTML=rows.map((r:any,i:number)=>`<option value="${i}">${e(r.player.name)}</option>`).join('');
+ let holes:any[]=[],idx=0,playing=false,timer:any=null;
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const setRounds=()=>{const r=rows[Number(pSel.value)];rSel.innerHTML=r.holes.map((h:any)=>`<option value="${h.round}">Round ${h.round}</option>`).join('');load();};
+ const load=()=>{const r=rows[Number(pSel.value)],rd=r.holes.find((h:any)=>String(h.round)===rSel.value)||r.holes[0];holes=(rd?.scores||[]).map((s:any)=>({...s,par:layout.get(s.hole)?.par??(s.strokes!=null&&s.to_par!=null?s.strokes-s.to_par:null),yards:layout.get(s.hole)?.yards??null}));idx=0;stop();renderStrip();show(0,false);};
+ const renderStrip=()=>{let run=0;strip.innerHTML=holes.map((h:any,i:number)=>{run+=h.to_par??0;const d=h.to_par;return `<li><button type="button" data-rc-hole="${i}" class="rc-h ${d<0?'is-under':d>0?'is-over':''}" aria-label="Hole ${h.hole}: ${h.strokes} (${scoreLabel(d)})"><small>${h.hole}</small>${e(h.strokes??'—')}</button></li>`;}).join('');};
+ const show=(i:number,animate:boolean)=>{idx=i;const h=holes[i];if(!h)return;canvas.innerHTML=holeSvg({hole:h.hole,par:h.par,yards:h.yards,strokes:h.strokes});
+  const thru=holes.slice(0,i+1).reduce((s:number,x:any)=>s+(x.to_par??0),0);
+  card.innerHTML=`<p class="micro-label">HOLE ${h.hole} · PAR ${e(h.par??'—')}</p><b>${e(h.strokes??'—')}</b><span>${e(scoreLabel(h.to_par))}</span><p class="rc-run">Round to par thru ${i+1}: <b>${thru===0?'E':thru>0?'+'+thru:'−'+Math.abs(thru)}</b></p>`;
+  strip.querySelectorAll('.rc-h').forEach((b,k)=>b.classList.toggle('is-on',k===i));
+  const ball=canvas.querySelector('[data-ball]') as SVGCircleElement,trail=canvas.querySelector('[data-trail]') as SVGPolylineElement;
+  const pts=shotPoints(h.par,h.strokes,h.hole);if(!pts.length)return;
+  const path=[[180,470],...pts];
+  if(!animate||reduced){const last=path[path.length-1];ball.setAttribute('cx',String(last[0]));ball.setAttribute('cy',String(last[1]));trail.setAttribute('points',path.map(p=>p.join(',')).join(' '));return;}
+  let seg=0,t0=performance.now();const dur=650;const done:number[][]=[path[0]];
+  const step=(t:number)=>{const k=Math.min(1,(t-t0)/dur),a=path[seg],b=path[seg+1];const x=a[0]+(b[0]-a[0])*k,y=a[1]+(b[1]-a[1])*k-Math.sin(Math.PI*k)*(seg<path.length-2?40:6);
+   ball.setAttribute('cx',x.toFixed(1));ball.setAttribute('cy',y.toFixed(1));trail.setAttribute('points',[...done,[x,y]].map(p=>p.join(',')).join(' '));
+   if(k<1){requestAnimationFrame(step);return;}done.push(b);seg++;if(seg<path.length-1){t0=performance.now();requestAnimationFrame(step);}};
+  requestAnimationFrame(step);
+ };
+ const stop=()=>{playing=false;clearTimeout(timer);const b=$('[data-rc-play]',root);if(b)b.textContent='Play round';};
+ const next=()=>{if(idx<holes.length-1){show(idx+1,true);if(playing)timer=setTimeout(next,(holes[idx]?.strokes||4)*700+900);}else stop();};
+ $('[data-rc-play]',root)?.addEventListener('click',()=>{if(playing){stop();return;}playing=true;const b=$('[data-rc-play]',root);if(b)b.textContent='Pause';if(idx>=holes.length-1)idx=-1;next();track('pbecast_view',{entity_type:'tournament',entity_id:slug});});
+ $('[data-rc-next]',root)?.addEventListener('click',()=>{stop();if(idx<holes.length-1)show(idx+1,true);});
+ $('[data-rc-prev]',root)?.addEventListener('click',()=>{stop();if(idx>0)show(idx-1,true);});
+ strip.addEventListener('click',ev=>{const b=(ev.target as HTMLElement).closest('[data-rc-hole]');if(b){stop();show(Number(b.getAttribute('data-rc-hole')),true);}});
+ pSel.addEventListener('change',setRounds);rSel.addEventListener('change',load);setRounds();
+}
+initReplay();
 // ---- Observational analytics (single GA4 instance; allowlisted, slug-only parameters)
 {
  const pt=pageType(location.pathname),parts=location.pathname.split('/').filter(Boolean);
