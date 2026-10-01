@@ -23,7 +23,7 @@ export async function loadGraph(db){
  const g=Object.fromEntries(keys.map((k,i)=>[k,data[i]]));
  // Scorecards stream into compact per-entry arrays (memory-bounded for the Worker).
  const roundNo=new Map(g.rounds.map(r=>[r.id,r.round_number]));g.cardsByEntry=new Map();g.counts={scorecards:0};
- for(let off=0;;off+=1000){const page=await db('golf_scorecards',`select=entry_id,round_id,strokes,score_to_par&order=id&limit=1000&offset=${off}`);for(const c of page){let a=g.cardsByEntry.get(c.entry_id);if(!a){a=[];g.cardsByEntry.set(c.entry_id,a);}a.push({round:roundNo.get(c.round_id),strokes:c.strokes,to_par:c.score_to_par});g.counts.scorecards++;}if(page.length<1000)break;}
+ for(let off=0;;off+=1000){const page=await db('golf_scorecards',`select=entry_id,round_id,strokes,score_to_par&or=(holes_completed.is.null,holes_completed.gte.18)&order=id&limit=1000&offset=${off}`);for(const c of page){let a=g.cardsByEntry.get(c.entry_id);if(!a){a=[];g.cardsByEntry.set(c.entry_id,a);}a.push({round:roundNo.get(c.round_id),strokes:c.strokes,to_par:c.score_to_par});g.counts.scorecards++;}if(page.length<1000)break;}
  return g;
 }
 const by=(rows,key)=>{const m=new Map();for(const r of rows){const k=r[key];if(!m.has(k))m.set(k,[]);m.get(k).push(r);}return m;};

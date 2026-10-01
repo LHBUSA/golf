@@ -31,7 +31,7 @@ export async function runLane(lane,env,db,opts={}){
   if(lane==='catalog')result=await runCatalog(env,db);
   else if(lane==='schedule')result=await runSchedule(env,db);
   else if(lane==='results')result=await runResults(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||40});
-  else if(lane==='espn')result=await runEspn(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||25});
+  else if(lane==='espn')result=await runEspn(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||25,force:opts.events||null});
   else if(lane==='espn-discover')result=await espnDiscover(env,{leagues:opts.leagues,seasons:opts.seasons});
   else if(lane==='weather')result=await runWeather(env,db);
   else if(lane==='espn-stats')result=await runEspnStats(env,db,{league:opts.leagues?.[0]||'pga',season:opts.seasons?.[0]||new Date().getUTCFullYear(),limit:opts.limit||250});
@@ -79,7 +79,7 @@ export default {
    try{return json(await ingestWikidata(env,db));}
    catch(error){await db('golf_source_state','source_id=eq.wikidata',{method:'PATCH',body:JSON.stringify({status:error instanceof SourceBlockedError?'blocked':'error',lease_until:null,last_error:error.message})});return json({error:'ingestion_failed',reason:error.message},502);}
   }
-  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number)}));}
+  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number),events:list('events').length?list('events'):undefined}));}
   if(path==='/admin/tick')return json(await tick(env));
   // Derivatives are produced offline from the archived original and stored under its content hash.
   if(path==='/admin/media-derivative'){

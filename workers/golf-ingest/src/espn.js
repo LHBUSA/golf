@@ -34,11 +34,12 @@ export async function fetchEventBundle(league,eventId,opts={}){
  const event=await getJSON(base,opts);
  const list=await getJSON(`${base}/competitions/${eventId}/competitors?limit=400`,opts);urls.push(`${base}/competitions/${eventId}/competitors?limit=400`);
  const items=list.items||[];
+ let comp_status=null;try{comp_status=await getJSON(`${base}/competitions/${eventId}/status`,opts);urls.push(`${base}/competitions/${eventId}/status`);}catch(e){if(e.name==='UpstreamBusy')throw e;}
  const linescores=await pool(3,items,async c=>{const u=`${base}/competitions/${eventId}/competitors/${c.id}/linescores`;urls.push(u);try{return await getJSON(u,opts);}catch(e){if(e.name==='UpstreamBusy')throw e;return {error:String(e.message)};}});
  const maxRounds=Math.max(0,...linescores.map(l=>(l.items||[]).filter(r=>Number.isFinite(r.value)&&r.value>0).length));
  // Status (position, tie, cut/WD, playoff) only where it cannot be read from complete rounds.
  const statuses=await pool(3,items.map((c,i)=>({c,i})),async({c,i})=>{const rounds=(linescores[i].items||[]).filter(r=>Number.isFinite(r.value)&&r.value>0).length;if(rounds===maxRounds&&event.winner?.athlete&&String(idOf(event.winner.athlete.$ref)||event.winner.athlete.id)!==String(c.id))return null;const u=`${base}/competitions/${eventId}/competitors/${c.id}/status`;urls.push(u);try{return await getJSON(u,opts);}catch{return null;}});
- return {league,event_id:String(eventId),fetched_at:new Date().toISOString(),urls,event,competitors:items.map((c,i)=>({id:String(c.id),order:c.order??null,amateur:c.amateur??null,linescores:linescores[i],status:statuses[i]}))};
+ return {league,event_id:String(eventId),fetched_at:new Date().toISOString(),urls,event,comp_status,competitors:items.map((c,i)=>({id:String(c.id),order:c.order??null,amateur:c.amateur??null,linescores:linescores[i],status:statuses[i]}))};
 }
 const toPar=v=>{const s=String(v??'').replace('−','-');if(s==='E')return 0;const n=Number(s);return Number.isFinite(n)?n:null;};
 // Pure normalization of a bundle. Positions follow stroke-play rules from published totals; the playoff
@@ -46,8 +47,12 @@ const toPar=v=>{const s=String(v??'').replace('−','-');if(s==='E')return 0;con
 export function parseEventBundle(b){
  const e=b.event,course=(e.courses||[]).find(c=>c.host)||e.courses?.[0]||null;
  const winnerId=e.winner?.athlete?String(e.winner.athlete.id||idOf(e.winner.athlete.$ref)):null;
+ const cs=b.comp_status,eventDone=Boolean(e.status?.type?.completed||cs?.type?.completed),period=Number(cs?.period)||null;
+ // A round counts only when complete: all 18 holes posted, or play has moved past it, or the event is final.
+ // A partial in-progress linescore (e.g. 3 strokes through 1 hole) is never a round score.
+ const roundDone=r=>{const h=(r.linescores||[]).length;if(h>=18)return true;if(h>0&&h<18)return eventDone;return eventDone||(period!==null&&Number(r.period)<period);};
  const rows=b.competitors.map(c=>{
-  const rounds=(c.linescores?.items||[]).filter(r=>Number.isFinite(r.value)&&r.value>0).sort((x,y)=>x.period-y.period).map(r=>({round:Number(r.period),strokes:Math.round(r.value),to_par:toPar(r.displayValue),tee_time:r.teeTime||null,start_tee:Number(r.startTee)||null,group:Number(r.groupNumber)||null,position_after:Number(r.currentPosition)||null,course_id:r.courseId?String(r.courseId):null,holes:(r.linescores||[]).filter(h=>Number.isFinite(h.value)&&h.value>0&&h.period>=1&&h.period<=18).map(h=>({hole:Number(h.period),strokes:Math.round(h.value),par:Number(h.par)||null,type:h.scoreType?.name||null}))}));
+  const rounds=(c.linescores?.items||[]).filter(r=>Number.isFinite(r.value)&&r.value>0&&roundDone(r)).sort((x,y)=>x.period-y.period).map(r=>({round:Number(r.period),strokes:Math.round(r.value),to_par:toPar(r.displayValue),tee_time:r.teeTime||null,start_tee:Number(r.startTee)||null,group:Number(r.groupNumber)||null,position_after:Number(r.currentPosition)||null,course_id:r.courseId?String(r.courseId):null,holes:(r.linescores||[]).filter(h=>Number.isFinite(h.value)&&h.value>0&&h.period>=1&&h.period<=18).map(h=>({hole:Number(h.period),strokes:Math.round(h.value),par:Number(h.par)||null,type:h.scoreType?.name||null}))}));
   const st=c.status?.type?.name||null;
   return {espn_id:c.id,order:c.order,amateur:c.amateur,rounds,status_name:st,status_position:c.status?.position?{position:Number(c.status.position.id)||null,tied:Boolean(c.status.position.isTie)}:null,playoff:c.status?.playoff??null};
  });
@@ -55,14 +60,14 @@ export function parseEventBundle(b){
  for(const r of rows){
   r.total=r.rounds.length?r.rounds.reduce((s,x)=>s+x.strokes,0):null;
   const st=r.status_name;
-  r.finish_status=st==='STATUS_CUT'?'cut':st==='STATUS_WITHDRAWN'||st==='STATUS_WD'?'withdrawn':st==='STATUS_DISQUALIFIED'||st==='STATUS_DQ'?'disqualified':r.rounds.length===maxRounds&&maxRounds>0?'finished':st?'unknown':(r.rounds.length&&r.rounds.length<maxRounds?'unknown':'unknown');
+  r.finish_status=st==='STATUS_CUT'?'cut':st==='STATUS_WITHDRAWN'||st==='STATUS_WD'?'withdrawn':st==='STATUS_DISQUALIFIED'||st==='STATUS_DQ'?'disqualified':!eventDone?'unknown':r.rounds.length===maxRounds&&maxRounds>0?'finished':st?'unknown':(r.rounds.length&&r.rounds.length<maxRounds?'unknown':'unknown');
  }
  const fin=rows.filter(r=>r.finish_status==='finished'&&Number.isInteger(r.total));
  for(const r of fin){const better=fin.filter(x=>x.total<r.total).length,same=fin.filter(x=>x.total===r.total).length;r.position=better+1;r.tied=same>1;}
  if(winnerId){const w=fin.find(r=>r.espn_id===winnerId);if(w&&w.tied){const others=fin.filter(x=>x!==w&&x.total===w.total);w.tied=false;w.playoff_won=true;for(const o of others){o.position=2;o.tied=others.length>1;}}}
  for(const r of rows)r.winner=r.espn_id===winnerId&&r.finish_status==='finished';
  const holes=(course?.holes||[]).map(h=>({hole:Number(h.number),par:Number(h.shotsToPar)||null,yards:Number(h.totalYards)||null})).filter(h=>h.hole>=1&&h.hole<=18).sort((a,b)=>a.hole-b.hole);
- return {event:{espn_id:b.event_id,league:b.league,name:e.name,starts_on:e.date?.slice(0,10)||null,ends_on:e.endDate?.slice(0,10)||null,completed:Boolean(e.status?.type?.completed),status_name:e.status?.type?.name||null,purse:Number(e.purse)||null,purse_text:e.displayPurse||null,tournament_id:(String(e.tournament?.$ref||'').match(/tournaments\/(\d+)/)||[])[1]||null,defending_champion_espn:e.defendingChampion?.athlete?String(e.defendingChampion.athlete.id||idOf(e.defendingChampion.athlete.$ref)):null,winner_espn:winnerId,rounds_played:maxRounds,playoff_type:e.playoffType?.description||null},
+ return {event:{espn_id:b.event_id,league:b.league,name:e.name,starts_on:e.date?.slice(0,10)||null,ends_on:e.endDate?.slice(0,10)||null,completed:eventDone,current_period:period,status_name:e.status?.type?.name||null,purse:Number(e.purse)||null,purse_text:e.displayPurse||null,tournament_id:(String(e.tournament?.$ref||'').match(/tournaments\/(\d+)/)||[])[1]||null,defending_champion_espn:e.defendingChampion?.athlete?String(e.defendingChampion.athlete.id||idOf(e.defendingChampion.athlete.$ref)):null,winner_espn:winnerId,rounds_played:maxRounds,playoff_type:e.playoffType?.description||null},
   course:course?{espn_id:String(course.id),name:course.name,city:course.address?.city||null,state:course.address?.state?.trim()||null,country:course.address?.country||null,par:Number(course.shotsToPar)||null,yards:Number(course.totalYards)||null,holes:holes.length===18?holes:[]}:null,rows};
 }
 // Identity: an ESPN athlete joins a canonical player only on exact normalized name AND corroboration

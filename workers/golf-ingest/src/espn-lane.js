@@ -33,9 +33,10 @@ export function matchEdition(ev,league,editions){
  const cands=near.filter(e=>!tourName||e.tours?.includes(tourName)||e.rules?.division===LEAGUES[league].division);
  return {match:cands.length===1?cands[0]:null,supersede:[]};
 }
-export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date()}={}){
+export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date(),force=null}={}){
  const started=Date.now(),items=await kv(env,KEY,{}),xw=await kv(env,XW,{tournament:{},course:{},college:{}});
- const t=now.getTime(),due=Object.entries(items).filter(([,i])=>(i.next_at||0)<=t).sort((a,b)=>(a[1].checked_at?1:0)-(b[1].checked_at?1:0)||b[1].season-a[1].season).slice(0,limit);
+ const t=now.getTime();for(const k of force||[])if(items[k]){items[k].next_at=0;items[k].checked_at=null;}
+ const due=Object.entries(items).filter(([,i])=>(i.next_at||0)<=t).sort((a,b)=>(force?.includes(b[0])?1:0)-(force?.includes(a[0])?1:0)||(a[1].checked_at?1:0)-(b[1].checked_at?1:0)||b[1].season-a[1].season).slice(0,limit);
  const out={lane:'espn',due:due.length,processed:0,held:0,errors:0,inserted:0,updated:0,unchanged:0,conflicts:0,new_players:0,resolved_players:0,held_identities:0};
  if(!due.length)return out;
  // Canonical indexes, loaded once per run.
@@ -97,7 +98,7 @@ export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date()}={
    const writeHoles=holesPolicy(item.league,item.season,isMajor)&&layoutId&&p.course?.holes?.length===18;
    if(writeHoles&&!holeRows.length)for(const h of p.course.holes)holeId.set(h.hole,{id:await plan.add('golf_holes',(edKey||edId)+':espn-setup:'+h.hole,cap.id,{layout_id:layoutId,hole_number:h.hole,par:h.par,yardage:h.yards,routing:null,routing_observed:false}),par:h.par});
    // Existing rows for this edition (reused, never clobbered).
-   const [eEntries,eResults,eRounds,eCards]=match?await Promise.all([db('golf_entries','select=id,player_id,status&edition_id=eq.'+edId+'&limit=1000'),db('golf_results','select=*&edition_id=eq.'+edId+'&limit=1000'),db('golf_rounds','select=id,round_number&edition_id=eq.'+edId),db('golf_scorecards','select=id,entry_id,round_id,strokes&edition_id=eq.'+edId+'&limit=5000')]):[[],[],[],[]];
+   const [eEntries,eResults,eRounds,eCards]=match?await Promise.all([db('golf_entries','select=id,player_id,status&edition_id=eq.'+edId+'&limit=1000'),db('golf_results','select=*,golf_source_captures(source_id)&edition_id=eq.'+edId+'&limit=1000'),db('golf_rounds','select=id,round_number&edition_id=eq.'+edId),db('golf_scorecards','select=id,entry_id,round_id,strokes,holes_completed,golf_source_captures(source_id)&edition_id=eq.'+edId+'&limit=5000')]):[[],[],[],[]];
    const entryByPlayer=new Map(eEntries.map(x=>[x.player_id,x])),resultByEntry=new Map(eResults.map(r=>[r.entry_id,r])),roundId=new Map(eRounds.map(r=>[r.round_number,r.id]));
    const cardKey=new Map(eCards.map(c=>[c.entry_id+':'+c.round_id,c]));
    const editionPlayers=new Set(eEntries.map(x=>x.player_id)),crossed=new Set(crosswalk.values());
@@ -126,13 +127,16 @@ export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date()}={
     const oldRes=resultByEntry.get(entryId);
     const espnRes={edition_id:edId,entry_id:entryId,position:r.position??null,tied:r.tied??null,strokes:r.finish_status==='finished'?r.total:null,score_to_par:r.finish_status==='finished'&&r.rounds.length?r.rounds.reduce((s,x)=>s+(x.to_par??0),0):null,finish_status:r.finish_status,winner:r.winner?true:r.finish_status==='finished'?false:null,winning_margin:null};
     if(oldRes){
-     for(const k of ['position','strokes','finish_status'])if(oldRes[k]!==null&&espnRes[k]!==null&&oldRes[k]!==espnRes[k]){espnRules.conflicts.push({entry:entryId,field:k,existing:oldRes[k],espn:espnRes[k]});}
-     const merged={...espnRes};for(const k of Object.keys(merged))if(oldRes[k]!==null&&oldRes[k]!==undefined)merged[k]=oldRes[k];
-     plan.rows.push({table:'golf_results',row:{id:oldRes.id,capture_id:oldRes.capture_id,...merged}});
+     if(oldRes.golf_source_captures?.source_id!=='espn')for(const k of ['position','strokes','finish_status'])if(oldRes[k]!==null&&espnRes[k]!==null&&oldRes[k]!==espnRes[k]){espnRules.conflicts.push({entry:entryId,field:k,existing:oldRes[k],espn:espnRes[k]});}
+     const own=oldRes.golf_source_captures?.source_id==='espn';
+     const merged={...espnRes};if(!own)for(const k of Object.keys(merged))if(oldRes[k]!==null&&oldRes[k]!==undefined&&!(k==='finish_status'&&oldRes[k]==='unknown'))merged[k]=oldRes[k];
+     plan.rows.push({table:'golf_results',row:{id:oldRes.id,capture_id:own?cap.id:oldRes.capture_id,...merged}});
     }else await plan.add('golf_results',(edKey||edId)+':r:'+pid,cap.id,espnRes);
     for(const rd of r.rounds){
      const rid=roundId.get(rd.round);if(!rid||!layoutId)continue;const oc=cardKey.get(entryId+':'+rid);
-     if(oc&&oc.strokes!==rd.strokes){espnRules.conflicts.push({entry:entryId,round:rd.round,field:'round_strokes',existing:oc.strokes,espn:rd.strokes});continue;}
+     const ownCard=oc&&oc.golf_source_captures?.source_id==='espn';
+     if(ownCard&&(oc.strokes!==rd.strokes||oc.holes_completed<18))plan.rows.push({table:'golf_scorecards',row:{id:oc.id,capture_id:cap.id,edition_id:edId,round_id:rid,entry_id:entryId,layout_id:layoutId,strokes:rd.strokes,score_to_par:rd.to_par,holes_completed:rd.holes.length||18,status:'completed'}});
+     else if(oc&&oc.strokes!==rd.strokes){espnRules.conflicts.push({entry:entryId,round:rd.round,field:'round_strokes',existing:oc.strokes,espn:rd.strokes});continue;}
      const cid=oc?.id||await plan.add('golf_scorecards',(edKey||edId)+':'+pid+':R'+rd.round,cap.id,{edition_id:edId,round_id:rid,entry_id:entryId,layout_id:layoutId,strokes:rd.strokes,score_to_par:rd.to_par,holes_completed:rd.holes.length||18,status:'completed'});
      if(writeHoles&&rd.holes.length===18&&holeId.size===18&&rd.holes.reduce((s,h)=>s+h.strokes,0)===rd.strokes)for(const h of rd.holes){const H=holeId.get(h.hole);if(!H)continue;if(H.par&&h.par&&H.par!==h.par)continue;await plan.add('golf_hole_scores',cid+':H'+h.hole,cap.id,{scorecard_id:cid,layout_id:layoutId,hole_id:H.id,strokes:h.strokes,score_to_par:h.par?h.strokes-h.par:null,status:'completed'});}
      if(rd.tee_time){const gk=rd.round+':'+(rd.group||rd.tee_time+'@'+(rd.start_tee||1));let gid=groups.get(gk);if(!gid){gid=await plan.add('golf_groups',edId+':'+gk,cap.id,{edition_id:edId,round_number:rd.round,source_group_key:gk});groups.set(gk,gid);}
@@ -144,7 +148,9 @@ export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date()}={
    const c=await writePlan(db,plan.rows);out.inserted+=c.inserted;out.updated+=c.updated;out.unchanged+=c.unchanged;out.processed++;
    if(!match)editions.push({id:edId,tournament_id:tId,edition_key:edRow.edition_key,starts_on:edRow.starts_on,ends_on:edRow.ends_on,rules:edRow.rules,year:Number(edRow.edition_key),tours:cfg.tour?[cfg.tour==='pga-tour'?'PGA Tour':'LPGA Tour']:[]});
    item.status=ev.completed?'ok':'open';item.checked_at=new Date().toISOString();item.matched=Boolean(match);item.detail={rows:p.rows.length,conflicts:espnRules.conflict_count,holes:Boolean(writeHoles)};
-   item.next_at=ev.completed?t+(Date.parse(ev.ends_on||0)>t-30*DAY?2*DAY:60*DAY):t+6*3600000;item.attempts=0;
+   // Live events refresh every 30 minutes while rounds are being played; scheduled ones every 6 hours.
+   const playing=!ev.completed&&ev.rounds_played>0||(!ev.completed&&ev.starts_on&&Date.parse(ev.starts_on)<=t&&Date.parse(ev.ends_on||ev.starts_on)+DAY>=t);
+   item.next_at=ev.completed?t+(Date.parse(ev.ends_on||0)>t-30*DAY?2*DAY:60*DAY):playing?t+30*60000:t+6*3600000;item.attempts=0;
   }catch(e){
    if(e instanceof SourceBlockedError){delete item.in_progress;item.status='blocked';items[key]=item;await env.STATE.put(KEY,JSON.stringify(items));await env.STATE.put(XW,JSON.stringify(xw));throw e;}
    // Upstream 5xx after a bounded retry: back off this item and end the run (circuit breaker).
