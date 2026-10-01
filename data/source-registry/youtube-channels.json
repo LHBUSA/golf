@@ -1,0 +1,21 @@
+{
+ "version": "golf-youtube-channels/1",
+ "reviewed_at": "2026-10-01",
+ "policy": "Keyless: public Atom feed + oEmbed only. A channel is enabled only with two proofs: the feed <title> matches the organisation, AND either the channel page carries YouTube's verified badge or the organisation's own website links the channel. Broad channels (multi-sport) carry a golf-only title filter. Fan channels are never enabled. Videos are embedded (youtube-nocookie, poster-first, no autoplay on load); never downloaded, rehosted or clipped.",
+ "channels": [
+  {"id":"UCKwGZZMrhNYKzucCtTPY2Nw","handle":"@PGATOUR","name":"PGA TOUR","class":"tour_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"PGA Tour","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCWZbPo5_riXyCFDyaMl2yRA","handle":"@LPGA","name":"LPGA","class":"tour_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"LPGA","checks":["feed_title_match","linked_from_official_site:https://www.lpga.com"]}},
+  {"id":"UCvZwbZt6YZQ4wj_7qyjPDZw","handle":"@DPWorldTour","name":"DP World Tour","class":"tour_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"DP World Tour","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCZoQ6VBnQGF2T3hwevWLJUA","handle":"@KornFerryTour","name":"Korn Ferry Tour","class":"tour_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"Korn Ferry Tour","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCA7NPMCfXmvsGeosBkio52Q","handle":"@PGATOURChampions","name":"PGA TOUR Champions","class":"tour_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"PGA Tour Champions","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCuC-Is0pVH9RudfZJw-LSmw","handle":"@LIVGolf","name":"LIV Golf","class":"tour_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"LIV Golf","checks":["feed_title_match","linked_from_official_site:https://www.livgolf.com"]}},
+  {"id":"UCnUYyAtDiyeaobSzKqVE_BA","handle":"@PGAChampionship","name":"PGA Championship (PGA of America)","class":"championship_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"PGA Championships","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCFiswEI_awoQBRQ1JK6v0cA","handle":"@rydercup","name":"Ryder Cup","class":"championship_official","enabled":true,"golf_filter":false,"verification":{"feed_title":"Ryder Cup","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCTl3QQTvqHFjurroKxexy2Q","handle":"@Olympics","name":"Olympics","class":"olympic","enabled":true,"golf_filter":true,"verification":{"feed_title":"Olympic Games","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCiWLfSweyRNmLpgEHekhoAg","handle":"@ESPN","name":"ESPN","class":"broadcaster","enabled":true,"golf_filter":true,"verification":{"feed_title":"ESPN","checks":["feed_title_match","verified_badge"]}},
+  {"id":"UCsZsn_S93Zs8JOdKMRbklmg","handle":"@usga","name":"USGA","class":"governing_body","enabled":false,"golf_filter":false,"verification":{"feed_title":"United States Golf Association (USGA)","checks":["feed_title_match"],"hold":"second proof missing: usga.org returns 403 to our client (not bypassed); no verified badge observed"}},
+  {"id":"UCSZxaHGo1OEs06vQumIooug","handle":"@TheMasters","name":"The Masters","class":"championship_official","enabled":false,"golf_filter":false,"verification":{"feed_title":"The Masters","checks":["feed_title_match"],"hold":"second proof missing: masters.com did not respond; no verified badge observed"}},
+  {"id":"UCzdxf0XCv7UkrynQSFMQKoA","handle":"@PGAofAmerica","name":"PGA of America","class":"governing_body","enabled":false,"golf_filter":false,"verification":{"feed_title":"PGA of America","checks":["feed_title_match"],"hold":"second proof missing: pga.com did not respond; no verified badge observed"}},
+  {"id":null,"handle":"youtube.com/user/theopen","name":"The Open (R&A)","class":"championship_official","enabled":false,"golf_filter":false,"verification":{"checks":["linked_from_official_site:https://www.theopen.com"],"hold":"the linked legacy user URL did not resolve to a channel id; '@TheOpenGolf' (UC_ISrZjdrW6wapPpA5VrArQ) is not proven official and is not used"}}
+ ]
+}

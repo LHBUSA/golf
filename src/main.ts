@@ -7,6 +7,8 @@ import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,t
 import {portrait,e} from './lib/ui.js';
 // @ts-ignore
 import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow} from './lib/live-ui.js';
+// @ts-ignore
+import {videoTile,TYPE_LABEL} from './lib/video.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -90,6 +92,28 @@ async function hydrateLive(){
 hydrateLive();
 // Keep live views current while visible (the API is cached for one minute at the edge).
 setInterval(()=>{if(document.visibilityState==='visible'&&$('[data-live-hero],[data-live-rail],[data-live-board],[data-live-player],[data-live-cast],[data-live-page]'))hydrateLive();},120000);
+
+// ---- Official video (keyless lane). Posters only; the iframe loads after a click and never autoplays on load.
+const VIDEO_GROUPS:Record<string,[string,(v:any)=>boolean][]>={
+ edition:[['Round by round',(v:any)=>v.round!=null&&v.video_type!=='full_round'],['Full round replays',(v:any)=>v.video_type==='full_round'],['Highlights',(v:any)=>/highlights/.test(v.video_type)&&v.round==null],['Interviews and press',(v:any)=>['interview','press_conference'].includes(v.video_type)],['More',()=>true]],
+ player:[['Latest highlights',(v:any)=>/highlights/.test(v.video_type)||v.video_type==='full_round'],['Interviews',(v:any)=>['interview','press_conference'].includes(v.video_type)],["What's in the bag",(v:any)=>v.video_type==='witb'],['More',()=>true]],
+ course:[['Course preview and flyover',(v:any)=>['course_preview','course_flyover'].includes(v.video_type)],['Tournament video here',()=>true]]};
+async function hydrateVideos(){
+ for(const m of $$('[data-videos]')){const kind=m.getAttribute('data-videos')||'',slug=m.getAttribute('data-slug')||'';if(!slug||m.dataset.done)continue;m.dataset.done='1';
+  const r=await api(`videos?${kind}=${encodeURIComponent(slug)}&limit=18`).then(x=>x.ok?x.json():null).catch(()=>null);const vs=r?.data||[];if(!vs.length)continue;
+  const used=new Set<string>();const groups=(VIDEO_GROUPS[kind]||[['Official video',()=>true]]).map(([t,f])=>{const g=vs.filter((v:any)=>!used.has(v.video_id)&&f(v)).slice(0,6);g.forEach((v:any)=>used.add(v.video_id));return [t,g] as [string,any[]];}).filter(([,g])=>g.length);
+  m.innerHTML=`<p class="eyebrow">OFFICIAL VIDEO</p><h2>Watch</h2>${groups.map(([t,g])=>`<h3 class="yt-group">${e(t)}</h3><div class="yt-rail">${g.map((v:any)=>videoTile(v,{label:(v.round?`R${v.round} · ${(TYPE_LABEL as any)[v.video_type]||'Video'}`:null) as any})).join('')}</div>`).join('')}<p class="gnote">Official channels only. Plays from YouTube (privacy-enhanced mode) when you press play.</p>`;m.hidden=false;
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{for(const x of es)if(x.isIntersecting){const el=x.target as HTMLElement;track('video_impression',{video_provider:'youtube',video_id:el.dataset.yt||'',video_type:el.dataset.ytType||'',source_channel:el.dataset.ytChannel||''});io.unobserve(el);}},{threshold:.5});$$('.yt',m).forEach(el=>io.observe(el));}
+ }
+}
+document.addEventListener('click',ev=>{
+ const t=ev.target as HTMLElement;const btn=t.closest?.('.yt-poster') as HTMLElement|null;
+ if(btn){const box=btn.closest('.yt') as HTMLElement;const id=box?.dataset.yt;if(!id||!/^[A-Za-z0-9_-]{6,20}$/.test(id))return;
+  const f=document.createElement('iframe');f.src=`https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&autoplay=1&playsinline=1`;f.title=box.dataset.ytTitle||'Video';f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.setAttribute('allowfullscreen','');f.loading='eager';f.referrerPolicy='strict-origin-when-cross-origin';
+  btn.replaceWith(f);track('video_play',{video_provider:'youtube',video_id:id,video_type:box.dataset.ytType||'',source_channel:box.dataset.ytChannel||''});return;}
+ const out=t.closest?.('[data-yt-out]') as HTMLElement|null;if(out){const box=out.closest('.yt') as HTMLElement;track('video_watch_on_youtube',{video_provider:'youtube',video_id:box?.dataset.yt||''});}
+});
+hydrateVideos();
 // ---- Observational analytics (single GA4 instance; allowlisted, slug-only parameters)
 {
  const pt=pageType(location.pathname),parts=location.pathname.split('/').filter(Boolean);

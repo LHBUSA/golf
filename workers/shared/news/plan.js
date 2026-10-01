@@ -74,3 +74,13 @@ export async function pickHero(packet,ctx){
  return {kind:'fallback',name:null,slug:null,photo:null};
 }
 export const summaryOf=a=>({slug:a.slug,type:a.type,category:a.category,headline:a.headline_text,dek:a.dek_text,published_at:a.published_at,updated_at:a.updated_at,hero:a.hero?.photo?{sha256:a.hero.photo.sha256,width:a.hero.photo.width,height:a.hero.photo.height,kind:a.hero.kind}:null,entities:a.entities.map(x=>x.key+':'+x.type+':'+x.href),edition:a.context.edition,is_major:a.context.is_major,division:a.context.division});
+
+// Official video for an article: chosen by the application from the keyless video index (never by the model).
+const PREF={final:['winner_highlights','tournament_highlights','round_highlights','full_round'],round_recap:['round_highlights','full_round','player_highlights'],notable_round:['player_highlights','round_highlights','shot_highlights'],preview:['course_preview','course_flyover','press_conference','interview'],player_form:['player_highlights','interview'],course_intelligence:['course_flyover','course_preview'],cut:['round_highlights'],course_weather:['course_preview','course_flyover']};
+export function pickVideo(packet,videos){
+ const ed=packet.context?.edition,p1=packet.entities.find(x=>x.key==='p1'&&x.type==='player')?.ref,round=packet.context?.round||null,pref=PREF[packet.type]||[];
+ const ok=(videos||[]).filter(v=>v.link_status==='published'&&v.embeddable!==false&&['high','medium'].includes(v.resolver?.confidence)&&ed&&v.entities?.editions?.includes(ed));
+ const score=v=>(p1&&v.entities.players.includes(p1)?4:0)+(round&&v.entities.round===round?3:0)+(pref.includes(v.video_type)?3-pref.indexOf(v.video_type)*0.5:0)+(v.embeddable===true?0.5:0);
+ const best=ok.map(v=>({v,s:score(v)})).filter(x=>x.s>=3).sort((a,b)=>b.s-a.s||String(b.v.published_at).localeCompare(String(a.v.published_at)))[0]?.v;
+ return best?{video_id:best.video_id,title:best.title,channel:best.channel,channel_id:best.channel_id,published_at:best.published_at,video_type:best.video_type,label:{round_highlights:'Watch the round',full_round:'Full round replay',winner_highlights:'Watch the highlights',tournament_highlights:'Watch the highlights'}[best.video_type]||'Watch'}:null;
+}

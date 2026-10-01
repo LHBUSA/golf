@@ -13,7 +13,7 @@ export function deskDraft(p){
   d.dek=`The {f:year} {f:event} starts {f:start_day}${where}.${has('field_major_champions')?' The field includes {f:field_major_champions}.':''}`;
   d.sections.push(S('The week',`${event} begins {f:start_day}${where}${has('tour')?' on the {f:tour}':''}.`,has('par')&&has('yards')?`The course plays to {f:par} and {f:yards}.`:null,has('purse')?`The purse is {f:purse}.`:null,has('field_size')?`ESPN lists a field of {f:field_size} players.`:null));
   if(has('defending')||has('recent_winners'))d.sections.push(S('Recent history',has('defending')?`${E('p1')||'{f:defending}'} is the defending champion.`:null,has('recent_winners')?`Recent champions in our record: {f:recent_winners}.`:null));
-  if(has('field_major_champions')||has('form_leaders'))d.sections.push(S('Who is here',has('field_major_champions')?`Major champions in the field: ${['p2','p3','p4','p5'].filter(ent).map(k=>`{e:${k}}`).join(', ')}.`:null,has('form_leaders')?`On recent scoring against the field, the strongest form belongs to ${['f1','f2','f3'].filter(ent).map(k=>`{e:${k}}`).join(', ')}.`:null,ent('m1')?`See the head-to-head in {e:m1}.`:null));
+  if(has('field_major_champions'))d.sections.push(S('Who is here',has('field_major_champions')?`Major champions in the field: ${['p2','p3','p4','p5'].filter(ent).map(k=>`{e:${k}}`).join(', ')}.`:null,ent('m1')?`See the head-to-head in {e:m1}.`:null));
   if(has('max_gust'))d.sections.push(S('Weather','The strongest gust in the daytime forecast for the tournament days is {f:max_gust}.'));
   d.seo_title=`{f:event} preview: field, history and course`;d.social_headline=has('defending')?`{f:defending} defends at the {f:event}`:`{f:event}: what to know`;
  }else if(p.type==='round_recap'){
@@ -58,7 +58,7 @@ export function deskDraft(p){
  }else if(p.type==='player_form'){
   d.headline=`{f:player} arrives at the {f:event} in form`;
   d.dek=`{f:player} has {f:recent_top10} top-ten finishes in {f:recent_starts} starts${has('recent_wins')?', including a win':''}.`;
-  d.sections.push(S('The run',`{e:p1} comes to ${event} with {f:recent_top10} top-ten finishes in the last {f:recent_starts} starts in our record.`,'Latest first: {f:recent_results}.','Across recent rounds, {f:player} has averaged {f:form_vs_field} strokes per round against the field.'));
+  d.sections.push(S('The run',`{e:p1} comes to ${event} with {f:recent_top10} top-ten finishes in the last {f:recent_starts} starts in our record.`,'Latest first: {f:recent_results}.','On recent form, {f:player} sits in the {f:form_pct} of our Player DNA.'));
   d.seo_title=`{f:player} form ahead of the {f:event}`;d.social_headline=`{f:player} in form for the {f:event}`;
  }else if(p.type==='course_intelligence'){
   d.headline=`How {f:course} plays: Course DNA for the {f:event}`;

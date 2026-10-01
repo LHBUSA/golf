@@ -7,7 +7,7 @@ import {changedFacts} from '../../shared/news/facts.js';
 import {deskDraft,DESK_VERSION} from '../../shared/news/desk.js';
 import {validateDraft,resolveHref,QUALITY_VERSION} from '../../shared/news/validate.js';
 import {editorialPass,EDITOR_VERSION} from '../../shared/news/editor.js';
-import {articleSlug,buildArticle,pickHero,summaryOf} from '../../shared/news/plan.js';
+import {articleSlug,buildArticle,pickHero,summaryOf,pickVideo} from '../../shared/news/plan.js';
 export {buildStory} from './legacy.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
 const DAY=86400000,days=(a,b)=>Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/DAY);
@@ -41,6 +41,7 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
   const cands=[];for(const [k,T] of Object.entries(TYPES)){if(T.verified_only||types&&!types.includes(k))continue;for(const c of T.detect(ctx))if(!editions.length||editions.includes(c.edition))cands.push(c);}
   out.candidates=cands.length;
   const index=await getJSON(env.PUBLIC,'news/v2/index.json')||[];let indexDirty=false;
+  const videos=(await getJSON(env.PUBLIC,'video/v1/index.json').catch(()=>null))?.videos||[];
   for(const c of cands.slice(0,limit)){
    let P;try{P=await TYPES[c.type].build(ctx,c);}catch(e){out.skipped['build_error:'+c.type]=(out.skipped['build_error:'+c.type]||0)+1;console.error(JSON.stringify({worker:'golf-news',build_error:e.message,stack:String(e.stack).slice(0,300),c}));continue;}
    if(!P){out.skipped[c.type]=(out.skipped[c.type]||0)+1;continue;}
@@ -66,7 +67,7 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
    if(!rec){const owner=await env.STATE.get('news:slug:'+slug);if(owner&&owner!==packet.topic)slug=slug+'-'+packet.hash.slice(0,6);}
    const hold=chosen?[]:deskV.reasons,publishable=Boolean(chosen)&&wantsPublish,now=new Date().toISOString();
    const prior=rec?.state==='published'?await getJSON(env.PUBLIC,'news/v2/articles/'+slug+'.json'):null;
-   const article=chosen?buildArticle({packet,draft:chosen,editor,slug,ctx,hero:await pickHero(packet,ctx),prior,now,status:publishable?'published':'shadow'}):null;
+   const article=chosen?buildArticle({packet,draft:chosen,editor,slug,ctx,hero:await pickHero(packet,ctx),video:pickVideo(packet,videos),prior,now,status:publishable?'published':'shadow'}):null;
    if(article&&prior&&prior.packet_sha256!==packet.hash){
     const prevPacket=await getJSON(PRIV,'news/v2/packets/'+prior.packet_sha256+'.json');const ch=changedFacts(prevPacket,packet);
     const kind=UPDATE_TYPES.has(packet.type)?'update':'correction';

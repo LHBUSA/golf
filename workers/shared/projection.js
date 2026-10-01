@@ -29,13 +29,33 @@ export async function loadGraph(db){
 const by=(rows,key)=>{const m=new Map();for(const r of rows){const k=r[key];if(!m.has(k))m.set(k,[]);m.get(k).push(r);}return m;};
 const age=(birth,asOf)=>{if(!birth)return null;const b=new Date(birth+'T00:00:00Z'),a=new Date(asOf);let y=a.getUTCFullYear()-b.getUTCFullYear();if(a.getUTCMonth()<b.getUTCMonth()||(a.getUTCMonth()===b.getUTCMonth()&&a.getUTCDate()<b.getUTCDate()))y--;return y;};
 const SERIES_NAMES={'masters':'Masters Tournament','pga-championship':'PGA Championship','us-open':'U.S. Open','the-open':'The Open Championship','players':'The Players Championship','chevron':'Chevron Championship','us-womens-open':'U.S. Women’s Open','womens-pga':'Women’s PGA Championship','evian':'The Evian Championship','womens-open':'Women’s Open'};
-// Hole scores for one edition, keyed by entry id + round number.
+// Hole scores for one edition, keyed by entry id + round number. Scorecards first, then hole rows by
+// scorecard id in bounded chunks (indexed), instead of one embedded join over the whole hole table.
 export async function editionHoles(db,editionId){
  const out=new Map();
- for(let off=0;;off+=1000){const page=await db('golf_hole_scores',`select=strokes,score_to_par,golf_holes(hole_number),golf_scorecards!inner(entry_id,round_id,edition_id,golf_rounds(round_number))&golf_scorecards.edition_id=eq.${editionId}&order=id&limit=1000&offset=${off}`);
-  for(const h of page){const sc=h.golf_scorecards;const k=sc.entry_id+':'+sc.golf_rounds?.round_number;if(!out.has(k))out.set(k,[]);out.get(k).push({hole:h.golf_holes?.hole_number,strokes:h.strokes,to_par:h.score_to_par});}
-  if(page.length<1000)break;}
+ const cards=await db('golf_scorecards',`select=id,entry_id,golf_rounds(round_number)&edition_id=eq.${editionId}&or=(holes_completed.is.null,holes_completed.gte.18)&limit=6000`);
+ const byCard=new Map(cards.map(c=>[c.id,c.entry_id+':'+c.golf_rounds?.round_number]));
+ const ids=[...byCard.keys()];
+ for(let i=0;i<ids.length;i+=150){const chunk=ids.slice(i,i+150);
+  for(let off=0;;off+=3000){const page=await db('golf_hole_scores',`select=scorecard_id,strokes,score_to_par,golf_holes(hole_number)&scorecard_id=in.(${chunk.join(',')})&order=id&limit=3000&offset=${off}`);
+   for(const h of page){const k=byCard.get(h.scorecard_id);if(!k)continue;if(!out.has(k))out.set(k,[]);out.get(k).push({hole:h.golf_holes?.hole_number,strokes:h.strokes,to_par:h.score_to_par});}
+   if(page.length<3000)break;}}
  for(const a of out.values())a.sort((x,y)=>x.hole-y.hole);return out;
+}
+// Per-edition hole maps are cached in R2 under a change signature (source fetch time + capture + status),
+// so a projection only re-reads editions whose hole data can have changed.
+export function holesCache(db,env){
+ const memo=new Map();
+ return async e=>{
+  if(memo.has(e.id))return memo.get(e.id);
+  const sig=[e.espn?.fetched_at||'',e.provenance?.id||'',e.status||'',e.coverage||'',e.layout?.id||''].join('|'),key='projection/cache/holes/'+e.id+'.json';
+  // Editions still being played are always read fresh.
+  if(e.status!=='completed'){const m=await editionHoles(db,e.id);memo.set(e.id,m);return m;}
+  let m=null;
+  try{const o=await env?.PUBLIC?.get(key);if(o){const c=JSON.parse(await o.text());if(c.sig===sig)m=new Map(c.entries);}}catch{}
+  if(!m){m=await editionHoles(db,e.id);try{await env?.PUBLIC?.put(key,JSON.stringify({sig,entries:[...m]}),{httpMetadata:{contentType:'application/json'}});}catch{}}
+  memo.set(e.id,m);return m;
+ };
 }
 export function bioOf(x){if(!x)return null;return {source:'ESPN',espn_id:x.espn_id||null,birth_place:x.birth_place?[x.birth_place.city,x.birth_place.state,x.birth_place.country].filter(Boolean).join(', '):null,college:x.college?.name||null,turned_pro:x.turned_pro||null,tour_debut:x.debut_year||null,hand:x.hand||null,height_in:x.height_in||null,weight_lb:x.weight_lb||null,verified_at:x.verified_at||null,profile_url:x.profile_url||null};}
 export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}={}){
@@ -275,13 +295,14 @@ export async function buildProjection(db,env){
  const put=async(k,v)=>{const text=JSON.stringify(v),h=await sha(text);next[k]=h;if(old[k]!==h){pending.push(env.PUBLIC.put(prefix+k,text,{httpMetadata:{contentType:'application/json'}}).then(()=>written++));if(pending.length>=20){await Promise.all(pending);pending=[];}}};
  const playerSummaries=[],stats={with_results:0,with_rounds:0,hole_scores:0};
  const wxToday=new Date().toISOString().slice(0,10);
- for(const e of c.editions){const hm=e.layout?.holes?.length&&e.coverage!=='winner_only'?await editionHoles(db,e.id):new Map();for(const a of hm.values())stats.hole_scores+=a.length;c.addEditionHoles(e,hm);const doc=c.editionDoc(e,hm);
+ const holesOf=holesCache(db,env);
+ for(const e of c.editions){const hm=e.layout?.holes?.length&&e.coverage!=='winner_only'?await holesOf(e):new Map();for(const a of hm.values())stats.hole_scores+=a.length;c.addEditionHoles(e,hm);const doc=c.editionDoc(e,hm);
   if(e.status!=='completed'&&(e.ends_on||'')>=wxToday){try{const o=await env.PUBLIC.get('weather/v1/forecast/'+e.id+'.json');if(o){const w=JSON.parse(await o.text());doc.weather={...w,hours:w.hours.filter(h=>h.t.slice(0,10)>=(e.starts_on||wxToday)&&h.t.slice(0,10)<=e.ends_on)};}}catch{}}
   await put('editions/'+e.slug+'.json',doc);}
  c.finalizePar();
  for(const p of c.players){const d=c.playerDoc(p);if(d.results.length)stats.with_results++;if(d.results.some(r=>r.rounds.length))stats.with_rounds++;if(c.keepPlayer(d))playerSummaries.push(c.pSummary(d));await put('players/'+d.slug+'.json',d);}
  const courseSummaries=[];
- for(const x of c.courses){const ce=c.contenderEdition(x);const d=c.courseDoc(x,ce?await editionHoles(db,ce.id):new Map());courseSummaries.push(c.courseSummary(d));await put('courses/'+d.slug+'.json',d);}
+ for(const x of c.courses){const ce=c.contenderEdition(x);const d=c.courseDoc(x,ce?await holesOf(ce):new Map());courseSummaries.push(c.courseSummary(d));await put('courses/'+d.slug+'.json',d);}
  const f=c.finalize({playerSummaries,courseSummaries,stats});
  await put('index.json',f.index);await put('schedule.json',f.index.schedule);await Promise.all(pending);
  await env.PUBLIC.put(prefix+'manifest.json',JSON.stringify({version:PROJECTION_VERSION,as_of:f.index.as_of,docs:next,summary:f.summary}),{httpMetadata:{contentType:'application/json'}});

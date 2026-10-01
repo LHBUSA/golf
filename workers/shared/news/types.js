@@ -43,7 +43,7 @@ export const TYPES={
    const past=(ed.past_editions||[]).filter(x=>x.winner?.name).slice(0,5);
    if(past.length>=2){P.fact('recent_winners',past.slice(0,3).map(x=>`${x.winner.name} (${x.year})`),list(past.slice(0,3).map(x=>`${x.winner.name} (${x.year})`)),'Recent champions');P.chart('past_winners',{type:'past_winners',title:'Recent champions',rows:past.map(x=>({year:x.year,name:x.winner.name,slug:x.winner.slug,to_par:x.to_par??null,edition:x.slug}))});P.material(1,'tournament history');}
    const champs=(ed.field?.major_champions||[]).slice(0,4);if(champs.length){P.fact('field_major_champions',champs.map(x=>x.name),list(champs.map(x=>x.name)),'Major champions in the field');P.fact('field_major_champion_count',ed.field.major_champions.length,null,'Major champions in the field',{unit:'players'});champs.forEach((x,i)=>P.entity('p'+(i+2),'player',x.slug,x.name));P.material(1,'major champions in field');}
-   const form=(ed.field?.recent_form_leaders||[]).slice(0,3);if(form.length){P.fact('form_leaders',form.map(x=>x.name),list(form.map(x=>x.name)),'Best recent form in the field');form.forEach((x,i)=>P.entity('f'+(i+1),'player',x.slug,x.name));P.chart('field_form',{type:'field_form',title:'Best recent form in the field',rows:(ed.field.recent_form_leaders||[]).slice(0,8).map(x=>({name:x.name,slug:x.slug,form:x.form,rounds:x.form_rounds}))});P.material(1,'field form');}
+   // Field form leaders and their strokes-vs-field values are All Access data: not used in public stories.
    const m=ed.matchups_to_watch?.[0];if(m?.a?.slug&&m?.b?.slug){P.entity('m1','matchup',m.a.slug+'/'+m.b.slug,`${m.a.name} vs ${m.b.name}`);P.fact('matchup',`${m.a.name} vs ${m.b.name}`,null,'Matchup to watch');}
    if(ed.is_major)P.material(2,'major championship');
    if(ed.espn?.course?.par||ed.layout?.par)P.material(1,'course setup');
@@ -170,15 +170,18 @@ export const TYPES={
  // ---------------------------------------------------------------- PLAYER FORM
  player_form:{label:'Player form',category:'FORM',
   detect(ctx){return ctx.window.filter(e=>e.starts_on&&daysBetween(ctx.today,e.starts_on)>=0&&daysBetween(ctx.today,e.starts_on)<=4).map(e=>({type:'player_form',topic:null,edition:e.slug}));},
-  async build(ctx,c){const ed=await ctx.ed(c.edition);const lead=ed?.field?.recent_form_leaders?.[0];if(!lead?.slug||roundsComplete(ed.leaderboard)>0)return null;
-   if((ed.leaderboard||[]).some(r=>r.rounds?.length))return null;const pl=await ctx.pl(lead.slug);const form=(pl?.visuals?.form||[]).filter(f=>f.status&&f.ends_on<ed.starts_on).slice(-4);if(form.length<4)return null;
+  async build(ctx,c){const ed=await ctx.ed(c.edition);if(!ed||(ed.leaderboard||[]).some(r=>r.rounds?.length))return null;
+   // Public data only: the entry list, public form percentiles and published finishes.
+   const field=(ed.leaderboard||[]).map(r=>r.player?.slug).filter(Boolean).map(s=>ctx.ixPlayer(s)).filter(p=>p?.form?.percentile!=null).sort((a,b)=>b.form.percentile-a.form.percentile);
+   const lead=field[0];if(!lead)return null;
+   const pl=await ctx.pl(lead.slug);const form=(pl?.visuals?.form||[]).filter(f=>f.status&&f.ends_on<ed.starts_on).slice(-4);if(form.length<4)return null;
    const top10=form.filter(f=>f.status==='finished'&&f.position<=10).length,won=form.filter(f=>f.status==='finished'&&f.position===1&&!f.tied).length;
    if(top10<3&&!won)return null;
    const P=new Packet({type:'player_form',topic:`form:${lead.slug}:${ed.slug}`,as_of:ctx.as_of,source:sourceOf(ed),capture:ed.provenance?.id});editionFacts(P,ed);
    P.fact('player',pl.name,null,'Player');P.entity('p1','player',pl.slug,pl.name);
    P.fact('recent_starts',form.length,String(form.length),'Recent starts considered',{unit:'events'});P.fact('recent_top10',top10,String(top10),'Top-ten finishes in those starts',{unit:'events'});if(won)P.fact('recent_wins',won,String(won),'Wins in those starts',{unit:'events'});
    P.fact('recent_results',form.map(f=>`${f.status==='finished'?(f.tied?'T':'')+f.position:f.status==='cut'?'missed cut':f.status} at the ${f.name.replace(/^\d{4}\s+/,'')}`),list(form.slice().reverse().map(f=>`${f.status==='finished'?(f.tied?'tied ':'')+ORD(f.position):f.status==='cut'?'missed cut':f.status} at the ${f.name.replace(/^\d{4}\s+/,'')}`)),'Most recent results, latest first');
-   P.fact('form_vs_field',r1(lead.form),(lead.form>0?'+':'')+r1(lead.form).toFixed(1),'Recent strokes per round versus field',{unit:'strokes'});
+   P.fact('form_pct',lead.form.percentile,ORD(lead.form.percentile)+' percentile','Recent form, Player DNA percentile');
    P.chart('player_form',formChartSpec(pl));P.chart('player_dna',playerDnaChart(pl));
    P.material(won?4:3,'sustained form entering the week');
    P.limit('Form covers events in our record only. It describes recent results, not this week’s outcome.');

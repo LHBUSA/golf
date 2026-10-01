@@ -10,7 +10,8 @@ const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff
 const LIVE_CACHE='public, max-age=60, s-maxage=60';
 const json=(body,status=200,cache='no-store')=>Response.json(body,{status,headers:headers(cache)});
 const PUBLIC_CACHE='public, max-age=120, s-maxage=300';
-let memo={at:0,index:null};
+let memo={at:0,index:null},vmemo={at:0,v:null};
+async function videoIndex(env){if(vmemo.v&&Date.now()-vmemo.at<300000)return vmemo.v;const o=await env.PUBLIC.get('video/v1/index.json');const v=o?JSON.parse(await o.text()).videos||[]:[];vmemo={at:Date.now(),v};return v;}
 async function doc(env,key){const o=await env.PUBLIC?.get('projection/v2/'+key);return o?JSON.parse(await o.text()):null;}
 async function index(env){if(memo.index&&Date.now()-memo.at<120000)return memo.index;const i=await doc(env,'index.json');if(i)memo={at:Date.now(),index:i};return i;}
 function envelope(ix,data,{availability='available',coverage=null,reason=null,source=null,provenance=null,method=null}={}){
@@ -93,6 +94,13 @@ export default {
      if(id){const o=await env.PUBLIC.get('news/v2/articles/'+id+'.json');const a=o?JSON.parse(await o.text()):null;if(!a||a.status!=='published')return json({error:'not_found'},404);return ok(a);}
      const v2=await newsIndex(env);const o=await env.PUBLIC.get('news/v1/index.json');const v1=o?JSON.parse(await o.text()):[];
      return ok(v2.length?v2:v1,{availability:v2.length||v1.length?'available':'unavailable',reason:v2.length||v1.length?null:'no_story_has_passed_all_publication_gates'});}
+    case 'videos':{
+     // Same eligibility as the UI and VideoObject: published link status, confident resolution, not unembeddable.
+     const vx=await videoIndex(env);const q=k=>url.searchParams.get(k);const lim=Math.min(24,Number(q('limit'))||8);
+     let rows=vx.filter(v=>v.link_status==='published'&&v.embeddable!==false&&['high','medium'].includes(v.resolver?.confidence));
+     if(q('edition'))rows=rows.filter(v=>v.entities.editions.includes(q('edition')));if(q('player'))rows=rows.filter(v=>v.entities.players.includes(q('player')));if(q('course'))rows=rows.filter(v=>v.entities.courses.includes(q('course')));if(q('type'))rows=rows.filter(v=>v.video_type===q('type'));
+     const pub=rows.slice(0,lim).map(v=>({video_id:v.video_id,title:v.title,channel:v.channel,channel_id:v.channel_id,published_at:v.published_at,video_type:v.video_type,round:v.entities.round,editions:v.entities.editions,players:v.entities.players,courses:v.entities.courses,embeddable:v.embeddable,availability:v.embeddable===true?'embeddable':'unverified'}));
+     return json({data:pub,availability:pub.length?'available':'unavailable',source:'YouTube official channels (keyless feeds)'},200,'public, max-age=300, s-maxage=600');}
     case 'search':return ok(searchIndex(ix,url.searchParams.get('q')||'',Number(url.searchParams.get('limit'))||12));
     case 'tournaments':{
      if(!id){let rows=ix.editions;const d=url.searchParams.get('division'),major=url.searchParams.get('major'),year=url.searchParams.get('year'),series=url.searchParams.get('series');if(d)rows=rows.filter(r=>r.division===d);if(major)rows=rows.filter(r=>r.is_major===(major==='true'));if(year)rows=rows.filter(r=>String(r.year)===year);if(series)rows=rows.filter(r=>r.series_key===series);return ok(rows,{coverage:{editions:rows.length,with_leaderboards:rows.filter(r=>!['winner_only','schedule_only'].includes(r.coverage)).length}});}

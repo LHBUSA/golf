@@ -340,6 +340,7 @@ polyline.gp-0,polyline.gp-1,polyline.gp-2,polyline.gp-3,polyline.gp-4{fill:none}
 .yt-meta b{font-size:15px;line-height:1.3}
 .yt-meta span{color:var(--muted)}
 .yt-rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.yt-group{font:700 12px/1.2 var(--sans);letter-spacing:1.4px;text-transform:uppercase;color:var(--pine-2);margin:18px 0 10px}
 .yt-fallback{aspect-ratio:16/9;display:grid;place-items:center;background:#111;color:#fff;padding:16px;text-align:center;border-radius:3px}
 
 /* Bar widths without inline styles (CSP style-src 'self'). */
