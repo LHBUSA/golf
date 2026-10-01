@@ -1,5 +1,7 @@
 # Golf graph draft
 
+Production update, 2026-10-01: the guarded foundation schema and reviewed runtime migrations are applied to SPORTS. `golf_source_state` adds durable source leases, errors, freshness and run counters, bringing the graph to fifty RLS tables. The bounded invoker `golf_write_batch` RPC retains typed idempotence and correction history; raw captures and news packets remain immutable. See [the production report](PRODUCTION_SPRINT_REPORT.md). The draft-only description below records the foundation sprint.
+
 49 tables, all golf-prefixed, RLS enabled, public/anon/authenticated access revoked. Migration is draft only: no seeds, execution or graph creation. Target guard requires SPORTS project ref and known SPORTS marker tables, and rejects identity entitlement tables.
 
 Players have canonical generated UUIDs. A verified unique (source, provider_id) crosswalk resolves a person; names never merge. DOB, nationality, official IDs and cross-source proof support review. Unknown identity goes to golf_identity_queue. Tour membership has validity intervals, independent of person identity. Player photos require verified person and image identity evidence.

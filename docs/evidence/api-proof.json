@@ -1,24 +1,24 @@
 {
-  "at": "2026-10-01T14:20:47.514Z",
-  "base": "https://golf-api.propbetedge.ai",
+  "at": "2026-10-01T15:29:09.088Z",
+  "base": "https://golf.propbetedge.ai/api",
   "checks": [
     {
       "lane": "players",
       "count": 9,
       "availability": "metadata_only",
-      "as_of": "2026-10-01T14:13:37.682+00:00"
+      "as_of": "2026-10-01T15:06:57.487+00:00"
     },
     {
       "lane": "courses",
       "count": 4,
       "availability": "metadata_only",
-      "as_of": "2026-10-01T14:13:37.682+00:00"
+      "as_of": "2026-10-01T15:06:57.487+00:00"
     },
     {
       "lane": "tournaments",
       "count": 8,
       "availability": "metadata_only",
-      "as_of": "2026-10-01T14:13:37.682+00:00"
+      "as_of": "2026-10-01T15:06:57.487+00:00"
     },
     {
       "lane": "today",
@@ -48,8 +48,8 @@
       "courses": 4,
       "results": 8
     },
-    "as_of": "2026-10-01T14:13:37.682+00:00",
-    "source_age_seconds": 431,
+    "as_of": "2026-10-01T15:06:57.487+00:00",
+    "source_age_seconds": 1331,
     "scoring_connected": false
   },
   "auth": {

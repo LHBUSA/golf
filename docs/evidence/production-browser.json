@@ -1,0 +1,2223 @@
+{
+  "at": "2026-10-01T15:36:38.691Z",
+  "base": "https://golf.propbetedge.ai",
+  "widths": [
+    320,
+    360,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "width": 320,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 840
+    },
+    {
+      "width": 320,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 172
+    },
+    {
+      "width": 320,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 320,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 140
+    },
+    {
+      "width": 320,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 148
+    },
+    {
+      "width": 320,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 156
+    },
+    {
+      "width": 320,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 320,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 320,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 184
+    },
+    {
+      "width": 320,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.00258224537037037,
+      "lcp": 160
+    },
+    {
+      "width": 320,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 148
+    },
+    {
+      "width": 320,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 320,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 320,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 168
+    },
+    {
+      "width": 320,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 184
+    },
+    {
+      "width": 320,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 148
+    },
+    {
+      "width": 320,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 156
+    },
+    {
+      "width": 320,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 148
+    },
+    {
+      "width": 320,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 320,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 200
+    },
+    {
+      "width": 320,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 284
+    },
+    {
+      "width": 320,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 136
+    },
+    {
+      "width": 320,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 140
+    },
+    {
+      "width": 320,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 192
+    },
+    {
+      "width": 320,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 320,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 200
+    },
+    {
+      "width": 320,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 320,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 320,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 320,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 320,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 140
+    },
+    {
+      "width": 360,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 116
+    },
+    {
+      "width": 360,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 360,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 120
+    },
+    {
+      "width": 360,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 360,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 84
+    },
+    {
+      "width": 360,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 360,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 120
+    },
+    {
+      "width": 360,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.0031065363511659804,
+      "lcp": 96
+    },
+    {
+      "width": 360,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 360,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 360,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 360,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 360,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 84
+    },
+    {
+      "width": 360,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 80
+    },
+    {
+      "width": 360,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 360,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 360,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 360,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 360,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 360,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 360,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 360,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 360,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 360,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 360,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 124
+    },
+    {
+      "width": 390,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 390,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 390,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 390,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 112
+    },
+    {
+      "width": 390,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 390,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 390,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 152
+    },
+    {
+      "width": 390,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.004514452358341248,
+      "lcp": 96
+    },
+    {
+      "width": 390,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 390,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 124
+    },
+    {
+      "width": 390,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 390,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 390,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 390,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 390,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 390,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 390,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 390,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 390,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 390,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 390,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 390,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 390,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 390,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 390,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 116
+    },
+    {
+      "width": 430,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 430,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 430,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 430,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 112
+    },
+    {
+      "width": 430,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 430,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 430,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.003362532299741602,
+      "lcp": 124
+    },
+    {
+      "width": 430,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 116
+    },
+    {
+      "width": 430,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 430,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 430,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 430,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 316
+    },
+    {
+      "width": 430,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 430,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 430,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 128
+    },
+    {
+      "width": 430,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 430,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 430,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 124
+    },
+    {
+      "width": 430,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 128
+    },
+    {
+      "width": 430,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 430,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 430,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 84
+    },
+    {
+      "width": 768,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 136
+    },
+    {
+      "width": 768,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 768,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 112
+    },
+    {
+      "width": 768,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 132
+    },
+    {
+      "width": 768,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 768,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 768,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 768,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 768,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 160
+    },
+    {
+      "width": 768,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.013841805716306584,
+      "lcp": 164
+    },
+    {
+      "width": 768,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 768,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 768,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 768,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 768,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 768,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 768,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 768,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 768,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 768,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 768,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 768,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 112
+    },
+    {
+      "width": 768,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 768,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 160
+    },
+    {
+      "width": 768,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 768,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 768,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 112
+    },
+    {
+      "width": 768,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 768,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 140
+    },
+    {
+      "width": 768,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 128
+    },
+    {
+      "width": 768,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1024,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 124
+    },
+    {
+      "width": 1024,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 1024,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 1024,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 1024,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1024,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 1024,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1024,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 132
+    },
+    {
+      "width": 1024,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.00013703107833862305,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 140
+    },
+    {
+      "width": 1024,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1024,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 1024,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1024,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 128
+    },
+    {
+      "width": 1024,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 136
+    },
+    {
+      "width": 1024,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1024,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1024,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1024,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 144
+    },
+    {
+      "width": 1024,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 84
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 132
+    },
+    {
+      "width": 1440,
+      "path": "/today",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 116
+    },
+    {
+      "width": 1440,
+      "path": "/live",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1440,
+      "path": "/tournaments",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 1440,
+      "path": "/players",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 132
+    },
+    {
+      "width": 1440,
+      "path": "/courses",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1440,
+      "path": "/majors",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1440,
+      "path": "/pbecast",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1440,
+      "path": "/news",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 360
+    },
+    {
+      "width": 1440,
+      "path": "/all-access",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0.0036674136231138544,
+      "lcp": 108
+    },
+    {
+      "width": 1440,
+      "path": "/player/scottie-scheffler-q30161386",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/player/nelly-korda-q34703749",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 1440,
+      "path": "/player/rory-mcilroy-q380613",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/player/lydia-ko-q6707639",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/player/atthaya-thitikul-q54611551",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/player/maja-stark-q104145005",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 112
+    },
+    {
+      "width": 1440,
+      "path": "/player/mao-saigo-q104585787",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1440,
+      "path": "/player/minjee-lee-q6867753",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/player/grace-kim-q57913367",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 1440,
+      "path": "/course/augusta-national-golf-club-q765780",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1440,
+      "path": "/course/erin-hills-q5389163",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1440,
+      "path": "/course/royal-portrush-golf-club-q2440655",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1440,
+      "path": "/course/evian-resort-golf-club-q2077768",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/masters-tournament-q280275-2026",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 96
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/chevron-championship-q1785973-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 100
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/evian-championship-q2487426-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 104
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/masters-tournament-q280275-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 92
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/the-open-championship-q848797-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 88
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/united-states-women-s-open-championship-q2300124-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/women-s-pga-championship-q281917-2025",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 108
+    },
+    {
+      "width": 1440,
+      "path": "/tournament/masters-tournament-q280275-2024",
+      "status": 200,
+      "axe_violations": 0,
+      "overflow": false,
+      "cls": 0,
+      "lcp": 140
+    }
+  ],
+  "errors": [],
+  "analytics_requests": [
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.google-analytics.com/g/collect?v=2",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/a?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/a?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/a?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/a?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/a?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/td?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/td?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/td?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/td?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9",
+    "https://www.googletagmanager.com/gtag/js?id=G-BRS48R8PG9"
+  ],
+  "interactions": {
+    "keyboard_tour_filter": true,
+    "womens_pbecast": true,
+    "static_entity": true,
+    "anonymous_membership": "free",
+    "unknown_entity": 404
+  },
+  "passed": true
+}

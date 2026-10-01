@@ -64,10 +64,32 @@ Golf links to network Home, existing All Access, Learn and `@PROPBETEDGE`. It us
 
 Required gates: check, build, test, qa:browser and guard. Expanded browser coverage exercises all twenty-one entity pages at 320, 360, 390, 430, 768, 1024 and 1440, including axe WCAG checks, keyboard filters, PBEcast selection, no-JavaScript content, same-origin API and premium denial. Final release/production results are recorded in `docs/evidence` and the final deployment manifest.
 
+Final result: all five required gates passed. Golf has 68 passing unit tests; network authority has 38. The local browser suite passed 306 checks. After the CSP fix, production passed 217 page/width combinations across all seven widths, with zero axe violations, horizontal overflows or browser console/page errors. Production keyboard filters, women’s PBEcast selection, no-JavaScript entity content, signed-out membership and unknown-entity 404s also passed. Maximum observed synthetic CLS was 0.01385. Existing GA4 loaded on the production host. Canonical/OG/schema checks passed; partial pages remain intentionally noindex.
+
+Live frontend product revision: `4bde24bf3aa230eeb329914a229ddeaadd2351d5`, including the initial product commit `6bdd1a2`. Vercel production deployment: `dpl_ACpEMBhBTjCt8ZpGCcF5dXb9yLdv`, `https://golf-x8s3clsi8-justins-projects-ad4f4bb7.vercel.app`, aliased to `https://golf.propbetedge.ai`. Final Worker versions: API `20f3cc91-95d2-4430-982d-fd8673d57f8a`; ingestion `8d9ccf92-20b2-4e37-87a3-4fa3b3126bc3`; shadow news `1724136b-690b-4165-8bab-6d8af3c43869`. Network auth revision is recorded above. The proof/report commit adds no frontend or Worker behavior; the deployment manifest identifies the tested product revision separately.
+
 `storage-proof.json` proves typed idempotence, transaction/ledger rollback and capture/packet immutability on SPORTS. `raw-proof.json` proves a downloaded R2 dependency packet matches its canonical SHA-256. `api-proof.json` records production routes and signed-out/invalid authorization. Browser reports/screenshots record actual rendered pages.
 
 Remaining external data gates: permitted current PGA TOUR and LPGA schedules, leaderboards, scorecards, tee times, detailed layouts, statistics and rankings. PGA TOUR’s prior 403 remains a hard stop; OWGR scraping remains rejected; other provider rights are unresolved. No public webpage or owner authorization was treated as a third-party commercial feed license. Source restrictions block those lanes without blocking the real metadata/history product.
 
+The final approved-source check found 2026 PGA TOUR and LPGA season identities, but neither entity supplied constituent tournament records, fields or scoring. The LPGA season boundaries were not substituted for individual event dates. Three bounded searches for specific late-season events returned no matches. `evidence/current-feed-discovery.json` retains the exact inspected property coverage and raw capture hash. Current/next event coverage is therefore unestablished, not silently treated as complete.
+
+Production QA initially caught Google Analytics image requests to its documented script host being blocked by CSP. The fix permits that exact image origin and adds a transport regression check; script and connection origins remain scoped. The production suite was rerun after deployment. Layout-shift observations are synthetic browser measurements, not field Core Web Vitals.
+
+Acceptance: canonical storage/provenance, real entity pages, winner history, public API, populated homepage, free-reader premium denial, mobile and deployed production are proved. Full acceptance is incomplete: a current tournament/scoring lane is absent, PBEcast provides archive context rather than live play, statistical intelligence remains unavailable, and real subscriber/revoked-session production proof is missing. No current schedule or statistical claim is fabricated to satisfy those gates.
+
 ## Rollback
 
 Frontend baseline: Vercel `golf-2q42yfibk-justins-projects-ad4f4bb7.vercel.app`, Git `4ef1278`. Network auth baseline: Worker `b82680f8-445a-4fc6-a129-c6eaa531dce9`, Git `20f0075`. Exact final and previously verified Golf Worker revisions are captured in the deployment manifest. Disable the Wikidata source’s automated_access flag to prevent administrative ingestion; news publication is already disabled. Preserve SPORTS rows, immutable R2 captures and migration history. No destructive database rollback is recommended or executed.
+
+Known-good recovery commands, provided for an owner-initiated rollback and not executed during this release:
+
+```powershell
+npx.cmd vercel rollback golf-2q42yfibk-justins-projects-ad4f4bb7.vercel.app --yes
+npx.cmd wrangler rollback e8fd399e-dd19-426c-b02b-752d138dc0ea --config workers/golf-api/wrangler.jsonc --yes
+npx.cmd wrangler rollback b0056111-9545-4603-96de-6762503d77f8 --config workers/golf-ingest/wrangler.jsonc --yes
+npx.cmd wrangler rollback 1724136b-690b-4165-8bab-6d8af3c43869 --config workers/golf-news/wrangler.jsonc --yes
+npx.cmd wrangler rollback b82680f8-445a-4fc6-a129-c6eaa531dce9 --name propbetedge-auth-magic --yes
+```
+
+Restoring the network auth baseline removes Golf registration and makes Golf premium access fail closed. Existing billing semantics are unchanged by either revision. Golf had no pre-sprint deployed Workers; the Golf Worker recovery targets above are earlier verified sprint revisions. Configs remain manual, with no cron; disabling the approved source stops subsequent bootstrap requests without deleting evidence.

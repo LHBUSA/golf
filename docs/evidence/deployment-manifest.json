@@ -1,0 +1,128 @@
+{
+  "at": "2026-10-01T15:43:47.002Z",
+  "product_commit": "4bde24bf3aa230eeb329914a229ddeaadd2351d5",
+  "evidence_parent_commit": "4bde24bf3aa230eeb329914a229ddeaadd2351d5",
+  "production": "https://golf.propbetedge.ai",
+  "vercel": {
+    "id": "dpl_ACpEMBhBTjCt8ZpGCcF5dXb9yLdv",
+    "url": "https://golf-x8s3clsi8-justins-projects-ad4f4bb7.vercel.app",
+    "state": "READY"
+  },
+  "workers": {
+    "golf-api": {
+      "deployment_id": "9621a597-2a3c-434d-b519-eed4adb218bf",
+      "versions": [
+        {
+          "version_id": "20f3cc91-95d2-4430-982d-fd8673d57f8a",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-01T14:52:28.187603Z"
+    },
+    "golf-ingest": {
+      "deployment_id": "c676425e-54fb-4924-b3d1-e91358a27f74",
+      "versions": [
+        {
+          "version_id": "8d9ccf92-20b2-4e37-87a3-4fa3b3126bc3",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-01T15:06:49.759029Z"
+    },
+    "golf-news": {
+      "deployment_id": "40cdac93-874b-4293-8e46-a4e0f0be39ed",
+      "versions": [
+        {
+          "version_id": "1724136b-690b-4165-8bab-6d8af3c43869",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-01T13:59:30.435851Z"
+    },
+    "propbetedge-auth-magic": {
+      "deployment_id": "e9c04127-7d54-48f9-a2da-6b98b5173ef4",
+      "versions": [
+        {
+          "version_id": "d77fa76e-9eeb-4ef9-a4fb-6473c213b2f5",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-01T13:58:07.069936Z"
+    }
+  },
+  "database": {
+    "project": "tkmlnhmylqnttmnsnief",
+    "name": "SPORTS",
+    "golf_tables": 50,
+    "rls_tables": 50,
+    "client_table_grants": 0
+  },
+  "data": {
+    "players": 9,
+    "tournaments": 8,
+    "courses": 4,
+    "results": 8,
+    "rounds": 0,
+    "source": "Wikidata structured CC0 metadata",
+    "state": {
+      "source_id": "wikidata",
+      "status": "ok",
+      "lease_until": null,
+      "last_attempt": "2026-10-01T15:06:52.104248+00:00",
+      "last_capture": "2026-10-01T15:06:56.793+00:00",
+      "last_parse": "2026-10-01T15:06:57.292+00:00",
+      "last_write": "2026-10-01T15:06:57.487+00:00",
+      "records_processed": 64,
+      "records_inserted": 0,
+      "records_updated": 0,
+      "records_held": 0,
+      "identity_conflicts": 0,
+      "source_errors": 3,
+      "last_error": null,
+      "parser_version": "wikidata-golf/1.1.0",
+      "cadence_seconds": 86400
+    }
+  },
+  "news": {
+    "packets": 8,
+    "held": 8,
+    "published": 0
+  },
+  "qa": {
+    "check": "passed",
+    "build": "passed",
+    "unit": {
+      "golf": 68,
+      "network_auth": 38
+    },
+    "browser_local": 306,
+    "browser_production": 217,
+    "production_passed": true,
+    "production_console_errors": 0,
+    "widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "max_measured_cls": 0.013841805716306584,
+    "real_subscriber_session": "not_available; automated valid/revoked authority tests passed"
+  },
+  "rollback": {
+    "frontend": {
+      "commit": "4ef1278",
+      "url": "https://golf-2q42yfibk-justins-projects-ad4f4bb7.vercel.app"
+    },
+    "network_auth": {
+      "commit": "20f0075",
+      "worker": "b82680f8-445a-4fc6-a129-c6eaa531dce9"
+    },
+    "golf_api_verified": "e8fd399e-dd19-426c-b02b-752d138dc0ea",
+    "golf_ingest_verified": "b0056111-9545-4603-96de-6762503d77f8",
+    "golf_news_verified": "1724136b-690b-4165-8bab-6d8af3c43869",
+    "database": "Preserve canonical rows, immutable captures and migration history; disable source ingestion rather than destructive rollback."
+  }
+}

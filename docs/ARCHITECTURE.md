@@ -1,5 +1,7 @@
 # Architecture
 
+Production update, 2026-10-01: the metadata/history graph is applied to independently verified SPORTS, Workers and R2 are deployed, and Vercel serves populated canonical pages through `/api`. Network auth has additive Golf registration. The remaining foundation discussion below records the earlier draft state; [the production report](PRODUCTION_SPRINT_REPORT.md) and deployment manifest describe the implemented runtime and its explicit data limits.
+
 GitHub = source. Vercel = frontend. Cloudflare Workers = runtime/automation. Supabase SPORTS = canonical golf graph. R2 = immutable evidence/media. KV = disposable cache/state.
 
 ```text

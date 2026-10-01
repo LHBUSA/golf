@@ -1,5 +1,7 @@
 # Release boundary
 
+Production update, 2026-10-01: the owner explicitly authorized the production sprint, including reviewed SPORTS schema application, normal infrastructure configuration, controlled ingestion, Workers/Vercel deployments and safe main pushes. Those actions are complete for the metadata/selected-major-history slice. Paid data, new paid agreements, billing changes, access evasion and uncontrolled news publication remain prohibited. Current release proof and exact rollback revisions are in [the production report](PRODUCTION_SPRINT_REPORT.md) and `evidence/deployment-manifest.json`. The original foundation-only boundary below is historical and does not revoke the explicit sprint authorization.
+
 No resources created, migrations applied, Workers/frontend deployed, articles published, paid data purchased, licences accepted or Stripe products created. No GitHub Actions Worker deployments.
 
 Required owner approvals:
