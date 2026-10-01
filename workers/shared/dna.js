@@ -4,7 +4,7 @@ export const DNA_METHOD='golf-results-dna/1.0.0';
 export const COURSE_METHOD='golf-course-dna/1.0.0';
 export const FIT_METHOD='golf-course-fit-descriptive/1.0.0';
 // Confidence tiers. Percentiles are withheld below LIMITED.
-export const TIERS={rounds:[['HIGH',40],['MEDIUM',20],['LIMITED',8]],starts:[['HIGH',12],['MEDIUM',6],['LIMITED',3]],editions:[['HIGH',6],['MEDIUM',3],['LIMITED',2]]};
+export const TIERS={holes:[['HIGH',200],['MEDIUM',100],['LIMITED',36]],rounds:[['HIGH',40],['MEDIUM',20],['LIMITED',8]],starts:[['HIGH',12],['MEDIUM',6],['LIMITED',3]],editions:[['HIGH',6],['MEDIUM',3],['LIMITED',2]]};
 export function tier(kind,n){for(const [name,min] of TIERS[kind])if(n>=min)return name;return 'INSUFFICIENT';}
 export const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 export const sd=a=>{if(a.length<2)return null;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1));};
@@ -24,6 +24,9 @@ export const DIMENSIONS=[
  {code:'top10',label:'Top-10 rate',unit:'% of starts',direction:'higher',basis:'starts',definition:'Starts in full-field leaderboards finishing tenth or better (ties included).'},
  {code:'contention',label:'Contention',unit:'% of starts',direction:'higher',basis:'starts',definition:'Starts in full-field leaderboards finishing fifth or better (ties included).'},
  {code:'form',label:'Recent form',unit:'strokes per round vs field, last 10 full-field starts',direction:'higher',basis:'rounds',definition:'Scoring vs field restricted to the player’s ten most recent full-field starts before the as-of date.'},
+ {code:'par3',label:'Par-3 scoring',unit:'strokes per hole vs field',direction:'higher',basis:'holes',definition:'Mean of (hole field average − player strokes) on par-3 holes, full-field hole-by-hole events only.'},
+ {code:'par4',label:'Par-4 scoring',unit:'strokes per hole vs field',direction:'higher',basis:'holes',definition:'Mean of (hole field average − player strokes) on par-4 holes, full-field hole-by-hole events only.'},
+ {code:'par5',label:'Par-5 scoring',unit:'strokes per hole vs field',direction:'higher',basis:'holes',definition:'Mean of (hole field average − player strokes) on par-5 holes, full-field hole-by-hole events only.'},
  {code:'majors',label:'Major performance',unit:'strokes per round vs field in majors',direction:'higher',basis:'rounds',definition:'Scoring vs field restricted to major championships with full-field leaderboards.'}
 ];
 export const HELD=[
@@ -51,9 +54,10 @@ export function playerMetrics(rounds,starts){
 // Attach tiers + percentiles for a cohort of {player_id, metrics} in one division/window.
 export function rankCohort(entries){
  for(const d of DIMENSIONS){
-  const eligible=entries.filter(e=>{const m=e.metrics[d.code];return Number.isFinite(m.value)&&tier(m.basis,m.sample)!=='INSUFFICIENT';});
+  if(!entries.some(e=>e.metrics[d.code]))continue; // par-type metrics are added later from hole data
+  const eligible=entries.filter(e=>{const m=e.metrics[d.code];return m&&Number.isFinite(m.value)&&tier(m.basis,m.sample)!=='INSUFFICIENT';});
   const values=eligible.map(e=>e.metrics[d.code].value);
-  for(const e of entries){const m=e.metrics[d.code];m.confidence=tier(m.basis,m.sample);m.cohort_size=values.length;m.percentile=m.confidence==='INSUFFICIENT'?null:percentileOf(m.value,values,d.direction);}
+  for(const e of entries){const m=e.metrics[d.code];if(!m)continue;m.confidence=tier(m.basis,m.sample);m.cohort_size=values.length;m.percentile=m.confidence==='INSUFFICIENT'?null:percentileOf(m.value,values,d.direction);}
  }
  return entries;
 }

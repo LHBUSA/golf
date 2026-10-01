@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 const API=process.env.GOLF_API||'https://golf-api.propbetedge.ai';
 const get=async(path,tries=3)=>{for(let i=0;;i++){try{const r=await fetch(API+path,{signal:AbortSignal.timeout(30000),headers:{'user-agent':'PropBetEdgeGolfBuild/2'}});if(!r.ok)throw Error(path+' '+r.status);return await r.json();}catch(e){if(i+1>=tries)throw e;await new Promise(r=>setTimeout(r,800*(i+1)));}}};
 const manifest=await get('/v1/projection/manifest.json');
-const keys=Object.keys(manifest.docs).filter(k=>k!=='index.json');
+const keys=Object.keys(manifest.docs).filter(k=>['players','editions','courses'].includes(k.split('/')[0]));
 const index=await get('/v1/projection/index.json');
 if(!index.players?.length||!index.editions?.some(e=>e.division==='women')||!index.coverage?.rounds)throw Error('Useful projection required before frontend build');
 const out={index,players:[],editions:[],courses:[]};

@@ -14,7 +14,7 @@ async function write(path,r){
  const title=path==='/'?'Golf Intelligence | PropBetEdge':r.title+' | PropBetEdge Golf';
  const og=r.og||SITE+'/media/golf-sunrise-1280.webp';
  const head=`<link rel="canonical" href="${SITE}${path==='/404'?'/':path}"><meta name="robots" content="${r.indexable?'index,follow':'noindex,follow'}"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(r.description)}"><meta property="og:type" content="website"><meta property="og:url" content="${SITE}${path}"><meta property="og:image" content="${og}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@PROPBETEDGE">${(r.schema||[]).map(s=>'<script type="application/ld+json">'+JSON.stringify(s).replace(/</g,'\u003c')+'</script>').join('')}`;
- const page=template.replace('<!--shell-->',shell(path,r.main)).replace(/<title>.*?<\/title>/,`<title>${escapeHtml(title)}</title>`).replace(/<meta name="description"[^>]*>/,`<meta name="description" content="${escapeHtml(r.description)}">`).replace(/<meta name="robots"[^>]*>/,'').replace('</head>',head+'</head>');
+ const page=template.replace('<!--shell-->',shell(path,r.main,b.index)).replace(/<title>.*?<\/title>/,`<title>${escapeHtml(title)}</title>`).replace(/<meta name="description"[^>]*>/,`<meta name="description" content="${escapeHtml(r.description)}">`).replace(/<meta name="robots"[^>]*>/,'').replace('</head>',head+'</head>');
  const file=path==='/'?'dist/index.html':path==='/404'?'dist/404.html':'dist'+path+'.html';
  await fs.mkdir(file.slice(0,file.lastIndexOf('/')),{recursive:true});await fs.writeFile(file,page);
  if(r.indexable&&path!=='/404')sitemap.push(path);

@@ -10,7 +10,7 @@ export const fmtDate=d=>{if(!d)return null;const [y,m,dd]=d.split('-').map(Numbe
 export const dates=x=>x.starts_on&&x.ends_on?`${fmtDate(x.starts_on).replace(/, \d{4}$/,'')} – ${fmtDate(x.ends_on)}`:x.ends_on?`Final round ${fmtDate(x.ends_on)}`:String(x.year||'');
 export const division=d=>d==='women'?'Women’s golf':d==='men'?'Men’s golf':'Golf';
 export const tourLabel=x=>x.tours?.length?x.tours.join(' · '):x.is_major?(x.division==='women'?'Women’s major':'Men’s major'):division(x.division);
-export const statusLabel=s=>({completed:'Final',scheduled:'Scheduled',in_progress:'In progress (schedule)',cancelled:'Cancelled',unknown:'Status unconfirmed'}[s]||s);
+export const statusLabel=s=>({completed:'Final',scheduled:'Scheduled',in_progress:'This week · tournament window',cancelled:'Cancelled',unknown:'Status unconfirmed'}[s]||s);
 export const coverageLabel=c=>({full_field:'Full field · every round',partial_field:'Partial field',made_cut:'Players who made the cut',top_finishers:'Top finishers only',winner_only:'Champion only',schedule_only:'Schedule entry',none:'No leaderboard'}[c]||c);
 export const initials=n=>String(n||'').split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase();
 const media=(sha,w,f)=>`/api/v1/media/${sha}/${w}.${f}`;

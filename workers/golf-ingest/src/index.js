@@ -4,11 +4,13 @@ import {SourceBlockedError} from '../../shared/http.js';
 import {ingestWikidata} from './wikidata.js';
 import {runCatalog,runSchedule,runResults,loadItems} from './lanes.js';
 import {runMedia} from './media.js';
+import {runEspn,discover as espnDiscover} from './espn-lane.js';
+import {runEspnStats} from './espn-stats.js';
 import {writePlan} from './writer.js';
 import {buildProjection} from '../../shared/projection.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
 // lane -> approved source, cadence. Each source is independently disable-able in golf_sources.
-export const LANES={catalog:{source:'wikidata',cadenceMs:86400000},schedule:{source:'wikipedia',cadenceMs:6*3600000},results:{source:'wikipedia',cadenceMs:15*60000},media:{source:'commons',cadenceMs:86400000}};
+export const LANES={catalog:{source:'wikidata',cadenceMs:86400000},schedule:{source:'wikipedia',cadenceMs:6*3600000},results:{source:'wikipedia',cadenceMs:15*60000},media:{source:'commons',cadenceMs:86400000},espn:{source:'espn',cadenceMs:10*60000}};
 const LANE_KEY='lanes:v1';
 async function laneState(env){try{return JSON.parse(await env.STATE.get(LANE_KEY)||'{}');}catch{return {};}}
 async function mediaSubjects(db){
@@ -18,7 +20,7 @@ async function mediaSubjects(db){
  return [...layouts.map(l=>({kind:'course',entity_id:l.course_id,qid:l.qid,file:l.image})),...ids.map(i=>({kind:'player',entity_id:i.player_id,qid:i.provider_id,file:i.image}))].filter(s=>s.file);
 }
 export async function runLane(lane,env,db,opts={}){
- const cfg=LANES[lane];if(!cfg)throw Error('unknown_lane');
+ const cfg=['espn-discover','espn-stats'].includes(lane)?LANES.espn:LANES[lane];if(!cfg)throw Error('unknown_lane');
  const src=(await db('golf_sources','id=eq.'+cfg.source))[0];
  if(src?.verdict!=='APPROVED'||src.automated_access!==true)return {lane,status:'source_disabled'};
  if(!await db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:cfg.source})}))return {lane,status:'source_blocked_or_busy'};
@@ -28,6 +30,9 @@ export async function runLane(lane,env,db,opts={}){
   if(lane==='catalog')result=await runCatalog(env,db);
   else if(lane==='schedule')result=await runSchedule(env,db);
   else if(lane==='results')result=await runResults(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||40});
+  else if(lane==='espn')result=await runEspn(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||25});
+  else if(lane==='espn-discover')result=await espnDiscover(env,{leagues:opts.leagues,seasons:opts.seasons});
+  else if(lane==='espn-stats')result=await runEspnStats(env,db,{league:opts.leagues?.[0]||'pga',season:opts.seasons?.[0]||new Date().getUTCFullYear(),limit:opts.limit||250});
   else {const {rows,out}=await runMedia(env,db,await mediaSubjects(db),{limit:opts.limit||40});const c=rows.length?await writePlan(db,rows):{inserted:0,updated:0,unchanged:0};result={...out,...c};}
   const ls=await laneState(env);ls[lane]={last_ok:Date.now(),started,result};await env.STATE.put(LANE_KEY,JSON.stringify(ls));
   const prev=(await db('golf_source_state','source_id=eq.'+cfg.source))[0]||{};
@@ -46,10 +51,12 @@ async function tick(env){
  const ls=await laneState(env),now=Date.now(),due=l=>!ls[l]?.last_ok||now-ls[l].last_ok>=LANES[l].cadenceMs;
  const lane=due('catalog')?'catalog':due('schedule')?'schedule':due('media')?'media':'results';
  const result=await runLane(lane,env,db);
+ // ESPN has its own lease, so it runs every tick alongside the most-due lane.
+ const espn=await runLane('espn',env,db,{budgetMs:180000}).catch(e=>({status:'error',error:e.message}));
  // Rebuild when a lane wrote since the last projection (KV flag or durable source-state timestamps).
  const last=await env.STATE.get('projection:last')||'',writes=(await db('golf_source_state','select=last_write')).map(r=>r.last_write||'').sort().at(-1)||'';
  let projection=null;if(await env.STATE.get('projection:dirty')||Date.parse(writes)>Date.parse(last||0))projection=await project(env,db);
- return {lane,result,projection};
+ return {lane,result,espn,projection};
 }
 export default {
  async fetch(request,env={}){
@@ -70,7 +77,7 @@ export default {
    try{return json(await ingestWikidata(env,db));}
    catch(error){await db('golf_source_state','source_id=eq.wikidata',{method:'PATCH',body:JSON.stringify({status:error instanceof SourceBlockedError?'blocked':'error',lease_until:null,last_error:error.message})});return json({error:'ingestion_failed',reason:error.message},502);}
   }
-  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane])return json({error:'unknown_lane'},400);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined}));}
+  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number)}));}
   if(path==='/admin/tick')return json(await tick(env));
   // Derivatives are produced offline from the archived original and stored under its content hash.
   if(path==='/admin/media-derivative'){

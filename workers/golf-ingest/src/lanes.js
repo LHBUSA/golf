@@ -89,9 +89,14 @@ export async function runSchedule(env,db,now=new Date()){
   const plan=new Plan(),seenEd=new Set(),tid=await tourId(tour);
   for(const ev of events){
    if(!ev.title){plan.hold({kind:'schedule_event',provider_id:title+':'+ev.name,reason:'event_without_linked_article'});continue;}
-   const sq=titleMap.get(ev.title)||null,cfg=sq?seriesByQid.get(sq):null;
+   const sq=titleMap.get(ev.title)||null;let cfg=sq?seriesByQid.get(sq):null;
+   // Schedules sometimes link the edition article itself: map that QID to the canonical Wikidata edition.
+   const wdByQid=sq?[...existing.values()].find(x=>x.rules?.wikidata_id===sq):null;
+   if(!cfg&&wdByQid?.rules?.series_key)cfg=seriesByQid.get([...seriesByQid.values()].find(x=>x.key===wdByQid.rules.series_key)?.qid);
    let eid,edKey;
-   if(cfg){const wd=wdEditions.get(cfg.key+':'+y);if(!wd){plan.hold({kind:'schedule_event',provider_id:ev.title,reason:'major_edition_not_in_catalog'});continue;}eid=wd.id;edKey=wd.rules.wikidata_id;}
+   if(cfg){const wd=wdEditions.get(cfg.key+':'+y);if(!wd){plan.hold({kind:'schedule_event',provider_id:ev.title,reason:'major_edition_not_in_catalog'});continue;}eid=wd.id;edKey=wd.rules.wikidata_id;
+    // Retire a schedule-created duplicate of this major from earlier runs (pointer only, no delete).
+    for(const k of ['wp:'+sq+':'+y,'wp:enwiki:'+ev.title+':'+y]){const dup=existing.get(await stableId('golf_tournament_editions:'+k));if(dup&&!dup.rules?.superseded_by&&dup.id!==eid){dup.rules={...dup.rules,superseded_by:eid,superseded_reason:'schedule linked the edition article; canonical Wikidata edition used'};plan.rows.push({table:'golf_tournament_editions',row:{id:dup.id,capture_id:cap,tournament_id:dup.tournament_id,edition_key:dup.edition_key,starts_on:dup.starts_on,ends_on:dup.ends_on,status:dup.status,format:'stroke',rules:dup.rules}});}}}
    else{
     const tKey=sq||'enwiki:'+ev.title;edKey='wp:'+tKey+':'+y;if(seenEd.has(edKey)){plan.hold({kind:'schedule_event',provider_id:edKey,reason:'series_listed_twice_in_season'});continue;}seenEd.add(edKey);
     // One name per series per run: the most recent season's article title wins (sponsor renames).
@@ -103,7 +108,7 @@ export async function runSchedule(env,db,now=new Date()){
     const starts_on=old?.starts_on||ev.starts_on,ends_on=ev.ends_on||old?.ends_on||null;
     const rules={...(old?.rules||{}),source_name:`${y} ${ev.name}`,schedule:{article:art.capture.title,revision:art.capture.revision,tour,date_text:ev.date_text,location:ev.location,purse_text:ev.purse_text,winner_title:ev.winner?.title||null,winner_text:ev.winner_text},series_key:null,division:TOURS[tour].division,is_major:false,enwiki_article:old?.rules?.enwiki_article||null,winner_wikidata_id:wpid?wq:null};
     eid=await plan.add('golf_tournament_editions',edKey,cap,{tournament_id:tId,edition_key:String(y),starts_on,ends_on,status:editionStatus({winner:wpid,starts_on,ends_on,year:y,cancelled:ev.cancelled},today),format:'stroke',rules});
-    if(wpid&&!old?.rules?.results){const entry=await plan.add('golf_entries',edKey+':'+wq,cap,{edition_id:eid,player_id:wpid,status:'finished'});await plan.add('golf_results',edKey+':winner',cap,{edition_id:eid,entry_id:entry,position:1,tied:null,strokes:null,score_to_par:null,finish_status:'finished',winner:true,winning_margin:null});}
+    if(wpid&&!old?.rules?.results&&!old?.rules?.espn){const entry=await plan.add('golf_entries',edKey+':'+wq,cap,{edition_id:eid,player_id:wpid,status:'finished'});await plan.add('golf_results',edKey+':winner',cap,{edition_id:eid,entry_id:entry,position:1,tied:null,strokes:null,score_to_par:null,finish_status:'finished',winner:true,winning_margin:null});}
     // Edition article candidate: verified after fetch against this schedule's winner.
     const k='event:'+edKey;if(!items[k]&&!ev.cancelled){items[k]={kind:'event',source:'wikipedia',title:`${y} ${ev.title.replace(/ \([^)]*\)$/,'')}`,edition_key:edKey,expected_winner:ev.winner?.title||null,status:'pending',next_at:0};out.queued++;}
     else if(items[k])items[k].expected_winner=ev.winner?.title||null;

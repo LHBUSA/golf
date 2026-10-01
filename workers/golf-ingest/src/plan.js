@@ -47,7 +47,7 @@ export async function planCatalog({series,editions,players,venues,existing},now=
   const eid=await plan.add('golf_tournament_editions',e.qid,e.capture_id,{tournament_id:tid,edition_key:String(e.year),starts_on,ends_on,status:editionStatus({winner,starts_on,ends_on,year:e.year},today),format:old?.format&&old.format!=='other'?old.format:'stroke',rules});
   if(venue.length===1)await plan.add('golf_edition_courses',e.qid+':'+venue[0],e.capture_id,{edition_id:eid,layout_id:await ID('golf_course_layouts',venue[0]+':metadata'),usage_role:'source-reported venue; layout unverified'});
   // Winner rows from the catalog only seed editions the results lane has not described yet.
-  if(winner&&!old?.rules?.results){const entry=await plan.add('golf_entries',e.qid+':'+winner,e.capture_id,{edition_id:eid,player_id:pids.get(winner),status:'finished'});await plan.add('golf_results',e.qid+':winner',e.capture_id,{edition_id:eid,entry_id:entry,position:1,tied:null,strokes:null,score_to_par:null,finish_status:'finished',winner:true,winning_margin:null});}
+  if(winner&&!old?.rules?.results&&!old?.rules?.espn){const entry=await plan.add('golf_entries',e.qid+':'+winner,e.capture_id,{edition_id:eid,player_id:pids.get(winner),status:'finished'});await plan.add('golf_results',e.qid+':winner',e.capture_id,{edition_id:eid,entry_id:entry,position:1,tied:null,strokes:null,score_to_par:null,finish_status:'finished',winner:true,winning_margin:null});}
  }
  return plan;
 }

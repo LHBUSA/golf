@@ -55,7 +55,7 @@ export default {
    switch(col){
     case 'projection':{
      const key=id&&['players','editions','courses'].includes(id)&&sub?`${id}/${sub}`:id;
-     if(!key||!/^(manifest|index|bundle)\.json$|^(players|editions|courses)\/[a-z0-9-]+\.json$/.test(key))return json({error:'not_found'},404);
+     if(!key||!/^(manifest|index|bundle|schedule)\.json$|^(players|editions|courses)\/[a-z0-9-]+\.json$/.test(key))return json({error:'not_found'},404);
      const o=await env.PUBLIC.get('projection/v2/'+key);if(!o)return json({error:'not_found'},404);
      return new Response(o.body,{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
     }
