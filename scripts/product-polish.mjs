@@ -1,0 +1,2 @@
+import fs from 'node:fs/promises';
+const file='src/lib/render.js';let s=await fs.readFile(file,'utf8');s=s.replace('MEMBERSHIP STATUS NOT CONNECTED','VERIFYING MEMBERSHIP').replace('When identity verification is connected, the server determines access before returning premium intelligence.','Premium intelligence requires verified All Access and sufficient sourced samples.');await fs.writeFile(file,s);

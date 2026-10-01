@@ -1,0 +1,1 @@
+import fs from 'node:fs/promises';const file='src/lib/product.js';const s=await fs.readFile(file,'utf8');await fs.writeFile(file,s.replace('<div class="data-source">','<div class="data-source" data-asof="${e(g.as_of)}">'));

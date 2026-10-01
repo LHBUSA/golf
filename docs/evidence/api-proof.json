@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-01T14:20:47.514Z",
+  "base": "https://golf-api.propbetedge.ai",
+  "checks": [
+    {
+      "lane": "players",
+      "count": 9,
+      "availability": "metadata_only",
+      "as_of": "2026-10-01T14:13:37.682+00:00"
+    },
+    {
+      "lane": "courses",
+      "count": 4,
+      "availability": "metadata_only",
+      "as_of": "2026-10-01T14:13:37.682+00:00"
+    },
+    {
+      "lane": "tournaments",
+      "count": 8,
+      "availability": "metadata_only",
+      "as_of": "2026-10-01T14:13:37.682+00:00"
+    },
+    {
+      "lane": "today",
+      "availability": "partial"
+    },
+    {
+      "lane": "live",
+      "availability": "unavailable"
+    },
+    {
+      "lane": "rankings",
+      "availability": "unavailable"
+    },
+    {
+      "lane": "news",
+      "availability": "unavailable"
+    }
+  ],
+  "health": {
+    "ok": true,
+    "mode": "production_metadata",
+    "graph_connected": true,
+    "project": "tkmlnhmylqnttmnsnief",
+    "counts": {
+      "players": 9,
+      "tournaments": 8,
+      "courses": 4,
+      "results": 8
+    },
+    "as_of": "2026-10-01T14:13:37.682+00:00",
+    "source_age_seconds": 431,
+    "scoring_connected": false
+  },
+  "auth": {
+    "signed_out": "free",
+    "invalid_session": "denied",
+    "premium_values_leaked": false,
+    "valid_and_revoked_subscriber": "authority unit/integration tests; real account session not available"
+  },
+  "network_home": {
+    "status": 200,
+    "golf_link": false
+  }
+}

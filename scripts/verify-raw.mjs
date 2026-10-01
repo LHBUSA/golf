@@ -1,0 +1,7 @@
+import fs from 'node:fs/promises';import {createHash} from 'node:crypto';import {spawnSync} from 'node:child_process';import assert from 'node:assert/strict';import {sportsEnv} from './ops.mjs';import {store} from '../workers/shared/store.js';
+const db=store(await sportsEnv()),r=(await db('golf_results','limit=1'))[0],capture=(await db('golf_source_captures','id=eq.'+r.capture_id))[0];
+if(!/^golf\/raw\/wikidata\/sha256\/[a-f0-9]{64}$/.test(capture.archive_key))throw Error('archive key guard');
+await fs.mkdir('.raw/verified',{recursive:true});const file='.raw/verified/'+capture.sha256+'.json';
+const result=spawnSync(process.execPath,['node_modules/wrangler/bin/wrangler.js','r2','object','get','golf-source/'+capture.archive_key,'--remote','--file',file],{stdio:'inherit'});if(result.status!==0)throw Error('archive download failed');
+const bytes=await fs.readFile(file);assert.equal(createHash('sha256').update(bytes).digest('hex'),capture.sha256);const packet=JSON.parse(bytes);assert(packet.capture_ids.length);assert(Object.keys(packet.entities).length);
+const proof={at:new Date().toISOString(),bucket:'golf-source',key:capture.archive_key,sha256:capture.sha256,hash_verified:true,bytes:bytes.length,dependency_captures:packet.capture_ids.length,source_entities:Object.keys(packet.entities).length,canonical_capture_id:capture.id};await fs.writeFile('docs/evidence/raw-proof.json',JSON.stringify(proof,null,2));console.log(JSON.stringify(proof));

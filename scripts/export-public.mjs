@@ -1,0 +1,3 @@
+import fs from 'node:fs/promises';import {store} from '../workers/shared/store.js';import {sportsEnv} from './ops.mjs';import {graph} from '../workers/golf-api/src/graph.js';
+const g=await graph(store(await sportsEnv()));if(!g.players.length||!g.tournaments.some(t=>t.major_division==='women')||!g.results.length)throw Error('Useful canonical graph required before frontend deployment');
+await fs.mkdir('data/public',{recursive:true});await fs.writeFile('data/public/graph.json',JSON.stringify(g,null,2));console.log(JSON.stringify({as_of:g.as_of,players:g.players.length,tournaments:g.tournaments.length,courses:g.courses.length,results:g.results.length}));

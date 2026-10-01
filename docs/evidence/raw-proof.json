@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-01T14:49:56.449Z",
+  "bucket": "golf-source",
+  "key": "golf/raw/wikidata/sha256/7f39de4ffc122a39a8875ca1b09c1fa9af82ffce3aba5296775a10d0b66c8be6",
+  "sha256": "7f39de4ffc122a39a8875ca1b09c1fa9af82ffce3aba5296775a10d0b66c8be6",
+  "hash_verified": true,
+  "bytes": 499747,
+  "dependency_captures": 3,
+  "source_entities": 42,
+  "canonical_capture_id": "b01aa1ac-28be-5e21-ab30-5eb24d48feff"
+}

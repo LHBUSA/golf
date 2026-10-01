@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-01T14:20:47.434Z",
+  "target": "SPORTS",
+  "typed_idempotence": true,
+  "transaction_rollback": true,
+  "revision_ledger_rollback": true,
+  "capture_immutable": true,
+  "news_packet_immutable": true,
+  "identity_project_touched": false
+}

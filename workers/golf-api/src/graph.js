@@ -1,0 +1,17 @@
+export async function graph(db){
+ const tables=['golf_tours','golf_players','golf_courses','golf_course_layouts','golf_tournaments','golf_tournament_editions','golf_edition_courses','golf_entries','golf_results','golf_source_captures','golf_source_state','golf_player_identities'];
+ const fetched=await Promise.all(tables.map(t=>db(t,t==='golf_source_captures'?'select=id,source_id,source_url,captured_at,effective_at,sha256,archive_key,parser_version,rights_version&order=captured_at.desc&limit=1000':t==='golf_player_identities'?'select=player_id,country_name:evidence->>country_name&limit=200':'limit=200')));
+ const data=Object.fromEntries(tables.map((t,i)=>[t,fetched[i]]));
+ const captures=new Map(data.golf_source_captures.map(c=>[c.id,c]));
+ const proof=r=>({...r,provenance:captures.get(r.capture_id)||null});
+ const players=data.golf_players.map(p=>({...proof(p),country_name:data.golf_player_identities.find(i=>i.player_id===p.id)?.country_name||null})),courses=data.golf_courses.map(c=>({...proof(c),layouts:data.golf_course_layouts.filter(l=>l.course_id===c.id).map(proof)}));
+ const tournaments=data.golf_tournament_editions.map(e=>{
+  const t=data.golf_tournaments.find(t=>t.id===e.tournament_id),relations=data.golf_edition_courses.filter(c=>c.edition_id===e.id),venue=courses.find(c=>c.layouts.some(l=>relations.some(r=>r.layout_id===l.id)&&l.specifications.wikidata_id===e.rules.venue_wikidata_id));
+  return {...proof(e),name:e.rules.source_name||t?.name,slug:(t?.slug||e.id)+'-'+e.edition_key,championship:t?.name,major_division:t?.major_division||null,course:venue||null,rules:undefined,date_precision:e.rules.date_precision,source_date:e.rules.source_date,coverage:e.rules.coverage,source_revision:e.rules.source_revision,availability:'metadata_only'};
+ }).sort((a,b)=>b.edition_key.localeCompare(a.edition_key)||a.name.localeCompare(b.name));
+ const results=data.golf_results.filter(r=>r.winner===true&&r.finish_status==='finished').map(r=>{const entry=data.golf_entries.find(e=>e.id===r.entry_id);return {...proof(r),player:players.find(p=>p.id===entry?.player_id)||null,tournament:tournaments.find(t=>t.id===r.edition_id)||null,coverage:'winner assertion only; full results and scores unavailable'};});
+ const source=data.golf_source_state[0]||null,as_of=source?.last_write||null;
+ return {players,courses,tournaments,results,tours:data.golf_tours.map(proof),source_state:source,source:'Wikidata / CC0-1.0',as_of,source_age_seconds:as_of?Math.max(0,Math.floor((Date.now()-Date.parse(as_of))/1000)):null,coverage:{scope:'selected major editions, source-reported winners, player and venue identities',complete_history:false,live_scores:false,round_scores:false,tee_times:false,rankings:false,pga:'PGA TOUR identity and selected men’s majors',lpga:'LPGA Tour identity and selected women’s majors'},availability:as_of?'metadata_only':'unavailable'};
+}
+export function envelope(g,data,extra={}){return {data,source:g?.source||null,as_of:g?.as_of||null,provenance:g?{capture_ids:[...new Set([...g.players,...g.courses,...g.tournaments,...g.results,...g.tours].map(t=>t.capture_id))]}:null,coverage:g?.coverage||null,availability:g?.availability||'unavailable',source_age_seconds:g?.source_age_seconds??null,stale:Boolean(g&&(g.source_age_seconds>172800||g.source_state?.status!=='ok')),method:null,version:'golf-public/1.0.0',...extra};}
+export function findEntity(rows,id){return rows.find(r=>r.id===id||r.slug===id);}

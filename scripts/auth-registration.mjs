@@ -1,0 +1,15 @@
+import fs from 'node:fs/promises';import {createHash} from 'node:crypto';import {cf,account} from './ops.mjs';
+const name='propbetedge-auth-magic',root='C:/Users/goodl/projects/golf-network-auth';
+const raw=await fs.readFile('C:/Users/goodl/.wrangler/config/default.toml','utf8'),token=raw.match(/oauth_token\s*=\s*"([^"]+)"/)?.[1];
+const response=await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/workers/scripts/${name}`,{headers:{authorization:'Bearer '+token}});
+if(!response.ok)throw Error('production capture unavailable');
+const contentType=response.headers.get('content-type')||'';let source;
+if(contentType.includes('multipart')){const form=await response.formData();for(const [key,value] of form){console.log('production module',key,typeof value,typeof value==='string'?value.length:value.size);const candidate=typeof value==='string'?value:await value.text();if(candidate.includes('MEMBERSHIP_SPORTS'))source=candidate;}}else source=await response.text();
+if(!source||!source.includes("const MEMBERSHIP_SPORTS = new Set(['soccer', 'tennis'])"))throw Error('unexpected authority revision; manual reconciliation required');
+const local=await fs.readFile(root+'/workers/'+name+'/src/index.js','utf8');
+const normalize=s=>s.replace(/\r\n/g,'\n').trim();if(normalize(source)!==normalize(local))throw Error('local differs from production; refuse stale deployment');
+const settings=await cf(`accounts/${account}/workers/scripts/${name}/settings`);
+await fs.mkdir('docs/evidence',{recursive:true});
+await fs.writeFile('docs/evidence/auth-registration-before.json',JSON.stringify({at:new Date().toISOString(),source_sha256:createHash('sha256').update(source).digest('hex'),deployment:await cf(`accounts/${account}/workers/scripts/${name}/deployments`),bindings:settings.bindings.map(x=>({name:x.name,type:x.type}))},null,2));
+const updated=local.replace("new Set(['soccer', 'tennis'])","new Set(['soccer', 'tennis', 'golf'])").replace("'https://tennis.propbetedge.ai',","'https://tennis.propbetedge.ai',\n  'https://golf.propbetedge.ai',").replace("'tennis.propbetedge.ai',","'tennis.propbetedge.ai',\n  'golf.propbetedge.ai',").replace("soccer: 'Soccer'","soccer: 'Soccer', golf: 'Golf'");
+await fs.writeFile(root+'/workers/'+name+'/src/index.js',updated);console.log('Verified deployed auth source equals repository; added Golf allowlists and label only. Billing checks unchanged.');

@@ -1,0 +1,22 @@
+{
+ "version":"golf-wikidata/1",
+ "source":"wikidata",
+ "entities":[
+  {"qid":"Q910409","kind":"tour","division":"men","slug":"pga-tour"},
+  {"qid":"Q17162079","kind":"tour","division":"women","slug":"lpga"},
+  {"qid":"Q30161386","kind":"player"},
+  {"qid":"Q34703749","kind":"player"},
+  {"qid":"Q380613","kind":"player"},
+  {"qid":"Q6707639","kind":"player"},
+  {"qid":"Q54611551","kind":"player"},
+  {"qid":"Q765780","kind":"course"},
+  {"qid":"Q131916904","kind":"edition","tour":"pga-tour","major":"men"},
+  {"qid":"Q134706230","kind":"edition","tour":"lpga","major":"women"},
+  {"qid":"Q138114512","kind":"edition","tour":"pga-tour","major":"men"},
+  {"qid":"Q124518350","kind":"edition","tour":"pga-tour","major":"men"},
+  {"qid":"Q132801498","kind":"edition","tour":"pga-tour","major":"men"},
+  {"qid":"Q134117191","kind":"edition","tour":"lpga","major":"women"},
+  {"qid":"Q135192919","kind":"edition","tour":"lpga","major":"women"},
+  {"qid":"Q135267114","kind":"edition","tour":"lpga","major":"women"}
+ ]
+}

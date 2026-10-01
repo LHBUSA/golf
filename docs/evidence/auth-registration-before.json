@@ -1,0 +1,204 @@
+{
+  "at": "2026-10-01T13:52:09.494Z",
+  "source_sha256": "0a86cb4d8b7add1872518abec5939759eee2a402124276aa99ead2f7572f73d0",
+  "deployment": {
+    "deployments": [
+      {
+        "id": "d339c5f1-b77d-47d1-b604-a8e610eb7de5",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "b82680f8-445a-4fc6-a129-c6eaa531dce9",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-30T20:09:43.010808Z"
+      },
+      {
+        "id": "30d0cf32-1012-41c0-a69f-1e57b6a24824",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "be355fd6-435a-4470-966b-e2bf0f79d29f",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-30T19:47:35.636528Z"
+      },
+      {
+        "id": "eb3e7e01-6fda-47f4-9b94-7b36b11ca236",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "4b3789d5-1f75-45fe-9600-eb406e228ea1",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-30T19:45:09.718798Z"
+      },
+      {
+        "id": "5e3f7c81-02a4-41b8-b72f-94a66b57a00e",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/message": "auth-magic v2.4 git 8ea0ed2; rb e78f7f00",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "921079b4-1c6d-44d4-99b6-2f3b43200e32",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-29T01:33:38.750711Z"
+      },
+      {
+        "id": "4693d93d-0ce0-487a-bb94-e298c7eb388a",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/message": "git b22a0fe contract 1.2.0 (Tennis); rb ba58c39d",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "e78f7f00-bb76-44d7-99ed-59167c01a8d6",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-26T17:02:20.370469Z"
+      },
+      {
+        "id": "b5da3421-686c-4b47-bab5-dbc68cf4781f",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/message": "sign-in email sign-off @PROPBETEDGE (29a816f); rb b683cf0d",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "ba58c39d-7431-4e26-84ff-6bf67cc25cd3",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-26T15:01:26.898712Z"
+      },
+      {
+        "id": "5e55b3c8-d603-4e50-b27b-c2d3e98e7897",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/message": "",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "b683cf0d-d1bb-458b-a20a-3123e6fe8354",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-24T16:37:56.144673Z"
+      },
+      {
+        "id": "6e5302b5-c1ac-45d5-bbcf-ed6403bbfc85",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/message": "",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "227d11b6-5826-4cf9-a0ab-728521c7f179",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-24T14:55:16.513046Z"
+      },
+      {
+        "id": "639f6d00-a155-48f7-8dfd-d026a31263ff",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/triggered_by": "secret"
+        },
+        "versions": [
+          {
+            "version_id": "ee9d55a4-86e9-4594-81ab-041dcf46a525",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-09-24T14:03:18.185504Z"
+      },
+      {
+        "id": "584af205-6e3b-4820-960c-36b8be350ec6",
+        "source": "quick_editor",
+        "strategy": "percentage",
+        "author_email": "sales@localhomebuyersusa.com",
+        "annotations": {
+          "workers/message": "Automatic deployment on upload.",
+          "workers/triggered_by": "upload"
+        },
+        "versions": [
+          {
+            "version_id": "6f02c8aa-8ad6-43d1-a192-8efec9ad4d9f",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-06-14T16:05:31.499439Z"
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "name": "BILLING",
+      "type": "service"
+    },
+    {
+      "name": "MAGIC_JWT_SECRET",
+      "type": "secret_text"
+    },
+    {
+      "name": "MAGIC_KV",
+      "type": "kv_namespace"
+    },
+    {
+      "name": "PBE_BILLING_URL",
+      "type": "plain_text"
+    },
+    {
+      "name": "PBE_ENTITLEMENT_READ_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "SUPABASE_SERVICE_KEY",
+      "type": "secret_text"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
-  "version": "golf-sources/1",
-  "audited_at": "2026-09-30",
+  "version": "golf-sources/2",
+  "audited_at": "2026-10-01",
   "sources": [
     {
       "id": "pga-tour",
@@ -405,20 +405,22 @@
       "url_family": "https://www.wikidata.org",
       "terms_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
       "verdict": "APPROVED",
-      "capabilities": "Referenced names, dates of birth, nationalities, entity IDs, course coordinates and historical claims where independently verified. No live scoring.",
-      "history_depth": "Variable community coverage; references must be retained",
+      "capabilities": "Structured names, golf classification, birth dates, country labels, venue identity, major editions, source-reported dates and winner assertions. References retained and assertion status disclosed; no independently verified scoring feed.",
+      "history_depth": "Controlled selected major editions 2024–2026; incomplete careers and championship history",
       "live_capability": "None",
-      "automated_access": "approved_metadata_canary_only",
-      "access_evidence": "Documented APIs/dumps; honest User-Agent and bounded requests. Canary allowed; actual results recorded separately.",
-      "robots": "Not directly probed in first audit; no permission inferred",
+      "automated_access": "approved_bounded_metadata",
+      "access_evidence": "HTTP 200 documented wbsearchentities and wbgetentities, bounded captures archived to golf-source R2 before parsing; no linked official website probes",
+      "robots": "Documented API access policy applies; no article HTML scraping",
       "licence": "Structured main-namespace data CC0. Does not grant rights to external references or linked photographs.",
       "redistribution": "Structured main-namespace data CC0. Does not grant rights to external references or linked photographs.",
       "commercial_use": "Structured main-namespace data CC0. Does not grant rights to external references or linked photographs.",
       "attribution": "Voluntary provenance credit; asset licence governs",
-      "refresh_cadence": "Manual canary now; proposed weekly metadata refresh after review",
-      "identity_strategy": "Canonical UUID; referenced DOB/nationality and verified cross-source IDs. Name alone never sufficient.",
-      "provenance": "Audit dated 2026-09-30; see docs/evidence/source-audit.json. Production observations require immutable capture hash and parser version.",
-      "owner_approval": "Owner approved pursuit/evaluation; operational verdict and access/licensing gates remain as audited."
+      "refresh_cadence": "Manual bounded bootstrap; no cron. Source lease and sixty-second manual-run separation. Three source requests spaced at least 1.1 seconds, maximum forty entities per request; daily minimum if later automated.",
+      "identity_strategy": "Scoped canonical UUID plus unique Wikidata crosswalk; human + golf sport + day-precision DOB required. Multiple conflicting statements hold. No merge by names.",
+      "provenance": "R2 immutable bytes and dependency packets; SPORTS golf_source_captures retain source URL, captured timestamp, SHA-256, archive key, rights version and parser wikidata-golf/1.1.0. No source effective timestamp is invented.",
+      "owner_approval": "2026-10-01 production sprint authorizes reviewed zero-cost source ingestion; CC0 structured facts only.",
+      "parser_version": "wikidata-golf/1.1.0",
+      "correction_behavior": "Append-only captures; typed transactional comparison, golf_source_changes before/after ledger; removed winner assertions retract from the public winner projection. Venue claims absent in the latest edition project unavailable."
     },
     {
       "id": "commons",

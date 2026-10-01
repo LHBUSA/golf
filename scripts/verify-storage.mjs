@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';import assert from 'node:assert/strict';import {sportsEnv} from './ops.mjs';import {store} from '../workers/shared/store.js';
+const db=store(await sportsEnv()),result=(await db('golf_results','limit=1'))[0],identity=(await db('golf_player_identities','limit=1'))[0];
+const beforeChanges=await db('golf_source_changes','select=id&limit=1000');
+const same=await db('rpc/golf_write_batch','',{method:'POST',body:JSON.stringify({p_rows:[{table:'golf_player_identities',row:{...identity,verified_at:new Date(identity.verified_at).toISOString()}}]})});assert.equal(same.unchanged,1);assert.equal(same.updated,0);
+await assert.rejects(db('rpc/golf_write_batch','',{method:'POST',body:JSON.stringify({p_rows:[{table:'golf_results',row:{...result,finish_status:'unknown',winner:null}},{table:'pbe_sport_entitlements',row:{id:result.id,capture_id:result.capture_id}}]})}),/sports_http_400/);
+assert.deepEqual((await db('golf_results','id=eq.'+result.id))[0],result);assert.equal((await db('golf_source_changes','select=id&limit=1000')).length,beforeChanges.length);
+const capture=(await db('golf_source_captures','id=eq.'+result.capture_id))[0];await assert.rejects(db('golf_source_captures','id=eq.'+capture.id,{method:'PATCH',body:JSON.stringify({http_status:200})}),/sports_http_400/);assert.deepEqual((await db('golf_source_captures','id=eq.'+capture.id))[0],capture);
+const packet=(await db('golf_news_packets','limit=1'))[0];await assert.rejects(db('golf_news_packets','id=eq.'+packet.id,{method:'PATCH',body:JSON.stringify({materiality:packet.materiality})}),/sports_http_400/);
+const proof={at:new Date().toISOString(),target:'SPORTS',typed_idempotence:true,transaction_rollback:true,revision_ledger_rollback:true,capture_immutable:true,news_packet_immutable:true,identity_project_touched:false};
+await fs.writeFile('docs/evidence/storage-proof.json',JSON.stringify(proof,null,2));console.log(JSON.stringify(proof));

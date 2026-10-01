@@ -8,10 +8,13 @@
   ],
   "workers_dev": false,
   "preview_urls": false,
+  "routes": [{"pattern":"golf-api.propbetedge.ai","custom_domain":true}],
   "observability": {
     "enabled": true
   },
   "services": [
+    {"binding":"INGEST","service":"golf-ingest"},
+    {"binding":"NEWS","service":"golf-news"},
     {
       "binding": "AUTH",
       "service": "propbetedge-auth-magic"

@@ -4,7 +4,7 @@ const requests=[['wikidata','https://www.wikidata.org/wiki/Special:EntityData/Q1
 const evidence={at:new Date().toISOString(),mode:'metadata_only',requests:[]};
 for(const [id,url] of requests){
  const source=registry.sources.find(s=>s.id===id);
- if(source.verdict!=='APPROVED'||source.automated_access!=='approved_metadata_canary_only')throw new Error('source_not_approved');
+ if(source.verdict!=='APPROVED'||!['approved_metadata_canary_only','approved_bounded_metadata'].includes(source.automated_access))throw new Error('source_not_approved');
  try{const r=await safeFetch(url,{allowedHosts:[new URL(source.url_family).hostname]});JSON.parse(r.text);evidence.requests.push({id,url,status:r.status,bytes:r.bytes.length,sha256:await digest(r.bytes),result:'reachable_metadata',data_ingested:false});}
  catch(error){evidence.requests.push({id,url,result:error instanceof SourceBlockedError?'stopped_access_barrier':'failed',reason:error.message,data_ingested:false});}
 }
