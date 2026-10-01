@@ -6,11 +6,12 @@ import {runCatalog,runSchedule,runResults,loadItems} from './lanes.js';
 import {runMedia} from './media.js';
 import {runEspn,discover as espnDiscover} from './espn-lane.js';
 import {runEspnStats} from './espn-stats.js';
+import {runWeather} from './weather.js';
 import {writePlan} from './writer.js';
 import {buildProjection} from '../../shared/projection.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
 // lane -> approved source, cadence. Each source is independently disable-able in golf_sources.
-export const LANES={catalog:{source:'wikidata',cadenceMs:86400000},schedule:{source:'wikipedia',cadenceMs:6*3600000},results:{source:'wikipedia',cadenceMs:15*60000},media:{source:'commons',cadenceMs:86400000},espn:{source:'espn',cadenceMs:10*60000}};
+export const LANES={catalog:{source:'wikidata',cadenceMs:86400000},schedule:{source:'wikipedia',cadenceMs:6*3600000},results:{source:'wikipedia',cadenceMs:15*60000},media:{source:'commons',cadenceMs:86400000},espn:{source:'espn',cadenceMs:10*60000},weather:{source:'nws',cadenceMs:3*3600000}};
 const LANE_KEY='lanes:v1';
 async function laneState(env){try{return JSON.parse(await env.STATE.get(LANE_KEY)||'{}');}catch{return {};}}
 async function mediaSubjects(db){
@@ -32,6 +33,7 @@ export async function runLane(lane,env,db,opts={}){
   else if(lane==='results')result=await runResults(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||40});
   else if(lane==='espn')result=await runEspn(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||25});
   else if(lane==='espn-discover')result=await espnDiscover(env,{leagues:opts.leagues,seasons:opts.seasons});
+  else if(lane==='weather')result=await runWeather(env,db);
   else if(lane==='espn-stats')result=await runEspnStats(env,db,{league:opts.leagues?.[0]||'pga',season:opts.seasons?.[0]||new Date().getUTCFullYear(),limit:opts.limit||250});
   else {const {rows,out}=await runMedia(env,db,await mediaSubjects(db),{limit:opts.limit||40});const c=rows.length?await writePlan(db,rows):{inserted:0,updated:0,unchanged:0};result={...out,...c};}
   const ls=await laneState(env);ls[lane]={last_ok:Date.now(),started,result};await env.STATE.put(LANE_KEY,JSON.stringify(ls));
@@ -49,7 +51,7 @@ export async function project(env,db){const started=new Date().toISOString();con
 async function tick(env){
  const db=store(env);if(!db||!env.RAW||!env.STATE||!env.PUBLIC)return {status:'unconfigured'};
  const ls=await laneState(env),now=Date.now(),due=l=>!ls[l]?.last_ok||now-ls[l].last_ok>=LANES[l].cadenceMs;
- const lane=due('catalog')?'catalog':due('schedule')?'schedule':due('media')?'media':'results';
+ const lane=due('catalog')?'catalog':due('schedule')?'schedule':due('weather')?'weather':due('media')?'media':'results';
  const result=await runLane(lane,env,db);
  // ESPN has its own lease, so it runs every tick alongside the most-due lane.
  const espn=await runLane('espn',env,db,{budgetMs:180000}).catch(e=>({status:'error',error:e.message}));

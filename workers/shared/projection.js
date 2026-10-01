@@ -274,7 +274,10 @@ export async function buildProjection(db,env){
  const next={};let written=0,pending=[];
  const put=async(k,v)=>{const text=JSON.stringify(v),h=await sha(text);next[k]=h;if(old[k]!==h){pending.push(env.PUBLIC.put(prefix+k,text,{httpMetadata:{contentType:'application/json'}}).then(()=>written++));if(pending.length>=20){await Promise.all(pending);pending=[];}}};
  const playerSummaries=[],stats={with_results:0,with_rounds:0,hole_scores:0};
- for(const e of c.editions){const hm=e.layout?.holes?.length&&e.coverage!=='winner_only'?await editionHoles(db,e.id):new Map();for(const a of hm.values())stats.hole_scores+=a.length;c.addEditionHoles(e,hm);await put('editions/'+e.slug+'.json',c.editionDoc(e,hm));}
+ const wxToday=new Date().toISOString().slice(0,10);
+ for(const e of c.editions){const hm=e.layout?.holes?.length&&e.coverage!=='winner_only'?await editionHoles(db,e.id):new Map();for(const a of hm.values())stats.hole_scores+=a.length;c.addEditionHoles(e,hm);const doc=c.editionDoc(e,hm);
+  if(e.status!=='completed'&&(e.ends_on||'')>=wxToday){try{const o=await env.PUBLIC.get('weather/v1/forecast/'+e.id+'.json');if(o){const w=JSON.parse(await o.text());doc.weather={...w,hours:w.hours.filter(h=>h.t.slice(0,10)>=(e.starts_on||wxToday)&&h.t.slice(0,10)<=e.ends_on)};}}catch{}}
+  await put('editions/'+e.slug+'.json',doc);}
  c.finalizePar();
  for(const p of c.players){const d=c.playerDoc(p);if(d.results.length)stats.with_results++;if(d.results.some(r=>r.rounds.length))stats.with_rounds++;if(c.keepPlayer(d))playerSummaries.push(c.pSummary(d));await put('players/'+d.slug+'.json',d);}
  const courseSummaries=[];

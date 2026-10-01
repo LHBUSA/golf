@@ -1,6 +1,6 @@
 import './data.css';
 import './product.css';
-import {initAnalytics} from './analytics.js';
+import {initAnalytics,track,pageType,destination} from './analytics.js';
 // @ts-ignore shared JS modules
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
 // @ts-ignore
@@ -69,3 +69,18 @@ const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live
 const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[location.pathname];
 if(stamp){fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).then(ix=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
  if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main)main.innerHTML=hub(ix);}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
+// ---- Observational analytics (single GA4 instance; allowlisted, slug-only parameters)
+{
+ const pt=pageType(location.pathname),parts=location.pathname.split('/').filter(Boolean);
+ const entity=['player','course','tournament'].includes(parts[0])?{entity_type:parts[0],entity_id:parts[1]}:parts[0]==='matchups'&&parts[2]?{entity_type:'matchup',entity_id:parts[1]+'.'+parts[2]}:{};
+ track('golf_page_view',{page_type:pt,...entity});
+ const view:Record<string,string>={player:'player_view',course:'course_view',tournament:'tournament_view',matchup:'matchup_view',pbecast:'pbecast_view'};
+ if(view[pt])track(view[pt],entity);
+ if(pt==='news'&&parts[1])track('news_article_view',{entity_type:'article',entity_id:parts[1]});
+ const once=(sel:string,name:string)=>{const el=document.querySelector(sel);if(!el||!('IntersectionObserver' in window))return;const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){track(name,entity);io.disconnect();}},{threshold:.4});io.observe(el);};
+ once('.dna-panel','dna_view');once('.bag-dna','bag_dna_view');once('[data-weather]','weather_view');
+ // Funnel: internal clicks from articles record only the destination type and canonical slug.
+ document.addEventListener('click',ev=>{const el=(ev.target as HTMLElement)?.closest?.('a[href]') as HTMLAnchorElement|null;if(!el)return;const d=destination(el.getAttribute('href')||'');if(!d)return;
+  if(pt==='news'&&parts[1]){const map:Record<string,string>={player:'article_player_click',course:'article_course_click',tournament:'article_tournament_click',pbecast:'article_pbecast_click',news:'article_related_story_click'};track(map[d.type]||'news_internal_link_click',{entity_type:d.type,entity_id:d.id||'',internal_destination_type:d.type});}
+ });
+}
