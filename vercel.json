@@ -29,6 +29,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://golf-api.propbetedge.ai/:path*"
+    },
+    {
+      "source": "/matchups/:a/:b",
+      "destination": "/matchup-view"
     }
   ]
 }

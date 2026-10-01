@@ -1,3 +1,9 @@
+# Release — Phase 2 (2026-10-01)
+
+Order: deploy golf-ingest → run lanes → build projection (`/admin/run?lane=project`) → deploy golf-api / golf-news → push main (Vercel production build exports the projection; a failed export fails the build and leaves the previous deployment live). Derivatives: `node scripts/media-derivatives.mjs` (hash-verified, resize-only) then rebuild projection. News: `/admin/news-shadow`, then `/admin/news-publish`. Rollback targets are in the Phase 2 section of PRODUCTION_SPRINT_REPORT.md.
+
+---
+
 # Release boundary
 
 Production update, 2026-10-01: the owner explicitly authorized the production sprint, including reviewed SPORTS schema application, normal infrastructure configuration, controlled ingestion, Workers/Vercel deployments and safe main pushes. Those actions are complete for the metadata/selected-major-history slice. Paid data, new paid agreements, billing changes, access evasion and uncontrolled news publication remain prohibited. Current release proof and exact rollback revisions are in [the production report](PRODUCTION_SPRINT_REPORT.md) and `evidence/deployment-manifest.json`. The original foundation-only boundary below is historical and does not revoke the explicit sprint authorization.

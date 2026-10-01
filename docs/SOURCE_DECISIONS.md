@@ -1,3 +1,30 @@
+# Source decisions — Phase 2 (2026-10-01)
+
+OWNER APPROVAL (2026-10-01): Wikipedia (CC BY-SA 4.0) approved as a results source, and Wikimedia Commons CC BY / CC BY-SA photographs approved with per-image attribution. Recorded in `data/source-registry/sources.json` (`owner_approval_2026_10_01`).
+
+| Source | Verdict | Lane | What it supplies |
+|---|---|---|---|
+| Wikidata (CC0) | APPROVED | `catalog` daily | 763 championship editions with champions (nine majors + The Players, 1860–2026), player identities, DOB precision, country for sport, venue identity/coordinates/architects, P18 image pointers, crosswalk IDs (stored, never called) |
+| Wikipedia (CC BY-SA 4.0) | APPROVED | `results` (6 h recent / 30 d history, revision-checked), `schedule` (6 h) | Leaderboards and round scores 2000–2026, field size, cut line, setup par/yardage and hole tables, final-round leader scorecards, PGA TOUR and LPGA schedules 2024–2026 |
+| Wikimedia Commons | APPROVED (CC0/PD/BY/BY-SA) | `media` daily + hash-verified derivatives | Player and course photographs tied to the entity P18 |
+| Poly Haven | APPROVED (CC0) | manual | Home background only (labelled not a venue) |
+| OpenStreetMap | OWNER DECISION | disabled | Hole geometry/par for some courses; ODbL share-alike on derived databases |
+| SportsDataIO, Sportradar | OWNER DECISION | disabled | Live scoring, tee times, statistics — paid |
+| The Odds API (golf) | OWNER DECISION | disabled | Outrights only; other sports' approvals do not carry over |
+| Data Golf | OWNER DECISION | disabled | Strokes-gained and model data — paid |
+| DBpedia | REJECT | — | Redundant derivative of Wikipedia |
+| Kaggle/GitHub PGA TOUR scrapes | REJECT | — | Uploader licences cannot grant upstream rights |
+| USGA course rating DB | HOLD | — | Personal, noncommercial terms |
+| PGA TOUR, ESPN, LPGA site, OWGR | unchanged (HOLD 403 / HOLD / HOLD / REJECT) | — | Not used; not worked around |
+
+Identity: every person enters only as a distinct Wikidata human classified as a golfer. Leaderboard rows are linked through the row's own article link → Wikidata QID (documented page properties). Unlinked rows go to `golf_identity_queue`; nothing is merged by name. Final-round scorecard rows (surname labels) are linked to a leaderboard row of the same frozen article only when the surname and flag are unique and the derived hole strokes reproduce that player's published round exactly.
+
+Data quality rules: rows whose published rounds do not sum to the published total keep their finish but hold their round scores; Wikipedia/Wikidata winner disagreements hold the whole edition; event articles found by title convention are accepted only if their winner matches the tour schedule.
+
+Still not available from any approved source: live scoring, tee times/groups, shot-level data, strokes gained by category, driving/approach/putting statistics, official rankings. These remain explicit unavailable states.
+
+---
+
 # Source decisions — 2026-09-30
 
 OWNER APPROVAL (2026-09-30): The owner stated “all sources approved.” This is recorded in `data/source-registry/sources.json` as authorization to pursue evaluation and permission/licensing discussions for every candidate. It does not change third-party access, copyright, contract terms, or the audited operational verdict. Ingestion remains disabled for HOLD, REJECT, and OWNER DECISION sources; 401/403/challenge barriers remain hard stops, and no paid purchase or agreement is authorized by this statement alone.

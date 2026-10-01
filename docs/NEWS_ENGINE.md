@@ -1,3 +1,9 @@
+# Newsroom — Phase 2 (2026-10-01)
+
+`golf-news` builds one *final result* story per completed edition (ended within 75 days of the projection, leaderboard coverage required). Packet facts come from the edition document (capture-referenced); templates contain no digits — every number is substituted from a fact. Gates: facts present, materiality (`tournament_final`), duplicate (`dedupe_key` per edition), numeric grounding (template digit check + fact placeholders), identity (canonical winner), media (only rights-approved photos with credit), editorial (headline without numbers, no prediction/odds/injury language). `PUBLISH_ENABLED=true` permits `/admin/news-publish`; shadow runs (`/admin/news-shadow`) never publish. Published stories go to R2 `news/v1/index.json` and render on `/news`. No schedule: runs are manual after projection refreshes.
+
+---
+
 # Golf newsroom
 
 Cloudflare golf-news foundation cannot publish. No cron, secrets, model spend or external article publication.

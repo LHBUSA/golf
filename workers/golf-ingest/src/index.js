@@ -2,20 +2,81 @@ import {store} from '../../shared/store.js';
 import {adminAllowed} from '../../shared/admin.js';
 import {SourceBlockedError} from '../../shared/http.js';
 import {ingestWikidata} from './wikidata.js';
+import {runCatalog,runSchedule,runResults,loadItems} from './lanes.js';
+import {runMedia} from './media.js';
+import {writePlan} from './writer.js';
+import {buildProjection} from '../../shared/projection.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
+// lane -> approved source, cadence. Each source is independently disable-able in golf_sources.
+export const LANES={catalog:{source:'wikidata',cadenceMs:86400000},schedule:{source:'wikipedia',cadenceMs:6*3600000},results:{source:'wikipedia',cadenceMs:15*60000},media:{source:'commons',cadenceMs:86400000}};
+const LANE_KEY='lanes:v1';
+async function laneState(env){try{return JSON.parse(await env.STATE.get(LANE_KEY)||'{}');}catch{return {};}}
+async function mediaSubjects(db){
+ const rows=async(t,s,f)=>{const out=[];for(let o=0;;o+=1000){const p=await db(t,`select=${s}${f}&order=id&limit=1000&offset=${o}`);out.push(...p);if(p.length<1000)return out;}};
+ const ids=await rows('golf_player_identities','player_id,provider_id,image:evidence->>image','&source_id=eq.wikidata');
+ const layouts=await rows('golf_course_layouts','course_id,qid:specifications->>wikidata_id,image:specifications->>image','&specifications->>image=not.is.null');
+ return [...layouts.map(l=>({kind:'course',entity_id:l.course_id,qid:l.qid,file:l.image})),...ids.map(i=>({kind:'player',entity_id:i.player_id,qid:i.provider_id,file:i.image}))].filter(s=>s.file);
+}
+export async function runLane(lane,env,db,opts={}){
+ const cfg=LANES[lane];if(!cfg)throw Error('unknown_lane');
+ const src=(await db('golf_sources','id=eq.'+cfg.source))[0];
+ if(src?.verdict!=='APPROVED'||src.automated_access!==true)return {lane,status:'source_disabled'};
+ if(!await db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:cfg.source})}))return {lane,status:'source_blocked_or_busy'};
+ const started=new Date().toISOString();
+ try{
+  let result;
+  if(lane==='catalog')result=await runCatalog(env,db);
+  else if(lane==='schedule')result=await runSchedule(env,db);
+  else if(lane==='results')result=await runResults(env,db,{budgetMs:opts.budgetMs||200000,limit:opts.limit||40});
+  else {const {rows,out}=await runMedia(env,db,await mediaSubjects(db),{limit:opts.limit||40});const c=rows.length?await writePlan(db,rows):{inserted:0,updated:0,unchanged:0};result={...out,...c};}
+  const ls=await laneState(env);ls[lane]={last_ok:Date.now(),started,result};await env.STATE.put(LANE_KEY,JSON.stringify(ls));
+  const prev=(await db('golf_source_state','source_id=eq.'+cfg.source))[0]||{};
+  await db('golf_source_state','source_id=eq.'+cfg.source,{method:'PATCH',headers:{prefer:'return=minimal'},body:JSON.stringify({status:'ok',lease_until:null,last_parse:new Date().toISOString(),last_write:(result.inserted||result.updated)?new Date().toISOString():prev.last_write,records_processed:(result.rows??result.read??0),records_inserted:result.inserted||0,records_updated:result.updated||0,records_held:result.held||0,identity_conflicts:result.identity_conflicts||0,last_error:null})});
+  if(result.inserted||result.updated)await env.STATE.put('projection:dirty','1');
+  return {status:'ok',...result};
+ }catch(error){
+  const prev=(await db('golf_source_state','source_id=eq.'+cfg.source))[0]||{};
+  await db('golf_source_state','source_id=eq.'+cfg.source,{method:'PATCH',headers:{prefer:'return=minimal'},body:JSON.stringify({status:error instanceof SourceBlockedError?'blocked':'error',lease_until:null,last_error:String(error.message).slice(0,500),source_errors:(prev.source_errors||0)+1})});
+  return {lane,status:error instanceof SourceBlockedError?'blocked':'error',error:String(error.message).slice(0,500)};
+ }
+}
+export async function project(env,db){const p=await buildProjection(db,env);await env.STATE.delete('projection:dirty');return p.summary;}
+async function tick(env){
+ const db=store(env);if(!db||!env.RAW||!env.STATE||!env.PUBLIC)return {status:'unconfigured'};
+ const ls=await laneState(env),now=Date.now(),due=l=>!ls[l]?.last_ok||now-ls[l].last_ok>=LANES[l].cadenceMs;
+ const lane=due('catalog')?'catalog':due('schedule')?'schedule':due('media')?'media':'results';
+ const result=await runLane(lane,env,db);
+ let projection=null;if(await env.STATE.get('projection:dirty'))projection=await project(env,db);
+ return {lane,result,projection};
+}
 export default {
  async fetch(request,env={}){
-  const path=new URL(request.url).pathname,db=store(env);
-  if(path==='/health')return json({mode:db?'production_metadata':'unconfigured',ingestion_enabled:Boolean(db&&env.RAW),publication_enabled:false,source:'wikidata',scoring_enabled:false});
-  if(path!=='/admin/bootstrap'||request.method!=='POST')return json({error:'not_found'},404);
+  const url=new URL(request.url),path=url.pathname,db=store(env);
+  if(path==='/health'){
+   if(!db||!env.STATE)return json({mode:'unconfigured'},503);
+   const [states,sources,ls,items]=await Promise.all([db('golf_source_state','select=*'),db('golf_sources','select=id,verdict,automated_access'),laneState(env),loadItems(env)]);
+   const tally={};for(const i of Object.values(items))tally[i.status]=(tally[i.status]||0)+1;
+   return json({mode:'production_ingestion',publication_enabled:false,scoring_feed:false,sources:states.map(s=>({...s,verdict:sources.find(x=>x.id===s.source_id)?.verdict,automated_access:sources.find(x=>x.id===s.source_id)?.automated_access,source_age_seconds:s.last_write?Math.floor((Date.now()-Date.parse(s.last_write))/1000):null})),lanes:Object.fromEntries(Object.entries(LANES).map(([k,v])=>[k,{source:v.source,cadence_seconds:v.cadenceMs/1000,last_ok:ls[k]?.last_ok?new Date(ls[k].last_ok).toISOString():null,next_run_after:ls[k]?.last_ok?new Date(ls[k].last_ok+v.cadenceMs).toISOString():'due',last_result:ls[k]?.result||null}])),items:tally});
+  }
+  if(request.method!=='POST')return json({error:'not_found'},404);
   if(!await adminAllowed(request,env))return json({error:'unauthorized'},401);
   if(!db||!env.RAW)return json({error:'infrastructure_unavailable'},503);
-  const source=(await db('golf_sources','id=eq.wikidata'))[0];
-  if(source?.verdict!=='APPROVED'||source.automated_access!==true)return json({error:'source_disabled'},409);
-  if(!await db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:'wikidata'})}))return json({error:'source_blocked_or_busy'},409);
-  try{return json(await ingestWikidata(env,db));}
-  catch(error){const state=(await db('golf_source_state','source_id=eq.wikidata'))[0];await db('golf_source_state','source_id=eq.wikidata',{method:'PATCH',body:JSON.stringify({status:error instanceof SourceBlockedError?'blocked':'error',lease_until:null,last_error:error.message,source_errors:(state?.source_errors||0)+1})});return json({error:'ingestion_failed',reason:error.message},502);}
+  if(path==='/admin/bootstrap'){
+   const source=(await db('golf_sources','id=eq.wikidata'))[0];
+   if(source?.verdict!=='APPROVED'||source.automated_access!==true)return json({error:'source_disabled'},409);
+   if(!await db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:'wikidata'})}))return json({error:'source_blocked_or_busy'},409);
+   try{return json(await ingestWikidata(env,db));}
+   catch(error){await db('golf_source_state','source_id=eq.wikidata',{method:'PATCH',body:JSON.stringify({status:error instanceof SourceBlockedError?'blocked':'error',lease_until:null,last_error:error.message})});return json({error:'ingestion_failed',reason:error.message},502);}
+  }
+  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane])return json({error:'unknown_lane'},400);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined}));}
+  if(path==='/admin/tick')return json(await tick(env));
+  // Derivatives are produced offline from the archived original and stored under its content hash.
+  if(path==='/admin/media-derivative'){
+   const key=url.searchParams.get('key')||'';if(!/^media\/[0-9a-f]{64}\/(160|320|640|960)\.(avif|webp)$/.test(key))return json({error:'invalid_key'},400);
+   const type=key.endsWith('.avif')?'image/avif':'image/webp',body=await request.arrayBuffer();if(body.byteLength>2000000||!body.byteLength)return json({error:'invalid_body'},400);
+   await env.PUBLIC.put(key,body,{httpMetadata:{contentType:type,cacheControl:'public, max-age=31536000, immutable'}});return json({stored:key,bytes:body.byteLength});
+  }
+  return json({error:'not_found'},404);
  },
- async scheduled(){console.log(JSON.stringify({worker:'golf-ingest',status:'manual_only',reason:'No unattended metadata or scoring ingestion enabled'}));}
+ async scheduled(event,env,ctx){ctx.waitUntil(tick(env).then(r=>console.log(JSON.stringify({worker:'golf-ingest',cron:event.cron,...r}))).catch(e=>console.error(JSON.stringify({worker:'golf-ingest',error:e.message}))));}
 };
-

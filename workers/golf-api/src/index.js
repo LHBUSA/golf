@@ -1,49 +1,106 @@
 import {golfAccess} from '../../shared/access.js';
-import {store,SPORTS_REF} from '../../shared/store.js';
 import {adminAllowed} from '../../shared/admin.js';
-import {graph,envelope,findEntity} from './graph.js';
-const json=(body,status=200,cache='no-store')=>Response.json(body,{status,headers:{'cache-control':cache,'x-content-type-options':'nosniff'}});
-const publicCollections=new Set(['today','live','tournaments','players','courses','rankings','news']);
-const premium=new Set(['player-dna','course-dna','course-fit','pbecast','history','matchups']);
+import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition} from '../../shared/views.js';
+export const CONTRACT='golf-public/2.0.0';
+const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
+const json=(body,status=200,cache='no-store')=>Response.json(body,{status,headers:headers(cache)});
+const PUBLIC_CACHE='public, max-age=120, s-maxage=300';
+let memo={at:0,index:null};
+async function doc(env,key){const o=await env.PUBLIC?.get('projection/v2/'+key);return o?JSON.parse(await o.text()):null;}
+async function index(env){if(memo.index&&Date.now()-memo.at<120000)return memo.index;const i=await doc(env,'index.json');if(i)memo={at:Date.now(),index:i};return i;}
+function envelope(ix,data,{availability='available',coverage=null,reason=null,source=null,provenance=null,method=null}={}){
+ const age=ix?.as_of?Math.floor((Date.now()-Date.parse(ix.as_of))/1000):null;
+ return {data,availability,reason,source:source||ix?.sources?.map(s=>s.name+' ('+s.licence+')').join('; ')||null,as_of:ix?.as_of||null,source_age_seconds:age,stale:age===null||age>2*86400,coverage:coverage||ix?.coverage||null,provenance,method,contract_version:CONTRACT};
+}
+const unavailable=(ix,reason,extra={})=>envelope(ix,null,{availability:'unavailable',reason,...extra});
+const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish']);
 export default {
  async fetch(request,env={}){
-  const url=new URL(request.url);
-  if(url.pathname==='/admin/bootstrap'||url.pathname==='/admin/news-shadow'){
+  const url=new URL(request.url),path=url.pathname;
+  if(ADMIN.has(path)){
    if(request.method!=='POST')return json({error:'method_not_allowed'},405);
    if(!await adminAllowed(request,env))return json({error:'unauthorized'},401);
-   const service=url.pathname==='/admin/bootstrap'?env.INGEST:env.NEWS;
-   if(!service?.fetch)return json({error:'service_unavailable'},503);
-   return service.fetch(new Request('https://golf-internal'+url.pathname,{method:'POST',headers:{authorization:request.headers.get('authorization')}}));
+   const service=/news/.test(path)?env.NEWS:env.INGEST;if(!service?.fetch)return json({error:'service_unavailable'},503);
+   const body=path==='/admin/media-derivative'?await request.arrayBuffer():null;
+   return service.fetch(new Request('https://golf-internal'+path+url.search,{method:'POST',headers:{authorization:request.headers.get('authorization')},body}));
   }
-  if(request.method!=='GET')return json({error:'method_not_allowed'},405);
-  if(url.pathname==='/v1/membership'){const access=await golfAccess(request,env);return json({membership:access.membership,verification:access.reason});}
-  const module=url.pathname.split('/')[3];
-  if(url.pathname.startsWith('/v1/intelligence/')){
-   if(!premium.has(module))return json({error:'not_found'},404);
+  if(request.method!=='GET'&&request.method!=='HEAD')return json({error:'method_not_allowed'},405);
+  if(path==='/v1/membership'){const access=await golfAccess(request,env);return json({membership:access.membership,verification:access.reason});}
+  // Media derivatives: content-addressed, rights-reviewed images only.
+  const m=path.match(/^\/v1\/media\/([0-9a-f]{64})\/(160|320|640|960)\.(avif|webp)$/);
+  if(m){const o=await env.PUBLIC?.get(`media/${m[1]}/${m[2]}.${m[3]}`);if(!o)return json({error:'not_found'},404);return new Response(o.body,{headers:{'content-type':m[3]==='avif'?'image/avif':'image/webp','cache-control':'public, max-age=31536000, immutable','x-content-type-options':'nosniff'}});}
+  const parts=path.replace(/^\/v1\//,'').split('/').filter(Boolean);
+  // Premium intelligence: authorization before any read.
+  if(parts[0]==='intelligence'){
+   if(!['player-dna','course-dna','course-fit','pbecast','history','matchups','field'].includes(parts[1]))return json({error:'not_found'},404);
    const access=await golfAccess(request,env);
    if(!access.granted)return json({error:'all_access_required',membership:access.membership},403);
-   return json({data:null,availability:'unavailable',reason:'comparable_performance_sample_unavailable',source:null,as_of:null,coverage:{performance_statistics:false},method:'golf-descriptive/1.0.0',version:'golf-intelligence/1.0.0',membership:access.membership});
+   const ix=await index(env);if(!ix)return json(unavailable(null,'projection_unavailable'),503);
+   let data=null;
+   if(parts[1]==='player-dna'&&parts[2]){const d=await doc(env,'players/'+parts[2]+'.json');data=d&&premiumPlayer(d);}
+   else if(parts[1]==='course-dna'&&parts[2]){const d=await doc(env,'courses/'+parts[2]+'.json');data=d&&premiumCourse(d);}
+   else if(parts[1]==='course-fit'&&parts[2]&&parts[3]){const c=await doc(env,'courses/'+parts[2]+'.json');data=c?.player_history?.find(p=>p.slug===parts[3])?.fit||null;}
+   else if((parts[1]==='field'||parts[1]==='pbecast')&&parts[2]){const d=await doc(env,'editions/'+parts[2]+'.json');data=d&&premiumEdition(d);}
+   else if(parts[1]==='matchups'&&parts[2]&&parts[3]){const [a,b]=await Promise.all([doc(env,'players/'+parts[2]+'.json'),doc(env,'players/'+parts[3]+'.json')]);data=a&&b?matchupPremium(a,b):null;}
+   else if(parts[1]==='history'&&parts[2]){const d=await doc(env,'players/'+parts[2]+'.json');data=d?{results:d.results,seasons:d.seasons}:null;}
+   if(!data)return json({...unavailable(ix,'not_found_or_insufficient_sample'),membership:access.membership},404);
+   return json({...envelope(ix,data,{method:ix.methods}),membership:access.membership});
   }
-  const [collection,id,sub,round]=url.pathname.replace(/^\/v1\//,'').split('/');
-  if(url.pathname!=='/health'&&!publicCollections.has(collection)&&!['player','course','tournament','source-health','graph'].includes(collection))return json({error:'not_found'},404);
-  const db=store(env);if(!db)return json(envelope(null,[],{reason:'canonical_data_not_connected'}),url.pathname==='/health'?503:200);
+  const ix=await index(env);
+  if(path==='/health')return json({ok:Boolean(ix),mode:'production_projection',contract:CONTRACT,as_of:ix?.as_of||null,coverage:ix?.coverage||null,live_scoring:false},ix?200:503);
+  if(!ix)return json(unavailable(null,'projection_unavailable'),503);
+  const [col,id,sub]=parts;
+  const ok=(data,opts)=>json(envelope(ix,data,opts),200,PUBLIC_CACHE);
   try{
-   const g=await graph(db);
-   if(url.pathname==='/health')return json({ok:true,mode:'production_metadata',graph_connected:true,project:SPORTS_REF,counts:{players:g.players.length,tournaments:g.tournaments.length,courses:g.courses.length,results:g.results.length},as_of:g.as_of,source_age_seconds:g.source_age_seconds,scoring_connected:false});
-   if(collection==='source-health')return json(envelope(g,g.source_state));
-   if(collection==='graph')return json(envelope(g,g),200,'public, max-age=60');
-   if(collection==='live')return json(envelope(g,[],{availability:'unavailable',reason:'approved_live_scoring_feed_not_established'}));
-   if(collection==='rankings'||collection==='news')return json(envelope(g,[],{availability:'unavailable',reason:collection==='news'?'newsroom_shadow_mode_no_published_stories':'licensed_ranking_snapshots_unavailable'}));
-   if(collection==='today')return json(envelope(g,{current:[],upcoming:[],recent:g.tournaments.slice(0,8),results:g.results},{availability:'partial',reason:'current_schedule_and_scoring_unavailable; selected_major_history_available'}));
-   if(['players','courses','tournaments'].includes(collection))return json(envelope(g,g[collection]),200,'public, max-age=60');
-   const rows=collection==='player'?g.players:collection==='course'?g.courses:g.tournaments,entity=findEntity(rows,id);
-   if(!entity)return json(envelope(g,null,{availability:'unavailable',error:'not_found'}),404);
-   const history=g.results.filter(r=>collection==='player'?r.player?.id===entity.id:collection==='course'?r.tournament?.course?.id===entity.id:r.edition_id===entity.id);
-   if(sub&& !['history','leaderboard','field','round'].includes(sub))return json({error:'not_found'},404);
-   if(['leaderboard','field','round'].includes(sub))return json(envelope(g,[],{availability:'unavailable',reason:'winner_only_history_does_not_support_'+sub,round:round||null}));
-   if(sub==='history')return json(envelope(g,history));
-   return json(envelope(g,{...entity,history,results:collection==='tournament'?history:undefined,related_tournaments:collection==='course'?g.tournaments.filter(t=>t.course?.id===entity.id):undefined,unsupported:['round_scores','scorecards','tee_times','purse','defending_champion','player_statistics']}),200,'public, max-age=60');
-  }catch(error){console.error(JSON.stringify({worker:'golf-api',error:error.message}));return json(envelope(null,null,{reason:'canonical_graph_unavailable'}),503);}
+   switch(col){
+    case 'projection':{
+     const key=id&&['players','editions','courses'].includes(id)&&sub?`${id}/${sub}`:id;
+     if(!key||!/^(manifest|index|bundle)\.json$|^(players|editions|courses)\/[a-z0-9-]+\.json$/.test(key))return json({error:'not_found'},404);
+     const o=await env.PUBLIC.get('projection/v2/'+key);if(!o)return json({error:'not_found'},404);
+     return new Response(o.body,{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
+    }
+    case 'graph':return ok({as_of:ix.as_of,coverage:ix.coverage,source_state:ix.source_state});
+    case 'source-health':{const r=env.INGEST?.fetch?await env.INGEST.fetch('https://golf-internal/health').then(r=>r.json()).catch(()=>null):null;return json(envelope(ix,r||{source_state:ix.source_state},{availability:r?'available':'partial'}));}
+    case 'today':return ok({current:ix.current,upcoming:ix.upcoming,recent:ix.recent},{availability:ix.current.length||ix.upcoming.length?'available':'partial',reason:'Status comes from published tour season schedules; live scoring is not connected.'});
+    case 'live':return json(envelope(ix,{in_progress_by_schedule:ix.current,leaderboards:null},{availability:'unavailable',reason:'approved_live_scoring_feed_not_established',coverage:{live_scoring:false,tee_times:false,hole_by_hole_live:false}}),200,PUBLIC_CACHE);
+    case 'rankings':return json(unavailable(ix,'licensed_ranking_source_not_established',{coverage:{official_rankings:false,pbe_rating:'research only; not published'}}),200,PUBLIC_CACHE);
+    case 'news':{const o=await env.PUBLIC.get('news/v1/index.json');const n=o?JSON.parse(await o.text()):[];return ok(n,{availability:n.length?'available':'unavailable',reason:n.length?null:'no_story_has_passed_all_publication_gates'});}
+    case 'search':return ok(searchIndex(ix,url.searchParams.get('q')||'',Number(url.searchParams.get('limit'))||12));
+    case 'tournaments':{
+     if(!id){let rows=ix.editions;const d=url.searchParams.get('division'),major=url.searchParams.get('major'),year=url.searchParams.get('year'),series=url.searchParams.get('series');if(d)rows=rows.filter(r=>r.division===d);if(major)rows=rows.filter(r=>r.is_major===(major==='true'));if(year)rows=rows.filter(r=>String(r.year)===year);if(series)rows=rows.filter(r=>r.series_key===series);return ok(rows,{coverage:{editions:rows.length,with_leaderboards:rows.filter(r=>!['winner_only','schedule_only'].includes(r.coverage)).length}});}
+     const d=await doc(env,'editions/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const e=publicEdition(d);
+     const cov={coverage:e.coverage,rows_listed:e.results_source?.rows_listed??null,rows_stored:e.results_source?.rows_stored??null,field_complete:e.coverage==='full_field'},src={source:e.results_source?`Wikipedia (CC BY-SA 4.0): ${e.results_source.attribution}`:'Wikidata (CC0)',provenance:e.provenance};
+     if(!sub)return ok(e,{...src,coverage:cov});
+     if(sub==='leaderboard'||sub==='field'){if(!e.leaderboard.length)return json(unavailable(ix,e.coverage==='winner_only'?'winner_only_history':'leaderboard_not_published_in_source',{coverage:cov}),200,PUBLIC_CACHE);return ok(sub==='field'?e.leaderboard.map(r=>({player:r.player,status:r.status})):e.leaderboard,{...src,coverage:cov});}
+     if(sub==='rounds'){const rows=e.leaderboard.filter(r=>r.rounds.length);if(!rows.length)return json(unavailable(ix,'round_scores_not_available',{coverage:cov}),200,PUBLIC_CACHE);return ok({rounds:rows.map(r=>({player:r.player,rounds:r.rounds,holes:r.holes})),timeline:e.timeline,par:e.par,layout:e.layout},{...src,coverage:cov});}
+     if(sub==='history')return ok(e.past_editions,{coverage:{editions:e.past_editions.length}});
+     return json({error:'not_found'},404);
+    }
+    case 'players':{
+     if(!id){let rows=ix.players;const q=url.searchParams.get('division');if(q)rows=rows.filter(r=>r.division===q);const c=url.searchParams.get('country');if(c)rows=rows.filter(r=>r.country_code===c);return ok(rows,{coverage:{players:rows.length,note:'Observed in PropBetEdge coverage; not career totals.'}});}
+     const d=await doc(env,'players/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const p=publicPlayer(d);
+     if(!sub)return ok(p,{provenance:d.provenance,method:ix.methods.dna});
+     if(sub==='results')return ok(p.results,{coverage:{events_observed:p.summary.events_observed,note:'Observed in PropBetEdge coverage'}});
+     if(sub==='history')return ok({seasons:p.seasons,course_history:p.course_history});
+     if(sub==='majors')return ok({summary:{wins:p.summary.major_wins,appearances_observed:p.summary.major_appearances_observed,full_field_starts:p.summary.major_full_field_starts,top10:p.summary.major_top10,best_finish:p.summary.best_major_finish},results:p.results.filter(r=>r.edition.is_major)});
+     return json({error:'not_found'},404);
+    }
+    case 'courses':{
+     if(!id)return ok(ix.courses);
+     const d=await doc(env,'courses/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const c=publicCourse(d);
+     if(!sub)return ok(c,{provenance:d.provenance,method:ix.methods.course});
+     if(sub==='history')return ok(c.editions);
+     return json({error:'not_found'},404);
+    }
+    case 'matchups':{
+     if(!id||!sub)return ok({featured:ix.featured_matchups||[]});
+     const [a,b]=canonicalPair(id,sub);if(a===b)return json(unavailable(ix,'same_player'),400);
+     const [da,dbb]=await Promise.all([doc(env,'players/'+a+'.json'),doc(env,'players/'+b+'.json')]);
+     if(!da||!dbb)return json(unavailable(ix,'not_found'),404);
+     return ok({canonical:`/matchups/${a}/${b}`,...matchupPublic(da,dbb)},{method:'golf-matchup-descriptive/1.0.0'});
+    }
+    default:return json({error:'not_found'},404);
+   }
+  }catch(error){console.error(JSON.stringify({worker:'golf-api',error:error.message}));return json(unavailable(ix,'projection_read_failed'),503);}
  }
 };
-

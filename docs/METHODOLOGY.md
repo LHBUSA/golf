@@ -1,3 +1,21 @@
+# Methodology — Phase 2 (2026-10-01)
+
+**Player Results DNA** (`golf-results-dna/1.0.0`). Inputs: full-field leaderboards only. Dimensions: scoring vs field (mean of round field average − player score; equivalent in construction to round-level total strokes gained), consistency (SD of field-adjusted rounds, lower better), under-par round rate, cuts made, top-10 rate, contention (top-5) rate, recent form (last 10 full-field starts), major performance (field-adjusted in majors). Windows: last 24 months and all observed since 2000, ending at the as-of date (no future results). Cohorts: men and women separately (PGA TOUR + men's majors; LPGA + women's majors). Confidence tiers: rounds High ≥ 40 / Medium ≥ 20 / Limited ≥ 8; starts High ≥ 12 / Medium ≥ 6 / Limited ≥ 3; below Limited the percentile is withheld; cohorts under 10 players publish no percentile. Mid-rank percentiles. No composite score.
+
+**Held dimensions**: driving power/control, off-tee, approach, iron precision, GIR, short game, scrambling, sand, putting (no approved statistics source), par-3/4/5 performance (hole data exists only for final-round contenders).
+
+**Course DNA** (`golf-course-dna/1.0.0`): scoring difficulty (field mean to par per round), spread, under-par round share — compared with other courses in the same division, editions ≥ 2 full-field for percentiles; plus published winning score, cut line and setup yardage, each edition a separate layout version. Contender hole scoring is labelled as leaders' final-round cards, not a field sample.
+
+**Course Fit** (`golf-course-fit-descriptive/1.0.0`): components only — course history, performance on comparably difficult setups, on comparable lengths (men 7,400 yd / women 6,600 yd threshold), recent form; each shows player value, course signal and samples. `overall_score` is always null.
+
+**Field intelligence** (`golf-field-context/1.0.0`): uses only results that ended before the edition start.
+
+**Matchups** (`golf-matchup-descriptive/1.0.0`): records, DNA percentiles (comparable only within one division), "higher finish in shared events" (stroke play, never called head-to-head), common-course history. No probability.
+
+**Rankings**: no licensed source; a PBE rating was not built or published.
+
+---
+
 # Analytics methodology
 
 No default zero, fabricated percentile, equal-weight composite, inferred course demand or black-box score. All analytics stay unavailable until comparable canonical inputs exist.

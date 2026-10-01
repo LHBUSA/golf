@@ -1,3 +1,29 @@
+# Architecture — Phase 2 (2026-10-01)
+
+```text
+Wikidata WDQS ─┐                       ┌─ golf_* canonical graph (SPORTS tkmln)
+Wikipedia API ─┼─ golf-ingest lanes ───┤   (golf_write_batch RPC + ledgered direct writer)
+Commons API ───┘  capture → R2 raw     └─ golf_source_changes correction ledger
+                         │
+                 projection builder (golf-ingest, after writes)
+                         │  versioned public documents → R2 golf-public/projection/v2/*
+                         ▼
+golf-api (golf-api.propbetedge.ai) ── /v1/* public contract golf-public/2.0.0
+                         │            /v1/intelligence/* (All Access, authorized before any read)
+                         ▼
+Vercel golf project: build = export projection → Vite → prerender (all entity pages, sitemap)
+                     /api/* same-origin proxy; /matchups/:a/:b → client view
+golf-news: projection → frozen packets → gates → publish to R2 news/v1 (manual admin runs)
+```
+
+Lanes (one lease per source, `golf_claim_source`): `catalog` (Wikidata, daily), `schedule` (Wikipedia season articles, 6 h), `results` (edition articles; 6 h for recent editions, 30 days for history, revision-checked first), `media` (Commons, daily). Cron `*/10` picks the most-due lane; each run is time-boxed (200 s) inside a 5-minute lease. Item cursors live in KV `golf-state` (`items:v1`); an item that dies mid-run is marked and counted as a failed attempt (3 attempts then weekly retry). 401/403/407/429, redirects, challenges and unapproved hosts latch the source `blocked` until reviewed.
+
+Every response is archived to R2 `golf-source` by SHA-256 before parsing (SPARQL query text archived by hash) and registered in `golf_source_captures` with parser and rights versions. Writes: the reviewed `golf_write_batch` RPC for identity/edition/result tables; `golf_rounds`, `golf_scorecards`, `golf_holes`, `golf_hole_scores` and `golf_entity_media` use a JS writer with the same typed comparison and before/after ledger (the RPC allowlist migration is prepared but was not applied; see report).
+
+The projection is the only thing the API and frontend read: per-player, per-edition and per-course documents plus an index. Premium values exist only in R2 documents and are split by `workers/shared/views.js`, which both the API and the static prerender use, so static HTML never contains premium values.
+
+---
+
 # Architecture
 
 Production update, 2026-10-01: the metadata/history graph is applied to independently verified SPORTS, Workers and R2 are deployed, and Vercel serves populated canonical pages through `/api`. Network auth has additive Golf registration. The remaining foundation discussion below records the earlier draft state; [the production report](PRODUCTION_SPRINT_REPORT.md) and deployment manifest describe the implemented runtime and its explicit data limits.

@@ -10,5 +10,14 @@
   "preview_urls": false,
   "observability": {
     "enabled": true
+  },
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC",
+      "bucket_name": "golf-public"
+    }
+  ],
+  "vars": {
+    "PUBLISH_ENABLED": "true"
   }
 }

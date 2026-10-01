@@ -1,3 +1,9 @@
+# PBEcast — Phase 2 (2026-10-01)
+
+Archive mode is live for every edition with a leaderboard: top of the final leaderboard with round scores, leader after each round (full-field editions; field averages per round), validated final-round hole-by-hole scorecards for leaders (birdie/bogey/eagle strip), and course setup context. Switching editions is client-side via `/api/v1/tournaments/:slug`. Live mode stays off: no approved real-time feed. No shot coordinates exist and none are drawn.
+
+---
+
 # PBEcast Golf
 
 Responsive command center foundation includes original decorative contours and unavailable states. It is not actual routing, observed coordinates or live action.

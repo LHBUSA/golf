@@ -8,16 +8,33 @@
   ],
   "workers_dev": false,
   "preview_urls": false,
-  "routes": [{"pattern":"golf-api.propbetedge.ai","custom_domain":true}],
+  "routes": [
+    {
+      "pattern": "golf-api.propbetedge.ai",
+      "custom_domain": true
+    }
+  ],
   "observability": {
     "enabled": true
   },
   "services": [
-    {"binding":"INGEST","service":"golf-ingest"},
-    {"binding":"NEWS","service":"golf-news"},
+    {
+      "binding": "INGEST",
+      "service": "golf-ingest"
+    },
+    {
+      "binding": "NEWS",
+      "service": "golf-news"
+    },
     {
       "binding": "AUTH",
       "service": "propbetedge-auth-magic"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC",
+      "bucket_name": "golf-public"
     }
   ]
 }

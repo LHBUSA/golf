@@ -1,34 +1,65 @@
 import './data.css';
+import './product.css';
 import {initAnalytics} from './analytics.js';
+// @ts-ignore shared JS modules
+import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup} from './lib/pages.js';
+// @ts-ignore
+import {portrait,e} from './lib/ui.js';
 initAnalytics();
-import {productPage} from './lib/product.js';
-const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
-menu?.addEventListener('click',()=>{ const open=menu.getAttribute('aria-expanded')!=='true'; menu.setAttribute('aria-expanded',String(open)); document.querySelector('#primary-navigation')?.classList.toggle('open',open); });
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu?.getAttribute('aria-expanded')==='true'){menu.setAttribute('aria-expanded','false');document.querySelector('#primary-navigation')?.classList.remove('open');menu.focus();}});
-document.querySelectorAll<HTMLButtonElement>('[data-tour]').forEach(button=>button.addEventListener('click',()=>{
- document.querySelectorAll('[data-tour]').forEach(b=>{ b.setAttribute('aria-pressed',String(b===button)); b.classList.toggle('selected',b===button); });
- const status=document.querySelector('.filter-description'); if(status) status.textContent=button.dataset.tour==='All tours'?'Showing all tour coverage.':'Showing '+button.dataset.tour+' coverage. Verified data is unavailable.';
-}));
-
-function bindDataControls(){
- document.querySelectorAll<HTMLButtonElement>('[data-division]').forEach(button=>button.addEventListener('click',()=>{
-  const selected=button.dataset.division;document.querySelectorAll('[data-division]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-  document.querySelectorAll<HTMLElement>('[data-event-division]').forEach(card=>card.hidden=selected!=='all'&&card.dataset.eventDivision!==selected);
-  const status=document.querySelector('.filter-description');if(status)status.textContent=selected==='all'?'Showing all captured editions.':'Showing '+(selected==='women'?'women’s':'men’s')+' captured major editions.';
- }));
- document.querySelector<HTMLSelectElement>('[data-cast-select]')?.addEventListener('change',event=>{const value=(event.target as HTMLSelectElement).value;location.assign('/pbecast?tournament='+encodeURIComponent(value));});
+const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
+const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
+const menu=$<HTMLButtonElement>('.menu-toggle');
+menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));$('#primary-navigation')?.classList.toggle('open',open);});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&menu?.getAttribute('aria-expanded')==='true'){menu.setAttribute('aria-expanded','false');$('#primary-navigation')?.classList.remove('open');menu.focus();}});
+let indexPromise:Promise<any>|null=null;
+const index=()=>indexPromise||(indexPromise=fetch('/index-snapshot.json').then(r=>r.ok?r.json():null).catch(()=>null));
+const api=(path:string)=>fetch('/api/v1/'+path,{credentials:'same-origin',signal:AbortSignal.timeout(8000)});
+// Tournament table filters
+const table=$('[data-filter-table]');
+if(table){const sel=$$<HTMLSelectElement>('[data-filter]');const count=$('[data-filter-count]');const apply=()=>{const f=Object.fromEntries(sel.map(s=>[s.dataset.filter,s.value]));let n=0;for(const tr of $$<HTMLTableRowElement>('tbody tr',table)){const show=(!f.division||tr.dataset.division===f.division)&&(!f.major||tr.dataset.major===f.major)&&(!f.year||tr.dataset.year===f.year);tr.hidden=!show;if(show)n++;}if(count)count.textContent=n+' editions';};sel.forEach(s=>s.addEventListener('change',apply));}
+// Player directory: full list from the published index; never sorts on unavailable data.
+const grid=$('[data-player-grid]'),form=$<HTMLFormElement>('[data-player-filters]');
+if(grid&&form){
+ const norm=(s:string)=>s.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase();
+ const card=(p:any)=>`<article class="player-card">${portrait(p,{size:120,cls:'card-portrait'})}<div class="player-card-body"><h3><a class="player-link" href="/player/${e(p.slug)}">${e(p.name)}</a></h3><p>${e([p.country,p.division==='women'?'Women’s golf':'Men’s golf'].filter(Boolean).join(' · '))}</p><dl class="mini-stats"><div><dt>Wins</dt><dd>${e(p.wins_observed)}</dd></div><div><dt>Majors</dt><dd>${e(p.major_wins)}</dd></div><div><dt>Events</dt><dd>${e(p.events_observed)}</dd></div></dl>${p.scoring&&p.scoring.percentile!==null?`<div class="mini-bar"><span style="--w:${p.scoring.percentile}%"></span><b>${p.scoring.percentile}<small>th pct scoring</small></b></div>`:''}</div></article>`;
+ const run=async()=>{const ix=await index();if(!ix)return;const f=new FormData(form);const q=norm(String(f.get('q')||'')),div=f.get('division'),c=f.get('country'),sort=String(f.get('sort')||'events_observed');
+  let rows=ix.players.filter((p:any)=>(!q||norm(p.name).includes(q))&&(!div||p.division===div)&&(!c||p.country_code===c));
+  if(sort==='scoring'||sort==='form')rows=rows.filter((p:any)=>p[sort]&&p[sort].percentile!==null).sort((a:any,b:any)=>b[sort].percentile-a[sort].percentile);
+  else if(sort==='name')rows=rows.sort((a:any,b:any)=>a.name.localeCompare(b.name));else rows=rows.sort((a:any,b:any)=>(b[sort]||0)-(a[sort]||0));
+  grid.innerHTML=rows.slice(0,150).map(card).join('');const count=$('[data-filter-count]');if(count)count.textContent=`Showing ${Math.min(150,rows.length)} of ${rows.length}`;};
+ form.addEventListener('input',run);form.addEventListener('change',run);
 }
-bindDataControls();
-let canonicalRendered=false;
-if(location.pathname==='/pbecast'&&new URLSearchParams(location.search).has('tournament')){
- fetch('/graph-snapshot.json').then(r=>r.ok?r.json():null).then(g=>{const html=!canonicalRendered&&g&&productPage('/pbecast',g,new URLSearchParams(location.search).get('tournament')||'');if(html){document.querySelector('main')!.innerHTML=html;bindDataControls();}}).catch(()=>{});
+// Site search
+const sInput=$<HTMLInputElement>('[data-search-input]'),sOut=$('[data-search-results]');
+if(sInput&&sOut){let t:any;const q0=new URLSearchParams(location.search).get('q');if(q0)sInput.value=q0;const go=()=>{clearTimeout(t);t=setTimeout(async()=>{const q=sInput.value.trim();if(q.length<2){sOut.innerHTML='';return;}const r=await api('search?q='+encodeURIComponent(q)).then(r=>r.json()).catch(()=>null);const d=r?.data;if(!d){sOut.innerHTML='<p class="empty-note">Search is unavailable right now.</p>';return;}
+ sOut.innerHTML=[['Players',d.players.map((p:any)=>`<li><a href="/player/${e(p.slug)}">${e(p.name)}</a> <small>${e(p.country||'')}</small></li>`)],['Tournaments',d.tournaments.map((x:any)=>`<li><a href="${e(x.slug)}">${e(x.name)}</a></li>`)],['Courses',d.courses.map((c:any)=>`<li><a href="/course/${e(c.slug)}">${e(c.name)}</a> <small>${e([c.locality,c.country].filter(Boolean).join(' · '))}</small></li>`)]].map(([h,items]:any)=>items.length?`<section class="search-group"><h2>${h}</h2><ul>${items.join('')}</ul></section>`:'').join('')||'<p class="empty-note">No matches in coverage.</p>';},200);};sInput.addEventListener('input',go);if(q0)go();}
+// Matchup finder: canonical ordering so A vs B and B vs A share one URL.
+const finder=$<HTMLFormElement>('[data-matchup-finder]');
+if(finder){index().then(ix=>{const dl=$('#player-options');if(ix&&dl)dl.innerHTML=ix.players.map((p:any)=>`<option value="${e(p.name)}"></option>`).join('');const pre=new URLSearchParams(location.search).get('a');if(pre&&ix){const p=ix.players.find((x:any)=>x.slug===pre);if(p)(finder.elements.namedItem('a') as HTMLInputElement).value=p.name;}});
+ finder.addEventListener('submit',async ev=>{ev.preventDefault();const ix=await index();const st=$('[data-finder-status]');const f=new FormData(finder);const find=(n:any)=>ix?.players.filter((p:any)=>p.name.toLowerCase()===String(n).trim().toLowerCase());const A=find(f.get('a')),B=find(f.get('b'));
+  if(!A?.length||!B?.length){if(st)st.textContent='Choose both players from the suggestions.';return;}if(A.length>1||B.length>1){if(st)st.textContent='More than one golfer has that name; open the player page and use its Compare link.';return;}if(A[0].slug===B[0].slug){if(st)st.textContent='Choose two different players.';return;}
+  const [a,b]=[A[0].slug,B[0].slug].sort();location.assign(`/matchups/${a}/${b}`);});}
+// Client-rendered matchup for pairs that were not prerendered.
+const m=location.pathname.match(/^\/matchups\/([a-z0-9-]+)\/([a-z0-9-]+)$/);
+if(m&&$('[data-matchup-finder]')){const [a,b]=[m[1],m[2]].sort();if(a!==m[1])location.replace(`/matchups/${a}/${b}`);else api(`matchups/${a}/${b}`).then(r=>r.ok?r.json():null).then(r=>{const main=$('main');if(!main)return;if(!r?.data){main.innerHTML='<section class="page-heading data-heading"><div><p class="eyebrow">MATCHUPS</p><h1>Matchup not available.</h1><p>One of these players is not in coverage.</p></div></section>';return;}main.innerHTML=matchup(r.data);document.title=`${r.data.a.name} vs ${r.data.b.name} | PropBetEdge Golf`;premium();}).catch(()=>{});}
+// PBEcast edition switching
+const castSel=$<HTMLSelectElement>('[data-cast-select]');
+function bindCast(){$<HTMLSelectElement>('[data-cast-select]')?.addEventListener('change',ev=>{const v=(ev.target as HTMLSelectElement).value;history.replaceState(null,'','/pbecast?tournament='+encodeURIComponent(v));loadCast(v);});}
+async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);bindCast();}}
+if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournament');if(q&&q!==castSel.value)loadCast(q);}
+// Premium modules: values are requested only after server-side All Access verification.
+async function premium(){
+ const locks=$$('[data-premium]');if(!locks.length)return;
+ const mem=await api('membership').then(r=>r.ok?r.json():null).catch(()=>null);
+ if(!mem?.membership?.entitled){for(const l of locks){const s=$('.premium-status',l);if(s)s.textContent=mem?'Free reader: sign in with All Access to unlock.':'Membership verification unavailable; premium stays locked.';}return;}
+ const parts=location.pathname.split('/').filter(Boolean);
+ for(const l of locks){const mod=l.dataset.premium;let path='';
+  if(mod==='player-dna'&&parts[0]==='player')path='player-dna/'+parts[1];else if(mod==='course-fit'&&parts[0]==='course')path='course-dna/'+parts[1];else if(mod==='field'&&parts[0]==='tournament')path='field/'+parts[1];else if(mod==='matchups'&&parts[0]==='matchups')path='matchups/'+parts[1]+'/'+parts[2];
+  if(!path)continue;const r=await api('intelligence/'+path).then(r=>r.ok?r.json():null).catch(()=>null);if(!r?.data){const s=$('.premium-status',l);if(s)s.textContent='All Access verified. Not enough comparable sample for this module.';continue;}
+  l.classList.add('unlocked');l.innerHTML=mod==='player-dna'?premiumDna(r.data):mod==='course-fit'?premiumFit(r.data):mod==='field'?premiumField(r.data):premiumMatchup(r.data);}
 }
-if(document.querySelector('[data-freshness]')){
- fetch('/api/v1/graph',{signal:AbortSignal.timeout(6000)}).then(r=>r.ok?r.json():null).then(b=>{const selected=new URLSearchParams(location.search).get('tournament')||'';if(b?.data?.as_of){canonicalRendered=true;if(document.querySelector('[data-asof]')?.getAttribute('data-asof')!==b.data.as_of||(selected&&document.querySelector<HTMLSelectElement>('[data-cast-select]')?.value!==selected)){const html=productPage(location.pathname,b.data,selected);if(html){document.querySelector('main')!.innerHTML=html;bindDataControls();}}}const status=document.querySelector('[data-freshness]');if(status)status.textContent=b?(b.stale?'Stale capture · refresh pending':'Canonical metadata connected'):'Saved capture · API unavailable';}).catch(()=>{const status=document.querySelector('[data-freshness]');if(status)status.textContent='Saved capture · API unavailable';});
-}
+premium();
 if(location.pathname==='/all-access'){
- const status=document.createElement('p');status.className='membership-live';status.setAttribute('role','status');status.textContent='Checking network membership…';document.querySelector('.entitlement-status')?.append(status);
- const badge=document.querySelector('.entitlement-status>.state'),heading=document.querySelector('.entitlement-status h2');
- fetch('/api/v1/membership',{credentials:'same-origin',signal:AbortSignal.timeout(6000)}).then(r=>r.ok?r.json():null).then(b=>{if(!b?.membership)throw Error('membership_unavailable');const entitled=b.membership.entitled===true;if(badge)badge.textContent=entitled?'ALL ACCESS VERIFIED':'FREE READER';if(heading)heading.textContent=entitled?'All Access is active.':'Golf is open to explore.';status.textContent=entitled?'Network All Access verified. Statistical intelligence is unavailable until comparable samples are captured.':'Free reader. Sign in or manage your existing All Access membership at PropBetEdge.';}).catch(()=>{if(badge)badge.textContent='VERIFICATION UNAVAILABLE';status.textContent='Membership verification unavailable. Premium access remains locked.';});
+ const badge=$('.entitlement-status .state');
+ api('membership').then(r=>r.ok?r.json():null).then(b=>{if(!b?.membership)throw Error('membership_unavailable');if(badge)badge.innerHTML='<i aria-hidden="true"></i>'+(b.membership.entitled?'ALL ACCESS VERIFIED':'FREE READER');}).catch(()=>{if(badge)badge.innerHTML='<i aria-hidden="true"></i>VERIFICATION UNAVAILABLE';});
 }
-

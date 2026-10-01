@@ -16,11 +16,22 @@ export function validateDraft(packet,draft,previousKeys=[]){
  const facts=new Map(packet.facts.map(f=>[f.id,f]));
  for(const paragraph of draft.paragraphs??[]){
   if(paragraph.kind==='fact'){if(!facts.has(paragraph.fact_id))reasons.push('unknown_fact');}
+  else if(paragraph.kind==='fact_sentence'){
+   // Template prose may not contain numbers; every placeholder must resolve to a packet fact.
+   const ids=[...String(paragraph.template||'').matchAll(/\{([a-z0-9_]+)\}/g)].map(m=>m[1]);
+   if(!ids.length||ids.some(id=>!facts.has(id)))reasons.push('unknown_fact');
+   if(/\d|["“”]|injur|motivated|odds|betting|predict/i.test(String(paragraph.template).replace(/\{[a-z0-9_]+\}/g,'')))reasons.push('unsupported_prose');
+  }
   else if(paragraph.kind==='text'){if(/\d|["“”]|injur|motivated|odds|betting|predict/i.test(paragraph.text??''))reasons.push('unsupported_prose');}
   else reasons.push('invalid_paragraph');
  }
  if(/\d|["“”]|injur|odds|predict/i.test(draft.title??''))reasons.push('unsupported_title');
- if(!draft.paragraphs?.some(p=>p.kind==='fact'))reasons.push('no_facts');
+ if(!draft.paragraphs?.some(p=>p.kind==='fact'||p.kind==='fact_sentence'))reasons.push('no_facts');
  return {status:reasons.length?'hold':'validated',reasons:[...new Set(reasons)],packet_hash:packet.hash,publish_allowed:false};
+}
+// Renders validated sentences; values come only from frozen facts.
+export function renderDraft(packet,draft){
+ const facts=new Map(packet.facts.map(f=>[f.id,f]));
+ return draft.paragraphs.map(p=>p.kind==='fact_sentence'?p.template.replace(/\{([a-z0-9_]+)\}/g,(_,id)=>String(facts.get(id).display??facts.get(id).value)):p.kind==='fact'?String(facts.get(p.fact_id).display??facts.get(p.fact_id).value):p.text);
 }
 

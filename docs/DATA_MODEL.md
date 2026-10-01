@@ -1,3 +1,13 @@
+# Data model — Phase 2 (2026-10-01)
+
+No schema change was applied this sprint. Rows now populate: `golf_tournaments`, `golf_tournament_editions` (rules JSON carries catalog fields, schedule fields and a `results` coverage object: article, revision, coverage class, field size, cut, rows listed/stored/held), `golf_edition_tours` (sanctioning from tour schedules), `golf_courses` + `golf_course_layouts` (one metadata layout per venue + one *championship setup* layout per edition, never mixed across years), `golf_holes` (per setup), `golf_entries`, `golf_results`, `golf_rounds`, `golf_scorecards` (one row per player round), `golf_hole_scores` (validated final-round cards), `golf_entity_media`, `golf_identity_queue`, `golf_news_packets`, `golf_articles`.
+
+Coverage classes per edition: `full_field` (missed-cut rows listed and row count reaches the published field), `partial_field`, `made_cut`, `top_finishers`, `winner_only`, `schedule_only`. Starts-based rates and field-adjusted scoring use `full_field` only; top-10 membership and wins use every leaderboard.
+
+Deterministic IDs: `stableId(table:key)` — players/courses/series by QID, Wikidata editions by QID, schedule-only editions by `wp:<series QID or title>:<year>`, entries by `edition:QID`, results by `edition:winner` (catalog-compatible) or `edition:QID`, scorecards by `edition:QID:R<n>`.
+
+---
+
 # Golf graph draft
 
 Production update, 2026-10-01: the guarded foundation schema and reviewed runtime migrations are applied to SPORTS. `golf_source_state` adds durable source leases, errors, freshness and run counters, bringing the graph to fifty RLS tables. The bounded invoker `golf_write_batch` RPC retains typed idempotence and correction history; raw captures and news packets remain immutable. See [the production report](PRODUCTION_SPRINT_REPORT.md). The draft-only description below records the foundation sprint.
