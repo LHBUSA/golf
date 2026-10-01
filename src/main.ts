@@ -9,6 +9,8 @@ import {portrait,e} from './lib/ui.js';
 import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow} from './lib/live-ui.js';
 // @ts-ignore
 import {videoTile,TYPE_LABEL} from './lib/video.js';
+// @ts-ignore
+import {fillRaw} from './lib/dna-ui.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -60,6 +62,7 @@ async function premium(){
  for(const l of locks){const mod=l.dataset.premium;let path='';
   if(mod==='player-dna'&&parts[0]==='player')path='player-dna/'+parts[1];else if(mod==='course-fit'&&parts[0]==='course')path='course-dna/'+parts[1];else if(mod==='field'&&parts[0]==='tournament')path='field/'+parts[1];else if(mod==='matchups'&&parts[0]==='matchups')path='matchups/'+parts[1]+'/'+parts[2];
   if(!path)continue;const r=await api('intelligence/'+path).then(r=>r.ok?r.json():null).catch(()=>null);if(!r?.data){const s=$('.premium-status',l);if(s)s.textContent='All Access verified. Not enough comparable sample for this module.';continue;}
+  if(mod==='player-dna')fillRaw(document,r.data.dna,'data-raw');if(mod==='matchups'){fillRaw(document,r.data.a?.dna,'data-raw-a');fillRaw(document,r.data.b?.dna,'data-raw-b');}
   l.classList.add('unlocked');l.innerHTML=mod==='player-dna'?premiumDna(r.data):mod==='course-fit'?premiumFit(r.data):mod==='field'?premiumField(r.data):premiumMatchup(r.data);}
 }
 premium();

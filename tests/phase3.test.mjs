@@ -38,3 +38,18 @@ test('ESPN in-progress: partial linescores are never rounds; nobody is finished 
  // Once play moves to round two, a round-one total without hole detail counts.
  const b2=structuredClone(b);b2.comp_status.period=2;b2.competitors[1].linescores.items=[{period:1,value:70,displayValue:'-1'}];assert.equal(parseEventBundle(b2).rows[1].rounds.length,1);
 });
+test('DNA UI: fixed axis order, nulls omitted not zeroed, edges from deltas, finish buckets reconcile',async()=>{const D=await import('../src/lib/dna-ui.js');
+ const fp={window:'Last 24 months',cohort:'c',dimensions:[{code:'form',percentile:60,sample:20,basis:'rounds',confidence:'MEDIUM'},{code:'par3',percentile:null,sample:4,basis:'holes',confidence:'INSUFFICIENT'},{code:'scoring',percentile:90,sample:100,basis:'rounds',confidence:'HIGH'}]};
+ const m=D.dnaModel(fp);assert.deepEqual(m.metrics.map(x=>x.key),['par3','scoring','form']);assert.equal(m.metrics[0].percentile,null);assert.equal(m.ranked.length,2);
+ assert.match(D.metricBars(m),/mbar-pct">—</);assert.doesNotMatch(D.metricBars(m),/data-w="0"/);
+ const fb=D.finishBuckets({starts:10,wins:1,top5:2,top10:4,top25:6,made_cut:8,missed_cut:1,wd_dq:0,unknown:1});assert.equal(fb.buckets.reduce((s,b)=>s+b.count,0),10);assert.equal(D.finishBuckets({starts:10,wins:5,top5:2}),null);
+ const mk=(a,b)=>({a:{name:'A',visuals:null},b:{name:'B',visuals:null},dna:{comparable:true,a:{window:'w',cohort:'c',dimensions:a},b:{window:'w',cohort:'c',dimensions:b}}});
+ const mm=D.matchupModel(mk([{code:'scoring',percentile:90},{code:'form',percentile:50},{code:'cuts',percentile:70}],[{code:'scoring',percentile:60},{code:'form',percentile:52},{code:'cuts',percentile:95}]));
+ assert.deepEqual(mm.left_edges.map(r=>r.key),['scoring']);assert.deepEqual(mm.right_edges.map(r=>r.key),['cuts']);assert.deepEqual(mm.close.map(r=>r.key),['form']);
+ assert.doesNotMatch(D.verdict({a:{name:'A'},b:{name:'B'}},mm).split('<p class="gnote">')[0],/\b(bet|pick|odds|lock)\b/i);});
+test('global weather: MET Norway parsing keeps units honest and never invents gusts or rain chance',async()=>{const W=await import('../workers/golf-ingest/src/weather.js');
+ const body={properties:{meta:{updated_at:'2026-10-01T19:20:23Z'},timeseries:[{time:'2026-10-01T23:00:00Z',data:{instant:{details:{air_temperature:21.1,wind_speed:6.0,wind_from_direction:27.7,relative_humidity:88.2,air_pressure_at_sea_level:1013}},next_1_hours:{summary:{symbol_code:'heavyrain'},details:{precipitation_amount:2.4}}}},{time:'2026-10-02T00:00:00Z',data:{instant:{details:{}},next_1_hours:{details:{}}}}]}};
+ const f=W.parseMet(body,W.zoneFor(null,'Japan',139.5));const h=f.hours[0];
+ assert.equal(h.t,'2026-10-02T08:00:00+09:00');assert.equal(h.temp_f,70);assert.equal(h.wind_mph,13);assert.equal(h.wind_dir,'NNE');assert.equal(h.gust_mph,null);assert.equal(h.pop,null);assert.equal(h.precip_mm,2.4);
+ const e2=f.hours[1];assert.equal(e2.temp_f,null);assert.equal(e2.wind_mph,null);assert.equal(e2.wind_dir,null);
+ assert.equal(W.geoKey(null,{city:'Ivins',state:'UT',country:'USA'}),'loc:ivins|ut|usa');assert.match(W.zoneFor(null,'Nowhere',-30).basis,/approximate solar time/);});

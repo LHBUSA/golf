@@ -3,8 +3,8 @@
 import {safeFetch,digest} from '../../shared/http.js';
 import {stableId} from '../../shared/store.js';
 export const UA='PropBetEdgeGolfIngest/0.2 (+https://golf.propbetedge.ai; data@propbetedge.ai)';
-export const HOSTS={wikidata:['www.wikidata.org','query.wikidata.org'],wikipedia:['en.wikipedia.org'],commons:['commons.wikimedia.org','upload.wikimedia.org','thumb.wikimedia.org'],espn:['sports.core.api.espn.com','a.espncdn.com'],nws:['api.weather.gov'],youtube:['www.youtube.com']};
-export const RIGHTS={wikidata:'CC0-1.0/golf-3',wikipedia:'CC-BY-SA-4.0/golf-1',commons:'per-asset-commons/golf-1',espn:'espn-owner-approved/golf-1',nws:'us-gov-public-domain/golf-1',youtube:'youtube-keyless-embed/golf-1'};
+export const HOSTS={wikidata:['www.wikidata.org','query.wikidata.org'],wikipedia:['en.wikipedia.org'],commons:['commons.wikimedia.org','upload.wikimedia.org','thumb.wikimedia.org'],espn:['sports.core.api.espn.com','a.espncdn.com'],nws:['api.weather.gov'],youtube:['www.youtube.com'],metno:['api.met.no']};
+export const RIGHTS={wikidata:'CC0-1.0/golf-3',wikipedia:'CC-BY-SA-4.0/golf-1',commons:'per-asset-commons/golf-1',espn:'espn-owner-approved/golf-1',nws:'us-gov-public-domain/golf-1',youtube:'youtube-keyless-embed/golf-1',metno:'cc-by-4.0-met-norway/golf-1'};
 const lastRequest=new Map();
 // Per-host spacing inside one leased run. The durable source lease prevents concurrent runs.
 export async function spaced(host,minimumMs=1100){const last=lastRequest.get(host)||0,wait=last+minimumMs-Date.now();if(wait>0)await new Promise(r=>setTimeout(r,wait));lastRequest.set(host,Date.now());}

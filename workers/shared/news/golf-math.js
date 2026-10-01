@@ -34,10 +34,10 @@ export function holeDifficulty(board,layout,{minCards=30}={}){
 export const weatherDays=(w,{from,to}={})=>{
  if(!w?.hours?.length)return [];const days=new Map();
  for(const h of w.hours){const d=h.t.slice(0,10),hr=Number(h.t.slice(11,13));if(from&&d<from||to&&d>to||hr<7||hr>19)continue;(days.get(d)||days.set(d,[]).get(d)).push(h);}
- return [...days].map(([day,hs])=>{const v=k=>hs.map(h=>h[k]).filter(x=>x!==null&&x!==undefined);const w_=v('wind_mph'),g=v('gust_mph'),t=v('temp_f'),p=v('pop');
-  const part=(a,b)=>{const xs=hs.filter(h=>{const hr=Number(h.t.slice(11,13));return hr>=a&&hr<b;});const vv=k=>xs.map(h=>h[k]).filter(x=>x!==null&&x!==undefined);const ww=vv('wind_mph'),gg=vv('gust_mph'),tt=vv('temp_f'),pp=vv('pop');const dirs=xs.map(h=>h.wind_dir).filter(Boolean);
-   return xs.length?{wind_max:ww.length?Math.max(...ww):null,gust_max:gg.length?Math.max(...gg):null,temp:tt.length?Math.round(mean(tt)):null,pop_max:pp.length?Math.max(...pp):null,dir:dirs.length?[...dirs.reduce((m,d)=>m.set(d,(m.get(d)||0)+1),new Map())].sort((a,b)=>b[1]-a[1])[0][0]:null}:null;};
-  return {day,wind_max:w_.length?Math.max(...w_):null,gust_max:g.length?Math.max(...g):null,temp_min:t.length?Math.min(...t):null,temp_max:t.length?Math.max(...t):null,pop_max:p.length?Math.max(...p):null,parts:{morning:part(7,11),midday:part(11,15),afternoon:part(15,20)}};});
+ return [...days].map(([day,hs])=>{const v=k=>hs.map(h=>h[k]).filter(x=>x!==null&&x!==undefined);const w_=v('wind_mph'),g=v('gust_mph'),t=v('temp_f'),p=v('pop'),pm=v('precip_mm');
+  const part=(a,b)=>{const xs=hs.filter(h=>{const hr=Number(h.t.slice(11,13));return hr>=a&&hr<b;});const vv=k=>xs.map(h=>h[k]).filter(x=>x!==null&&x!==undefined);const ww=vv('wind_mph'),gg=vv('gust_mph'),tt=vv('temp_f'),pp=vv('pop'),mm=vv('precip_mm');const dirs=xs.map(h=>h.wind_dir).filter(Boolean);
+   return xs.length?{wind_max:ww.length?Math.max(...ww):null,gust_max:gg.length?Math.max(...gg):null,temp:tt.length?Math.round(mean(tt)):null,pop_max:pp.length?Math.max(...pp):null,precip_mm:mm.length?Math.round(mm.reduce((x,y)=>x+y,0)*10)/10:null,dir:dirs.length?[...dirs.reduce((m,d)=>m.set(d,(m.get(d)||0)+1),new Map())].sort((a,b)=>b[1]-a[1])[0][0]:null}:null;};
+  return {day,wind_max:w_.length?Math.max(...w_):null,gust_max:g.length?Math.max(...g):null,temp_min:t.length?Math.min(...t):null,temp_max:t.length?Math.max(...t):null,pop_max:p.length?Math.max(...p):null,precip_mm:pm.length?Math.round(pm.reduce((x,y)=>x+y,0)*10)/10:null,parts:{morning:part(7,11),midday:part(11,15),afternoon:part(15,20)}};});
 };
 // A live ESPN snapshot as a leaderboard (completed rounds only, so standings never use partial rounds).
 export function boardFromSnapshot(snap){
