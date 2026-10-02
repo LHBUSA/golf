@@ -11,5 +11,5 @@ export function videoTile(v,{label=null}={}){
 }
 export function videoRail(videos,{title='Official video',max=6}={}){
  const vs=(videos||[]).slice(0,max);if(!vs.length)return '';
- return `<div class="yt-rail" role="list" aria-label="${e(title)}">${vs.map(v=>`<div role="listitem">${videoTile(v)}</div>`).join('')}</div><p class="gnote">Official channels only. Videos play from YouTube (privacy-enhanced mode) after you press play.</p>`;
+ return `<div class="yt-rail yt-n${Math.min(vs.length,3)}" role="list" aria-label="${e(title)}">${vs.map(v=>`<div role="listitem">${videoTile(v)}</div>`).join('')}</div><p class="gnote">Official channels only. Videos play from YouTube (privacy-enhanced mode) after you press play.</p>`;
 }
