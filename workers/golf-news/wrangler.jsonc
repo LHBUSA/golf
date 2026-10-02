@@ -20,8 +20,8 @@
   ],
   "vars": {
     "PUBLISH_ENABLED": "true",
-    "NEWS_MODE": "shadow",
-    "NEWS_CANARY_TYPES": "",
+    "NEWS_MODE": "canary",
+    "NEWS_CANARY_TYPES": "final",
     "GOLF_EDITORIAL_MODEL": "gpt-5.6-sol",
     "GOLF_OPENAI_DAILY_MAX_USD": "5",
     "GOLF_EDITORIAL_MAX_OUTPUT_TOKENS": "6000"
