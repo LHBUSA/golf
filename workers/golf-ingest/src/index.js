@@ -7,7 +7,7 @@ import {runMedia} from './media.js';
 import {runEspn,discover as espnDiscover} from './espn-lane.js';
 import {runEspnStats} from './espn-stats.js';
 import {runWeather} from './weather.js';
-import {runLive,backfillSnapshots} from './live.js';
+import {runLive,backfillSnapshots,reconcileSnapshots} from './live.js';
 import {runVideo} from './video.js';
 import {runHeadshots} from './headshots.js';
 import {writePlan} from './writer.js';
@@ -24,7 +24,7 @@ async function mediaSubjects(db){
  return [...layouts.map(l=>({kind:'course',entity_id:l.course_id,qid:l.qid,file:l.image})),...ids.map(i=>({kind:'player',entity_id:i.player_id,qid:i.provider_id,file:i.image}))].filter(s=>s.file);
 }
 export async function runLane(lane,env,db,opts={}){
- const cfg=['espn-discover','espn-stats'].includes(lane)?LANES.espn:lane==='live-backfill'?LANES.live:LANES[lane];if(!cfg)throw Error('unknown_lane');
+ const cfg=['espn-discover','espn-stats'].includes(lane)?LANES.espn:['live-backfill','live-reconcile'].includes(lane)?LANES.live:LANES[lane];if(!cfg)throw Error('unknown_lane');
  const src=(await db('golf_sources','id=eq.'+cfg.source))[0];
  if(src?.verdict!=='APPROVED'||src.automated_access!==true)return {lane,status:'source_disabled'};
  if(!await db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:cfg.source})}))return {lane,status:'source_blocked_or_busy'};
@@ -39,6 +39,7 @@ export async function runLane(lane,env,db,opts={}){
   else if(lane==='weather')result=await runWeather(env,db);
   else if(lane==='headshots')result=await runHeadshots(env,db,{limit:opts.limit||250});
   else if(lane==='video')result=await runVideo(env,db);
+  else if(lane==='live-reconcile')result=await reconcileSnapshots(env,db,{limit:opts.limit||400});
   else if(lane==='live-backfill')result=await backfillSnapshots(env,db,{limit:opts.limit||200});
   else if(lane==='live')result=await runLive(env,db,{force:Boolean(opts.force)});
   else if(lane==='espn-stats')result=await runEspnStats(env,db,{league:opts.leagues?.[0]||'pga',season:opts.seasons?.[0]||new Date().getUTCFullYear(),limit:opts.limit||250});
@@ -97,7 +98,7 @@ export default {
    try{return json(await ingestWikidata(env,db));}
    catch(error){await db('golf_source_state','source_id=eq.wikidata',{method:'PATCH',body:JSON.stringify({status:error instanceof SourceBlockedError?'blocked':'error',lease_until:null,last_error:error.message})});return json({error:'ingestion_failed',reason:error.message},502);}
   }
-  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats','live-backfill'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number),events:list('events').length?list('events'):undefined}));}
+  if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats','live-backfill','live-reconcile'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number),events:list('events').length?list('events'):undefined}));}
   if(path==='/admin/tick')return json(await tick(env));
   // Derivatives are produced offline from the archived original and stored under its content hash.
   if(path==='/admin/media-derivative'){

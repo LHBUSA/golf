@@ -121,3 +121,19 @@ export async function backfillSnapshots(env,db,{limit=200}={}){
  await env.STATE.put('live:db:backfilled',JSON.stringify([...done]));
  return {lane:'live-backfill',seen,stored,skipped};
 }
+
+// R2 change log vs database: every archived board change must exist in the DB with identical normalized rows.
+export async function reconcileSnapshots(env,db,{limit=400}={}){
+ const out={lane:'live-reconcile',r2_snapshots:0,db_headers_found:0,missing_in_db:0,row_mismatches:0,rows_compared:0,by_edition:{},samples:[]};let cursor;
+ do{const l=await env.RAW.list({prefix:'golf/live/',cursor,limit:500});cursor=l.truncated?l.cursor:undefined;
+  for(const o of l.objects){if(out.r2_snapshots>=limit){cursor=undefined;break;}out.r2_snapshots++;
+   const snap=JSON.parse(await (await env.RAW.get(o.key)).text()),r=await snapshotRows(snap);
+   const e=out.by_edition[snap.edition.slug]||(out.by_edition[snap.edition.slug]={r2:0,db:0,rows:0,mismatches:0});e.r2++;
+   const h=(await db('golf_live_snapshots',`select=id&id=eq.${r.header.id}`))[0];if(!h){out.missing_in_db++;continue;}out.db_headers_found++;e.db++;
+   const dbRows=[];for(let off=0;;off+=1000){const pg=await db('golf_live_snapshot_rows',`select=espn_id,position,tied,score_to_par,today,thru,round,status&snapshot_id=eq.${h.id}&order=espn_id&limit=1000&offset=${off}`);dbRows.push(...pg);if(pg.length<1000)break;}
+   const m=new Map(dbRows.map(x=>[x.espn_id,x]));
+   for(const x of r.rows){out.rows_compared++;e.rows++;const d=m.get(x.espn_id);const same=d&&['position','tied','score_to_par','today','thru','round','status'].every(k=>(d[k]??null)===(x[k]??null));if(!same){out.row_mismatches++;e.mismatches++;}}
+   if(out.samples.length<3){const p=snap.players.filter(x=>x.position_num).sort((a,b)=>a.position_num-b.position_num)[out.samples.length*5];if(p){const d=m.get(p.espn_id);out.samples.push({edition:snap.edition.slug,captured_at:snap.fetched_at,player:p.name,r2:{position:p.position_display,to_par:p.total_to_par,thru:p.thru},db:d?{position:d.position,tied:d.tied,to_par:d.score_to_par,thru:d.thru}:null});}}
+  }}while(cursor);
+ return out;
+}

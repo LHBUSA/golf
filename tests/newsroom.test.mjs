@@ -46,3 +46,9 @@ test('newsroom: public stories never carry All Access data (field form leaders, 
  const ctx={ix:{players:[]},today:'2026-09-30',as_of:'x',window:[up],recent:[],ed:async()=>up,pl:async()=>null,co:async()=>null,live:async()=>null,ixPlayer:()=>null};
  const P=await TYPES.preview.build(ctx,{type:'preview',topic:'preview:p',edition:up.slug});const pk=await P.freeze();const blob=JSON.stringify(pk);
  assert.ok(!blob.includes('Secret Form'));assert.ok(!blob.includes('2.31'));assert.ok(!pk.charts.includes('field_form'));});
+test('newsroom gate: a name not in the packet (invented player/course/event) is held',async()=>{const ed=edition();const P=await TYPES.final.build(ctxFor([ed]),{type:'final',topic:'final:x',edition:ed.slug});const pk=await P.freeze();const d=deskDraft(pk);
+ const add=t=>validateDraft(pk,{...d,sections:[{heading:'H',paragraphs:[...d.sections[0].paragraphs,t]}]},{resolve:resolveHref}).reasons.join(' ');
+ assert.match(add('{f:winner} edged Rory McIlroy down the stretch.'),/unsupported_name: "Rory McIlroy"/);
+ assert.match(add('The week at Augusta National ended quietly.'),/unsupported_name/);
+ assert.doesNotMatch(add('{f:winner} won at {e:c1}.'),/unsupported_name/);
+ assert.doesNotMatch(add('The National Weather Service forecast was calm.'),/unsupported_name/);});

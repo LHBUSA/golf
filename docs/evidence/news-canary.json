@@ -1,0 +1,102 @@
+{
+ "generated_at": "2026-10-02T01:53:58.907Z",
+ "classes": {
+  "final": {
+   "requested": 3,
+   "available": 3,
+   "topics": [
+    "final:walmart-nw-arkansas-championship-q2948746-2026",
+    "final:biltmore-championship-asheville-q141566450-2026",
+    "final:tour-championship-q1619413-2026"
+   ],
+   "results": [
+    {
+     "topic": "final:walmart-nw-arkansas-championship-q2948746-2026",
+     "editor": "deterministic_fallback",
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "pass": false,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "numeric_issues": 0,
+     "unsupported_claims": 0,
+     "links": 0,
+     "dead_links": 0,
+     "seo": null,
+     "usd": 0,
+     "desk": {
+      "ok": true,
+      "headline": "Yuna Nishimura wins the Walmart NW Arkansas Championship",
+      "words": 66
+     },
+     "openai": {},
+     "media": {
+      "hero": "player",
+      "hero_subject": "Yuna Nishimura",
+      "hero_licence": "CC BY-SA 4.0",
+      "video": "WDqRy8-1mkg"
+     }
+    },
+    {
+     "topic": "final:biltmore-championship-asheville-q141566450-2026",
+     "editor": "deterministic_fallback",
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "pass": false,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "numeric_issues": 0,
+     "unsupported_claims": 0,
+     "links": 0,
+     "dead_links": 0,
+     "seo": null,
+     "usd": 0,
+     "desk": {
+      "ok": true,
+      "headline": "Jacob Bridgeman wins the Biltmore Championship Asheville",
+      "words": 101
+     },
+     "openai": {},
+     "media": {
+      "hero": "player",
+      "hero_subject": "Jacob Bridgeman",
+      "hero_licence": "CC BY-SA 4.0",
+      "video": null
+     }
+    },
+    {
+     "topic": "final:tour-championship-q1619413-2026",
+     "editor": "deterministic_fallback",
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "pass": false,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "numeric_issues": 0,
+     "unsupported_claims": 0,
+     "links": 0,
+     "dead_links": 0,
+     "seo": null,
+     "usd": 0,
+     "desk": {
+      "ok": true,
+      "headline": "Scottie Scheffler wins the Tour Championship",
+      "words": 103
+     },
+     "openai": {},
+     "media": {
+      "hero": "player",
+      "hero_subject": "Scottie Scheffler",
+      "hero_licence": "CC BY-SA 4.0",
+      "video": null
+     }
+    }
+   ],
+   "passes": 0,
+   "recommend_promotion": false
+  }
+ }
+}

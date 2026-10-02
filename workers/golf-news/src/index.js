@@ -107,21 +107,23 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
  }finally{const cur=await env.STATE.get('news:lease',{type:'json'});if(cur?.token===token)await env.STATE.delete('news:lease');}
 }
 // Side-by-side record of one packet: deterministic desk vs OpenAI, with every gate and plan element.
-function planSummary(packet,draft){if(!draft)return null;const a=buildArticle({packet,draft,editor:{mode:'compare',version:'c'},slug:'compare',ctx:{},hero:null});
- return {headline:a.headline_text,dek:a.dek_text,seo:a.seo,links:a.entities.filter(x=>a.sections.some(s=>s.paragraphs.some(p=>p.some(g=>g.t==='link'&&g.href===x.href)))).map(x=>x.href),charts:a.charts.map(c=>c.id),words:a.sections.flatMap(s=>s.paragraphs).map(p=>p.map(x=>x.v).join('')).join(' ').split(/\s+/).length,sections:a.sections.map(s=>({heading:s.heading,text:s.paragraphs.map(p=>p.map(x=>x.v).join('')).join(' ')}))};}
-function compareDoc(packet,desk,deskV,log,editor){
+function planSummary(packet,draft,{hero=null,video=null,editor='deterministic_fallback'}={}){if(!draft)return null;const slug=articleSlug(packet);const a=buildArticle({packet,draft,editor:{mode:editor,version:'c'},slug,ctx:{},hero,video});
+ return {editor:a.editor.mode,slug,canonical:'https://golf.propbetedge.ai/news/'+slug,og_image:'https://golf.propbetedge.ai/og/news/'+slug+'.png',jsonld_type:['course_intelligence','player_form','major_history'].includes(packet.type)?'AnalysisNewsArticle':'NewsArticle',media:{hero:a.hero?.kind||null,hero_subject:a.hero?.name||null,hero_licence:a.hero?.photo?.licence||null,video:a.video?.video_id||null},evidence_facts:a.evidence.length,headline:a.headline_text,dek:a.dek_text,seo:a.seo,links:a.entities.filter(x=>a.sections.some(s=>s.paragraphs.some(p=>p.some(g=>g.t==='link'&&g.href===x.href)))).map(x=>x.href),charts:a.charts.map(c=>c.id),words:a.sections.flatMap(s=>s.paragraphs).map(p=>p.map(x=>x.v).join('')).join(' ').split(/\s+/).length,sections:a.sections.map(s=>({heading:s.heading,text:s.paragraphs.map(p=>p.map(x=>x.v).join('')).join(' ')}))};}
+function compareDoc(packet,desk,deskV,log,editor,media={}){
  const numeric=r=>(r||[]).filter(x=>/unsupported_number|number_word|ordinal_word/.test(x));
  const openaiV=log.attempts?.at(-1)?{ok:log.status==='validated',reasons:log.attempts.at(-1).reasons}:null;
  return {at:new Date().toISOString(),topic:packet.topic,type:packet.type,packet_sha256:packet.hash,packet:{facts:packet.facts.map(f=>({id:f.id,label:f.label,display:f.display,source:f.source})),entities:packet.entities,charts:packet.charts,limits:packet.limits},
   chosen_editor:editor.mode,fallback_reason:editor.mode==='deterministic_fallback'?editor.reason||null:null,
-  desk:{gates:{ok:deskV.ok,fact:deskV.reasons.filter(x=>!numeric([x]).length),numeric:numeric(deskV.reasons)},plan:planSummary(packet,desk)},
-  openai:{status:log.status,reason:log.reason||null,model:log.model||null,usd:log.usd||0,attempts:(log.attempts||[]).map(a=>({kind:a.kind,usage:a.usage,fact:(a.reasons||[]).filter(x=>!numeric([x]).length),numeric:numeric(a.reasons)})),gates:openaiV,plan:log.draft&&openaiV?.ok?planSummary(packet,log.draft):null,draft:log.draft||null}};
+  desk:{gates:{ok:deskV.ok,fact:deskV.reasons.filter(x=>!numeric([x]).length),numeric:numeric(deskV.reasons)},plan:planSummary(packet,desk,{...media,editor:'deterministic_fallback'})},
+  openai:{status:log.status,reason:log.reason||null,model:log.model||null,usd:log.usd||0,attempts:(log.attempts||[]).map(a=>({kind:a.kind,usage:a.usage,fact:(a.reasons||[]).filter(x=>!numeric([x]).length),numeric:numeric(a.reasons)})),gates:openaiV,plan:log.draft&&openaiV?.ok?planSummary(packet,log.draft,{...media,editor:'openai'}):null,draft:log.draft||null}};
 }
 async function compareEditors(env,packet,ctx){
  const desk=deskDraft(packet),deskV=validateDraft(packet,desk,{resolve:resolveHref});
  const ep=await editorialPass(env,packet,desk,{resolve:resolveHref});
  const log={status:ep.status,reason:ep.reason||null,attempts:ep.attempts||[],usd:ep.usd||0,model:ep.model||null,draft:ep.draft||null};
- const doc=compareDoc(packet,desk,deskV,log,{mode:ep.status==='validated'?'openai':'deterministic_fallback',reason:ep.status==='validated'?null:(ep.reason||ep.status)});
+ const videos=(await getJSON(env.PUBLIC,'video/v1/index.json').catch(()=>null))?.videos||[];
+ const media={hero:await pickHero(packet,ctx),video:pickVideo(packet,videos)};
+ const doc=compareDoc(packet,desk,deskV,log,{mode:ep.status==='validated'?'openai':'deterministic_fallback',reason:ep.status==='validated'?null:(ep.reason||ep.status)},media);
  await putJSON(env.PRIVATE,'news/v2/compare/'+packet.topic.replace(/[^a-z0-9:-]/gi,'_')+'.json',doc);
  return {summary:{editor:doc.chosen_editor,openai_status:ep.status,reason:doc.fallback_reason,desk_ok:deskV.ok,openai_ok:doc.openai.gates?.ok??null,usd:ep.usd||0}};
 }
@@ -141,7 +143,7 @@ export default {
   const q=k=>url.searchParams.get(k),L=k=>(q(k)||'').split(',').filter(Boolean);
   if(path==='/admin/news-drafts')return json(q('published')?await listDocs(env.PUBLIC,'news/v2/articles/',Number(q('limit'))||100):await listDocs(env.PRIVATE,'news/v2/shadow/',Number(q('limit'))||100));
   // Editor canary comparison: ?run=1 runs the editor on current packets (no publication); otherwise lists records.
-  if(path==='/admin/news-compare'){if(q('run'))return json(await run(env,{mode:'compare',types:L('types').length?L('types'):['final'],editions:L('editions'),limit:Number(q('limit'))||5}));return json(await listDocs(env.PRIVATE,'news/v2/compare/',Number(q('limit'))||50));}
+  if(path==='/admin/news-compare'){if(q('run'))return json(await run(env,{mode:'compare',types:L('types').length?L('types'):['final'],editions:L('editions'),limit:Number(q('limit'))||5,today:q('today')||undefined}));return json(await listDocs(env.PRIVATE,'news/v2/compare/',Number(q('limit'))||50));}
   if(path==='/admin/news-cost'){const d=q('day')||new Date().toISOString().slice(0,10);return json(await env.STATE.get('news:openai:'+d,{type:'json'})||{day:d,calls:0,usd:0});}
   const publish=path==='/admin/news-publish';
   if(publish&&env.PUBLISH_ENABLED!=='true')return json({error:'publication_disabled'},409);

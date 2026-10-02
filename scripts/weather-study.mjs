@@ -13,7 +13,8 @@ const stations=hist.split('\n').slice(1).map(l=>l.match(/"([^"]*)"/g)?.map(x=>x.
 const km=(a,b)=>{const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lon-a.lon)*r,x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x));};
 const b=JSON.parse(await fs.readFile('data/public/bundle.json','utf8'));
 const coords=new Map((await (async()=>{const out=[];for(let o=0;;o+=1000){const p=await db('golf_courses',`select=id,latitude,longitude&latitude=not.is.null&order=id&limit=1000&offset=${o}`);out.push(...p);if(p.length<1000)return out;}})()).map(c=>[c.id,{lat:Number(c.latitude),lon:Number(c.longitude)}]));
-const eds=b.editions.filter(e=>e.coverage==='full_field'&&e.year>=2022&&e.year<=2025&&e.starts_on&&e.course?.id&&coords.has(e.course.id));
+const arg=k=>process.argv.find(a=>a.startsWith('--'+k+'='))?.split('=')[1],FROM=Number(arg('from')||2022),TO=Number(arg('to')||2025);
+const eds=b.editions.filter(e=>e.coverage==='full_field'&&e.year>=FROM&&e.year<=TO&&e.starts_on&&e.course?.id&&coords.has(e.course.id));
 const part=(s,i)=>{const p=(s||'').split(',');return p.length>i?p[i]:null;},num=(v,d=10)=>v==null||v===''||/^\+?9999$|^99999$/.test(v)?null:Number(v)/d;
 const rounds=[];let stationMiss=0,fileMiss=0;
 for(const e of eds){const c=coords.get(e.course.id);const st=stations.filter(s=>s.begin<=e.starts_on.replace(/-/g,'')&&s.end>=e.ends_on.replace(/-/g,'')).map(s=>({s,d:km(c,s)})).sort((a,b)=>a.d-b.d)[0];
@@ -39,5 +40,5 @@ const out={generated_at:new Date().toISOString(),method:'Full-field editions 202
  correlation:{wind_mean:corr('wind_mph'),gust_max:corr('gust_mph'),temperature:corr('temp_f'),rain:corr('rain_mm')},
  descriptive:{wind_mean:bins('wind_mph',[0,6,10,14,Infinity],'mph'),gust_max:bins('gust_mph',[0,15,22,30,Infinity],'mph'),temperature:bins('temp_f',[0,60,75,85,Infinity],'°F'),rain:bins('rain_mm',[0,0.1,2,10,Infinity],'mm')},
  causal_claims:'none (observational, confounded by tee waves, course setup, field strength and station distance)',rounds};
-await fs.writeFile('docs/evidence/weather-study.json',JSON.stringify(out,null,1));
+await fs.writeFile(FROM===2022&&TO===2025?'docs/evidence/weather-study.json':`docs/evidence/weather-study-${FROM}-${TO}.json`,JSON.stringify(out,null,1));
 console.log(JSON.stringify({coverage:out.coverage,correlation:out.correlation,wind:out.descriptive.wind_mean,gust:out.descriptive.gust_max},null,1));

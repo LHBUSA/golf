@@ -3,6 +3,7 @@
 export const QUALITY_VERSION='golf-gates/4.0.0';
 const TOKEN=/\{(f|e):([a-z0-9_]+)\}/g;
 const BANNED=[[/\b(odds|betting|bet|wager|parlay|lock|guarantee[ds]?|sure thing|can'?t miss|value play)\b/i,'betting_language'],[/\b(favou?rite|underdog|will win|is going to win|predict(ed|ion)?|expected to win)\b/i,'prediction_language'],[/\b(injur(y|ed|ies)|hurt|illness|sick|surgery)\b/i,'injury_claim'],[/\b(motivated|revenge|wants to|hungry for|feels|believes|said|told|according to)\b/i,'unsupported_attribution'],[/["“”]/,'quotation'],[/\bhttps?:\/\/|www\.|\.com\b/i,'url_in_prose'],[/\b(firm|firmness|soft greens|fast greens|green speed|stimp)\b/i,'unsupported_conditions'],[/\b(caddie|caddy|looper|driver model|putter model|ball model|sponsor(ed|ship)?|endorse)/i,'unsupported_equipment_or_caddie'],[/\b(historic|unprecedented|record-breaking|greatest|best ever|all-time)\b/i,'unsupported_superlative']];
+export const KNOWN_NAMES=['National Weather Service','NOAA National Weather Service','MET Norway','ESPN','PropBetEdge','PropBetEdge Golf','Golf Desk','Player DNA','Course DNA','Bag DNA','Course Fit','PBEcast','PGA TOUR','LPGA Tour','DP World Tour','Korn Ferry Tour','LIV Golf','All Access'];
 export const FIELDS=['headline','dek','seo_title','seo_description','social_headline'];
 export function tokensIn(text){return [...String(text||'').matchAll(TOKEN)].map(m=>({kind:m[1],id:m[2]}));}
 // Renders a token string to segments: plain text, fact values and entity links (hrefs come from resolve()).
@@ -24,6 +25,8 @@ export function validateDraft(packet,draft,{resolve=()=>'/'}={}){
  if(!(draft.sections||[]).length)reasons.push('no_sections');
  for(const s of draft.sections||[])if(!(s.paragraphs||[]).length)reasons.push('empty_section');
  const used=new Set();
+ // Every proper name a reader sees must come from the packet (entities, fact displays) or the desk's own vocabulary.
+ const known=new Set([...packet.entities.map(x=>x.name),...packet.facts.flatMap(f=>[f.display,...(Array.isArray(f.value)?f.value.map(String):typeof f.value==='string'?[f.value]:[])]),...KNOWN_NAMES].filter(Boolean).map(x=>String(x).toLowerCase()));
  for(const text of prose){
   for(const t of tokensIn(text)){if(t.kind==='f'){if(!facts.has(t.id))reasons.push('unknown_fact:'+t.id);else used.add(t.id);}else if(!ents.has(t.id))reasons.push('unknown_entity:'+t.id);}
   const bare=String(text).replace(TOKEN,'');
@@ -33,6 +36,8 @@ export function validateDraft(packet,draft,{resolve=()=>'/'}={}){
   const nw=bare.match(/\b(two|three|four|five|six|seven|eight|nine|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|hundred|dozen)\b/i)||bare.match(/(?<!top-)\bten\b/i);if(nw)reasons.push('number_word: "'+nw[0]+'"');
   const ow=bare.match(/\b(second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\b(?! round)/i);if(ow)reasons.push('ordinal_word: "'+ow[0]+'"');
   for(const [re,why] of BANNED)if(re.test(bare))reasons.push(why+': "'+(bare.match(re)?.[0]||'')+'"');
+  // Names the packet does not contain (players, courses, events typed as plain text) are unsupported claims.
+  for(const m of bare.matchAll(/(?:^|[^.!?]\s)((?:[A-Z][A-Za-zà-ÿ'’-]+|[A-Z]\.)(?:\s+(?:[A-Z][A-Za-zà-ÿ'’-]+|[A-Z]\.|of|de|van|der|la|du)){1,4})/g)){const n=m[1].trim().replace(/\s+(of|de|van|der|la|du)$/,'').replace(/^(The|A|An)\s+/,'');if(n.split(/\s+/).length>=2&&!known.has(n.toLowerCase())&&![...known].some(k=>k.includes(n.toLowerCase())))reasons.push('unsupported_name: "'+n+'"');}
  }
  // Heading text is plain (no tokens needed) but still gated above.
  if(used.size<3)reasons.push('too_few_facts');

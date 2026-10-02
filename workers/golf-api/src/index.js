@@ -1,3 +1,4 @@
+import {store} from '../../shared/store.js';
 import {golfAccess} from '../../shared/access.js';
 import {publicEvent,orderEvents,FRESH_SECONDS,STALE_SECONDS} from '../../shared/live.js';
 import {renderNews,feed,newsSitemap,newsUrlset,newsIndex} from './news-ssr.js';
@@ -79,7 +80,15 @@ export default {
      // Observed ESPN scoring. State comes from the live contract: never from dates alone.
      const cur=await env.PUBLIC.get('live/v1/current.json').then(o=>o?o.json():null).catch(()=>null);const now=Date.now();
      if(id){const snap=await env.PUBLIC.get('live/v1/events/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);
-      if(sub==='movement'){const mv=await env.PUBLIC.get('live/v1/movement/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);return json({source:'ESPN Golf core API (observed snapshots)',edition:id,points:mv?.points||[]},200,LIVE_CACHE);}
+      if(sub==='movement'){
+       // Durable history first (golf_live_snapshots); the R2 change log is the fallback and the archive of record.
+       const db=store(env);let points=null,history='r2';
+       if(db&&snap?.edition?.id){try{const hs=await db('golf_live_snapshots',`select=id,captured_at,round,status&edition_id=eq.${snap.edition.id}&order=captured_at.asc&limit=600`);
+        if(hs?.length){const names=new Map(snap.players.map(p=>[p.espn_id,p]));const rows=[];for(let i=0;i<hs.length;i+=40){const pg=await db('golf_live_snapshot_rows',`select=snapshot_id,espn_id,position,tied,score_to_par,thru,status&snapshot_id=in.(${hs.slice(i,i+40).map(h=>h.id).join(',')})&status=eq.active&position=not.is.null&position=lte.40&limit=1000`);rows.push(...pg);}
+         const by=new Map();for(const r of rows)(by.get(r.snapshot_id)||by.set(r.snapshot_id,[]).get(r.snapshot_id)).push(r);
+         points=hs.map(h=>({t:h.captured_at.replace('+00:00','Z'),round:h.round,status:h.status,top:(by.get(h.id)||[]).sort((a,b)=>a.position-b.position).map(r=>({slug:names.get(r.espn_id)?.slug||null,name:names.get(r.espn_id)?.name||r.espn_id,pos:r.position,tied:r.tied,to_par:r.score_to_par,thru:r.thru}))}));history='db';}}catch(e){if(!/PGRST205|42P01/.test(e.message))console.error(JSON.stringify({worker:'golf-api',movement_db_error:e.message.slice(0,160)}));}}
+       if(!points){const mv=await env.PUBLIC.get('live/v1/movement/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);points=mv?.points||[];}
+       return json({source:'ESPN Golf core API (observed snapshots)',history,edition:id,points},200,LIVE_CACHE);}
       if(!snap)return json({availability:'unavailable',edition:id,event:null},200,LIVE_CACHE);
       const ev=publicEvent(snap,now),me=snap.players.filter(p=>p.holes?.length).map(p=>({slug:p.slug,name:p.name,round:p.current_round,holes:p.holes}));
       // Weather join: the forecast hour covering now (NWS), with the forecast point's precision.
