@@ -22,3 +22,28 @@ Required owner approvals:
 Preflight: five required checks; refreshed registry/terms; SQL/RLS/transaction proof; honest canaries and durable rate/block latch; real free/member/revoked sessions; no shared premium cache; correction/retraction/media provenance; responsive performance and SEO gates.
 
 Rollback stops ingestion/news, restores prior frontend and revokes source lane. Database rollback requires reviewed migration, never drop sourced history. No auto-deploy commands included. Local commits/pushes are authorized but must not implicitly deploy production.
+
+## Deployment rule: server-rendered SEO and articles
+
+Golf news HTML (every `/news/*` page, its JSON-LD, Open Graph tags and article body) is rendered by the
+`golf-api` Worker (`workers/golf-api/src/news-ssr.js` imports `src/lib/render.js`, `src/lib/seo.js` and
+`src/lib/article.js`). Static pages (players, courses, tournaments, majors) are prerendered by the Vercel build.
+
+Any change to Golf server-side SEO or article rendering (`src/lib/render.js`, `seo.js`, `article.js`,
+`image-metadata.js`, `charts.js`, `movement.js`, `ui.js`, or styles they emit) therefore requires BOTH:
+
+1. the frontend/Vercel deployment (push to main), when static pages are affected, and
+2. a fresh `golf-api` deployment built from that same main commit.
+
+A Vercel push alone leaves news pages on the old renderer. Verify with a cache-busted `/news/<slug>` fetch after
+deploying. `tests/deploy-rule.test.mjs` fails if `golf-api` stops sharing the site renderer.
+
+## Final production state (Golf closed 2026-10-02)
+
+- main `ff255a9`; golf-api `362c2efb` at 100% (rollback `92e78500`)
+- unit tests 166/166; production QA 158/158; ImageObject production proof 5/5 pages clean
+- Newsroom: final, preview and course intelligence publishing (deterministic Golf Desk v5, $0 API cost);
+  round recap SHADOW (2 real completed-round packets)
+- Only intentional follow-up: when a third real completed-round packet exists, run the round-recap canary on all
+  three real packets and promote round recap only if the factual and editorial gates pass.
+- An OpenAI writer comparison is an optional future experiment, not a release blocker.
