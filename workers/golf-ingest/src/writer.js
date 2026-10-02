@@ -8,7 +8,14 @@ export const ORDER=['golf_tours','golf_tournaments','golf_courses','golf_course_
 const canon=v=>{if(v===null||v===undefined)return 'null';if(typeof v==='number')return String(Number(v));if(typeof v==='string'&&/^-?\d+(\.\d+)?$/.test(v))return String(Number(v));if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(v))return String(Date.parse(v));if(Array.isArray(v))return '['+v.map(canon).join(',')+']';if(typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canon(v[k])).join(',')+'}';return JSON.stringify(v);};
 export const sameRow=(oldRow,row)=>Object.keys(row).every(k=>k==='capture_id'||canon(oldRow[k])===canon(row[k]));
 export function sortPlan(rows){const seen=new Set(),out=[];for(const t of ORDER)for(const r of rows)if(r.table===t){const k=t+':'+r.row.id;if(!seen.has(k)){seen.add(k);out.push(r);}}const unknown=rows.find(r=>!ORDER.includes(r.table));if(unknown)throw Error('table_not_writable:'+unknown.table);return out;}
+// Natural keys: a row whose natural key already exists under another id belongs to an earlier source and is
+// kept as is (never overwritten, never a duplicate-key failure).
+const NATURAL={golf_hole_scores:['scorecard_id','hole_id'],golf_tee_times:['group_id','entry_id']};
 async function direct(db,table,rows,counts){
+ const nk=NATURAL[table];
+ if(nk){const taken=new Map();const parents=[...new Set(rows.map(r=>r[nk[0]]))];
+  for(let i=0;i<parents.length;i+=50){const pg=await db(table,`select=id,${nk.join(',')}&${nk[0]}=in.(${parents.slice(i,i+50).join(',')})&limit=1000`);for(const x of pg||[])taken.set(x[nk[0]]+'|'+x[nk[1]],x.id);}
+  rows=rows.filter(r=>{const id=taken.get(r[nk[0]]+'|'+r[nk[1]]);if(id&&id!==r.id){counts.unchanged++;return false;}return true;});}
  for(let i=0;i<rows.length;i+=150){
   const chunk=rows.slice(i,i+150),existing=new Map((await db(table,'select=*&id=in.('+chunk.map(r=>r.id).join(',')+')'))?.map(r=>[r.id,r])||[]);
   const write=[],changes=[];

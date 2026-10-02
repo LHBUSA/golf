@@ -80,3 +80,7 @@ test('venues: exact course vs complex vs rejected; tournament articles never loc
  assert.equal(C('Wentworth Club','Wentworth Club','Golf club in Surrey, England','USA'),null);
  assert.equal(C('Pebble Beach Golf Links','Pebble Beach Golf Links','Public golf course in California, U.S.','USA',NaN),null);
  assert.ok(nameMatch('Yokohama CC','Yokohama Country Club'));});
+test('writer: a hole score already held by another source (same scorecard+hole) is kept, not duplicated',async()=>{const {writePlan}=await import('../workers/golf-ingest/src/writer.js');
+ const calls=[];const db=async(t,q,o)=>{calls.push([t,q,o?.method||'GET']);if(t==='golf_hole_scores'&&/select=id,scorecard_id,hole_id/.test(q))return [{id:'old',scorecard_id:'s1',hole_id:'h1'}];if(/select=\*/.test(q))return [];return null;};
+ await writePlan(db,[{table:'golf_hole_scores',row:{id:'new',capture_id:'c',scorecard_id:'s1',hole_id:'h1',strokes:4}}]).catch(()=>null);
+ assert.ok(!calls.some(([t,q,m])=>t==='golf_hole_scores'&&m==='POST'));});
