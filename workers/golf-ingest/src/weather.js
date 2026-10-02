@@ -1,6 +1,7 @@
 // Course weather lane: NOAA/NWS (US, public domain) and MET Norway (global, CC BY 4.0) hourly forecasts.
 // Forecasts are snapshots with the issuer's update time; they are never relabelled as current later.
 import {capture,sparql} from './capture.js';
+import {wikipediaCandidates,classifyCandidate} from './venues.js';
 import {venuesQuery,parseVenues} from './wdqs.js';
 export const WX_PARSER='nws-hourly/1.0.0';
 const num=v=>v===null||v===undefined?null:Number.isFinite(Number(v))?Number(v):null;
@@ -46,7 +47,7 @@ async function resolveLocality(env,db,city,region){
  return c&&Number.isFinite(c.latitude)?{qid:hits[0].id,latitude:c.latitude,longitude:c.longitude,label:`${city}, ${region}`,capture_id:g.id}:null;
 }
 // ---------------- venue-coordinate registry (KV): resolved and unresolved venues are remembered.
-// status: course (Wikidata golf venue) | locality (town estimate) | unknown (retried after 7 days)
+// status: course (the course itself) | course_complex (its resort/club) | locality (town estimate) | unknown (retried after 7 days)
 const GEO_KEY='geo:venues:v1',RETRY_MS=7*86400000;
 async function geoRegistry(env){try{return JSON.parse(await env.STATE.get(GEO_KEY)||'{}');}catch{return {};}}
 export function geoKey(courseId,espnCourse){return courseId?'course:'+courseId:'loc:'+[espnCourse?.city,espnCourse?.state,espnCourse?.country].filter(Boolean).join('|').toLowerCase();}
@@ -58,6 +59,12 @@ async function resolveGeo(env,db,reg,{c,espnCourse,now}){
  if(v){await db('golf_courses','id=eq.'+c.id,{method:'PATCH',headers:{prefer:'return=minimal'},body:JSON.stringify({latitude:v.latitude,longitude:v.longitude})});
   await db('golf_source_changes','',{method:'POST',headers:{prefer:'return=minimal'},body:JSON.stringify({capture_id:v.capture_id,entity_table:'golf_courses',entity_id:c.id,field_changes:{before:{latitude:c.latitude,longitude:c.longitude},after:{latitude:v.latitude,longitude:v.longitude},basis:'Wikidata '+v.qid+' golf venue matching ESPN city/region'},previous_capture_id:c.capture_id})});
   return reg[key]={status:'course',lat:v.latitude,lon:v.longitude,label:c.name,qid:v.qid,basis:'Wikidata golf venue '+v.qid,checked_at:now.toISOString()};}
+ // Wikipedia article about the course itself (or its resort/club); tournament articles are rejected.
+ if(c?.name||espnCourse?.name){const name=c?.name||espnCourse.name;let cap=null;
+  const cands=await wikipediaCandidates(async u=>{cap=await capture(env,db,'wikipedia',u,{parser:WX_PARSER});return JSON.parse(cap.text);},name);
+  const hits=cands.map(x=>({x,cl:classifyCandidate(x,{course:name,country:espnCourse?.country||c?.country_code})})).filter(h=>h.cl?.level);
+  const best=hits.filter(h=>h.cl.level==='course');const pick=best.length===1?best[0]:!best.length&&hits.length===1?hits[0]:null;
+  if(pick)return reg[key]={status:pick.cl.level,lat:pick.x.lat,lon:pick.x.lon,label:pick.x.title,basis:`Wikipedia "${pick.x.title}" (${pick.cl.reason})`,capture_id:cap?.id||null,checked_at:now.toISOString()};}
  const l=await resolveLocality(env,db,espnCourse?.city,espnCourse?.state||espnCourse?.country);
  if(l)return reg[key]={status:'locality',lat:l.latitude,lon:l.longitude,label:l.label,qid:l.qid,basis:'Wikidata place '+l.qid+' (town-level estimate)',checked_at:now.toISOString()};
  return reg[key]={status:'unknown',lat:null,lon:null,label:[espnCourse?.city,espnCourse?.state||espnCourse?.country].filter(Boolean).join(', ')||null,basis:'no verified venue or unique town match',checked_at:now.toISOString(),retry_after:new Date(now.getTime()+RETRY_MS).toISOString()};
@@ -101,7 +108,7 @@ export async function runWeather(env,db,{now=new Date()}={}){
  const today=now.toISOString().slice(0,10),horizon=new Date(now.getTime()+8*86400000).toISOString().slice(0,10);
  const eds=await db('golf_tournament_editions',`select=id,ends_on,starts_on,status,rules&ends_on=gte.${today}&starts_on=lte.${horizon}&status=neq.cancelled`);
  const reg=await geoRegistry(env);
- const out={lane:'weather',editions:eds.length,forecasts:0,nws:0,metno:0,precision:{course:0,locality:0,unknown:0},skipped:[]};
+ const out={lane:'weather',editions:eds.length,forecasts:0,nws:0,metno:0,precision:{course:0,course_complex:0,locality:0,unknown:0},skipped:[]};
  for(const e of eds){let stage='course';try{
   if(e.rules?.superseded_by)continue;
   const ec=(await db('golf_edition_courses',`select=golf_course_layouts(course_id)&edition_id=eq.${e.id}`))[0]?.golf_course_layouts?.course_id;
@@ -115,7 +122,7 @@ export async function runWeather(env,db,{now=new Date()}={}){
   stage=us?'nws':'metno';
   const f=us?await nwsForecast(env,db,lat,lon):await metForecast(env,db,lat,lon,zoneFor(c?.country_code,espnCourse?.country,Number(lon)),now);
   if(!f){out.skipped.push({edition:e.id,reason:'forecast_unavailable'});continue;}
-  const doc={edition_id:e.id,course_id:c?.id||null,precision:g.status==='course'?'venue':'locality',locality:g.status==='locality'?{label:g.label,wikidata:g.qid||null}:null,coordinate_basis:g.basis,course_name:c?.name||espnCourse?.name||null,lat:Number(lat),lon:Number(lon),...f};
+  const doc={edition_id:e.id,course_id:c?.id||null,precision:g.status==='course'?'venue':g.status==='course_complex'?'course_complex':'locality',locality:g.status==='locality'?{label:g.label,wikidata:g.qid||null}:null,coordinate_basis:g.basis,course_name:c?.name||espnCourse?.name||null,lat:Number(lat),lon:Number(lon),...f};
   await env.PUBLIC.put(`weather/v1/forecast/${e.id}.json`,JSON.stringify(doc),{httpMetadata:{contentType:'application/json'}});out.forecasts++;out[us?'nws':'metno']++;
  }catch(err){out.skipped.push({edition:e.id,reason:'error',stage,error:String(err.message).slice(0,160)});}}
  await env.STATE.put(GEO_KEY,JSON.stringify(reg));

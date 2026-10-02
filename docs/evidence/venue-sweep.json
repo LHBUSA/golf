@@ -1,0 +1,1125 @@
+{
+ "generated_at": "2026-10-02T01:03:09.364Z",
+ "apply": true,
+ "before": {
+  "courses": 250,
+  "with_coordinates": 139
+ },
+ "levels": {
+  "course": 45,
+  "course_complex": 10,
+  "none": 56
+ },
+ "results": [
+  {
+   "course": "the-royal-montreal-golf-club-ec64",
+   "name": "The Royal Montreal Golf Club",
+   "country": "Canada",
+   "level": "course",
+   "match": "Royal Montreal Golf Club",
+   "lat": 45.493,
+   "lon": -73.902,
+   "ambiguous": false
+  },
+  {
+   "course": "siam-country-club-pattaya-old-course-ec10671",
+   "name": "Siam Country Club (Pattaya Old Course)",
+   "country": "Thailand",
+   "level": "course_complex",
+   "match": "Siam Country Club",
+   "lat": 12.91806,
+   "lon": 100.98774,
+   "ambiguous": false
+  },
+  {
+   "course": "wilshire-country-club-ec10856",
+   "name": "Wilshire Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Wilshire Country Club",
+   "lat": 34.077,
+   "lon": -118.328,
+   "ambiguous": false
+  },
+  {
+   "course": "trump-national-golf-club-q7847773",
+   "name": "Trump National Golf Club",
+   "country": "United States",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": true
+  },
+  {
+   "course": "caves-valley-golf-club-ec10718",
+   "name": "Caves Valley Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Caves Valley Golf Club",
+   "lat": 39.451,
+   "lon": -76.744,
+   "ambiguous": false
+  },
+  {
+   "course": "yokohama-country-club-ec11328",
+   "name": "Yokohama Country Club",
+   "country": "Japan",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-deere-run-ec38",
+   "name": "TPC Deere Run",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "monroe-golf-club-q6902202",
+   "name": "Monroe Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Monroe Golf Club",
+   "lat": 43.096,
+   "lon": -77.496,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-river-highlands-ec33",
+   "name": "TPC River Highlands",
+   "country": "USA",
+   "level": "course",
+   "match": "TPC River Highlands",
+   "lat": 41.632,
+   "lon": -72.639,
+   "ambiguous": false
+  },
+  {
+   "course": "crooked-stick-golf-club-q5187858",
+   "name": "Crooked Stick Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Crooked Stick Golf Club",
+   "lat": 39.9479,
+   "lon": -86.1941,
+   "ambiguous": false
+  },
+  {
+   "course": "bradenton-country-club-ec11294",
+   "name": "Bradenton Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "mississaugua-golf-country-club-ec11327",
+   "name": "Mississaugua Golf & Country Club ",
+   "country": "Canada",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "omni-barton-creek-resort-spa-fazio-canyons-course-ec11357",
+   "name": "Omni Barton Creek Resort & Spa (Fazio Canyons Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "el-cardonal-at-diamante-ec11284",
+   "name": "El Cardonal at Diamante",
+   "country": "Mexico",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "puntacana-resort-club-corales-golf-course-ec10881",
+   "name": "Puntacana Resort & Club (Corales Golf Course)",
+   "country": "Dominican Republic",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "sheshan-golf-club-ec3102",
+   "name": "Sheshan Golf Club",
+   "country": "China",
+   "level": "course",
+   "match": "Sheshan Golf Club",
+   "lat": 31.109,
+   "lon": 121.216,
+   "ambiguous": false
+  },
+  {
+   "course": "seta-golf-course-ec10848",
+   "name": "Seta Golf Course",
+   "country": "Japan",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "silverado-resort-north-course-ec784",
+   "name": "Silverado Resort (North Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "palos-verdes-golf-club-ec11155",
+   "name": "Palos Verdes Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Palos Verdes Golf Club",
+   "lat": 33.7955,
+   "lon": -118.373,
+   "ambiguous": false
+  },
+  {
+   "course": "el-caballero-country-club-ec11204",
+   "name": "El Caballero Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "vidanta-vallarta-ec11163",
+   "name": "Vidanta Vallarta",
+   "country": "Mexico",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-sawgrass-dye-s-valley-course-ec11094",
+   "name": "TPC Sawgrass (Dye's Valley Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-southwind-ec32",
+   "name": "TPC Southwind",
+   "country": "USA",
+   "level": "course",
+   "match": "TPC Southwind",
+   "lat": 35.057,
+   "lon": -89.779,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-twin-cities-ec10885",
+   "name": "TPC Twin Cities",
+   "country": "USA",
+   "level": "course",
+   "match": "TPC Twin Cities",
+   "lat": 45.177,
+   "lon": -93.213,
+   "ambiguous": false
+  },
+  {
+   "course": "sebonack-golf-club-q14707283",
+   "name": "Sebonack Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Sebonack Golf Club",
+   "lat": 40.91111111,
+   "lon": -72.45555556,
+   "ambiguous": false
+  },
+  {
+   "course": "albany-gc-ec10697",
+   "name": "Albany GC",
+   "country": "Bahamas",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "fields-ranch-east-at-pga-frisco-ec11183",
+   "name": "Fields Ranch East at PGA Frisco",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "trump-national-doral-blue-monster-ec16",
+   "name": "Trump National Doral (Blue Monster)",
+   "country": "USA",
+   "level": "course",
+   "match": "Trump National Doral Miami",
+   "lat": 25.81944444,
+   "lon": -80.34277778,
+   "ambiguous": false
+  },
+  {
+   "course": "pga-frisco-ec11362",
+   "name": "PGA Frisco",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "dundonald-links-ec10818",
+   "name": "Dundonald Links",
+   "country": "Scotland",
+   "level": "course",
+   "match": "Dundonald Links",
+   "lat": 55.58444444,
+   "lon": -4.65222222,
+   "ambiguous": false
+  },
+  {
+   "course": "muirfield-village-golf-club-ec29",
+   "name": "Muirfield Village Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Muirfield Village",
+   "lat": 40.1405,
+   "lon": -83.1414,
+   "ambiguous": false
+  },
+  {
+   "course": "tahoe-mountain-club-old-greenwood-ec11099",
+   "name": "Tahoe Mountain Club (Old Greenwood)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-boston-ec87",
+   "name": "TPC Boston",
+   "country": "USA",
+   "level": "course",
+   "match": "TPC Boston",
+   "lat": 41.982,
+   "lon": -71.224,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-summerlin-ec51",
+   "name": "TPC Summerlin",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "seaview-hotel-and-golf-club-ec10681",
+   "name": "Seaview Hotel and Golf Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "lake-nona-golf-country-club-ec11120",
+   "name": "Lake Nona Golf & Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Lake Nona Golf & Country Club",
+   "lat": 28.414753,
+   "lon": -81.262172,
+   "ambiguous": false
+  },
+  {
+   "course": "druid-hills-golf-club-q5308982",
+   "name": "Druid Hills Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Druid Hills Golf Club",
+   "lat": 33.77555556,
+   "lon": -84.33138889,
+   "ambiguous": false
+  },
+  {
+   "course": "hoakalei-country-club-ec11161",
+   "name": "Hoakalei Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "black-desert-resort-golf-course-ec11307",
+   "name": "Black Desert Resort Golf Course",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "adare-manor-hotel-golf-resort-ec11166",
+   "name": "Adare Manor Hotel & Golf Resort",
+   "country": "Ireland",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "accordia-golf-narashino-country-club-ec10934",
+   "name": "ACCORDIA GOLF Narashino Country Club",
+   "country": "Japan",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "st-andrews-links-old-course-ec37",
+   "name": "St Andrews Links (Old Course)",
+   "country": "Scotland",
+   "level": "course",
+   "match": "Old Course at St Andrews",
+   "lat": 56.343,
+   "lon": -2.803,
+   "ambiguous": false
+  },
+  {
+   "course": "keene-trace-golf-club-champions-course-ec10882",
+   "name": "Keene Trace Golf Club (Champions Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "shadow-creek-golf-course-ec10887",
+   "name": "Shadow Creek Golf Course",
+   "country": "USA",
+   "level": "course",
+   "match": "Shadow Creek Golf Course",
+   "lat": 36.257762,
+   "lon": -115.105959,
+   "ambiguous": false
+  },
+  {
+   "course": "royal-porthcawl-ec11326",
+   "name": "Royal Porthcawl ",
+   "country": null,
+   "level": "course",
+   "match": "Royal Porthcawl Golf Club",
+   "lat": 51.492,
+   "lon": -3.726,
+   "ambiguous": false
+  },
+  {
+   "course": "innisbrook-resort-and-golf-club-copperhead-course-ec10884",
+   "name": "Innisbrook Resort and Golf Club (Copperhead Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "Innisbrook Resort and Golf Club",
+   "lat": 28.11,
+   "lon": -82.76,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-craig-ranch-ec3077",
+   "name": "TPC Craig Ranch",
+   "country": "USA",
+   "level": "course",
+   "match": "TPC Craig Ranch",
+   "lat": 33.14,
+   "lon": -96.72,
+   "ambiguous": false
+  },
+  {
+   "course": "the-philadelphia-cricket-club-wissahickon-course-ec11308",
+   "name": "The Philadelphia Cricket Club (Wissahickon Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "Philadelphia Cricket Club",
+   "lat": 40.06444444,
+   "lon": -75.20861111,
+   "ambiguous": false
+  },
+  {
+   "course": "detroit-golf-club-ec10933",
+   "name": "Detroit Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Detroit Golf Club",
+   "lat": 42.42638889,
+   "lon": -83.12638889,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-river-s-bend-ec11305",
+   "name": "TPC River's Bend",
+   "country": "USA",
+   "level": "course",
+   "match": "TPC River's Bend",
+   "lat": 39.361434,
+   "lon": -84.22523,
+   "ambiguous": false
+  },
+  {
+   "course": "harbour-town-golf-links-ec22",
+   "name": "Harbour Town Golf Links",
+   "country": "USA",
+   "level": "course",
+   "match": "Harbour Town Golf Links",
+   "lat": 32.136,
+   "lon": -80.81,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-louisiana-ec197",
+   "name": "TPC Louisiana",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "royal-mayfair-golf-country-club-ec10687",
+   "name": "Royal Mayfair Golf & Country Club",
+   "country": "Canada",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-scottsdale-stadium-course-ec3",
+   "name": "TPC Scottsdale (Stadium Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "TPC Scottsdale",
+   "lat": 33.64,
+   "lon": -111.91,
+   "ambiguous": false
+  },
+  {
+   "course": "pine-needles-lodge-and-golf-club-q7195290",
+   "name": "Pine Needles Lodge and Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Pine Needles Lodge and Golf Club",
+   "lat": 35.197,
+   "lon": -79.3921,
+   "ambiguous": false
+  },
+  {
+   "course": "liberty-national-golf-club-ec372",
+   "name": "Liberty National Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Liberty National Golf Club",
+   "lat": 40.697,
+   "lon": -74.068,
+   "ambiguous": false
+  },
+  {
+   "course": "seville-golf-and-country-club-ec11299",
+   "name": "Seville Golf and Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "kapalua-resort-plantation-course-ec1",
+   "name": "Kapalua Resort (Plantation Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "pinnacle-country-club-ec10683",
+   "name": "Pinnacle Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Pinnacle Country Club",
+   "lat": 36.297,
+   "lon": -94.199,
+   "ambiguous": false
+  },
+  {
+   "course": "pine-beach-golf-links-ec11335",
+   "name": "Pine Beach Golf Links",
+   "country": null,
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "the-club-at-carlton-woods-ec11191",
+   "name": "The Club at Carlton Woods",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "whirlwind-golf-club-at-wild-horse-pass-ec11325",
+   "name": "Whirlwind Golf Club at Wild Horse Pass",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "aronimink-golf-club-q4795557",
+   "name": "Aronimink Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Aronimink Golf Club",
+   "lat": 40.01111111,
+   "lon": -75.40888889,
+   "ambiguous": false
+  },
+  {
+   "course": "castle-pines-golf-club-ec11274",
+   "name": "Castle Pines Golf Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "bethpage-state-park-black-course-ec74",
+   "name": "Bethpage State Park (Black Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "pinehurst-no-2-ec776",
+   "name": "Pinehurst No. 2",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "el-camaleon-golf-course-at-mayakoba-ec322",
+   "name": "El Camaleón Golf Course at Mayakoba",
+   "country": "Mexico",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "mountain-ridge-c-c-ec11118",
+   "name": "Mountain Ridge C.C.",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "grand-reserve-golf-club-ec338",
+   "name": "Grand Reserve Golf Club",
+   "country": "Puerto Rico",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "pete-dye-stadium-course-ec10925",
+   "name": "Pete Dye Stadium Course",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "hamilton-golf-country-club-ec89",
+   "name": "Hamilton Golf & Country Club",
+   "country": "Canada",
+   "level": "course",
+   "match": "Hamilton Golf and Country Club",
+   "lat": 43.217,
+   "lon": -79.975,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-san-antonio-oaks-course-ec3150",
+   "name": "TPC San Antonio (Oaks Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "TPC San Antonio",
+   "lat": 29.665,
+   "lon": -98.4,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-sawgrass-the-players-stadium-course-ec19",
+   "name": "TPC Sawgrass (THE PLAYERS Stadium Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "taiheiyo-club-minori-course-ec10795",
+   "name": "Taiheiyo Club Minori Course",
+   "country": "Japan",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "qizhong-garden-golf-club-ec10883",
+   "name": "Qizhong Garden Golf Club",
+   "country": "China",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "hurstbourne-country-club-ec11310",
+   "name": "Hurstbourne Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "pelican-golf-club-ec10955",
+   "name": "Pelican Golf Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "sharon-heights-golf-and-country-club-ec11350",
+   "name": "Sharon Heights Golf and Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "memorial-park-golf-course-ec11109",
+   "name": "Memorial Park Golf Course",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "sentosa-golf-club-tanjong-course-ec10672",
+   "name": "Sentosa Golf Club (Tanjong Course)",
+   "country": "Singapore",
+   "level": "course_complex",
+   "match": "Sentosa Golf Club",
+   "lat": 1.24388889,
+   "lon": 103.82944444,
+   "ambiguous": false
+  },
+  {
+   "course": "upper-montclair-country-club-ec11165",
+   "name": "Upper Montclair Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Upper Montclair Country Club",
+   "lat": 40.847726,
+   "lon": -74.175075,
+   "ambiguous": false
+  },
+  {
+   "course": "the-cliffs-at-walnut-cove-ec3024",
+   "name": "The Cliffs at Walnut Cove",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "broadmoor-golf-club-q14684331",
+   "name": "Broadmoor Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Broadmoor Golf Club",
+   "lat": 38.789,
+   "lon": -104.85,
+   "ambiguous": false
+  },
+  {
+   "course": "waialae-country-club-ec2",
+   "name": "Waialae Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Waialae Country Club",
+   "lat": 21.272,
+   "lon": -157.775,
+   "ambiguous": false
+  },
+  {
+   "course": "royal-troon-golf-course-ec92",
+   "name": "Royal Troon Golf Course",
+   "country": "Scotland",
+   "level": "course",
+   "match": "Royal Troon Golf Club",
+   "lat": 55.532,
+   "lon": -4.65,
+   "ambiguous": false
+  },
+  {
+   "course": "kuala-lumpur-golf-and-country-club-west-course-ec11198",
+   "name": "Kuala Lumpur Golf and Country Club (West Course)",
+   "country": "Malaysia",
+   "level": "course_complex",
+   "match": "Kuala Lumpur Golf & Country Club",
+   "lat": 3.139,
+   "lon": 101.64,
+   "ambiguous": false
+  },
+  {
+   "course": "the-country-club-of-jackson-ec786",
+   "name": "The Country Club of Jackson",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "locust-hill-country-club-q6666132",
+   "name": "Locust Hill Country Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Locust Hill Country Club",
+   "lat": 43.08805556,
+   "lon": -77.56333333,
+   "ambiguous": false
+  },
+  {
+   "course": "new-korea-country-club-ec11331",
+   "name": "New Korea Country Club",
+   "country": null,
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "bernardus-golf-ec11352",
+   "name": "Bernardus Golf",
+   "country": "Netherlands",
+   "level": "course",
+   "match": "Bernardus Golf",
+   "lat": 51.6652,
+   "lon": 5.2298,
+   "ambiguous": false
+  },
+  {
+   "course": "tpc-toronto-at-osprey-valley-north-course-ec11309",
+   "name": "TPC Toronto at Osprey Valley (North Course)",
+   "country": "Canada",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "medinah-cc-no-3-ec262",
+   "name": "Medinah CC (No. 3)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "sea-island-golf-club-seaside-course-ec10586",
+   "name": "Sea Island Golf Club (Seaside Course)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "port-royal-golf-course-ec10935",
+   "name": "Port Royal Golf Course",
+   "country": "Bermuda",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "maketewah-country-club-ec11351",
+   "name": "Maketewah Country Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "dunes-golf-beach-club-ec11273",
+   "name": "Dunes Golf & Beach Club",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "the-renaissance-club-ec10906",
+   "name": "The Renaissance Club",
+   "country": "Scotland",
+   "level": "course",
+   "match": "Renaissance Club",
+   "lat": 56.0514,
+   "lon": -2.8092,
+   "ambiguous": false
+  },
+  {
+   "course": "arnold-palmer-s-bay-hill-club-lodge-ec18",
+   "name": "Arnold Palmer's Bay Hill Club & Lodge",
+   "country": "USA",
+   "level": "course",
+   "match": "Bay Hill Club and Lodge",
+   "lat": 28.458,
+   "lon": -81.511,
+   "ambiguous": false
+  },
+  {
+   "course": "pga-national-resort-the-champion-course-ec324",
+   "name": "PGA National Resort (The Champion Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "PGA National Resort",
+   "lat": 26.829,
+   "lon": -80.141,
+   "ambiguous": false
+  },
+  {
+   "course": "tiburon-golf-club-black-course-ec10709",
+   "name": "Tiburón Golf Club (Black Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "Tiburón Golf Club",
+   "lat": 26.248,
+   "lon": -81.765,
+   "ambiguous": false
+  },
+  {
+   "course": "torrey-pines-south-course-ec13",
+   "name": "Torrey Pines (South Course)",
+   "country": "USA",
+   "level": "course_complex",
+   "match": "Torrey Pines Golf Course",
+   "lat": 32.9045,
+   "lon": -117.2454,
+   "ambiguous": false
+  },
+  {
+   "course": "east-lake-golf-club-ec57",
+   "name": "East Lake Golf Club",
+   "country": "USA",
+   "level": "course",
+   "match": "East Lake Golf Club",
+   "lat": 33.743,
+   "lon": -84.303,
+   "ambiguous": false
+  },
+  {
+   "course": "minneapolis-golf-club-q6867986",
+   "name": "Minneapolis Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Minneapolis Golf Club",
+   "lat": 44.96416667,
+   "lon": -93.39527778,
+   "ambiguous": false
+  },
+  {
+   "course": "sedgefield-country-club-ec368",
+   "name": "Sedgefield Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Sedgefield Country Club",
+   "lat": 36.014,
+   "lon": -79.887,
+   "ambiguous": false
+  },
+  {
+   "course": "kemper-lakes-golf-club-q6387075",
+   "name": "Kemper Lakes Golf Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Kemper Lakes Golf Club",
+   "lat": 42.209,
+   "lon": -88.038,
+   "ambiguous": false
+  },
+  {
+   "course": "jian-lake-blue-bay-golf-course-ec10738",
+   "name": "Jian Lake Blue Bay Golf Course",
+   "country": "China",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "columbia-edgewater-country-club-ec10703",
+   "name": "Columbia Edgewater Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Columbia Edgewater Country Club",
+   "lat": 45.599,
+   "lon": -122.643,
+   "ambiguous": false
+  },
+  {
+   "course": "blythefield-country-club-ec10719",
+   "name": "Blythefield Country Club",
+   "country": "USA",
+   "level": "course",
+   "match": "Blythefield Country Club",
+   "lat": 43.066,
+   "lon": -85.581,
+   "ambiguous": false
+  },
+  {
+   "course": "sawgrass-country-club-q7428632",
+   "name": "Sawgrass Country Club",
+   "country": "United States",
+   "level": "course",
+   "match": "Sawgrass Country Club",
+   "lat": 30.189,
+   "lon": -81.37,
+   "ambiguous": false
+  },
+  {
+   "course": "midland-cc-mi-ec10921",
+   "name": "Midland CC (MI)",
+   "country": "USA",
+   "level": "none",
+   "match": null,
+   "lat": null,
+   "lon": null,
+   "ambiguous": false
+  },
+  {
+   "course": "royal-birkdale-gc-ec225",
+   "name": "Royal Birkdale GC",
+   "country": "England",
+   "level": "course",
+   "match": "Royal Birkdale Golf Club",
+   "lat": 53.622,
+   "lon": -3.033,
+   "ambiguous": false
+  }
+ ]
+}

@@ -72,3 +72,11 @@ test('names: variant keys cover order, hyphenation, diacritics and suffix digits
  assert.equal(resolveAthlete({espn_id:'1',name:'Youmin Hwang',birth_date:'2004-01-01'},base).status,'hold');
  assert.equal(resolveAthlete({espn_id:'1',name:'Youmin Hwang',birth_date:null},base).status,'hold');
  assert.equal(resolveAthlete({espn_id:'2',name:'Someone Else',birth_date:null},base).status,'new');});
+test('venues: exact course vs complex vs rejected; tournament articles never locate a venue',async()=>{const {classifyCandidate:c,nameMatch}=await import('../workers/golf-ingest/src/venues.js');const C=(course,title,d,country='USA',lat=1)=>c({title,description:d,lat,lon:1},{course,country})?.level??null;
+ assert.equal(C('Royal Birkdale GC','Royal Birkdale Golf Club','Golf course in the United Kingdom','England'),'course');
+ assert.equal(C('TPC Scottsdale (Stadium Course)','TPC Scottsdale','Golf course in Arizona, United States'),'course_complex');
+ assert.equal(C('Yokohama Country Club','Baycurrent Classic','Golf tournament','Japan'),null);
+ assert.equal(C('Valderrama Golf Club','Valhalla Golf Club','Golf Club in Louisville, Kentucky','Spain'),null);
+ assert.equal(C('Wentworth Club','Wentworth Club','Golf club in Surrey, England','USA'),null);
+ assert.equal(C('Pebble Beach Golf Links','Pebble Beach Golf Links','Public golf course in California, U.S.','USA',NaN),null);
+ assert.ok(nameMatch('Yokohama CC','Yokohama Country Club'));});
