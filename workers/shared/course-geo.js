@@ -37,9 +37,10 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
  else decision='no_canonical_coords';
  if(target){
   ev.osm_course={id:target.type+'/'+target.id,name:target.tags?.name||null};
-  ev.name_score=+nameScore(canon.name,target.tags?.name).toFixed(2);
+  ev.name_score=+Math.max(nameScore(canon.name,target.tags?.name),nameScore(canon.name,target.tags?.operator)).toFixed(2);
   const city=target.tags?.['addr:city'],cc=target.tags?.['addr:country'];
-  if(city&&canon.locality)ev.locality_ok=nameScore(city,canon.locality)>0||norm(city).join(' ')===norm(canon.locality).join(' ');
+  // Locality granularity differs (region vs town), so a mismatch is 'unconfirmed' (null), never a conflict on its own.
+  if(city&&canon.locality)ev.locality_ok=nameScore(city,canon.locality)>0||norm(canon.locality).some(t=>norm(city).includes(t))?true:null;
   if(cc&&canon.country_code)ev.country_ok=cc.toUpperCase()===canon.country_code.toUpperCase();
   const tv=outerRings(target).flat().filter((_,i,arr)=>i%Math.max(1,Math.floor(arr.length/60))===0);
   ev.resort_neighbours=courses.filter(e=>e!==target&&e.tags?.name&&tv.some(v=>distanceTo(v,e)<=resortRadius)).map(e=>e.tags.name).slice(0,6);
@@ -51,7 +52,7 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
   ev.accepted=res.accepted;
   if(!decision){
    const nameOk=ev.name_score>=0.5,holesOk=ev.proven===18&&ev.par.disagree.length===0&&ev.par.compared>=17;
-   if(ev.locality_ok===false||ev.country_ok===false)decision='review_locality_or_country_conflict';
+   if(ev.country_ok===false)decision='review_country_conflict';
    else if(!nameOk&&!holesOk)decision='review_weak_identity';
    else decision='exact';
   }
@@ -59,3 +60,7 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
  const state=decision!=='exact'?'REVIEW_OR_NONE':ev.proven===18&&!ev.par.disagree.length?'VERIFIED ROUTING':ev.proven>0?'PARTIAL ROUTING':'NO ROUTING';
  return {decision,state,target,evidence:ev};
 }
+
+/** Two canonical courses resolving to the same OSM course = duplicate identity on our side: hold every one for review. */
+export function holdSharedTargets(rows){const by=new Map();for(const r of rows){const id=r.osm_course?.id;if(id&&r.decision&&!/^no_/.test(r.decision))by.set(id,[...(by.get(id)||[]),r]);}
+ for(const [id,rs] of by)if(rs.length>1)for(const r of rs){r.decision='review_duplicate_canonical_course';r.state='REVIEW_OR_NONE';r.shared_with=rs.filter(x=>x!==r).map(x=>x.slug);}return rows;}

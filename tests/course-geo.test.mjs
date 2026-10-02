@@ -19,6 +19,11 @@ test('point outside every boundary: near + same name -> review only; otherwise n
 test('name-only location (no canonical coords) is always review',()=>{const r=matchCourse({...canon,latitude:null,longitude:null},[course(1,'Alpha National',20,10),...holes18(20,10)],SH,{namedId:'way/1'});assert.equal(r.decision,'review_no_canonical_coords');assert.equal(r.state,'REVIEW_OR_NONE');});
 test('par conflict keeps geometry partial; locality conflict -> review',()=>{
  const hs=holes18(20,10);hs[12]=hole(2012,13,20.013,10.002,'5');const r=matchCourse(canon,[course(1,'Alpha National',20,10),...hs],SH);assert.equal(r.decision,'exact');assert.equal(r.state,'PARTIAL ROUTING');assert.deepEqual(r.evidence.par.disagree,[13]);
- const l=matchCourse(canon,[course(1,'Alpha National',20,10,0.02,{'addr:city':'Gamma'}),...holes18(20,10)],SH);assert.equal(l.decision,'review_locality_or_country_conflict');});
+ const l=matchCourse(canon,[course(1,'Alpha National',20,10,0.02,{'addr:city':'Gamma'}),...holes18(20,10)],SH);assert.equal(l.decision,'exact','region vs town granularity is not a conflict');assert.equal(l.evidence.locality_ok,null);
+ const c=matchCourse(canon,[course(1,'Alpha National',20,10,0.02,{'addr:country':'GB'}),...holes18(20,10)],SH);assert.equal(c.decision,'review_country_conflict');});
+test('operator tag counts as name evidence (club operates a course named "Old Course")',()=>{const r=matchCourse({...canon,name:'Royal Alpha Golf Club'},[course(1,'Old Course',20,10,0.02,{operator:'Royal Alpha Golf Club'})],SH);assert.equal(r.evidence.name_score,1);assert.equal(r.decision,'exact');});
+test('two canonical courses -> one OSM course: both held as duplicate identity',async()=>{const {holdSharedTargets}=await import('../workers/shared/course-geo.js');
+ const rows=holdSharedTargets([{slug:'a',decision:'exact',state:'VERIFIED ROUTING',osm_course:{id:'way/1'}},{slug:'b',decision:'exact',state:'VERIFIED ROUTING',osm_course:{id:'way/1'}},{slug:'c',decision:'exact',state:'VERIFIED ROUTING',osm_course:{id:'way/2'}}]);
+ assert.deepEqual(rows.map(r=>r.decision),['review_duplicate_canonical_course','review_duplicate_canonical_course','exact']);});
 test('weak identity: inside boundary, different name, no complete hole proof -> review',()=>{const r=matchCourse(canon,[course(1,'Zeta Municipal',20,10)],SH);assert.equal(r.decision,'review_weak_identity');});
 test('name normalisation ignores generic words',()=>{assert.equal(nameScore('Augusta National Golf Club','Augusta National'),1);assert.equal(nameScore('Pebble Beach Golf Links','Spyglass Hill'),0);});

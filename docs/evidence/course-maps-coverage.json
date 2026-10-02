@@ -1,0 +1,1350 @@
+{
+ "summary": {
+  "generated_at": "2026-10-02T21:41:30.265Z",
+  "source": "OpenStreetMap via Overpass API (discovery only; raw extracts not committed)",
+  "licence_note": "Counts only; no OSM geometry in this file.",
+  "canonical_courses_total": 267,
+  "canonical_with_coordinates": 184,
+  "priority_sample": 32,
+  "audited": 22,
+  "not_audited_in_sample": 10,
+  "remainder_not_audited": 235,
+  "overall": {
+   "courses": 32,
+   "audited": 22,
+   "exact_match": 11,
+   "verified_routing_18": 5,
+   "partial_routing": 6,
+   "review_holds": 5,
+   "no_match_or_no_osm": 6,
+   "exact_with_zero_routing": 0,
+   "with_greens": 11,
+   "with_tees": 11,
+   "with_fairways": 11,
+   "with_bunkers": 11,
+   "with_water": 8
+  },
+  "by": {
+   "current_week": {
+    "courses": 2,
+    "audited": 2,
+    "exact_match": 0,
+    "verified_routing_18": 0,
+    "partial_routing": 0,
+    "review_holds": 2,
+    "no_match_or_no_osm": 0,
+    "exact_with_zero_routing": 0,
+    "with_greens": 0,
+    "with_tees": 0,
+    "with_fairways": 0,
+    "with_bunkers": 0,
+    "with_water": 0
+   },
+   "majors": {
+    "courses": 19,
+    "audited": 14,
+    "exact_match": 9,
+    "verified_routing_18": 4,
+    "partial_routing": 5,
+    "review_holds": 1,
+    "no_match_or_no_osm": 4,
+    "exact_with_zero_routing": 0,
+    "with_greens": 9,
+    "with_tees": 9,
+    "with_fairways": 9,
+    "with_bunkers": 9,
+    "with_water": 6
+   },
+   "men_PGA_and_others": {
+    "courses": 28,
+    "audited": 19,
+    "exact_match": 10,
+    "verified_routing_18": 5,
+    "partial_routing": 5,
+    "review_holds": 4,
+    "no_match_or_no_osm": 5,
+    "exact_with_zero_routing": 0,
+    "with_greens": 10,
+    "with_tees": 10,
+    "with_fairways": 10,
+    "with_bunkers": 10,
+    "with_water": 7
+   },
+   "women_LPGA_and_others": {
+    "courses": 19,
+    "audited": 15,
+    "exact_match": 9,
+    "verified_routing_18": 4,
+    "partial_routing": 5,
+    "review_holds": 3,
+    "no_match_or_no_osm": 3,
+    "exact_with_zero_routing": 0,
+    "with_greens": 9,
+    "with_tees": 9,
+    "with_fairways": 9,
+    "with_bunkers": 9,
+    "with_water": 6
+   }
+  }
+ },
+ "courses": [
+  {
+   "slug": "hoakalei-country-club-ec11161",
+   "name": "Hoakalei Country Club",
+   "lat": null,
+   "lon": null,
+   "current_week": true,
+   "priority": "current week",
+   "editions_hosted": 4,
+   "majors_hosted": 0,
+   "divisions": [
+    "women"
+   ],
+   "audited": true,
+   "decision": "review_no_canonical_coords",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": {
+    "id": "relation/11026026",
+    "name": "Hoakalei Country Club"
+   },
+   "name_score": 1,
+   "distance_m": null,
+   "nearest": null,
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": null,
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "black-desert-resort-golf-course-ec11307",
+   "name": "Black Desert Resort Golf Course",
+   "lat": null,
+   "lon": null,
+   "current_week": true,
+   "priority": "current week",
+   "editions_hosted": 4,
+   "majors_hosted": 0,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "review_no_canonical_coords",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": {
+    "id": "way/1180990815",
+    "name": "Black Desert Golf Course"
+   },
+   "name_score": 1,
+   "distance_m": null,
+   "nearest": null,
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 17,
+    "disagree": [
+     13
+    ]
+   },
+   "setup_edition": "bank-of-utah-championship-q130604671-2026",
+   "complete_18": true,
+   "features": {
+    "tee": 36,
+    "green": 19,
+    "fairway": 22,
+    "bunker": 57,
+    "water": 9
+   }
+  },
+  {
+   "slug": "augusta-national-golf-club-q765780",
+   "name": "Augusta National Golf Club",
+   "lat": 33.5025,
+   "lon": -82.02,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 91,
+   "majors_hosted": 90,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "way/871993734",
+    "name": "Augusta National Golf Club"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Augusta Country Club"
+   ],
+   "golf_hole_ways_in_boundary": 27,
+   "numbered_holes_proven": 17,
+   "proofs": {
+    "duplicate_ref_resolved_by_par_and_length": 8,
+    "unique_ref": 9
+   },
+   "rejected_refs": [
+    {
+     "ref": 6,
+     "candidates": 2,
+     "reason": "duplicate_ref_ambiguous"
+    }
+   ],
+   "par_check": {
+    "compared": 17,
+    "agree": 17,
+    "disagree": []
+   },
+   "setup_edition": "masters-tournament-epga15-2027",
+   "complete_18": false,
+   "features": {
+    "tee": 48,
+    "green": 43,
+    "fairway": 26,
+    "bunker": 69,
+    "water": 14
+   }
+  },
+  {
+   "slug": "mission-hills-country-club-q6878606",
+   "name": "Mission Hills Country Club",
+   "lat": 33.794444444,
+   "lon": -116.423333333,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 40,
+   "majors_hosted": 40,
+   "divisions": [
+    "women"
+   ],
+   "audited": true,
+   "decision": "no_match_point_outside_boundary",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
+   "nearest": [
+    {
+     "id": "way/542172234",
+     "name": "Anneberg Golf Course",
+     "dist_m": 1743,
+     "name_score": 0
+    },
+    {
+     "id": "relation/4082110",
+     "name": "Arnold Palmer Course",
+     "dist_m": null,
+     "name_score": 0
+    },
+    {
+     "id": "relation/4082111",
+     "name": "Dinah Shore Tournament Course",
+     "dist_m": null,
+     "name_score": 0
+    }
+   ],
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": "chevron-championship-q1785973-2016",
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "old-course-at-st-andrews-q167245",
+   "name": "Old Course at St Andrews",
+   "lat": 56.351484,
+   "lon": -2.816147,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 33,
+   "majors_hosted": 33,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": true,
+   "decision": "review_duplicate_canonical_course",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": {
+    "id": "way/1019045811",
+    "name": "Old Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "New Course",
+    "Jubilee Course",
+    "Eden Course",
+    "Strathtyrum Course",
+    "Balgove Course"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 18,
+    "disagree": []
+   },
+   "setup_edition": "women-s-british-open-q429896-2024",
+   "complete_18": true,
+   "features": {
+    "tee": 42,
+    "green": 12,
+    "fairway": 8,
+    "bunker": 110,
+    "water": 8
+   },
+   "shared_with": [
+    "st-andrews-links-old-course-ec37"
+   ]
+  },
+  {
+   "slug": "prestwick-golf-club-q3046648",
+   "name": "Prestwick Golf Club",
+   "lat": 55.502,
+   "lon": -4.619,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 24,
+   "majors_hosted": 24,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "no_match_point_outside_boundary",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
+   "nearest": [
+    {
+     "id": "way/43546577",
+     "name": "St. Nicholas Golf Club",
+     "dist_m": 813,
+     "name_score": 0
+    },
+    {
+     "id": "way/43546578",
+     "name": "St. Cuthbert Golf Club",
+     "dist_m": 1537,
+     "name_score": 0
+    },
+    {
+     "id": "way/18080206",
+     "name": "Old Course",
+     "dist_m": 1748,
+     "name_score": 0
+    }
+   ],
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": null,
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "muirfield-q1951987",
+   "name": "Muirfield",
+   "lat": 56.042,
+   "lon": -2.821,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 17,
+   "majors_hosted": 17,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "VERIFIED ROUTING",
+   "osm_course": {
+    "id": "way/101336384",
+    "name": "Muirfield"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Gullane Childrens Course",
+    "Archerfield Links",
+    "The Renaissance Club",
+    "Gullane Golf Club"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 18,
+    "disagree": []
+   },
+   "setup_edition": "the-open-championship-q848797-2013",
+   "complete_18": true,
+   "features": {
+    "tee": 64,
+    "green": 20,
+    "fairway": 20,
+    "bunker": 151,
+    "water": 0
+   }
+  },
+  {
+   "slug": "oakmont-country-club-q3347853",
+   "name": "Oakmont Country Club",
+   "lat": 40.525758,
+   "lon": -79.826764,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 16,
+   "majors_hosted": 15,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "no_match_point_outside_boundary",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
+   "nearest": [
+    {
+     "id": "relation/6174192",
+     "name": "Oakmont Country Club",
+     "dist_m": null,
+     "name_score": 1
+    }
+   ],
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": "u-s-open-epga24-2025",
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "royal-st-george-s-golf-club-q1586134",
+   "name": "Royal St George's Golf Club",
+   "lat": 51.274,
+   "lon": 1.367,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 16,
+   "majors_hosted": 16,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "VERIFIED ROUTING",
+   "osm_course": {
+    "id": "way/24494194",
+    "name": "The Royal St. George's Golf Club"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Royal Cinque Ports Golf Club",
+    "Princes Golf Club"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 18,
+    "disagree": []
+   },
+   "setup_edition": "the-open-championship-q848797-2021",
+   "complete_18": true,
+   "features": {
+    "tee": 71,
+    "green": 24,
+    "fairway": 25,
+    "bunker": 119,
+    "water": 7
+   }
+  },
+  {
+   "slug": "royal-lytham-st-annes-golf-club-q1636565",
+   "name": "Royal Lytham & St Annes Golf Club",
+   "lat": 53.748611,
+   "lon": -3.013889,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 16,
+   "majors_hosted": 16,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "VERIFIED ROUTING",
+   "osm_course": {
+    "id": "way/6084940",
+    "name": "Royal Lytham & St Annes Golf Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Fairhaven Golf Club",
+    "Short Course"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 18,
+    "disagree": []
+   },
+   "setup_edition": "women-s-british-open-q429896-2026",
+   "complete_18": true,
+   "features": {
+    "tee": 51,
+    "green": 18,
+    "fairway": 19,
+    "bunker": 167,
+    "water": 0
+   }
+  },
+  {
+   "slug": "pebble-beach-golf-links-q534974",
+   "name": "Pebble Beach Golf Links",
+   "lat": 36.564625,
+   "lon": -121.937408,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 14,
+   "majors_hosted": 8,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "no_match_point_outside_boundary",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
+   "nearest": [
+    {
+     "id": "way/1065983050",
+     "name": "The Hay",
+     "dist_m": 1280,
+     "name_score": 0
+    },
+    {
+     "id": "way/36435651",
+     "name": "Cypress Point Golf Course",
+     "dist_m": 2201,
+     "name_score": 0
+    },
+    {
+     "id": "way/281477606",
+     "name": "Spyglass Hill Golf Course",
+     "dist_m": 2394,
+     "name_score": 0
+    }
+   ],
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": "at-t-pebble-beach-pro-am-epga5-2027",
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "royal-liverpool-golf-club-hoylake-q2180101",
+   "name": "Royal Liverpool Golf Club, Hoylake",
+   "lat": 53.385,
+   "lon": -3.19,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 14,
+   "majors_hosted": 14,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "way/155010530",
+    "name": "Royal Liverpool Golf Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Hoylake Golf Club"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 13,
+    "disagree": [
+     3,
+     5,
+     10,
+     15,
+     17
+    ]
+   },
+   "setup_edition": "the-open-championship-q848797-2023",
+   "complete_18": true,
+   "features": {
+    "tee": 61,
+    "green": 20,
+    "fairway": 20,
+    "bunker": 84,
+    "water": 0
+   }
+  },
+  {
+   "slug": "royal-birkdale-golf-club-q1858953",
+   "name": "Royal Birkdale Golf Club",
+   "lat": 53.622,
+   "lon": -3.033,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 14,
+   "majors_hosted": 14,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "way/25720345",
+    "name": "Royal Birkdale Golf Club"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Hillside Golf Club",
+    "Southport and Ainsdale Golf Club"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 16,
+    "disagree": [
+     6,
+     18
+    ]
+   },
+   "setup_edition": "the-open-championship-q848797-2017",
+   "complete_18": true,
+   "features": {
+    "tee": 62,
+    "green": 27,
+    "fairway": 19,
+    "bunker": 129,
+    "water": 25
+   }
+  },
+  {
+   "slug": "evian-resort-golf-club-q2077768",
+   "name": "Evian Resort Golf Club",
+   "lat": 46.39333333,
+   "lon": 6.56888889,
+   "current_week": false,
+   "priority": "major venue",
+   "editions_hosted": 13,
+   "majors_hosted": 12,
+   "divisions": [
+    "women"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "way/54949523",
+    "name": "Golf d'Evian"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Training Center Golf d'Evian"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 16,
+    "disagree": [
+     6,
+     13
+    ]
+   },
+   "setup_edition": "evian-championship-q2487426-2025",
+   "complete_18": true,
+   "features": {
+    "tee": 79,
+    "green": 18,
+    "fairway": 20,
+    "bunker": 77,
+    "water": 16
+   }
+  },
+  {
+   "slug": "tpc-sawgrass-q4586108",
+   "name": "TPC Sawgrass",
+   "lat": 30.1967,
+   "lon": -81.3936,
+   "current_week": false,
+   "priority": "most editions",
+   "editions_hosted": 41,
+   "majors_hosted": 0,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "no_match_point_outside_boundary",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
+   "nearest": [
+    {
+     "id": "relation/1783026",
+     "name": "Sawgrass Country Club",
+     "dist_m": null,
+     "name_score": 1
+    },
+    {
+     "id": "relation/1783123",
+     "name": "TPC Sawgrass",
+     "dist_m": null,
+     "name_score": 1
+    },
+    {
+     "id": "relation/1784678",
+     "name": "The Yards",
+     "dist_m": null,
+     "name_score": 0
+    }
+   ],
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": null,
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "memorial-park-golf-course-ec11109",
+   "name": "Memorial Park Golf Course",
+   "lat": null,
+   "lon": null,
+   "current_week": false,
+   "priority": "active LPGA",
+   "editions_hosted": 6,
+   "majors_hosted": 0,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": false,
+   "reason": "osm_name_search_found_no_unique_course"
+  },
+  {
+   "slug": "liberty-national-golf-club-ec372",
+   "name": "Liberty National Golf Club",
+   "lat": 40.697,
+   "lon": -74.068,
+   "current_week": false,
+   "priority": "active LPGA",
+   "editions_hosted": 4,
+   "majors_hosted": 0,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "way/27459421",
+    "name": "Liberty National Golf Club"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 17,
+    "disagree": [
+     10
+    ]
+   },
+   "setup_edition": "bmw-championship-epga3080-2027",
+   "complete_18": true,
+   "features": {
+    "tee": 88,
+    "green": 28,
+    "fairway": 23,
+    "bunker": 105,
+    "water": 20
+   }
+  },
+  {
+   "slug": "shadow-creek-golf-course-ec10887",
+   "name": "Shadow Creek Golf Course",
+   "lat": 36.257762,
+   "lon": -115.105959,
+   "current_week": false,
+   "priority": "active LPGA",
+   "editions_hosted": 5,
+   "majors_hosted": 0,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "VERIFIED ROUTING",
+   "osm_course": {
+    "id": "way/98834098",
+    "name": "Shadow Creek Golf Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": null,
+   "complete_18": true,
+   "features": {
+    "tee": 75,
+    "green": 30,
+    "fairway": 28,
+    "bunker": 89,
+    "water": 13
+   }
+  },
+  {
+   "slug": "pelican-golf-club-ec10955",
+   "name": "Pelican Golf Club",
+   "lat": null,
+   "lon": null,
+   "current_week": false,
+   "priority": "active LPGA",
+   "editions_hosted": 5,
+   "majors_hosted": 0,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": false,
+   "reason": "osm_name_search_found_no_unique_course"
+  },
+  {
+   "slug": "siam-country-club-pattaya-old-course-ec10671",
+   "name": "Siam Country Club (Pattaya Old Course)",
+   "lat": null,
+   "lon": null,
+   "current_week": false,
+   "priority": "active LPGA",
+   "editions_hosted": 4,
+   "majors_hosted": 0,
+   "divisions": [
+    "women"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "tpc-deere-run-ec38",
+   "name": "TPC Deere Run",
+   "lat": null,
+   "lon": null,
+   "current_week": false,
+   "priority": "active PGA",
+   "editions_hosted": 5,
+   "majors_hosted": 0,
+   "divisions": [
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "tpc-river-highlands-ec33",
+   "name": "TPC River Highlands",
+   "lat": 41.632,
+   "lon": -72.639,
+   "current_week": false,
+   "priority": "active PGA",
+   "editions_hosted": 5,
+   "majors_hosted": 0,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "no_match_point_outside_boundary",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
+   "nearest": [
+    {
+     "id": "relation/4091841",
+     "name": "TPC River Highlands",
+     "dist_m": null,
+     "name_score": 1
+    }
+   ],
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 0,
+    "agree": 0,
+    "disagree": []
+   },
+   "setup_edition": "travelers-championship-epga26-2027",
+   "complete_18": false,
+   "features": {
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
+   }
+  },
+  {
+   "slug": "puntacana-resort-club-corales-golf-course-ec10881",
+   "name": "Puntacana Resort & Club (Corales Golf Course)",
+   "lat": null,
+   "lon": null,
+   "current_week": false,
+   "priority": "active PGA",
+   "editions_hosted": 5,
+   "majors_hosted": 0,
+   "divisions": [
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "tpc-twin-cities-ec10885",
+   "name": "TPC Twin Cities",
+   "lat": 45.177,
+   "lon": -93.213,
+   "current_week": false,
+   "priority": "active PGA",
+   "editions_hosted": 5,
+   "majors_hosted": 0,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "review_weak_identity",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": {
+    "id": "way/928691954",
+    "name": null
+   },
+   "name_score": 0,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Victory Links Golf Course"
+   ],
+   "golf_hole_ways_in_boundary": 9,
+   "numbered_holes_proven": 9,
+   "proofs": {
+    "unique_ref": 9
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 9,
+    "agree": 9,
+    "disagree": []
+   },
+   "setup_edition": "3m-open-epga3468-2027",
+   "complete_18": false,
+   "features": {
+    "tee": 43,
+    "green": 9,
+    "fairway": 9,
+    "bunker": 39,
+    "water": 11
+   }
+  },
+  {
+   "slug": "st-andrews-links-old-course-ec37",
+   "name": "St Andrews Links (Old Course)",
+   "lat": 56.343,
+   "lon": -2.803,
+   "current_week": false,
+   "priority": "canary",
+   "editions_hosted": 1,
+   "majors_hosted": 0,
+   "divisions": [
+    "men"
+   ],
+   "audited": true,
+   "decision": "review_duplicate_canonical_course",
+   "state": "REVIEW_OR_NONE",
+   "osm_course": {
+    "id": "way/1019045811",
+    "name": "Old Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "New Course",
+    "Jubilee Course",
+    "Eden Course",
+    "Strathtyrum Course",
+    "Balgove Course"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 18,
+    "disagree": []
+   },
+   "setup_edition": "the-open-epga29-2027",
+   "complete_18": true,
+   "features": {
+    "tee": 42,
+    "green": 12,
+    "fairway": 8,
+    "bunker": 110,
+    "water": 8
+   },
+   "shared_with": [
+    "old-course-at-st-andrews-q167245"
+   ]
+  },
+  {
+   "slug": "baltusrol-golf-club-q4853011",
+   "name": "Baltusrol Golf Club",
+   "lat": 40.705,
+   "lon": -74.328055555,
+   "current_week": false,
+   "priority": "LPGA history",
+   "editions_hosted": 12,
+   "majors_hosted": 12,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "way/39835869",
+    "name": "Baltusrol Golf Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 17,
+    "disagree": [
+     1
+    ]
+   },
+   "setup_edition": "women-s-pga-championship-q281917-2023",
+   "complete_18": true,
+   "features": {
+    "tee": 104,
+    "green": 47,
+    "fairway": 48,
+    "bunker": 147,
+    "water": 14
+   }
+  },
+  {
+   "slug": "royal-troon-golf-club-q662996",
+   "name": "Royal Troon Golf Club",
+   "lat": 55.533055555,
+   "lon": -4.652777777,
+   "current_week": false,
+   "priority": "LPGA history",
+   "editions_hosted": 11,
+   "majors_hosted": 11,
+   "divisions": [
+    "men",
+    "women"
+   ],
+   "audited": true,
+   "decision": "exact",
+   "state": "VERIFIED ROUTING",
+   "osm_course": {
+    "id": "way/18080206",
+    "name": "Old Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Portland Course"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
+   "rejected_refs": [],
+   "par_check": {
+    "compared": 18,
+    "agree": 18,
+    "disagree": []
+   },
+   "setup_edition": "the-open-championship-q848797-2024",
+   "complete_18": true,
+   "features": {
+    "tee": 60,
+    "green": 22,
+    "fairway": 35,
+    "bunker": 99,
+    "water": 6
+   }
+  },
+  {
+   "slug": "carnoustie-golf-links-q1044131",
+   "name": "Carnoustie Golf Links",
+   "lat": 56.493889,
+   "lon": -2.723611,
+   "current_week": false,
+   "priority": "LPGA history",
+   "editions_hosted": 10,
+   "majors_hosted": 10,
+   "divisions": [
+    "women",
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "oakland-hills-country-club-q7074014",
+   "name": "Oakland Hills Country Club",
+   "lat": 42.5447,
+   "lon": -83.2708,
+   "current_week": false,
+   "priority": "most editions",
+   "editions_hosted": 9,
+   "majors_hosted": 9,
+   "divisions": [
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "quail-hollow-club-q7268497",
+   "name": "Quail Hollow Club",
+   "lat": 35.1146,
+   "lon": -80.8426,
+   "current_week": false,
+   "priority": "most editions",
+   "editions_hosted": 8,
+   "majors_hosted": 2,
+   "divisions": [
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "southern-hills-country-club-q7569992",
+   "name": "Southern Hills Country Club",
+   "lat": 36.0726,
+   "lon": -95.9497,
+   "current_week": false,
+   "priority": "most editions",
+   "editions_hosted": 8,
+   "majors_hosted": 8,
+   "divisions": [
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  },
+  {
+   "slug": "oak-hill-country-club-q7073570",
+   "name": "Oak Hill Country Club",
+   "lat": 43.114444444,
+   "lon": -77.531944444,
+   "current_week": false,
+   "priority": "most editions",
+   "editions_hosted": 8,
+   "majors_hosted": 7,
+   "divisions": [
+    "men"
+   ],
+   "audited": false,
+   "reason": "not_reached"
+  }
+ ]
+}
