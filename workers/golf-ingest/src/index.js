@@ -70,8 +70,9 @@ async function tick(env){
  const result=await runLane(lane,env,db);
  // ESPN has its own lease, so it runs every tick alongside the most-due lane.
  const espn=await runLane('espn',env,db,{budgetMs:180000}).catch(e=>({status:'error',error:e.message}));
- // Season-stat backfill rides the same ESPN lease on ticks where no event is due (no competing worker).
- let stats=null;if(espn?.status==='ok'&&!espn.due){const q=JSON.parse(await env.STATE.get('espn:stats:queue')||'["pga:2026","pga:2025"]');if(q.length){const [lg,yr]=q[0].split(':');stats=await runLane('espn-stats',env,db,{leagues:[lg],seasons:[Number(yr)],limit:150}).catch(e=>({status:'error',error:e.message}));if(stats?.status==='complete'){q.shift();await env.STATE.put('espn:stats:queue',JSON.stringify(q));}}}
+ // Season-stat backfill rides the same ESPN lease after the event lane: always when no event is due, and on
+ // every third tick otherwise (one worker, sequential, no competing loop).
+ let stats=null;if(espn?.status==='ok'&&(!espn.due||new Date().getUTCMinutes()%30<10)){const q=JSON.parse(await env.STATE.get('espn:stats:queue')||'["pga:2026","pga:2025"]');if(q.length){const [lg,yr]=q[0].split(':');stats=await runLane('espn-stats',env,db,{leagues:[lg],seasons:[Number(yr)],limit:150}).catch(e=>({status:'error',error:e.message}));if(stats?.status==='complete'){q.shift();await env.STATE.put('espn:stats:queue',JSON.stringify(q));}}}
  // Rebuild when a lane wrote since the last projection (KV flag or durable source-state timestamps).
  const last=await env.STATE.get('projection:last')||'',writes=(await db('golf_source_state','select=last_write')).map(r=>r.last_write||'').sort().at(-1)||'';
  let projection=null;if(await env.STATE.get('projection:dirty')||Date.parse(writes)>Date.parse(last||0))projection=await project(env,db);

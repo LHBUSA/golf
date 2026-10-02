@@ -49,12 +49,13 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
    const packet=await P.freeze();out.built++;
    if(packet.materiality.score<THRESHOLD){out.below_threshold++;out.stories.push({topic:packet.topic,status:'below_threshold',materiality:packet.materiality});continue;}
    const recKey='news:topic:'+packet.topic,rec=await env.STATE.get(recKey,{type:'json'});
+   if(mode==='compare'){out.compared=(out.compared||0)+1;out.stories.push({topic:packet.topic,compare:(await compareEditors(env,packet,ctx)).summary});continue;}
    const wantsPublish=mode==='publish'||mode==='canary'&&canary.has(packet.type);
    if(rec&&rec.packet_sha===packet.hash&&!force&&(rec.state==='published'||!wantsPublish)){out.unchanged++;continue;}
    await putJSON(PRIV,'news/v2/packets/'+packet.hash+'.json',packet);
    // Draft: the topic's validated draft re-renders with new facts (tokens), else the editor (new topics only), else the desk.
    const desk=deskDraft(packet),deskV=validateDraft(packet,desk,{resolve:resolveHref});
-   let chosen=null,editor={mode:'desk',version:DESK_VERSION},editorLog=null;
+   let chosen=null,editor={mode:'deterministic_fallback',version:DESK_VERSION},editorLog=null;
    const prevDraft=rec?.draft_key?await getJSON(PRIV,rec.draft_key):null;
    if(prevDraft){const v=validateDraft(packet,prevDraft.draft,{resolve:resolveHref});if(v.ok){chosen=prevDraft.draft;editor=prevDraft.editor;}}
    if(!chosen&&!rec&&mode!=='desk'){
@@ -63,7 +64,9 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
     out.editor.usd+=ep.usd||0;
     if(ep.status==='validated'){chosen=ep.draft;editor={mode:'openai',model:ep.model,version:EDITOR_VERSION};out.editor.openai++;}
    }
-   if(!chosen&&deskV.ok){chosen=desk;editor={mode:'desk',version:DESK_VERSION};out.editor.desk++;}
+   // Never present a fallback as AI output: the desk draft is labelled deterministic_fallback with the reason.
+   if(!chosen&&deskV.ok){chosen=desk;editor={mode:'deterministic_fallback',reason:editorLog?(editorLog.reason||editorLog.status):'existing_topic_no_new_model_call',version:DESK_VERSION};out.editor.desk++;}
+   if(editorLog)await putJSON(PRIV,'news/v2/compare/'+packet.topic.replace(/[^a-z0-9:-]/gi,'_')+'.json',compareDoc(packet,desk,deskV,editorLog,editor));
    let slug=rec?.slug||articleSlug(packet);
    if(!rec){const owner=await env.STATE.get('news:slug:'+slug);if(owner&&owner!==packet.topic)slug=slug+'-'+packet.hash.slice(0,6);}
    const hold=chosen?[]:deskV.reasons,publishable=Boolean(chosen)&&wantsPublish,now=new Date().toISOString();
@@ -103,15 +106,42 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
   return out;
  }finally{const cur=await env.STATE.get('news:lease',{type:'json'});if(cur?.token===token)await env.STATE.delete('news:lease');}
 }
+// Side-by-side record of one packet: deterministic desk vs OpenAI, with every gate and plan element.
+function planSummary(packet,draft){if(!draft)return null;const a=buildArticle({packet,draft,editor:{mode:'compare',version:'c'},slug:'compare',ctx:{},hero:null});
+ return {headline:a.headline_text,dek:a.dek_text,seo:a.seo,links:a.entities.filter(x=>a.sections.some(s=>s.paragraphs.some(p=>p.some(g=>g.t==='link'&&g.href===x.href)))).map(x=>x.href),charts:a.charts.map(c=>c.id),words:a.sections.flatMap(s=>s.paragraphs).map(p=>p.map(x=>x.v).join('')).join(' ').split(/\s+/).length,sections:a.sections.map(s=>({heading:s.heading,text:s.paragraphs.map(p=>p.map(x=>x.v).join('')).join(' ')}))};}
+function compareDoc(packet,desk,deskV,log,editor){
+ const numeric=r=>(r||[]).filter(x=>/unsupported_number|number_word|ordinal_word/.test(x));
+ const openaiV=log.attempts?.at(-1)?{ok:log.status==='validated',reasons:log.attempts.at(-1).reasons}:null;
+ return {at:new Date().toISOString(),topic:packet.topic,type:packet.type,packet_sha256:packet.hash,packet:{facts:packet.facts.map(f=>({id:f.id,label:f.label,display:f.display,source:f.source})),entities:packet.entities,charts:packet.charts,limits:packet.limits},
+  chosen_editor:editor.mode,fallback_reason:editor.mode==='deterministic_fallback'?editor.reason||null:null,
+  desk:{gates:{ok:deskV.ok,fact:deskV.reasons.filter(x=>!numeric([x]).length),numeric:numeric(deskV.reasons)},plan:planSummary(packet,desk)},
+  openai:{status:log.status,reason:log.reason||null,model:log.model||null,usd:log.usd||0,attempts:(log.attempts||[]).map(a=>({kind:a.kind,usage:a.usage,fact:(a.reasons||[]).filter(x=>!numeric([x]).length),numeric:numeric(a.reasons)})),gates:openaiV,plan:log.draft&&openaiV?.ok?planSummary(packet,log.draft):null,draft:log.draft||null}};
+}
+async function compareEditors(env,packet,ctx){
+ const desk=deskDraft(packet),deskV=validateDraft(packet,desk,{resolve:resolveHref});
+ const ep=await editorialPass(env,packet,desk,{resolve:resolveHref});
+ const log={status:ep.status,reason:ep.reason||null,attempts:ep.attempts||[],usd:ep.usd||0,model:ep.model||null,draft:ep.draft||null};
+ const doc=compareDoc(packet,desk,deskV,log,{mode:ep.status==='validated'?'openai':'deterministic_fallback',reason:ep.status==='validated'?null:(ep.reason||ep.status)});
+ await putJSON(env.PRIVATE,'news/v2/compare/'+packet.topic.replace(/[^a-z0-9:-]/gi,'_')+'.json',doc);
+ return {summary:{editor:doc.chosen_editor,openai_status:ep.status,reason:doc.fallback_reason,desk_ok:deskV.ok,openai_ok:doc.openai.gates?.ok??null,usd:ep.usd||0}};
+}
 async function listDocs(bucket,prefix,limit){const l=await bucket.list({prefix,limit});const rows=[];for(const o of l.objects)rows.push(await getJSON(bucket,o.key));return rows;}
 export default {
  async fetch(request,env={}){
   const url=new URL(request.url),path=url.pathname;
-  if(path==='/health'){const h=await env.STATE?.get('news:health',{type:'json'}).catch(()=>null);return json({mode:env.NEWS_MODE||'shadow',publication_enabled:env.PUBLISH_ENABLED==='true',canary_types:env.NEWS_CANARY_TYPES||'',openai_configured:Boolean(env.OPENAI_API_KEY),last_run:h?{started:h.started,finished:h.finished,mode:h.mode,candidates:h.candidates,built:h.built,published:h.published,updated:h.updated,shadow:h.shadow,held:h.held,below_threshold:h.below_threshold,editor:h.editor}:null});}
-  if(!['/admin/news-shadow','/admin/news-publish','/admin/news-drafts','/admin/news-cost'].includes(path)||request.method!=='POST')return json({error:'not_found'},404);
+  if(path==='/health'){const h=await env.STATE?.get('news:health',{type:'json'}).catch(()=>null);
+   // Promotion ladder: each class earns publication separately (NEWS_CANARY_TYPES); counts from topic records.
+   const LADDER=['final','round_recap','preview','notable_round','cut','course_weather','course_intelligence','major_history','player_form','play_suspended','playoff'];
+   const recs=[];if(env.STATE){let cur;do{const l=await env.STATE.list({prefix:'news:topic:',cursor:cur});cur=l.list_complete?null:l.cursor;for(const k of l.keys){const r=await env.STATE.get(k.name,{type:'json'});if(r)recs.push(r);}}while(cur);}
+   const live=new Set(String(env.NEWS_CANARY_TYPES||'').split(',').filter(Boolean));
+   const ladder=LADDER.map((t,i)=>({rung:i+1,class:t,state:env.NEWS_MODE==='publish'||live.has(t)?'publishing':'shadow',published:recs.filter(r=>r.type===t&&r.state==='published').length,shadow_validated:recs.filter(r=>r.type===t&&r.state==='shadow_validated').length,held:recs.filter(r=>r.type===t&&r.state==='held').length,editors:[...new Set(recs.filter(r=>r.type===t).map(r=>r.editor))]}));
+   return json({ladder,mode:env.NEWS_MODE||'shadow',publication_enabled:env.PUBLISH_ENABLED==='true',canary_types:env.NEWS_CANARY_TYPES||'',openai_configured:Boolean(env.OPENAI_API_KEY),last_run:h?{started:h.started,finished:h.finished,mode:h.mode,candidates:h.candidates,built:h.built,published:h.published,updated:h.updated,shadow:h.shadow,held:h.held,below_threshold:h.below_threshold,editor:h.editor}:null});}
+  if(!['/admin/news-shadow','/admin/news-publish','/admin/news-drafts','/admin/news-cost','/admin/news-compare'].includes(path)||request.method!=='POST')return json({error:'not_found'},404);
   if(!await adminAllowed(request,env))return json({error:'unauthorized'},401);
   const q=k=>url.searchParams.get(k),L=k=>(q(k)||'').split(',').filter(Boolean);
   if(path==='/admin/news-drafts')return json(q('published')?await listDocs(env.PUBLIC,'news/v2/articles/',Number(q('limit'))||100):await listDocs(env.PRIVATE,'news/v2/shadow/',Number(q('limit'))||100));
+  // Editor canary comparison: ?run=1 runs the editor on current packets (no publication); otherwise lists records.
+  if(path==='/admin/news-compare'){if(q('run'))return json(await run(env,{mode:'compare',types:L('types').length?L('types'):['final'],editions:L('editions'),limit:Number(q('limit'))||5}));return json(await listDocs(env.PRIVATE,'news/v2/compare/',Number(q('limit'))||50));}
   if(path==='/admin/news-cost'){const d=q('day')||new Date().toISOString().slice(0,10);return json(await env.STATE.get('news:openai:'+d,{type:'json'})||{day:d,calls:0,usd:0});}
   const publish=path==='/admin/news-publish';
   if(publish&&env.PUBLISH_ENABLED!=='true')return json({error:'publication_disabled'},409);

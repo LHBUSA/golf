@@ -1,3 +1,4 @@
+import {keyIndex} from '../../shared/names.js';
 // ESPN lane: discovery queue -> event bundles -> identity resolution -> field-level merge into golf_*.
 import {stableId} from '../../shared/store.js';
 import {SourceBlockedError} from '../../shared/http.js';
@@ -44,7 +45,7 @@ export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date(),fo
  const etours=await all(db,'golf_edition_tours','edition_id,tour_id');const tourIds={'pga-tour':await stableId('golf_tours:Q910409'),lpga:await stableId('golf_tours:Q17162079')};
  const editions=editionRows.map(e=>({...e,year:Number(e.edition_key),tours:etours.filter(x=>x.edition_id===e.id).map(x=>x.tour_id===tourIds['pga-tour']?'PGA Tour':x.tour_id===tourIds.lpga?'LPGA Tour':null).filter(Boolean)}));
  const years=new Map((await all(db,'golf_player_identities','player_id,birth_year:evidence->>birth_year','&source_id=eq.wikidata')).map(r=>[r.player_id,Number(r.birth_year)||null]));
- const players=(await all(db,'golf_players','id,full_name,birth_date')).map(p=>({...p,birth_year:p.birth_date?Number(p.birth_date.slice(0,4)):years.get(p.id)||null}));const byName=new Map();for(const p of players){const k=norm(p.full_name);byName.set(k,[...(byName.get(k)||[]),p]);}
+ const players=(await all(db,'golf_players','id,full_name,birth_date,identity_status')).map(p=>({...p,birth_year:p.birth_date?Number(p.birth_date.slice(0,4)):years.get(p.id)||null}));const byName=new Map();for(const p of players){const k=norm(p.full_name);byName.set(k,[...(byName.get(k)||[]),p]);}const byKey=keyIndex(players.filter(p=>p.identity_status!=='review'));
  const crosswalk=new Map((await all(db,'golf_player_identities','player_id,provider_id','&source_id=eq.espn')).map(r=>[r.provider_id,r.player_id]));
  const courses=await all(db,'golf_courses','id,name');const courseByName=new Map();for(const c of courses){const k=norm(c.name);courseByName.set(k,[...(courseByName.get(k)||[]),c]);}
  for(const [key,item] of due){
@@ -114,7 +115,7 @@ export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date(),fo
      else if(rm.n>0&&!(byName.get(norm(f.name||''))||[]).length){plan.hold({kind:'player',provider_id:'espn:'+r.espn_id,reason:'ambiguous_result_match_in_described_edition',capture_id:cap.id,detail:{name:f.name}});out.held_identities++;continue;}}
     if(!pid){
      if(!f.name){plan.hold({kind:'player',provider_id:'espn:'+r.espn_id,reason:'espn_profile_unavailable',capture_id:cap.id});out.held_identities++;continue;}
-     const res=resolveAthlete(f,{crosswalk,byName,editionPlayers});
+     const res=resolveAthlete(f,{crosswalk,byName,byKey,editionPlayers});
      if(res.status==='hold'){plan.hold({kind:'player',provider_id:'espn:'+r.espn_id,reason:'espn_identity_'+res.reason,capture_id:acap?.id||cap.id,detail:{name:f.name,birth_date:f.birth_date,candidates:res.candidates}});out.held_identities++;continue;}
      if(res.status==='new'){pid=await plan.add('golf_players','espn:'+r.espn_id,acap?.id||cap.id,{full_name:f.name,slug:slug(f.name,'e'+r.espn_id),birth_date:f.birth_date,nationality_code:null,identity_status:'verified'});out.new_players++;byName.set(norm(f.name),[...(byName.get(norm(f.name))||[]),{id:pid,full_name:f.name,birth_date:f.birth_date}]);}
      else{pid=res.player_id;out.resolved_players++;}

@@ -1,0 +1,201 @@
+{
+ "generated_at": "2026-10-02T00:46:45.410Z",
+ "circuits": {
+  "pga": {
+   "event": "401811928",
+   "competitors": 120,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": true,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 200,
+    "categories": 1,
+    "stats": 52
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "lpga": {
+   "event": "401835135",
+   "competitors": 39,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": false,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 200,
+    "categories": 1,
+    "stats": 52
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "eur": {
+   "event": "401822390",
+   "competitors": 156,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": true,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 404,
+    "categories": 0,
+    "stats": 0
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "champions-tour": {
+   "event": "401832007",
+   "competitors": 42,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": true,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 200,
+    "categories": 1,
+    "stats": 52
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "ntw": {
+   "event": "401837427",
+   "competitors": 132,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": false,
+    "college": true,
+    "turned_pro": false,
+    "hand": false,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 200,
+    "categories": 1,
+    "stats": 52
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "liv": {
+   "event": "401807532",
+   "competitors": 59,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": false,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 404,
+    "categories": 0,
+    "stats": 0
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "mens-olympics-golf": {
+   "event": "401580621",
+   "competitors": 60,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": true,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 404,
+    "categories": 0,
+    "stats": 0
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "womens-olympics-golf": {
+   "event": "401643692",
+   "competitors": 60,
+   "bio": {
+    "status": 200,
+    "dob": true,
+    "birthplace": true,
+    "college": false,
+    "turned_pro": true,
+    "hand": true,
+    "headshot": true
+   },
+   "season_stats": {
+    "status": 404,
+    "categories": 0,
+    "stats": 0
+   },
+   "venue": {
+    "course": true,
+    "address": true,
+    "holes": 18,
+    "coordinates": false
+   }
+  },
+  "tgl": {
+   "event": "401830759",
+   "competitors": 0
+  }
+ }
+}

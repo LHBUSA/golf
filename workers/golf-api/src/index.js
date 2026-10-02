@@ -19,7 +19,7 @@ function envelope(ix,data,{availability='available',coverage=null,reason=null,so
  return {data,availability,reason,source:source||ix?.sources?.map(s=>s.name+' ('+s.licence+')').join('; ')||null,as_of:ix?.as_of||null,source_age_seconds:age,stale:age===null||age>2*86400,coverage:coverage||ix?.coverage||null,provenance,method,contract_version:CONTRACT};
 }
 const unavailable=(ix,reason,extra={})=>envelope(ix,null,{availability:'unavailable',reason,...extra});
-const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost']);
+const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost','/admin/news-compare']);
 export default {
  async fetch(request,env={}){
   const url=new URL(request.url),path=url.pathname;
@@ -72,6 +72,7 @@ export default {
      return new Response(o.body,{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
     }
     case 'graph':return ok({as_of:ix.as_of,coverage:ix.coverage,source_state:ix.source_state});
+    case 'newsroom':{if(id!=='health')return json({error:'not_found'},404);const r=env.NEWS?.fetch?await env.NEWS.fetch('https://golf-internal/health').then(r=>r.json()).catch(()=>null):null;return json(r||{error:'unavailable'},r?200:503,'public, max-age=60');}
     case 'source-health':{const r=env.INGEST?.fetch?await env.INGEST.fetch('https://golf-internal/health').then(r=>r.json()).catch(()=>null):null;return json(envelope(ix,r||{source_state:ix.source_state},{availability:r?'available':'partial'}));}
     case 'today':return ok({current:ix.current,upcoming:ix.upcoming,recent:ix.recent},{availability:ix.current.length||ix.upcoming.length?'available':'partial',reason:'Schedule status from tour season schedules; observed scoring for current events is at /v1/live.'});
     case 'live':{

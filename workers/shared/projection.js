@@ -1,3 +1,4 @@
+import {tourRef} from './tours.js';
 // Public projection: canonical SPORTS rows -> derived, versioned public documents in R2.
 // Every derived number names its method, sample, cohort and coverage. Unknown stays null.
 import {DNA_METHOD,COURSE_METHOD,FIT_METHOD,DIMENSIONS,HELD,playerMetrics,rankCohort,tier,mean,sd,round1,round2,percentileOf} from './dna.js';
@@ -10,7 +11,7 @@ export async function loadGraph(db){
   editions:['golf_tournament_editions','id,tournament_id,edition_key,starts_on,ends_on,status,completed_rounds,rules,capture_id'],
   editionTours:['golf_edition_tours','edition_id,tour_id'],courses:['golf_courses','id,name,slug,country_code,locality,latitude,longitude,capture_id'],
   layouts:['golf_course_layouts','id,course_id,version_label,valid_from,par,yardage,specifications'],holes:['golf_holes','id,layout_id,hole_number,par,yardage'],
-  editionCourses:['golf_edition_courses','edition_id,layout_id,usage_role'],players:['golf_players','id,full_name,slug,birth_date,nationality_code,capture_id'],
+  editionCourses:['golf_edition_courses','edition_id,layout_id,usage_role'],players:['golf_players','id,full_name,slug,birth_date,nationality_code,capture_id,identity_status'],
   identities:['golf_player_identities','player_id,provider_id,source_id,country_name:evidence->>country_name,sex:evidence->>sex,external_ids:evidence->external_ids,birth_year:evidence->>birth_year,article:evidence->>enwiki_article,espn:evidence'],
   entries:['golf_entries','id,edition_id,player_id,status'],results:['golf_results','edition_id,entry_id,position,tied,strokes,score_to_par,finish_status,winner,winning_margin'],
   rounds:['golf_rounds','id,edition_id,round_number'],
@@ -24,6 +25,9 @@ export async function loadGraph(db){
  // Scorecards stream into compact per-entry arrays (memory-bounded for the Worker).
  const roundNo=new Map(g.rounds.map(r=>[r.id,r.round_number]));g.cardsByEntry=new Map();g.counts={scorecards:0};
  for(let off=0;;off+=1000){const page=await db('golf_scorecards',`select=entry_id,round_id,strokes,score_to_par&or=(holes_completed.is.null,holes_completed.gte.18)&order=id&limit=1000&offset=${off}`);for(const c of page){let a=g.cardsByEntry.get(c.entry_id);if(!a){a=[];g.cardsByEntry.set(c.entry_id,a);}a.push({round:roundNo.get(c.round_id),strokes:c.strokes,to_par:c.score_to_par});g.counts.scorecards++;}if(page.length<1000)break;}
+ // Merged duplicate identities (identity_status 'review') and their entries never reach the product.
+ const merged=new Set(g.players.filter(p=>p.identity_status==='review').map(p=>p.id));
+ if(merged.size){g.players=g.players.filter(p=>!merged.has(p.id));const dropped=new Set(g.entries.filter(x=>merged.has(x.player_id)).map(x=>x.id));g.entries=g.entries.filter(x=>!dropped.has(x.id));if(g.results)g.results=g.results.filter(r=>!dropped.has(r.entry_id));g.identities=g.identities.filter(i=>!merged.has(i.player_id));}
  return g;
 }
 const by=(rows,key)=>{const m=new Map();for(const r of rows){const k=r[key];if(!m.has(k))m.set(k,[]);m.get(k).push(r);}return m;};
@@ -81,6 +85,8 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   const res=r.results||null;
   return {id:e.id,slug:(t?.slug||e.id)+'-'+e.edition_key,name:r.source_name||((e.edition_key+' '+(t?.name||'')).trim()),tournament_id:e.tournament_id,tournament:t?{id:t.id,name:t.name,slug:t.slug}:null,series_key:r.series_key||null,year:Number(e.edition_key),starts_on:e.starts_on,ends_on:e.ends_on,status:e.status,division,is_major:Boolean(r.is_major),tours:tourNames,course:course?{id:course.id,name:course.name,slug:course.slug}:null,layout:setup?{id:setup.id,label:setup.version_label,par:setup.par,yardage:setup.yardage,holes:(holesByLayout.get(setup.id)||[]).sort((a,b)=>a.hole_number-b.hole_number).map(h=>({hole:h.hole_number,par:h.par,yards:h.yardage}))}:null,coverage:r.espn?.field_size&&r.espn?.rounds_played&&e.status==='completed'?'full_field':res?.coverage||(r.winner_wikidata_id||r.espn?.winner_espn?'winner_only':'schedule_only'),espn:r.espn?{event_id:r.espn.event_id,league:r.espn.league,tour_label:r.espn.tour_label,purse_text:r.espn.purse_text,course:r.espn.course,field_size:r.espn.field_size||null,rounds_played:r.espn.rounds_played||null,defending_champion_espn:r.espn.defending_champion_espn,conflict_count:r.espn.conflict_count||0,fetched_at:r.espn.fetched_at}:null,results_source:res?{article:res.article,revision:res.revision,licence:res.licence,attribution:res.attribution,field_size:res.field_size,made_cut:res.made_cut,rows_listed:res.rows_listed,rows_stored:res.rows_stored,rows_without_identity:res.rows_without_identity,rows_with_inconsistent_scores:res.rows_with_inconsistent_scores,rounds_played:res.rounds_played,playoff:res.playoff,cut:res.cut}:null,schedule:r.schedule?{tour:r.schedule.tour,location:r.schedule.location,purse_text:r.schedule.purse_text,date_text:r.schedule.date_text}:null,par:setup?.par??res?.par??null,provenance:captures.get(e.capture_id)||null,date_precision:r.date_precision??null,source_date:r.source_date??null};
  });
+ // Canonical tour for every edition (ESPN league, source labels, major status; otherwise unassigned).
+ for(const e of editions)e.tour=tourRef(e);
  const edById=new Map(editions.map(e=>[e.id,e]));
  // ---- entries/results/rounds
  const resultByEntry=new Map(g.results.map(r=>[r.entry_id,r])),roundNo=new Map(g.rounds.map(r=>[r.id,r.round_number])),cardsByEntry=g.cardsByEntry||new Map([...by(g.scorecards||[],'entry_id')].map(([k,v])=>[k,v.map(c=>({round:roundNo.get(c.round_id),strokes:c.strokes,to_par:c.score_to_par}))]));
@@ -205,7 +211,7 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   return {method:'golf-visuals/1.0.0',window_note:'Full-field events in coverage; not career totals.',form,round_profile:{all:roundProfile(null),l24m:roundProfile(since)},finish_distribution:{all:dist(null),l24m:dist(since)},major_profile:Object.values(majors),lowest_round:lowest,best_rounds:best,courses_played:new Set(es.map(x=>x.e.course?.id).filter(Boolean)).size};
  }
  // ---- player documents
- const pubEntry=x=>({edition:{slug:x.e.slug,name:x.e.name,year:x.e.year,division:x.e.division,is_major:x.e.is_major,coverage:x.e.coverage,course:x.e.course,series_key:x.e.series_key,ends_on:x.e.ends_on},position:x.position,tied:x.tied,status:x.status,to_par:x.to_par,strokes:x.strokes,winner:x.winner,rounds:x.rounds.map(c=>({round:c.round,strokes:c.strokes,to_par:c.to_par,vs_field:round2(delta(x,c))}))});
+ const pubEntry=x=>({edition:{slug:x.e.slug,name:x.e.name,year:x.e.year,division:x.e.division,is_major:x.e.is_major,coverage:x.e.coverage,course:x.e.course,series_key:x.e.series_key,ends_on:x.e.ends_on,tour:x.e.tour},position:x.position,tied:x.tied,status:x.status,to_par:x.to_par,strokes:x.strokes,winner:x.winner,rounds:x.rounds.map(c=>({round:c.round,strokes:c.strokes,to_par:c.to_par,vs_field:round2(delta(x,c))}))});
  function playerDoc(p){
   const es=(entriesByPlayer.get(p.id)||[]).sort((a,b)=>String(b.e.ends_on||b.e.year).localeCompare(String(a.e.ends_on||a.e.year)));
   const majors=es.filter(x=>x.e.is_major),mFull=majors.filter(x=>x.e.coverage==='full_field'),mBoards=majors.filter(x=>x.e.coverage!=='winner_only');
@@ -215,7 +221,10 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   const courseIds=[...new Set(es.map(x=>x.e.course?.id).filter(Boolean))];
   const history=courseIds.map(cid=>({course:{id:cid,name:courses.get(cid)?.name,slug:courses.get(cid)?.slug},...courseHistory(p.id,cid)})).sort((a,b)=>b.appearances_observed-a.appearances_observed);
   const summary={wins_observed:es.filter(x=>x.winner).length,events_observed:es.length,full_field_starts:es.filter(x=>x.e.coverage==='full_field').length,major_wins:majors.filter(x=>x.winner).length,major_appearances_observed:majors.length,major_full_field_starts:mFull.length,major_top10:mBoards.filter(x=>x.position&&x.position<=10).length,best_major_finish:majorPositions.length?Math.min(...majorPositions):null,last_event:es[0]?{slug:es[0].e.slug,name:es[0].e.name,year:es[0].e.year,position:es[0].position,tied:es[0].tied,status:es[0].status}:null};
-  return {...p,summary,dna:dna.get(p.id)||null,results:es.map(pubEntry),seasons:seasonRows,course_history:history,visuals:playerVisuals(es),season_stats:seasonStatsOf(p.id),bag_dna:bagDna(p.id)};
+  const results=es.map(pubEntry);
+ // Tours this player has played in our record (canonical keys, most starts first).
+ const tc=new Map();for(const r of results){const t=r.edition.tour;if(t?.key&&t.key!=='unassigned')tc.set(t.key,{...t,starts:(tc.get(t.key)?.starts||0)+1});}
+ return {...p,summary,tours:[...tc.values()].sort((a,b)=>b.starts-a.starts),dna:dna.get(p.id)||null,results,seasons:seasonRows,course_history:history,visuals:playerVisuals(es),season_stats:seasonStatsOf(p.id),bag_dna:bagDna(p.id)};
  }
  // ---- edition documents (leaderboards, rounds, scorecards, field intelligence)
  function editionDoc(e,holeMap=new Map()){
@@ -247,10 +256,10 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   return {id:c.id,slug:c.slug,name:c.name,locality:c.locality,country_code:c.country_code,country:meta?.specifications?.country_name||null,latitude:c.latitude,longitude:c.longitude,description:meta?.specifications?.description||null,architects:meta?.specifications?.architects||[],opened_year:meta?.specifications?.opened_year||null,wikidata_id:meta?.specifications?.wikidata_id||null,photo:media('course',c.id),provenance:captures.get(c.capture_id)||null,
    editions:eds.map(e=>{const w=(entriesByEdition.get(e.id)||[]).find(x=>x.winner);const p=w&&playerById.get(w.player_id);return {slug:e.slug,name:e.name,year:e.year,division:e.division,is_major:e.is_major,coverage:e.coverage,par:e.par,yardage:e.layout?.yardage||null,winner:p?{slug:p.slug,name:p.name}:null,to_par:w?.to_par??null};}),
    dna:courseDna(c.id),player_history:leaders,contender_hole_scoring:contender};}
- const pSummary=d=>({slug:d.slug,name:d.name,country:d.country,country_code:d.country_code,division:d.division,age:d.age,photo:thumb(d.photo),headshot:d.photo?null:d.headshot||null,...d.summary,scoring:d.dna?.l24m?.metrics?.scoring?{value:d.dna.l24m.metrics.scoring.value,percentile:d.dna.l24m.metrics.scoring.percentile,confidence:d.dna.l24m.metrics.scoring.confidence}:null,form:d.dna?.l24m?.metrics?.form?{value:d.dna.l24m.metrics.form.value,percentile:d.dna.l24m.metrics.form.percentile,confidence:d.dna.l24m.metrics.form.confidence}:null});
+ const pSummary=d=>({slug:d.slug,name:d.name,tour:d.tours?.[0]?{key:d.tours[0].key,short:d.tours[0].short}:null,country:d.country,country_code:d.country_code,division:d.division,age:d.age,photo:thumb(d.photo),headshot:d.photo?null:d.headshot||null,...d.summary,scoring:d.dna?.l24m?.metrics?.scoring?{value:d.dna.l24m.metrics.scoring.value,percentile:d.dna.l24m.metrics.scoring.percentile,confidence:d.dna.l24m.metrics.scoring.confidence}:null,form:d.dna?.l24m?.metrics?.form?{value:d.dna.l24m.metrics.form.value,percentile:d.dna.l24m.metrics.form.percentile,confidence:d.dna.l24m.metrics.form.confidence}:null});
  function finalize({playerSummaries,courseSummaries,stats}){
  // ---- index (directories, search, home)
- const edSummary=e=>{const w=(entriesByEdition.get(e.id)||[]).find(x=>x.winner);const p=w&&playerById.get(w.player_id);return {id:e.id,slug:e.slug,name:e.name,tournament:e.tournament,series_key:e.series_key,year:e.year,starts_on:e.starts_on,ends_on:e.ends_on,status:e.status,division:e.division,is_major:e.is_major,tours:e.tours,course:e.course,coverage:e.coverage,winner:p?{slug:p.slug,name:p.name,photo:thumb(p.photo)}:null,winner_to_par:w?.to_par??null,location:e.schedule?.location||null};};
+ const edSummary=e=>{const w=(entriesByEdition.get(e.id)||[]).find(x=>x.winner);const p=w&&playerById.get(w.player_id);return {id:e.id,slug:e.slug,name:e.name,tournament:e.tournament,series_key:e.series_key,year:e.year,starts_on:e.starts_on,ends_on:e.ends_on,status:e.status,division:e.division,is_major:e.is_major,tours:e.tours,tour:e.tour,course:e.course,coverage:e.coverage,winner:p?{slug:p.slug,name:p.name,photo:thumb(p.photo)}:null,winner_to_par:w?.to_par??null,location:e.schedule?.location||null};};
  const edList=editions.map(edSummary).sort((a,b)=>String(b.ends_on||b.year).localeCompare(String(a.ends_on||a.year)));
  const current=edList.filter(e=>e.status==='in_progress'),upcoming=edList.filter(e=>e.status==='scheduled'&&(e.starts_on||e.ends_on||'')>=today).sort((a,b)=>String(a.starts_on||a.ends_on).localeCompare(String(b.starts_on||b.ends_on))).slice(0,12);
  const recent=edList.filter(e=>e.status==='completed'&&e.winner&&(e.ends_on||'')<=today&&e.ends_on).slice(0,16);

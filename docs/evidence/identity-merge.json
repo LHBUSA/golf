@@ -1,0 +1,352 @@
+{
+ "generated_at": "2026-10-02T00:51:11.676Z",
+ "apply": true,
+ "merges": [
+  {
+   "canonical": "kim-su-ji-q135117091",
+   "duplicate": "su-ji-kim-e4897743",
+   "names": [
+    "Kim Su-ji",
+    "Su Ji Kim"
+   ],
+   "birth_date": "1996-10-16"
+  },
+  {
+   "canonical": "kim-in-kyung-q746320",
+   "duplicate": "in-kyung-kim-e7915",
+   "names": [
+    "Kim In-kyung",
+    "In Kyung Kim"
+   ],
+   "birth_date": "1988-06-13"
+  },
+  {
+   "canonical": "ko-jin-young-q20747398",
+   "duplicate": "jin-young-ko-e9758",
+   "names": [
+    "Ko Jin-young",
+    "Jin Young Ko"
+   ],
+   "birth_date": "1995-07-07"
+  },
+  {
+   "canonical": "kim-min-kyu-q56254607",
+   "duplicate": "minkyu-kim-e4896418",
+   "names": [
+    "Kim Min-kyu",
+    "Minkyu Kim"
+   ],
+   "birth_date": "2001-03-24"
+  },
+  {
+   "canonical": "jin-ichiro-kozuma-q60986164",
+   "duplicate": "jinichiro-kozuma-e4594413",
+   "names": [
+    "Jin'ichirō Kōzuma",
+    "Jinichiro Kozuma"
+   ],
+   "birth_date": "1994-07-07"
+  },
+  {
+   "canonical": "choi-hye-jin-q79737941",
+   "duplicate": "hye-jin-choi-e9945",
+   "names": [
+    "Choi Hye-jin",
+    "Hye-Jin Choi"
+   ],
+   "birth_date": "1999-08-23"
+  },
+  {
+   "canonical": "an-byeong-hun-q4749844",
+   "duplicate": "byeong-hun-an-e5285",
+   "names": [
+    "An Byeong-hun",
+    "Byeong Hun An"
+   ],
+   "birth_date": "1991-09-17"
+  },
+  {
+   "canonical": "lee-so-mi-q134934256",
+   "duplicate": "somi-lee-e4939782",
+   "names": [
+    "Lee So-mi",
+    "Somi Lee"
+   ],
+   "birth_date": "1999-01-06"
+  },
+  {
+   "canonical": "bae-sang-moon-q487820",
+   "duplicate": "sangmoon-bae-e4015",
+   "names": [
+    "Bae Sang-moon",
+    "Sangmoon Bae"
+   ],
+   "birth_date": "1986-06-21"
+  },
+  {
+   "canonical": "kim-si-woo-q21063868",
+   "duplicate": "si-woo-kim-e7081",
+   "names": [
+    "Kim Si-woo",
+    "Si Woo Kim"
+   ],
+   "birth_date": "1995-06-28"
+  },
+  {
+   "canonical": "kim-hyo-joo-q11646902",
+   "duplicate": "hyo-joo-kim-e7913",
+   "names": [
+    "Kim Hyo-joo",
+    "Hyo Joo Kim"
+   ],
+   "birth_date": "1995-07-14"
+  },
+  {
+   "canonical": "ryu-hae-ran-q120546180",
+   "duplicate": "haeran-ryu-e10620",
+   "names": [
+    "Ryu Hae-ran",
+    "Haeran Ryu"
+   ],
+   "birth_date": "2001-03-23"
+  },
+  {
+   "canonical": "kim-sei-young-q19561022",
+   "duplicate": "sei-young-kim-e9212",
+   "names": [
+    "Kim Sei-young",
+    "Sei Young Kim"
+   ],
+   "birth_date": "1993-01-21"
+  },
+  {
+   "canonical": "an-na-rin-q129414907",
+   "duplicate": "narin-an-e4708891",
+   "names": [
+    "An Na-rin",
+    "Narin An"
+   ],
+   "birth_date": "1996-01-05"
+  },
+  {
+   "canonical": "yin-ruoning-q117400663",
+   "duplicate": "ruoning-yin-e4592235",
+   "names": [
+    "Yin Ruoning",
+    "Ruoning Yin"
+   ],
+   "birth_date": "2002-09-28"
+  },
+  {
+   "canonical": "park-sung-hyun-q33093721",
+   "duplicate": "sung-hyun-park-e10301",
+   "names": [
+    "Park Sung-hyun",
+    "Sung Hyun Park"
+   ],
+   "birth_date": "1993-09-21"
+  },
+  {
+   "canonical": "lee-jeong-eun-q64358239",
+   "duplicate": "jeongeun-lee5-e8024",
+   "names": [
+    "Lee Jeong-eun",
+    "Jeongeun Lee5"
+   ],
+   "birth_date": "1988-10-20"
+  },
+  {
+   "canonical": "wang-jeung-hun-q24061162",
+   "duplicate": "jeunghun-wang-e9854",
+   "names": [
+    "Wang Jeung-hun",
+    "Jeunghun Wang"
+   ],
+   "birth_date": "1995-09-07"
+  },
+  {
+   "canonical": "park-hee-young-q5697883",
+   "duplicate": "hee-young-park-e8341",
+   "names": [
+    "Park Hee-young",
+    "Hee Young Park"
+   ],
+   "birth_date": "1987-05-24"
+  },
+  {
+   "canonical": "chun-in-gee-q20038845",
+   "duplicate": "in-gee-chun-e9208",
+   "names": [
+    "Chun In-gee",
+    "In Gee Chun"
+   ],
+   "birth_date": "1994-08-10"
+  },
+  {
+   "canonical": "song-young-han-q23044880",
+   "duplicate": "young-han-song-e10422",
+   "names": [
+    "Song Young-han",
+    "Young-han Song"
+   ],
+   "birth_date": "1991-07-12"
+  },
+  {
+   "canonical": "pei-yun-chien-q123524722",
+   "duplicate": "peiyun-chien-e9193",
+   "names": [
+    "Pei-Yun Chien",
+    "Peiyun Chien"
+   ],
+   "birth_date": "1990-10-22"
+  },
+  {
+   "canonical": "zhang-weiwei-q117462097",
+   "duplicate": "weiwei-zhang-e10316",
+   "names": [
+    "Zhang Weiwei",
+    "Weiwei Zhang"
+   ],
+   "birth_date": "1997-03-15"
+  },
+  {
+   "canonical": "bang-shin-sil-q135010161",
+   "duplicate": "shinsil-bang-e5209262",
+   "names": [
+    "Bang Shin-sil",
+    "Shinsil Bang"
+   ],
+   "birth_date": "2004-09-25"
+  },
+  {
+   "canonical": "hsu-wei-ling-q107510672",
+   "duplicate": "wei-ling-hsu-e7763",
+   "names": [
+    "Hsu Wei-ling",
+    "Wei-Ling Hsu"
+   ],
+   "birth_date": "1994-10-20"
+  },
+  {
+   "canonical": "im-sung-jae-q56224042",
+   "duplicate": "sungjae-im-e11382",
+   "names": [
+    "Im Sung-jae",
+    "Sungjae Im"
+   ],
+   "birth_date": "1998-03-30"
+  },
+  {
+   "canonical": "liu-yan-q135038360",
+   "duplicate": "yan-liu-e8898",
+   "names": [
+    "Liu Yan",
+    "Yan Liu"
+   ],
+   "birth_date": "1997-07-07"
+  },
+  {
+   "canonical": "li-haotong-q19840343",
+   "duplicate": "haotong-li-e9221",
+   "names": [
+    "Li Haotong",
+    "Haotong Li"
+   ],
+   "birth_date": "1995-08-03"
+  },
+  {
+   "canonical": "ding-wenyi-q131936551",
+   "duplicate": "wenyi-ding-e5119683",
+   "names": [
+    "Ding Wenyi",
+    "Wenyi Ding"
+   ],
+   "birth_date": "2004-11-19"
+  },
+  {
+   "canonical": "ji-eun-hee-q485049",
+   "duplicate": "eun-hee-ji-e7822",
+   "names": [
+    "Ji Eun-hee",
+    "Eun-Hee Ji"
+   ],
+   "birth_date": "1986-05-13"
+  },
+  {
+   "canonical": "hwang-you-min-q134623380",
+   "duplicate": "youmin-hwang-e5141008",
+   "names": [
+    "Hwang You-min",
+    "Youmin Hwang"
+   ],
+   "birth_date": "2003-04-17"
+  },
+  {
+   "canonical": "ryu-so-yeon-q5366293",
+   "duplicate": "so-yeon-ryu-e8479",
+   "names": [
+    "Ryu So-yeon",
+    "So Yeon Ryu"
+   ],
+   "birth_date": "1990-06-29"
+  },
+  {
+   "canonical": "wu-ashun-q2319519",
+   "duplicate": "ashun-wu-e4456",
+   "names": [
+    "Wu Ashun",
+    "Ashun Wu"
+   ],
+   "birth_date": "1985-06-22"
+  },
+  {
+   "canonical": "j-c-ritchie-q62990788",
+   "duplicate": "jc-ritchie-e9374",
+   "names": [
+    "J. C. Ritchie",
+    "JC Ritchie"
+   ],
+   "birth_date": "1994-02-24"
+  }
+ ],
+ "held": [
+  {
+   "a": "sanghyun-park-e4396041",
+   "b": "park-sang-hyun-q14042070",
+   "reason": "birth_dates_differ"
+  },
+  {
+   "a": "yuxin-lin-e10493",
+   "b": "lin-yuxin-q56248721",
+   "reason": "birth_dates_differ"
+  },
+  {
+   "a": "lee-jeong-eun-q55050893",
+   "b": "lee-jeong-eun-q64358239",
+   "reason": "birth_dates_differ"
+  },
+  {
+   "a": "lee-jeong-eun-q55050893",
+   "b": "jeongeun-lee5-e8024",
+   "reason": "birth_dates_differ"
+  },
+  {
+   "a": "hyunjo-yoo-e5108374",
+   "b": "yoo-hyun-jo-q134622812",
+   "reason": "birth_date_missing"
+  },
+  {
+   "a": "lee-dong-eun-q140367749",
+   "b": "dongeun-lee-e5295637",
+   "reason": "birth_date_missing"
+  }
+ ],
+ "overlap_editions": [
+  "1bd22df1-cbc8-5e05-a0cd-42642a6b38a9",
+  "d34baf03-3d68-50ac-a18c-59726011cfe4",
+  "88d6bfe5-f8d0-5280-a9cf-8e7073088557",
+  "c6436704-1f88-529f-a963-72bce3b682f4",
+  "96e49a07-4e79-5e07-adf1-5ce2d49b766f",
+  "668827df-0c1d-5e76-a051-5f96c75722fe"
+ ]
+}

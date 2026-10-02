@@ -4,6 +4,7 @@
 import {safeFetch,digest} from '../../shared/http.js';
 import {stableId} from '../../shared/store.js';
 import {Plan,slug} from './plan.js';
+import {nameKeys} from '../../shared/names.js';
 export const ESPN_PARSER='espn-golf/1.0.0';
 export const CORE='https://sports.core.api.espn.com/v2/sports/golf';
 const UA='PropBetEdgeGolfIngest/0.3 (+https://golf.propbetedge.ai; data@propbetedge.ai)';
@@ -73,10 +74,17 @@ export function parseEventBundle(b){
 // Identity: an ESPN athlete joins a canonical player only on exact normalized name AND corroboration
 // (same birth date, or the candidate already appears in this same edition). Otherwise: new ESPN-keyed
 // player when no namesake exists, or HOLD when an uncorroborated namesake exists.
-export function resolveAthlete(a,{crosswalk,byName,editionPlayers}){
+export function resolveAthlete(a,{crosswalk,byName,byKey=null,editionPlayers}){
  if(crosswalk.has(a.espn_id))return {status:'resolved',player_id:crosswalk.get(a.espn_id),basis:'espn_crosswalk'};
  const cands=byName.get(norm(a.name))||[];
- if(!cands.length)return {status:'new',basis:'no canonical namesake; ESPN athlete id is the identity'};
+ if(!cands.length){
+  // Name variants (order, hyphenation, diacritics): join only on an exact birth date; otherwise hold, never create.
+  const vars=[...new Set([...nameKeys(a.name)].flatMap(k=>byKey?.get(k)||[]))];
+  if(!vars.length)return {status:'new',basis:'no canonical namesake; ESPN athlete id is the identity'};
+  const v=a.birth_date?vars.filter(c=>c.birth_date===a.birth_date):[];
+  if(v.length===1)return {status:'resolved',player_id:v[0].id,basis:'name variant (order/hyphenation/diacritics) + exact birth date'};
+  return {status:'hold',reason:'name_variant_without_exact_birth_date',candidates:vars.map(c=>c.id)};
+ }
  const dob=a.birth_date;
  const byDob=dob?cands.filter(c=>c.birth_date===dob):[];
  if(byDob.length===1)return {status:'resolved',player_id:byDob[0].id,basis:'exact name + exact birth date'};

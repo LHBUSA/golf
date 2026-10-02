@@ -59,3 +59,16 @@ test('projection hole reads survive the API 1000-row cap (no silently truncated 
  const db=async(t,q)=>{const lim=Math.min(1000,Number(q.match(/limit=(\d+)/)[1])),off=Number(q.match(/offset=(\d+)/)?.[1]||0);
   if(t==='golf_scorecards')return cards.slice(off,off+lim);const ids=new Set(q.match(/scorecard_id=in\.\(([^)]*)\)/)[1].split(','));return holes.filter(h=>ids.has(h.scorecard_id)).slice(off,off+lim);};
  const m=await editionHoles(db,'x');assert.equal(m.size,120);for(const a of m.values())assert.equal(a.length,18);});
+test('tour registry: evidence-based keys, majors labelled, nothing guessed',async()=>{const {tourKeyOf}=await import('../workers/shared/tours.js');const {tourCards}=await import('../src/lib/pages.js');
+ assert.equal(tourKeyOf({espn:{league:'eur'}}),'dpwt');assert.equal(tourKeyOf({espn:{league:'womens-olympics-golf'}}),'olympic');assert.equal(tourKeyOf({tours:['LPGA Tour']}),'lpga');assert.equal(tourKeyOf({is_major:true,division:'women'}),'major_women');assert.equal(tourKeyOf({name:'Mystery Invitational'}),'unassigned');
+ const ix={current:[{slug:'l',status:'in_progress',starts_on:'2026-10-01',tour:{key:'lpga',name:'LPGA Tour'}}],upcoming:[{slug:'p',status:'scheduled',starts_on:'2026-10-08',tour:{key:'pga',name:'PGA TOUR'}}],recent:[{slug:'x',ends_on:'2026-09-27',tour:{key:'unassigned'}}]};
+ assert.deepEqual(tourCards(ix).map(t=>t.key),['lpga','pga']);});
+test('names: variant keys cover order, hyphenation, diacritics and suffix digits; never a merge by themselves',async()=>{const {sameNameFamily,nameKeys}=await import('../workers/shared/names.js');const {resolveAthlete}=await import('../workers/golf-ingest/src/espn.js');
+ for(const [a,b] of [['Hwang You-min','Youmin Hwang'],['Ko Jin-young','Jin Young Ko'],["Jin'ichirō Kōzuma",'Jinichiro Kozuma'],['J. C. Ritchie','JC Ritchie'],['Lee Jeong-eun','Jeongeun Lee5'],['Nicolás Echavarría','Nicolas Echavarria']])assert.ok(sameNameFamily(a,b),a+' ~ '+b);
+ assert.ok(!sameNameFamily('Kim Si-woo','Kim Sei-young'));assert.ok(!sameNameFamily('Scottie Scheffler','Scott Stallings'));
+ const C={id:'c',full_name:'Hwang You-min',birth_date:'2003-04-17'};const byKey=new Map();for(const k of nameKeys(C.full_name))byKey.set(k,[C]);
+ const base={crosswalk:new Map(),byName:new Map(),byKey,editionPlayers:new Set()};
+ assert.deepEqual(resolveAthlete({espn_id:'1',name:'Youmin Hwang',birth_date:'2003-04-17'},base).player_id,'c');
+ assert.equal(resolveAthlete({espn_id:'1',name:'Youmin Hwang',birth_date:'2004-01-01'},base).status,'hold');
+ assert.equal(resolveAthlete({espn_id:'1',name:'Youmin Hwang',birth_date:null},base).status,'hold');
+ assert.equal(resolveAthlete({espn_id:'2',name:'Someone Else',birth_date:null},base).status,'new');});
