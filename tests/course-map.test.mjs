@@ -75,3 +75,10 @@ test('topology-safe simplification never returns a self-intersecting ring',async
  assert.equal(selfIntersects([[0,0],[2,0],[2,2],[0,2],[0,0]]),false);assert.equal(selfIntersects([[0,0],[2,2],[2,0],[0,2],[0,0]]),true);
  const m=full();for(const k of Object.keys(m.geometry.features))for(const r of m.geometry.features[k])assert.equal(selfIntersects(r),false);});
 test('wind label is PBE-derived and descriptive only; mobile card has prev/next',()=>{const hp=holePanel(full(),3,{wind:{from_deg:270,dir:'W',mph:8}});assert.match(hp,/PBE-derived from sourced routing \+ weather observation/);assert.doesNotMatch(hp,/club effect is|expected|strokes gained/i);assert.match(hp,/data-cm-hole="2"/);assert.match(hp,/data-cm-hole="4"/);});
+test('identity review or a par conflict can never be VERIFIED',async()=>{const {spatialState}=await import('../src/lib/course-map.js');
+ const hs=Array.from({length:18},(_,i)=>hole(i+1));const r=prepareCourseMap(osm(hs),{slug:'x',name:'X',setup},{review:'name_only'});assert.equal(spatialState(r),'PARTIAL ROUTING');assert.match(basisLabel(r),/IDENTITY PENDING REVIEW/);
+ const p=prepareCourseMap(osm(hs),{slug:'x',name:'X',setup},{parConflicts:[13]});assert.equal(p.tier,'B');assert.match(basisLabel(p),/OSM PAR DIFFERS ON 13/);});
+test('cohort label follows the sample: contender cards vs observed field cards',async()=>{const {cohortLabel}=await import('../src/lib/course-map.js');
+ assert.equal(cohortLabel({holes:[{hole:1,sample:10}]}),'Contender sample');assert.equal(cohortLabel({holes:[{hole:1,sample:368}]}),'Observed field cards');
+ const m={...full(),scoring:{...scoring,holes:scoring.holes.map(h=>({...h,sample:368}))}};const hp=holePanel(m,3);assert.doesNotMatch(hp,/Contenders’ average|Not the full field/);assert.match(hp,/Observed field cards/);
+ assert.equal((courseMapSvg(full(),{overlay:'difficulty'}).match(/cm-d[0-4]/g)||[]).length,18);});

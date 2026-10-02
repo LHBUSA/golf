@@ -23,7 +23,7 @@
 .cm-num text{fill:var(--cm-ink);font:700 11px var(--sans,system-ui)}
 .cm-north path{fill:var(--cm-gold)}.cm-north text{fill:var(--cm-ink);font:700 11px var(--sans,system-ui)}
 .cm-scale path{stroke:var(--cm-ink);stroke-width:2;vector-effect:non-scaling-stroke}.cm-scale text{fill:var(--cm-mute);font-family:var(--sans,system-ui)}
-.cm-attr{fill:#d6e0d9;font-family:var(--sans,system-ui)}
+.cm-attr{fill:#d6e0d9;font-family:var(--sans,system-ui);paint-order:stroke;stroke:#0f2a20;stroke-width:3px;stroke-linejoin:round}
 .cm-legend,.cm-attrib,.cm-note{margin:0;font-size:11.5px;color:var(--cm-mute)}
 .cm-attrib a{color:var(--cm-ink)}
 .cm-ramp{display:inline-block;width:80px;height:6px;border-radius:3px;background:linear-gradient(90deg,#5e9b6e,#c8aa68,#b2483a);vertical-align:middle}
@@ -37,3 +37,9 @@
 .cm-card b{font:400 20px Georgia,serif}.cm-card span{font:700 10px var(--sans,system-ui);color:var(--cm-gold)}.cm-card small{font-size:10px;color:var(--cm-mute)}
 @media(max-width:600px){.cm-book{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.cm *{transition:none!important;animation:none!important}}
+.cm-setups{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.cm-setups button,.cm-nav button{font:700 11px/1 var(--sans,system-ui);letter-spacing:.6px;color:var(--cm-ink);background:#ffffff0d;border:1px solid #ffffff33;border-radius:3px;padding:8px 10px;min-height:34px;cursor:pointer}
+.cm-setups button[aria-pressed=true]{background:var(--cm-gold);color:#10291f;border-color:var(--cm-gold)}
+.cm-nav{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+@media(max-width:600px){.cm-panel{position:sticky;bottom:0;background:#0b1f19f2;border:1px solid #e0c27a66;border-left-width:3px;border-radius:6px 6px 0 0;padding:12px;box-shadow:0 -8px 24px #0008}.cm-big{font-size:22px}}
+.cm-line.cm-d0{stroke:#5e9b6e;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d1{stroke:#93a768;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d2{stroke:#c8aa68;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d3{stroke:#c47c4f;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d4{stroke:#b2483a;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}
