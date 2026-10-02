@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-01T23:28:45.721Z",
+ "generated_at": "2026-10-02T01:08:27.614Z",
  "source": "sports.core.api.espn.com/v2/sports/golf (owner approved 2026-10-01)",
  "site_api": "403 Access Denied (Akamai) for identified User-Agent; not used",
  "leagues": [
@@ -33,18 +33,18 @@
     "shots_plays": "NOT EXPOSED",
     "season_stats": "AVAILABLE",
     "bio": "AVAILABLE",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 186,
-    "results": 15335,
-    "rounds": 43149,
-    "tee_times": 33243,
-    "players": 1140,
-    "with_birth_date": 760,
-    "with_college": 498
+    "results": 15375,
+    "rounds": 48361,
+    "tee_times": 47444,
+    "players": 1142,
+    "with_birth_date": 762,
+    "with_college": 499
    }
   },
   {
@@ -76,19 +76,19 @@
     "groups": "NOT EXPOSED",
     "shots_plays": "NOT EXPOSED",
     "season_stats": "AVAILABLE",
-    "bio": "AVAILABLE",
+    "bio": "PARTIAL",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 77,
-    "results": 7245,
-    "rounds": 17226,
-    "tee_times": 14280,
-    "players": 605,
-    "with_birth_date": 372,
-    "with_college": 232
+    "results": 7452,
+    "rounds": 21129,
+    "tee_times": 19953,
+    "players": 611,
+    "with_birth_date": 374,
+    "with_college": 235
    }
   },
   {
@@ -119,11 +119,11 @@
     "tee_times": "AVAILABLE",
     "groups": "NOT EXPOSED",
     "shots_plays": "NOT EXPOSED",
-    "season_stats": "UNKNOWN",
+    "season_stats": "NOT EXPOSED",
     "bio": "AVAILABLE",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
@@ -163,11 +163,11 @@
     "tee_times": "AVAILABLE",
     "groups": "AVAILABLE",
     "shots_plays": "NOT EXPOSED",
-    "season_stats": "UNKNOWN",
+    "season_stats": "AVAILABLE",
     "bio": "AVAILABLE",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
@@ -207,11 +207,11 @@
     "tee_times": "AVAILABLE",
     "groups": "AVAILABLE",
     "shots_plays": "NOT EXPOSED",
-    "season_stats": "UNKNOWN",
-    "bio": "AVAILABLE",
+    "season_stats": "AVAILABLE",
+    "bio": "PARTIAL",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
@@ -247,11 +247,11 @@
     "tee_times": "AVAILABLE",
     "groups": "NOT EXPOSED",
     "shots_plays": "NOT EXPOSED",
-    "season_stats": "UNKNOWN",
-    "bio": "AVAILABLE",
+    "season_stats": "NOT EXPOSED",
+    "bio": "PARTIAL",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
@@ -287,11 +287,11 @@
     "tee_times": "AVAILABLE",
     "groups": "NOT EXPOSED",
     "shots_plays": "NOT EXPOSED",
-    "season_stats": "UNKNOWN",
+    "season_stats": "NOT EXPOSED",
     "bio": "AVAILABLE",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
@@ -327,11 +327,11 @@
     "tee_times": "AVAILABLE",
     "groups": "NOT EXPOSED",
     "shots_plays": "NOT EXPOSED",
-    "season_stats": "UNKNOWN",
-    "bio": "AVAILABLE",
+    "season_stats": "NOT EXPOSED",
+    "bio": "PARTIAL",
+    "headshots": "AVAILABLE",
     "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
@@ -368,10 +368,10 @@
     "groups": "NOT EXPOSED",
     "shots_plays": "NOT EXPOSED",
     "season_stats": "UNKNOWN",
-    "bio": "AVAILABLE",
-    "venues": "AVAILABLE",
-    "venue_coordinates": "NOT EXPOSED",
-    "photos": "AVAILABLE (headshots; not rehosted for Golf)"
+    "bio": "NOT EXPOSED",
+    "headshots": "NOT EXPOSED",
+    "venues": "NOT EXPOSED",
+    "venue_coordinates": "NOT EXPOSED"
    },
    "stored": {
     "editions": 0,
