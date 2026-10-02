@@ -5,6 +5,7 @@ import {safeFetch,digest} from '../../shared/http.js';
 import {stableId} from '../../shared/store.js';
 import {Plan,slug} from './plan.js';
 import {nameKeys} from '../../shared/names.js';
+import {isEventFinal} from '../../shared/live.js';
 export const ESPN_PARSER='espn-golf/1.0.0';
 export const CORE='https://sports.core.api.espn.com/v2/sports/golf';
 const UA='PropBetEdgeGolfIngest/0.3 (+https://golf.propbetedge.ai; data@propbetedge.ai)';
@@ -48,7 +49,7 @@ const toPar=v=>{const s=String(v??'').replace('−','-');if(s==='E')return 0;con
 export function parseEventBundle(b){
  const e=b.event,course=(e.courses||[]).find(c=>c.host)||e.courses?.[0]||null;
  const winnerId=e.winner?.athlete?String(e.winner.athlete.id||idOf(e.winner.athlete.$ref)):null;
- const cs=b.comp_status,eventDone=Boolean(e.status?.type?.completed||cs?.type?.completed),period=Number(cs?.period)||null;
+ const cs=b.comp_status,eventDone=cs?.type?isEventFinal(cs.type):isEventFinal(e.status?.type),period=Number(cs?.period)||null;
  // A round counts only when complete: all 18 holes posted, or play has moved past it, or the event is final.
  // A partial in-progress linescore (e.g. 3 strokes through 1 hole) is never a round score.
  const roundDone=r=>{const h=(r.linescores||[]).length;if(h>=18)return true;if(h>0&&h<18)return eventDone;return eventDone||(period!==null&&Number(r.period)<period);};

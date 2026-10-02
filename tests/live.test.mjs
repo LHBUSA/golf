@@ -57,3 +57,8 @@ test('movement acceptance: status transitions, round scoping, rail = chart, spar
  assert.equal(n(svgFull),m.series.reduce((x,s)=>x+s.obs.filter(Boolean).length,0),'one marker per observation, none interpolated');
  assert.match(svgFull,/Markers are observations; dotted links are not positions/);assert.match(svgFull,/class="mv-link"/);
  const rounds=[{...a,round:1},{...b,round:2},{...b,t:'2026-10-02T17:00:00Z',round:2}];assert.equal(rounds.filter(x=>x.round===2).length,2);});
+test('live: ESPN end-of-round PLAY_COMPLETE (completed:true, post) is a round state, never FINAL',async()=>{const {isEventFinal,liveState}=await import('../workers/shared/live.js');const {parseEventBundle}=await import('../workers/golf-ingest/src/espn.js');
+ assert.equal(isEventFinal({name:'STATUS_PLAY_COMPLETE',state:'post',completed:true}),false);assert.equal(isEventFinal({name:'STATUS_FINAL',completed:true}),true);
+ const s=liveState({fetched_at:new Date(Date.now()-60000).toISOString(),event_status:{name:'STATUS_PLAY_COMPLETE',state:'post',completed:false,period:1},players:[{thru:18,rounds:[{round:1,strokes:63}]}]});assert.equal(s.state,'round_complete');
+ const b={league:'pga',event_id:'1',event:{name:'X',status:{type:{completed:true}},courses:[]},comp_status:{period:1,type:{name:'STATUS_PLAY_COMPLETE',state:'post',completed:true}},competitors:[{id:'a',linescores:{items:[{period:1,value:63,displayValue:'-8',linescores:Array.from({length:18},(_,i)=>({period:i+1,value:3}))}]}}]};
+ const p=parseEventBundle(b);assert.equal(p.event.completed,false);assert.equal(p.rows[0].finish_status,'unknown');assert.equal(p.rows[0].rounds.length,1);});

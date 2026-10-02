@@ -2,7 +2,7 @@
 // Every snapshot is archived (provenance) and published as observed state with its fetch time. Nothing is
 // inferred: positions, thru, holes and tee times are exactly what ESPN reports; missing stays null.
 import {CORE,LEAGUES,getJSON,pool,idOf,archive,UpstreamBusy} from './espn.js';
-import {toParNum,LIVE_VERSION,liveState} from '../../shared/live.js';
+import {toParNum,LIVE_VERSION,liveState,isEventFinal} from '../../shared/live.js';
 import {stableId} from '../../shared/store.js';
 import {digest} from '../../shared/http.js';
 export const LIVE_PARSER='espn-golf-live/1.0.0';
@@ -50,7 +50,7 @@ export async function snapshotEvent(env,db,ed,{now=new Date()}={}){
  const snap={version:LIVE_VERSION,parser:LIVE_PARSER,source:'ESPN Golf core API',league,tour:LEAGUES[league]?.label||league,espn_event_id:String(eventId),
   edition:{id:ed.id,slug:ed.slug,name:ed.name,starts_on:ed.starts_on,ends_on:ed.ends_on,division:ed.division,is_major:Boolean(ed.is_major)},
   course:ed.course?{slug:ed.course.slug,name:ed.course.name,city:ed.espn.course?.city||null,state:ed.espn.course?.state||null,country:ed.espn.course?.country||null}:null,
-  event_status:{name:cs?.type?.name||null,state,completed:Boolean(cs?.type?.completed),detail:cs?.type?.detail||null,period:Number(cs?.period)||null},
+  event_status:{name:cs?.type?.name||null,state,completed:isEventFinal(cs?.type),detail:cs?.type?.detail||null,period:Number(cs?.period)||null},
   // ESPN core exposes no update timestamp for golf scoring; freshness is measured from our fetch.
   source_updated_at:null,fetched_at,holes_available:players.some(p=>p.holes?.length),players};
  const cap=await archive(env,db,`${base}/competitors?limit=400#live`,{fetched_at,status:cs,competitors:rows});

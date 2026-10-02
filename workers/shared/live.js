@@ -5,6 +5,10 @@ export const LIVE_VERSION='golf-live/1.0.0';
 export const FRESH_SECONDS=20*60,STALE_SECONDS=60*60;
 const SUSPENDED=new Set(['STATUS_SUSPENDED','STATUS_PLAY_SUSPENDED','STATUS_DELAYED','STATUS_RAIN_DELAY','STATUS_POSTPONED']);
 const FINAL=new Set(['STATUS_FINAL','STATUS_FINAL_PLAYOFF','STATUS_COMPLETED']);
+// ESPN marks the end of every ROUND with completed:true/state 'post' (STATUS_PLAY_COMPLETE). Only an explicit final
+// status (or completed with a non-round status) ends the event.
+const ROUND_LEVEL=new Set(['STATUS_PLAY_COMPLETE','STATUS_END_PERIOD','STATUS_SUSPENDED','STATUS_PLAY_SUSPENDED','STATUS_DELAYED','STATUS_RAIN_DELAY','STATUS_POSTPONED','STATUS_IN_PROGRESS','STATUS_SCHEDULED']);
+export const isEventFinal=type=>Boolean(type&&(FINAL.has(type.name)||(type.completed&&!ROUND_LEVEL.has(type.name))));
 export const toParNum=v=>{if(v===null||v===undefined)return null;const s=String(v).replace('−','-').trim();if(s==='E')return 0;if(!/^[+-]?\d+$/.test(s))return null;return Number(s);};
 export const toParText=v=>v===null||v===undefined?'—':v===0?'E':v>0?'+'+v:'−'+Math.abs(v);
 export function freshness(snapshot,now=Date.now()){
@@ -18,7 +22,7 @@ export function liveState(snapshot,now=Date.now()){
  const f=freshness(snapshot,now);
  if(!snapshot)return {state:'unavailable',label:null,round:null,...f};
  const st=snapshot.event_status||{},name=st.name||'',round=st.period??null;
- if(FINAL.has(name)||st.completed)return {state:'final',label:'FINAL',round,...f};
+ if(isEventFinal({name,completed:st.completed}))return {state:'final',label:'FINAL',round,...f};
  if(f.freshness==='unavailable')return {state:'unavailable',label:null,round,...f};
  if(SUSPENDED.has(name))return {state:f.freshness==='fresh'?'suspended':'stale',label:f.freshness==='fresh'?'PLAY SUSPENDED':'SCORING UPDATE DELAYED',round,...f};
  if(st.state==='pre'||name==='STATUS_SCHEDULED')return {state:'pre',label:round&&round>1?`ROUND ${round} STARTS SOON`:'SCORING BEGINS WHEN PLAY STARTS',round,first_tee:firstTee(snapshot,round||1),...f};
