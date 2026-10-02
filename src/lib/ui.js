@@ -15,12 +15,14 @@ export const coverageLabel=c=>({full_field:'Full field · every round',partial_f
 export const initials=n=>String(n||'').split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase();
 const media=(sha,w,f)=>`/api/v1/media/${sha}/${w}.${f}`;
 // Real approved photo with attribution, or an original identity treatment. Never a stand-in photo.
+// ESPN's own resize service on the same CDN: a chip-sized image instead of the full ~250 KB headshot.
+const espnSized=(url,size)=>{const w=Math.min(400,Math.max(64,Math.round(size*2)));return `https://a.espncdn.com/combiner/i?img=${encodeURIComponent(url.replace('https://a.espncdn.com',''))}&w=${w}&h=${Math.round(w*0.727)}&scale=crop&cquality=70`;};
 export function portrait(p,{size=320,cls='portrait',eager=false,caption=false}={}){
  const ph=p?.photo;
  if(ph?.derivatives){const ws=[160,320,640].filter(w=>w<=Math.max(size*2,160));const ratio=ph.height&&ph.width?ph.height/ph.width:1.25;
   return `<figure class="${cls}"><picture><source type="image/avif" srcset="${ws.map(w=>media(ph.sha256,w,'avif')+' '+w+'w').join(', ')}" sizes="${size}px"><img src="${media(ph.sha256,ws.includes(320)?320:160,'webp')}" srcset="${ws.map(w=>media(ph.sha256,w,'webp')+' '+w+'w').join(', ')}" sizes="${size}px" width="${size}" height="${Math.round(size*ratio)}" alt="${e(p.name)}" ${eager?'fetchpriority="high"':'loading="lazy"'} decoding="async"></picture>${caption&&ph.licence?`<figcaption>Photo: ${e(ph.author)} · <a href="${e(ph.licence_url)}" rel="license">${e(ph.licence)}</a> · <a href="${e(ph.source_url)}">Wikimedia Commons</a></figcaption>`:''}</figure>`;}
  // ESPN headshot (owner-approved ESPN source): hotlinked for the exact player, credited, never rehosted.
- if(p?.headshot&&/^https:\/\/a\.espncdn\.com\/i\/headshots\/golf\/players\/full\/\d+\.png$/.test(p.headshot))return `<figure class="${cls} is-headshot"><img src="${e(p.headshot)}" alt="${e(p.name||'')}" ${eager?'fetchpriority="high"':'loading="lazy"'} width="${size}" height="${Math.round(size*0.73)}" referrerpolicy="no-referrer">${caption?'<figcaption>Photo: ESPN</figcaption>':''}</figure>`;
+ if(p?.headshot&&/^https:\/\/a\.espncdn\.com\/i\/headshots\/golf\/players\/full\/\d+\.png$/.test(p.headshot))return `<figure class="${cls} is-headshot"><img src="${e(espnSized(p.headshot,size))}" alt="${e(p.name||'')}" ${eager?'fetchpriority="high"':'loading="lazy"'} width="${size}" height="${Math.round(size*0.73)}" referrerpolicy="no-referrer">${caption?'<figcaption>Photo: ESPN</figcaption>':''}</figure>`;
  return `<div class="${cls} identity-mark" aria-hidden="true"><span>${e(initials(p?.name))}</span>${p?.country_code?`<small>${e(p.country_code)}</small>`:''}</div>`;
 }
 export function courseImage(c,{cls='course-photo',eager=false,caption=true}={}){
