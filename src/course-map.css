@@ -1,0 +1,39 @@
+/* Course Maps V1 prototype styles (not imported by any page yet). */
+.cm{--cm-bg:#0b1f19;--cm-ink:#eef2ec;--cm-mute:#a9bcb0;--cm-gold:#e0c27a;background:var(--cm-bg);color:var(--cm-ink);padding:16px;border-radius:4px;display:grid;gap:10px}
+.cm-head{display:grid;gap:4px}
+.cm-k{margin:0;font:700 11px/1.2 var(--sans,system-ui);letter-spacing:1.8px;color:var(--cm-gold)}
+.cm-basis{margin:0;font:700 10px/1.3 var(--sans,system-ui);letter-spacing:1.4px;color:var(--cm-mute)}
+.cm-setup{margin:0;font:600 12.5px/1.4 var(--sans,system-ui)}
+.cm-current{margin:0;justify-self:start;font:700 11px/1 var(--sans,system-ui);letter-spacing:1.4px;padding:7px 10px;border:1px solid var(--cm-gold);color:var(--cm-gold);border-radius:2px}
+.cm-stage{border-radius:3px;overflow:hidden}
+.cm-svg{display:block;width:100%;height:auto;max-height:78vh}
+.cm-bg{fill:#0f2a20}
+.cm-outline{fill:#143a2b;stroke:#2c5a45;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.cm-fairway path{fill:#2a6447}
+.cm-water path{fill:#24506b}
+.cm-tee path{fill:#3e7d5c}
+.cm-green path{fill:#5aae78}
+.cm-bunker path{fill:#d8c896}
+.cm-line{fill:none;stroke:#eef2ec;stroke-opacity:.55;stroke-width:2;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
+.cm-hit{fill:none;stroke:transparent;stroke-width:14;vector-effect:non-scaling-stroke;cursor:pointer}
+.cm-route.is-focus .cm-line{stroke:var(--cm-gold);stroke-opacity:1;stroke-width:3;stroke-dasharray:none}
+.cm-route.is-current .cm-line{stroke:var(--cm-gold);stroke-opacity:1;stroke-width:4;stroke-dasharray:none}
+.cm-route.is-current .cm-num circle{fill:var(--cm-gold)}.cm-route.is-current .cm-num text{fill:#10291f}
+.cm-num circle{fill:#0b1f19;stroke:var(--cm-gold);stroke-width:1.5}
+.cm-num text{fill:var(--cm-ink);font:700 11px var(--sans,system-ui)}
+.cm-north path{fill:var(--cm-gold)}.cm-north text{fill:var(--cm-ink);font:700 11px var(--sans,system-ui)}
+.cm-scale path{stroke:var(--cm-ink);stroke-width:2;vector-effect:non-scaling-stroke}.cm-scale text{fill:var(--cm-mute);font-family:var(--sans,system-ui)}
+.cm-attr{fill:#d6e0d9;font-family:var(--sans,system-ui)}
+.cm-legend,.cm-attrib,.cm-note{margin:0;font-size:11.5px;color:var(--cm-mute)}
+.cm-attrib a{color:var(--cm-ink)}
+.cm-ramp{display:inline-block;width:80px;height:6px;border-radius:3px;background:linear-gradient(90deg,#5e9b6e,#c8aa68,#b2483a);vertical-align:middle}
+.cm-panel{border-left:3px solid var(--cm-gold);padding:6px 0 6px 12px;display:grid;gap:4px}
+.cm-big{margin:0;font:400 26px/1.1 Georgia,serif}
+.cm-sub{margin:0;font:700 11px/1.3 var(--sans,system-ui);letter-spacing:1.2px;color:#cfd9d2}
+.cm-dl{display:flex;gap:20px;margin:4px 0 0}.cm-dl dt{font:700 9.5px/1.2 var(--sans,system-ui);letter-spacing:1.2px;text-transform:uppercase;color:var(--cm-mute)}.cm-dl dd{margin:3px 0 0;font:700 18px/1 var(--sans,system-ui)}
+.cm-wind{margin:4px 0 0;font-size:13px}.cm-wind b{color:var(--cm-gold)}
+.cm-book{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+.cm-card{display:grid;gap:3px;justify-items:center;padding:10px 4px;border:1px solid #ffffff1f;border-radius:3px;background:#ffffff08}
+.cm-card b{font:400 20px Georgia,serif}.cm-card span{font:700 10px var(--sans,system-ui);color:var(--cm-gold)}.cm-card small{font-size:10px;color:var(--cm-mute)}
+@media(max-width:600px){.cm-book{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.cm *{transition:none!important;animation:none!important}}

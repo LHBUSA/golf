@@ -24,27 +24,51 @@ const r1=v=>Math.round(v*10)/10;
  * Hole numbers come only from an integer OSM ref in 1..18 that is unique within the matched course. Anything else
  * is left out (never guessed). OSM par is matching evidence only; displayed par/yardage always come from our setup.
  */
+export function routeLengthM(lonlat){let s=0;for(let i=1;i<(lonlat||[]).length;i++){const [a,b]=[lonlat[i-1],lonlat[i]];const dl=rad(b[1]-a[1]),dn=rad(b[0]-a[0]),q=Math.sin(dl/2)**2+Math.cos(rad(a[1]))*Math.cos(rad(b[1]))*Math.sin(dn/2)**2;s+=2*R*Math.asin(Math.sqrt(q));}return s;}
+/**
+ * Prove each hole number. Accept an OSM golf=hole only when its integer ref (1..18) is unique inside the matched course,
+ * OR — when a ref is duplicated (e.g. a par-3 course inside the same club polygon) — exactly one candidate has OSM par equal
+ * to our setup par AND a mapped length within 20% of our setup yardage. Otherwise the hole is left unmapped (never guessed).
+ */
+export function resolveHoles(osmHoles,setupHoles=new Map()){
+ const valid=(osmHoles||[]).filter(h=>{const n=Number(h.ref);return String(n)===String(h.ref).trim()&&Number.isInteger(n)&&n>=1&&n<=18&&h.coords?.length>=2;});
+ const by=new Map();for(const h of valid){const n=Number(h.ref);by.set(n,[...(by.get(n)||[]),h]);}
+ const accepted=[],rejected=[];
+ for(const [n,c] of [...by].sort((a,b)=>a[0]-b[0])){
+  if(c.length===1){accepted.push({...c[0],hole:n,proof:'unique_ref'});continue;}
+  const s=setupHoles.get(n);const yd=s?.yards,par=s?.par;
+  const ok=c.filter(h=>Number.isInteger(par)&&Number(h.par)===par&&Number.isInteger(yd)&&Math.abs(routeLengthM(h.coords)/0.9144-yd)/yd<=0.2);
+  if(ok.length===1)accepted.push({...ok[0],hole:n,proof:'duplicate_ref_resolved_by_par_and_length'});else rejected.push({ref:n,candidates:c.length,reason:ok.length?'duplicate_ref_ambiguous':'duplicate_ref_no_par_length_match'});
+ }
+ for(const h of osmHoles||[])if(!valid.includes(h))rejected.push({ref:h.ref??null,candidates:1,reason:'ref_missing_or_not_1_18'});
+ return {accepted,rejected};
+}
 export function prepareCourseMap(osm,ours,{tol=2}={}){
  const outer=osm?.course?.outer||[];
- const refs=(osm?.holes||[]).map(h=>Number(h.ref)).filter(n=>Number.isInteger(n)&&n>=1&&n<=18);
- const dup=new Set(refs.filter((n,i)=>refs.indexOf(n)!==i));
- const holes=(osm?.holes||[]).filter(h=>{const n=Number(h.ref);return Number.isInteger(n)&&n>=1&&n<=18&&!dup.has(n)&&h.coords?.length>=2;});
- const all=[...outer,...holes.flatMap(h=>h.coords)];
  const setupHoles=new Map((ours?.setup?.holes||[]).map(h=>[h.hole,h]));
+ const {accepted:holes,rejected}=resolveHoles(osm?.holes,setupHoles);
+ const all=[...outer,...holes.flatMap(h=>h.coords)];
  const base={course:{slug:ours?.slug,name:ours?.name},setup:ours?.setup?{edition:ours.setup.edition,year:ours.setup.year,label:ours.setup.label,par:ours.setup.par,yardage:ours.setup.yardage,front:sum(ours.setup.holes,1,9),back:sum(ours.setup.holes,10,18)}:null,scoring:ours?.scoring||null,attribution:null,geometry:null};
  if(!all.length||!holes.length)return {...base,tier:'C',holes:Array.from({length:18},(_,i)=>({hole:i+1,par:setupHoles.get(i+1)?.par??null,yards:setupHoles.get(i+1)?.yards??null,route:null,bearing_deg:null,routing_observed:false}))};
  const lat0=all.reduce((s,p)=>s+p[1],0)/all.length,lon0=all.reduce((s,p)=>s+p[0],0)/all.length,P=projector(lat0,lon0);
  const proj=c=>simplify(c.map(P),tol).map(([x,y])=>[r1(x),r1(y)]);
+ const projRing=c=>{const raw=c.map(P);for(let t=tol;t>=0.25;t/=2){const r=simplify(raw,t).map(([x,y])=>[r1(x),r1(y)]);if(r.length>=4&&!selfIntersects(r))return r;}return raw.map(([x,y])=>[r1(x),r1(y)]);};
  const pts=all.map(P),minX=Math.min(...pts.map(p=>p[0])),maxX=Math.max(...pts.map(p=>p[0])),minY=Math.min(...pts.map(p=>p[1])),maxY=Math.max(...pts.map(p=>p[1]));
- const byRef=new Map(holes.map(h=>[Number(h.ref),h]));
- const out=Array.from({length:18},(_,i)=>{const n=i+1,h=byRef.get(n),s=setupHoles.get(n);return {hole:n,par:s?.par??null,yards:s?.yards??null,route:h?proj(h.coords):null,bearing_deg:h?Math.round(bearing(h.coords)):null,routing_observed:!!h,source_feature_id:h?h.id:null};});
- const feat=k=>(osm.features||[]).filter(f=>k(f)&&f.closed&&f.coords?.length>=4).map(f=>proj(f.coords));
+ const byRef=new Map(holes.map(h=>[h.hole,h]));
+ const out=Array.from({length:18},(_,i)=>{const n=i+1,h=byRef.get(n),s=setupHoles.get(n);return {hole:n,par:s?.par??null,yards:s?.yards??null,route:h?proj(h.coords):null,bearing_deg:h?Math.round(bearing(h.coords)):null,routing_observed:!!h,source_feature_id:h?h.id:null,proof:h?.proof||null};});
+ const feat=k=>(osm.features||[]).filter(f=>k(f)&&f.closed&&f.coords?.length>=4).map(f=>projRing(f.coords));
  const mapped=out.filter(h=>h.route).length;
  return {...base,tier:mapped===18?'A':'B',
-  geometry:{basis:'openstreetmap-current',as_of:osm.as_of||null,source_course_id:osm.course?.id||null,bounds:[r1(minX),r1(minY),r1(maxX),r1(maxY)],units:'metres (local equirectangular, north up)',outline:outer.length?proj(outer):null,
+  geometry:{basis:'openstreetmap-current',as_of:osm.as_of||null,source_course_id:osm.course?.id||null,bounds:[r1(minX),r1(minY),r1(maxX),r1(maxY)],units:'metres (local equirectangular, north up)',outline:outer.length?projRing(outer):null,
    features:{fairway:feat(f=>f.golf==='fairway'),green:feat(f=>f.golf==='green'),tee:feat(f=>f.golf==='tee'),bunker:feat(f=>f.golf==='bunker'),water:feat(f=>/water_hazard/.test(f.golf||'')||f.natural==='water')}},
-  holes:out,coverage:{holes_mapped:mapped,holes_total:18},attribution:ATTRIBUTION};
+  holes:out,coverage:{holes_mapped:mapped,holes_total:18,rejected},attribution:ATTRIBUTION};
 }
+// Ring validity after simplification (topology-safe): any two non-adjacent edges crossing = invalid.
+export function selfIntersects(r){const n=r.length-1;const x=(a,b,c,d)=>{const o=(p,q,s)=>Math.sign((q[0]-p[0])*(s[1]-p[1])-(q[1]-p[1])*(s[0]-p[0]));return o(a,b,c)*o(a,b,d)<0&&o(c,d,a)*o(c,d,b)<0;};
+ for(let i=0;i<n;i++)for(let j=i+2;j<n;j++){if(i===0&&j===n-1)continue;if(x(r[i],r[i+1],r[j],r[j+1]))return true;}return false;}
+/** Switch the championship setup (par/yardage/scoring). Geometry is shared by reference and never changes. */
+export function withSetup(m,setup,scoring=null){const sh=new Map((setup?.holes||[]).map(h=>[h.hole,h]));
+ return {...m,setup:setup?{edition:setup.edition,year:setup.year,label:setup.label,par:setup.par,yardage:setup.yardage,front:sum(setup.holes,1,9),back:sum(setup.holes,10,18)}:null,scoring,holes:m.holes.map(h=>({...h,par:sh.get(h.hole)?.par??null,yards:sh.get(h.hole)?.yards??null}))};}
 function sum(hs,a,b){const xs=(hs||[]).filter(h=>h.hole>=a&&h.hole<=b);return xs.length===b-a+1&&xs.every(h=>Number.isInteger(h.yards))?xs.reduce((s,h)=>s+h.yards,0):null;}
 
 // ---- Descriptive wind relative to the observed hole direction. Null whenever the bearing was not observed.
@@ -88,20 +112,22 @@ const tp=v=>v==null?'—':v===0?'E':v>0?'+'+v:'−'+Math.abs(v);
 export function holePanel(m,hole,{wind=null}={}){
  const h=m.holes.find(x=>x.hole===hole);if(!h)return '';const s=m.scoring?.holes?.find(x=>x.hole===hole);
  const rw=wind&&h.routing_observed?relativeWind(h.bearing_deg,wind.from_deg):null;
- return `<div class="cm-panel"><p class="cm-k">HOLE ${h.hole}</p><p class="cm-big">PAR ${e(h.par??'—')} · ${e(h.yards??'—')} YDS</p>${m.setup?`<p class="cm-sub">${e(m.setup.year)} SETUP · ${e(m.setup.label)}</p>`:''}${s&&s.sample?`<dl class="cm-dl"><div><dt>Contenders’ average</dt><dd>${e(tp(s.avg_to_par))}</dd></div><div><dt>Observed cards</dt><dd>${e(s.sample)}</dd></div></dl><p class="cm-note">${e(m.scoring.year)} · ${e(m.scoring.basis)}. Contender cards are not the full field.</p>`:''}${rw?`<p class="cm-wind"><b>${e(rw.label)}</b> · Wind ${e(wind.dir||'')} ${e(wind.mph??'—')} mph${wind.precision==='locality'?' (town-level estimate)':''}</p><p class="cm-note">Descriptive only: wind direction against the mapped tee-to-green direction. No scoring or club effect is implied.</p>`:''}${h.routing_observed?'':`<p class="cm-note">This hole’s routing is not mapped.</p>`}</div>`;
+ return `<div class="cm-panel"><p class="cm-k">HOLE ${h.hole}</p><p class="cm-big">PAR ${e(h.par??'—')} · ${e(h.yards??'—')} YDS</p>${m.setup?`<p class="cm-sub">${e(m.setup.year)} SETUP · ${e(m.setup.label)}</p>`:''}${s&&s.sample?`<dl class="cm-dl"><div><dt>Contenders’ average</dt><dd>${e(tp(s.avg_to_par))}</dd></div><div><dt>Observed cards</dt><dd>${e(s.sample)}</dd></div></dl><p class="cm-note">Contender sample · ${e(m.scoring.year)} edition · ${e(m.scoring.basis)}. Not the full field.</p>`:''}${rw?`<p class="cm-wind"><b>${e(rw.label)}</b> · Wind ${e(wind.dir||'')} ${e(wind.mph??'—')} mph${wind.precision==='locality'?' (town-level estimate)':''}</p><p class="cm-note">PBE-derived from sourced routing + weather observation. Descriptive only: no scoring, club or shot effect is implied.</p>`:''}${h.routing_observed?'':`<p class="cm-note">This hole’s routing is not mapped.</p>`}<div class="cm-nav"><button type="button" data-cm-hole="${hole>1?hole-1:18}" aria-label="Previous hole">◀ ${hole>1?hole-1:18}</button><button type="button" data-cm-hole="${hole<18?hole+1:1}" aria-label="Next hole">${hole<18?hole+1:1} ▶</button></div></div>`;
 }
+export const spatialState=m=>m.tier==='A'?'VERIFIED ROUTING':m.tier==='B'?'PARTIAL ROUTING':'RECONSTRUCTED';
 export function basisLabel(m){
  if(m.tier==='C')return 'SCORECARD LAYOUT · NO MAPPED ROUTING';
- return `CURRENT MAPPED ROUTING${m.geometry.as_of?` · OPENSTREETMAP AS OF ${m.geometry.as_of.slice(0,10)}`:''}${m.tier==='B'?` · ${m.coverage.holes_mapped} OF 18 HOLES MAPPED`:''}`;
+ return `${spatialState(m)}${m.tier==='B'?` · ${m.coverage.holes_mapped} OF 18 HOLES MAPPED`:''} · CURRENT MAPPED ROUTING${m.geometry.as_of?` · OPENSTREETMAP AS OF ${m.geometry.as_of.slice(0,10)}`:''}`;
 }
 /** Level C: real par/yardage/order as a yardage-book grid. Never a map, never a shape. */
 export function yardageBook(m){
  const hs=m.holes;return `<div class="cm-book" role="list" aria-label="Hole par and yardage">${hs.map(h=>`<div class="cm-card" role="listitem"><b>${h.hole}</b><span>PAR ${e(h.par??'—')}</span><small>${e(h.yards??'—')} YDS</small></div>`).join('')}</div>`;
 }
-export function courseMapModule(m,{focus=null,overlay=null,current=null,wind=null}={}){
- const setup=m.setup?`<p class="cm-setup">${e(m.setup.label)} · PAR ${e(m.setup.par??'—')} · ${e(m.setup.yardage?.toLocaleString('en-US')??'—')} YDS${m.setup.front&&m.setup.back?` · FRONT ${e(m.setup.front.toLocaleString('en-US'))} · BACK ${e(m.setup.back.toLocaleString('en-US'))}`:''}</p>`:'';
- const legend=overlay==='difficulty'&&difficultyScale(m.scoring)?`<p class="cm-legend"><span class="cm-ramp" aria-hidden="true"></span> Easier → harder by contenders’ average to par · ${e(m.scoring.year)} · up to ${e(Math.max(...m.scoring.holes.map(h=>h.sample)))} cards per hole</p>`:'';
+export function courseMapModule(m,{focus=null,overlay=null,current=null,wind=null,setups=[]}={}){
+ const sel=setups.length>1?`<div class="cm-setups" role="group" aria-label="Championship setup">${setups.map(x=>`<button type="button" data-cm-setup="${e(x.edition)}" aria-pressed="${x.edition===m.setup?.edition}">${e(x.year)}</button>`).join('')}</div>`:'';
+ const setup=m.setup?`<p class="cm-setup">${m.tier==='C'?'':'Current mapped routing · '}${e(m.setup.year)} championship yardage · ${e(m.setup.label)} · PAR ${e(m.setup.par??'—')} · ${e(m.setup.yardage?.toLocaleString('en-US')??'—')} YDS${m.setup.front&&m.setup.back?` · FRONT ${e(m.setup.front.toLocaleString('en-US'))} · BACK ${e(m.setup.back.toLocaleString('en-US'))}`:''}</p>`:'';
+ const legend=overlay==='difficulty'&&difficultyScale(m.scoring)?`<p class="cm-legend"><span class="cm-ramp" aria-hidden="true"></span> Scoring difficulty · easier → harder by contenders’ average to par · Contender sample · ${e(m.scoring.year)} edition · up to ${e(Math.max(...m.scoring.holes.map(h=>h.sample)))} cards per hole</p>`:'';
  const body=m.tier==='C'?yardageBook(m):courseMapSvg(m,{focus,overlay,current});
  const cur=current&&m.tier!=='C'?`<p class="cm-current">CURRENT HOLE · ${e(current)}</p>`:'';
- return `<section class="cm" data-course-map><header class="cm-head"><p class="cm-k">COURSE MAP</p><p class="cm-basis">${e(basisLabel(m))}</p>${setup}</header>${cur}<div class="cm-stage">${body}</div>${legend}${focus!=null?holePanel(m,focus,{wind}):''}${m.tier==='C'?'':`<p class="cm-attrib"><a href="${ATTRIBUTION.url}">Course routing © OpenStreetMap contributors</a> · available under the <a href="${ATTRIBUTION.licence_url}">Open Database License</a>. Map geometry shows current mapping, not a historical setup.</p>`}</section>`;
+ return `<section class="cm" data-course-map><header class="cm-head"><p class="cm-k">COURSE MAP</p><p class="cm-basis">${e(basisLabel(m))}</p>${setup}${sel}</header>${cur}<div class="cm-stage">${body}</div>${legend}${focus!=null?holePanel(m,focus,{wind}):''}${m.tier==='C'?'':`<p class="cm-attrib"><a href="${ATTRIBUTION.url}">Course routing © OpenStreetMap contributors</a> · available under the <a href="${ATTRIBUTION.licence_url}">Open Database License</a>. Map geometry shows current mapping, not a historical setup.</p>`}</section>`;
 }
