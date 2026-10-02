@@ -88,11 +88,16 @@ function prepare(){
  for(const r of rows.filter(r=>r._m)){
   if(r.decision!=='exact'){r.status=/^no_/.test(r.decision)?'no-routing':'held';continue;}
   const osm={...toOsm(r._els,r._m.target,r._m.evidence.accepted),as_of:r.retrieved_at};
-  const prep=prepareCourseMap(osm,{slug:r.slug,name:r.name},{parConflicts:r.par_conflicts});
+  // Web payload budget (~60 KB): raise the simplification tolerance, then drop the smallest bunkers. Recorded in
+  // the payload; the ODbL dataset download keeps every feature at full resolution.
+  const area=r=>{let a=0;for(let i=1;i<r.length;i++)a+=r[i-1][0]*r[i][1]-r[i][0]*r[i-1][1];return Math.abs(a/2);};
+  let prep,web_simplification={tolerance_m:2,min_bunker_m2:0};
+  for(const tol of [2,4,8]){prep=prepareCourseMap(osm,{slug:r.slug,name:r.name},{parConflicts:r.par_conflicts,tol});web_simplification={tolerance_m:tol,min_bunker_m2:0};if(JSON.stringify(prep).length<=60000)break;}
+  for(const minA of [25,60,120,250]){if(JSON.stringify(prep).length<=60000||!prep.geometry)break;prep.geometry.features.bunker=prep.geometry.features.bunker.filter(b=>area(b)>=minA);web_simplification.min_bunker_m2=minA;}
   const mapped=prep.coverage?.holes_mapped||0;r.status=mapped===18?'full':mapped>0?'partial':'no-routing';r.holes_mapped=mapped;
   const feats=prep.geometry?.features||{};r.features=Object.fromEntries(Object.entries(feats).map(([k,v])=>[k,v.length]));
   if(mapped){const web={version:'osm-routing/v1',course:{slug:r.slug,name:r.name},source:{name:'OpenStreetMap',course_element:r.osm_course.id,retrieved_at:r.retrieved_at,osm_base:r._raw.osm3s?.timestamp_osm_base||null,identity:{decision:'exact',cleared_by:r.cleared_by}},
-    attribution:ATTRIBUTION,geometry_status:mapped===18?'VERIFIED ROUTING':'PARTIAL ROUTING',geometry:prep.geometry,
+    attribution:ATTRIBUTION,geometry_status:mapped===18?'VERIFIED ROUTING':'PARTIAL ROUTING',geometry:{...prep.geometry,web_simplification},
     holes:prep.holes.map(h=>({hole:h.hole,route:h.route,bearing_deg:h.bearing_deg,routing_observed:h.routing_observed,source_feature_id:h.source_feature_id,proof:h.proof,osm_par:h.routing_observed?(osm.holes.find(o=>o.id===h.source_feature_id)?.par??null):null})),
     coverage:{holes_mapped:mapped,holes_total:18,withheld:[...new Map([...r._m.evidence.rejected,...prep.coverage.rejected].filter(x=>Number.isInteger(Number(x.ref))&&Number(x.ref)>=1&&Number(x.ref)<=18&&!prep.holes.find(h=>h.hole===Number(x.ref))?.route).map(x=>[Number(x.ref),{hole:Number(x.ref),reason:x.reason}])).values()].sort((a,b)=>a.hole-b.hole)},
     geometry_metadata_conflicts:[...r.par_conflicts.map(h=>({hole:h,field:'par',note:'OSM tag differs from the championship setup; setup facts come from tournament sources'})),...(r._m.evidence.length_conflicts||[]).map(c=>({hole:c.hole,field:'length',mapped_yards:c.mapped_yards,setup_yards:c.setup_yards,note:'Mapped route length differs from the setup yardage (route may be drawn from another tee)'}))].sort((a,b)=>a.hole-b.hole)};
