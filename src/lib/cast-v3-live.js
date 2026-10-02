@@ -1,0 +1,95 @@
+// PBEcast V3 controller: one state object per mounted cast, small region diffs on refresh, no timers per render.
+import {castShell,commandBar,towerRows,focusPanel,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
+import {e} from './ui.js';
+
+const STATE=new WeakMap();
+const set=(el,html)=>{if(el&&el.__html!==html){el.innerHTML=html;el.__html=html;return true;}return false;};
+const narrow=()=>matchMedia('(max-width: 767px)').matches;
+
+export function castV3(host,r,mv){
+ const slug=host.getAttribute('data-edition')||'';let s=STATE.get(host);
+ if(!s||s.slug!==slug||!s.root.isConnected){if(s)teardown(s);if(!host.querySelector('[data-cv3]'))host.innerHTML=castShell();s=mount(host,slug);STATE.set(host,s);}
+ s.ev=r.event;s.weather=r.weather_now||null;s.layout=r.course_holes||[];s.points=(mv?.points||[]).filter(p=>p.top?.length);
+ s.holes=new Map((r.hole_scores||[]).filter(h=>h.round==null||h.round===r.event.round).map(h=>[h.slug||h.name,h.holes||[]]));
+ const rows=s.ev.leaderboard||[];if(!s.selected||!rows.some(x=>key(x)===s.selected))s.selected=key(rows.find(x=>x.status==='active')||rows[0]);
+ render(s);s.prevRows=new Map(rows.map(x=>[key(x),{position:x.position,total_to_par:x.total_to_par,today_to_par:x.today_to_par,thru:x.thru}]));
+}
+
+function mount(host,slug){
+ const root=host.querySelector('[data-cv3]');const q=sel=>root.querySelector(sel);
+ const s={host,root,slug,selected:null,filter:narrow()?'selected':'top5',focusKey:null,cursor:null,selHole:null,seen:null,prevRows:null,first:true,
+  bar:q('[data-cv3-bar]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
+ root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
+  if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
+  if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
+  if(t.dataset.cv3Filter){s.filter=t.dataset.cv3Filter;renderTimeline(s);return;}
+  if(t.dataset.cv3Series){const k=t.dataset.cv3Series;if((s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);return;}
+  if(t.hasAttribute('data-cv3-fs'))toggleFullscreen(s);});
+ s.tower.addEventListener('keydown',ev=>{const b=[...s.tower.querySelectorAll('button')],i=b.indexOf(document.activeElement);if(i<0)return;
+  const j=ev.key==='ArrowDown'?i+1:ev.key==='ArrowUp'?i-1:ev.key==='Home'?0:ev.key==='End'?b.length-1:null;if(j===null)return;ev.preventDefault();b[Math.max(0,Math.min(b.length-1,j))].focus();});
+ // Legend hover/focus highlights a series without changing the selection.
+ const hl=(ev,on)=>{const t=ev.target.closest?.('[data-cv3-series]');if(!t)return;s.focusKey=on?t.dataset.cv3Series:null;drawPlot(s);};
+ s.key.addEventListener('pointerover',ev=>hl(ev,true));s.key.addEventListener('pointerout',ev=>hl(ev,false));s.key.addEventListener('focusin',ev=>hl(ev,true));s.key.addEventListener('focusout',ev=>hl(ev,false));
+ let raf=0;s.plot.addEventListener('pointermove',ev=>{if(raf)return;const cx=ev.clientX,cy=ev.clientY;raf=requestAnimationFrame(()=>{raf=0;pointAt(s,cx,cy);});});
+ s.plot.addEventListener('pointerleave',()=>{s.cursor=null;s.focusKey=null;drawPlot(s);});
+ s.plot.addEventListener('keydown',ev=>{const m=s.m;if(!m)return;const n=m.times.length;let c=s.cursor??n;
+  if(ev.key==='ArrowLeft')c=Math.max(0,c-1);else if(ev.key==='ArrowRight')c=Math.min(n-1,c+1);else if(ev.key==='Home')c=0;else if(ev.key==='End')c=n-1;else if(ev.key==='Escape'){s.cursor=null;drawPlot(s);return;}else return;
+  ev.preventDefault();s.cursor=c;drawPlot(s);});
+ s.plot.addEventListener('blur',()=>{s.cursor=null;drawPlot(s);});
+ if('ResizeObserver' in window){s.ro=new ResizeObserver(()=>{if(s.plot.clientWidth!==s.w)drawPlot(s);});s.ro.observe(s.plot);}
+ s.onFs=()=>{const on=document.fullscreenElement===root;syncFs(s,on);};document.addEventListener('fullscreenchange',s.onFs);
+ s.onKey=ev=>{if(ev.key==='Escape'&&root.classList.contains('is-immersive'))exitImmersive(s);};document.addEventListener('keydown',s.onKey);
+ // Freshness and course clock tick locally between polls so the age shown is always truthful.
+ s.tick=setInterval(()=>{if(!root.isConnected){teardown(s);return;}tickClock(s);},30000);
+ return s;
+}
+function teardown(s){clearInterval(s.tick);s.ro?.disconnect();document.removeEventListener('fullscreenchange',s.onFs);document.removeEventListener('keydown',s.onKey);document.body.classList.remove('cv3-lock');}
+function tickClock(s){const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)a.textContent=ageText(s.ev);const c=s.root.querySelector('[data-cv3-clock]');if(c)c.textContent=courseClock(Number(c.getAttribute('data-off')));}
+
+function select(s,k){s.selected=k;s.selHole=null;s.cursor=null;
+ for(const b of s.tower.querySelectorAll('[data-cv3-pick]')){const on=b.dataset.cv3Pick===k;b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));}
+ s.tower.__html=null;renderFocus(s);renderPulse(s);renderTimeline(s);
+ if(narrow())s.focus.scrollIntoView?.({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
+
+function render(s){
+ const active=document.activeElement,fsFocused=active?.hasAttribute?.('data-cv3-fs');
+ set(s.bar,commandBar(s.ev,s.weather));syncFs(s,document.fullscreenElement===s.root||s.root.classList.contains('is-immersive'));if(fsFocused)s.bar.querySelector('[data-cv3-fs]')?.focus();
+ // Tower: rebuilt only when a row changed; scroll position and the focused golfer survive the update.
+ const focusedPick=active?.closest?.('[data-cv3-pick]')?.dataset.cv3Pick,top=s.tower.scrollTop;
+ if(set(s.tower,towerRows(s.ev,{selected:s.selected,moves:boardMoves(s.points,s.ev.leaderboard),prev:s.first?null:s.prevRows}))){s.tower.scrollTop=top;if(focusedPick)s.tower.querySelector(`[data-cv3-pick="${CSS.escape(focusedPick)}"]`)?.focus();}
+ if(s.first){s.tower.scrollTop=0;const on=s.tower.querySelector('.is-on');if(on){const y=on.getBoundingClientRect().top-s.tower.getBoundingClientRect().top;if(y>s.tower.clientHeight-40)s.tower.scrollTop=y-s.tower.clientHeight/3;}}
+ renderFocus(s);renderPulse(s);renderTimeline(s);
+ set(s.field,fieldPanel(fieldSnapshot(s.ev,s.points)));set(s.wx,weatherTile(s.weather));
+ s.first=false;
+}
+function row(s){return (s.ev.leaderboard||[]).find(x=>key(x)===s.selected);}
+function renderFocus(s){const r=row(s);set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole}));}
+function renderPulse(s){
+ const ev=pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});
+ set(s.pulse,pulseList(ev,{seen:s.seen}));s.seen=new Set(ev.map(x=>x.t+'|'+x.text));
+}
+function renderTimeline(s){
+ for(const b of s.tl.querySelectorAll('[data-cv3-filter]'))b.setAttribute('aria-pressed',String(b.dataset.cv3Filter===s.filter));
+ s.m=timelineSeries(s.points,{filter:s.filter,selected:s.selected});s.tl.hidden=!s.m;if(!s.m)return;
+ const m=s.m,name=new Map((s.ev.leaderboard||[]).map(x=>[key(x),x]));
+ set(s.key,`<ul class="cv3-keys" aria-label="Players in the chart">${m.series.map(x=>{const cur=name.get(x.key),o=[...x.obs].reverse().find(Boolean);const role=x.key===s.selected?'is-selected':m.leaders.has(x.key)?'is-leader':x.key===m.mover?'is-mover':'is-muted';return `<li><button type="button" class="${role}" data-cv3-series="${e(x.key)}" aria-label="${e(x.name)}${o?`, last observed ${o.tied?'T':''}${o.pos}`:''}${cur?'. Select golfer':''}"><i aria-hidden="true"></i>${e(x.name)}${o?` <small>${o.tied?'T':''}${o.pos}</small>`:''}</button></li>`;}).join('')}</ul>`);
+ const t0=new Date(m.times[0]).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),t1=new Date(m.times.at(-1)).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+ set(s.tlcap,`${m.times.length} observed ESPN snapshots, ${e(t0)}–${e(t1)}. Dots are observations; curves only link consecutive observations and are not positions between them. Positions beyond the observed top 40 are not drawn.${m.selectedMissing?' The selected golfer has not been inside the observed top 40.':''} Use the arrow keys on the chart to step through snapshots.`);
+ set(s.table,timelineTable(m));drawPlot(s);
+}
+function drawPlot(s){if(!s.m)return;const w=Math.round(s.plot.clientWidth)||0;if(!w)return;s.w=w;const h=Math.round(s.plot.clientHeight)||260;s.h=h;
+ set(s.plot,timelineSvg(s.m,{width:w,height:h,selected:s.selected,focus:s.focusKey,cursor:s.cursor}));}
+function pointAt(s,cx,cy){const m=s.m;if(!m||!s.w)return;const r=s.plot.getBoundingClientRect(),px=cx-r.left,py=cy-r.top;const g=timelineLayout(m,{width:s.w,height:s.h||260});
+ let best=0,bd=1e9;for(let i=0;i<m.times.length;i++){const d=Math.abs(g.x(i)-px);if(d<bd){bd=d;best=i;}}
+ let fk=null,fd=18;for(const x of m.series){const o=x.obs[best];if(!o)continue;const d=Math.abs(g.y(o.pos)-py);if(d<fd){fd=d;fk=x.key;}}
+ s.cursor=best;s.focusKey=fk;drawPlot(s);}
+
+function syncFs(s,on){const b=s.root.querySelector('[data-cv3-fs]');if(!b)return;b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',on?'Exit fullscreen PBEcast':'Open fullscreen PBEcast');const t=b.querySelector('[data-cv3-fs-text]');if(t)t.textContent=on?'Exit fullscreen':'Fullscreen';s.root.classList.toggle('is-fs',on);}
+function toggleFullscreen(s){
+ if(document.fullscreenElement===s.root){document.exitFullscreen?.();return;}
+ if(s.root.classList.contains('is-immersive')){exitImmersive(s);return;}
+ if(document.fullscreenEnabled&&s.root.requestFullscreen){s.root.requestFullscreen().catch(()=>enterImmersive(s));}else enterImmersive(s);
+}
+// Fallback where the Fullscreen API is unavailable (iOS Safari): a fixed overlay that Escape or the button closes.
+function enterImmersive(s){s.root.classList.add('is-immersive');document.body.classList.add('cv3-lock');syncFs(s,true);}
+function exitImmersive(s){s.root.classList.remove('is-immersive');document.body.classList.remove('cv3-lock');syncFs(s,false);s.root.querySelector('[data-cv3-fs]')?.focus();}

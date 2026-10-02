@@ -6,7 +6,11 @@ import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,t
 // @ts-ignore
 import {portrait,e} from './lib/ui.js';
 // @ts-ignore
-import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow,castPlayer} from './lib/live-ui.js';
+import {heroLive,liveRail,liveBoard,playerLive,weatherNow} from './lib/live-ui.js';
+// @ts-ignore
+import {castV3} from './lib/cast-v3-live.js';
+// @ts-ignore
+import {castShell} from './lib/cast-v3.js';
 // @ts-ignore
 import {videoTile,TYPE_LABEL} from './lib/video.js';
 // @ts-ignore
@@ -55,7 +59,7 @@ if(m&&$('[data-matchup-finder]')){const [a,b]=[m[1],m[2]].sort();if(a!==m[1])loc
 // PBEcast edition switching
 const castSel=$<HTMLSelectElement>('[data-cast-select]');
 function bindCast(){$<HTMLSelectElement>('[data-cast-select]')?.addEventListener('change',ev=>{const v=(ev.target as HTMLSelectElement).value;history.replaceState(null,'','/pbecast?tournament='+encodeURIComponent(v));loadCast(v);});}
-async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);bindCast();hydrateLive();initReplay();}}
+async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);const lc=$('[data-live-cast]');if(lc&&d.data.status!=='completed')lc.innerHTML=castShell();bindCast();hydrateLive();initReplay();}}
 if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournament');if(q&&q!==castSel.value)loadCast(q);}
 // Premium modules: values are requested only after server-side All Access verification.
 async function premium(){
@@ -83,7 +87,10 @@ if(stamp){fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000
 
 // ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
 const LIVE_SHOWN=new Set(['live','stale','suspended','round_complete','pre','final']);
+let liveBusy=false,liveAgain=false;
 async function hydrateLive(){
+ if(liveBusy){liveAgain=true;return;}liveBusy=true;
+ try{
  const hero=$('[data-live-hero]'),rails=$$('[data-live-rail]'),board=$('[data-live-board]'),pl=$('[data-live-player]'),cast=$('[data-live-cast]'),page=$('[data-live-page]');
  const get=(q:string)=>api('live'+q).then(r=>r.ok?r.json():null).catch(()=>null);
  if(hero||rails.length||page){const r=await get('?top=500');const events=(r?.events||[]).filter((x:any)=>LIVE_SHOWN.has(x.state));
@@ -92,14 +99,18 @@ async function hydrateLive(){
    for(const rail of rails)rail.innerHTML=liveRail(events);
    if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${liveBoard(ev,{limit:40})}</section>`).join('');
   }}
- if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const r=slug?await get('/'+encodeURIComponent(slug)):null;
-  const mv=slug&&r?.event?await get('/'+encodeURIComponent(slug)+'/movement'):null;
-  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}${movementChart(mv?.points||[],{title:'Leaderboard movement'})}`;}if(cast){cast.innerHTML=pbecastLive(r.event,r.hole_scores,{weather:r.weather_now,layout:r.course_holes,movement:movementChart(mv?.points||[],{title:'Leaders over time',compact:true})});const rows=r.event.leaderboard.filter((x:any)=>x.status==='active').slice(0,12);const hs=new Map((r.hole_scores||[]).map((h:any)=>[h.slug||h.name,h.holes]));cast.querySelectorAll('[data-cv2-pick]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.getAttribute('data-cv2-pick'));cast.querySelectorAll('[data-cv2-pick]').forEach(x=>x.classList.toggle('is-on',x===b));const p=cast.querySelector('[data-cv2-player]');if(p)p.innerHTML=castPlayer(r.event,rows[i],hs.get(rows[i]?.slug||rows[i]?.name),r.course_holes);}));}}}
+ if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement')]):[null,null];
+  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}${movementChart(mv?.points||[],{title:'Leaderboard movement'})}`;}if(cast)castV3(cast,r,mv);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
  if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final')pl.innerHTML=playerLive(r.event,r.player);}
+ }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
 hydrateLive();
-// Keep live views current while visible (the API is cached for one minute at the edge).
-setInterval(()=>{if(document.visibilityState==='visible'&&$('[data-live-hero],[data-live-rail],[data-live-board],[data-live-player],[data-live-cast],[data-live-page]'))hydrateLive();},120000);
+// Keep live views current while visible. Cadence audit: ESPN snapshots are ingested every ~10 min (cron */10),
+// the API is edge-cached for 60 s, so a 2-minute poll sees each new snapshot within ~3 min without extra load.
+const LIVE_SEL='[data-live-hero],[data-live-rail],[data-live-board],[data-live-player],[data-live-cast],[data-live-page]';
+let lastLive=Date.now();
+setInterval(()=>{if(document.visibilityState==='visible'&&$(LIVE_SEL)){lastLive=Date.now();hydrateLive();}},120000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastLive>120000&&$(LIVE_SEL)){lastLive=Date.now();hydrateLive();}});
 
 // ---- Official video (keyless lane). Posters only; the iframe loads after a click and never autoplays on load.
 const VIDEO_GROUPS:Record<string,[string,(v:any)=>boolean][]>={

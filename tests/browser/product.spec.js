@@ -31,3 +31,16 @@ test('premium modules stay locked for a signed-out reader and API denies',async(
 test('static HTML carries no premium DNA values',async({request})=>{const html=await (await request.get('/player/'+topPlayer('men').slug)).text();expect(html).not.toMatch(/"cohort_size"|premium-json/);});
 test('internal links on hub pages resolve',async({page,request})=>{const seen=new Set();for(const hub of ['/','/majors','/courses']){await page.goto(hub);for(const href of await page.locator('main a[href^="/"]').evaluateAll(as=>as.map(a=>a.getAttribute('href'))))seen.add(href.split('?')[0]);}const sample=[...seen].slice(0,60);for(const h of sample){const r=await request.get(h);expect(r.status(),h).toBe(200);}});
 test('SEO: canonical, robots, sitemap and JSON-LD on qualified pages',async({request})=>{const ed=full('men');const html=await (await request.get('/tournament/'+ed.slug)).text();expect(html).toContain(`<link rel="canonical" href="https://golf.propbetedge.ai/tournament/${ed.slug}">`);expect(html).toContain('index,follow');expect(html).toContain('"@type":"SportsEvent"');const sm=await (await request.get('/sitemap.xml')).text();expect(sm).toContain('/sitemaps/tournaments.xml');const tsm=await (await request.get('/sitemaps/tournaments.xml')).text();expect(tsm).toContain('/tournament/'+ed.slug);const live=await (await request.get('/live')).text();expect(live).toContain('noindex');});
+// PBEcast V3 live command center: runs against whatever tournament is live right now (skips when none is).
+for(const width of [390,1440])test(`PBEcast V3 live ${width}: selection sync, labels, no overflow, axe`,async({page,request})=>{
+ const live=await (await request.get('/api/v1/live?top=1')).json().catch(()=>null);const ev=(live?.events||[]).find(x=>['live','stale','suspended','round_complete'].includes(x.state));test.skip(!ev,'no tournament in play');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ await page.setViewportSize({width,height:900});await page.goto('/pbecast?tournament='+ev.edition.slug,{waitUntil:'networkidle'});await page.locator('[data-cv3-tower] button').first().waitFor();
+ const pick=page.locator('[data-cv3-tower] button').nth(1);const nm=(await pick.locator('.cv3-n').innerText()).trim();await pick.click();await expect(page.locator('.cv3-pname')).toHaveText(nm);
+ await expect(page.locator('[data-cv3-tower] button[aria-pressed=true]')).toHaveCount(1);
+ const ov=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth,clipped:[...document.querySelectorAll('.tl-lab text')].filter(t=>{const r=t.getBoundingClientRect(),s=t.closest('svg').getBoundingClientRect();return r.right>s.right+0.5||r.left<s.left-0.5;}).length}));
+ expect(ov.scroll).toBeLessThanOrEqual(ov.width);expect(ov.clipped).toBe(0);expect(await page.locator('[style]').count()).toBe(0);
+ expect(await page.locator('.cv3').innerText()).not.toMatch(/ShotLink|strokes gained|proximity|course weather/i);
+ const axe=await new AxeBuilder({page}).include('.cv3').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
+ expect(errors).toEqual([]);
+});
