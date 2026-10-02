@@ -1,5 +1,6 @@
 import './data.css';
 import './product.css';
+import './course-map.css';
 import {initAnalytics,track,pageType,destination} from './analytics.js';
 // @ts-ignore shared JS modules
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
@@ -11,6 +12,12 @@ import {heroLive,liveRail,liveBoard,playerLive,weatherNow} from './lib/live-ui.j
 import {castV3} from './lib/cast-v3-live.js';
 // @ts-ignore
 import {castShell} from './lib/cast-v3.js';
+// @ts-ignore
+import * as courseMapLive from './lib/course-map-live.js';
+const {fetchCourseMap,mountCourseMap}=courseMapLive as any;
+// @ts-ignore
+import * as courseMapLib from './lib/course-map.js';
+const {courseMapSvg}=courseMapLib as any;
 // @ts-ignore
 import {videoTile,TYPE_LABEL} from './lib/video.js';
 // @ts-ignore
@@ -105,6 +112,10 @@ async function hydrateLive(){
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
 hydrateLive();
+// Course map (course pages): OSM-derived current routing + one championship setup and that same edition's scoring.
+{const host=$('[data-course-map-host]');if(host){const slug=host.getAttribute('data-course')||'';
+ fetchCourseMap(slug).then((M:any)=>{if(!M||(!M.setup&&!M.geometry)){host.remove();return;}
+  const ctl:any=mountCourseMap(host,M,{mode:'page',onSetup:(ed:string)=>fetchCourseMap(slug,ed).then((M2:any)=>{if(M2)ctl.update(M2,{focus:null});})});});}}
 // Keep live views current while visible. Cadence audit: ESPN snapshots are ingested every ~10 min (cron */10),
 // the API is edge-cached for 60 s, so a 2-minute poll sees each new snapshot within ~3 min without extra load.
 const LIVE_SEL='[data-live-hero],[data-live-rail],[data-live-board],[data-live-player],[data-live-cast],[data-live-page]';
@@ -140,6 +151,10 @@ async function initReplay(){
  const slug=root.getAttribute('data-edition')||'';
  const [rr,er]=await Promise.all([api('tournaments/'+encodeURIComponent(slug)+'/rounds').then(r=>r.ok?r.json():null).catch(()=>null),api('tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);
  // Only complete 18-hole cards are replayed; partial cards are never padded.
+ // Verified routing (when the course is mapped): the replay shows the real hole and suppresses the illustrative ball
+ // flight entirely: real geography, unknown shot sequence. Unmapped holes keep the labelled generic reconstruction.
+ const courseSlug=root.getAttribute('data-course');const M:any=courseSlug?await fetchCourseMap(courseSlug,slug).then((m:any)=>m||fetchCourseMap(courseSlug)):null;
+ const real=(n:number)=>!!M?.geometry&&!!M.holes?.find((x:any)=>x.hole===n&&x.route);
  const rows=(rr?.data?.rounds||[]).map((r:any)=>({...r,holes:(r.holes||[]).filter((h:any)=>h.scores?.length===18)})).filter((r:any)=>r.holes.length).slice(0,60),layout=new Map<number,any>(((er?.data?.layout?.holes)||[]).map((h:any)=>[h.hole,h]));
  if(!rows.length){root.hidden=true;return;}
  const pSel=$<HTMLSelectElement>('[data-rc-player]',root)!,rSel=$<HTMLSelectElement>('[data-rc-round]',root)!,canvas=$('[data-rc-canvas]',root)!,card=$('[data-rc-card]',root)!,strip=$('[data-rc-strip]',root)!;
@@ -149,7 +164,13 @@ async function initReplay(){
  const setRounds=()=>{const r=rows[Number(pSel.value)];rSel.innerHTML=r.holes.map((h:any)=>`<option value="${h.round}">Round ${h.round}</option>`).join('');load();};
  const load=()=>{const r=rows[Number(pSel.value)],rd=r.holes.find((h:any)=>String(h.round)===rSel.value)||r.holes[0];holes=(rd?.scores||[]).map((s:any)=>({...s,par:layout.get(s.hole)?.par??(s.strokes!=null&&s.to_par!=null?s.strokes-s.to_par:null),yards:layout.get(s.hole)?.yards??null}));idx=0;stop();renderStrip();show(0,false);};
  const renderStrip=()=>{let run=0;strip.innerHTML=holes.map((h:any,i:number)=>{run+=h.to_par??0;const d=h.to_par;return `<li><button type="button" data-rc-hole="${i}" class="rc-h ${d<0?'is-under':d>0?'is-over':''}" aria-label="Hole ${h.hole}: ${h.strokes} (${scoreLabel(d)})"><small>${h.hole}</small>${e(h.strokes??'—')}</button></li>`;}).join('');};
- const show=(i:number,animate:boolean)=>{idx=i;const h=holes[i];if(!h)return;canvas.innerHTML=holeSvg({hole:h.hole,par:h.par,yards:h.yards,strokes:h.strokes});
+ const label=(isReal:boolean)=>{const a=$('[data-rc-recon]',root),b=$('[data-rc-real]',root),n=$('[data-rc-note]',root);if(a)a.hidden=isReal;if(b)b.hidden=!isReal;if(n)n.textContent=isReal?'Scores are as published. The hole is the current mapped routing (© OpenStreetMap contributors, ODbL), not a historical setup. Shot locations and the shot sequence are not tracked, so no ball path is drawn.':'Scores are as published. Exact shot locations are unavailable: the hole shape, bunkers and ball path are a generic reconstruction from par and yardage, not shot tracking.';};
+ const show=(i:number,animate:boolean)=>{idx=i;const h=holes[i];if(!h)return;
+  if(real(h.hole)){label(true);canvas.innerHTML=`<div class="rc-real">${courseMapSvg(M,{focus:h.hole,ar:0.7,px:canvas.clientWidth||360})}<p class="rc-real-attr">© OpenStreetMap contributors · current mapped routing</p></div>`;
+   const thru=holes.slice(0,i+1).reduce((s:number,x:any)=>s+(x.to_par??0),0);
+   card.innerHTML=`<p class="micro-label">HOLE ${h.hole} · PAR ${e(h.par??'—')}</p><b>${e(h.strokes??'—')}</b><span>${e(scoreLabel(h.to_par))}</span><p class="rc-run">Round to par thru ${i+1}: <b>${thru===0?'E':thru>0?'+'+thru:'−'+Math.abs(thru)}</b></p>`;
+   strip.querySelectorAll('.rc-h').forEach((b,k)=>b.classList.toggle('is-on',k===i));return;}
+  label(false);canvas.innerHTML=holeSvg({hole:h.hole,par:h.par,yards:h.yards,strokes:h.strokes});
   const thru=holes.slice(0,i+1).reduce((s:number,x:any)=>s+(x.to_par??0),0);
   card.innerHTML=`<p class="micro-label">HOLE ${h.hole} · PAR ${e(h.par??'—')}</p><b>${e(h.strokes??'—')}</b><span>${e(scoreLabel(h.to_par))}</span><p class="rc-run">Round to par thru ${i+1}: <b>${thru===0?'E':thru>0?'+'+thru:'−'+Math.abs(thru)}</b></p>`;
   strip.querySelectorAll('.rc-h').forEach((b,k)=>b.classList.toggle('is-on',k===i));

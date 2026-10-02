@@ -38,12 +38,12 @@ export function holeSvg({hole,par,yards,strokes,wind=null}){
 <text class="rc-hole" x="16" y="34">HOLE ${hole}</text><text class="rc-meta" x="16" y="56">PAR ${e(par??'—')}${yards?' · '+yards+' YDS':''}</text>
 ${windArrow}</svg>`;
 }
-export function castReplayPanel(rows,{edition,round=null}={}){
+export function castReplayPanel(rows,{edition,course=null,round=null}={}){
  const opts=rows.filter(r=>r.holes?.length).slice(0,60);if(!opts.length)return '';
- return `<section class="cast-replay" data-cast-replay data-edition="${e(edition)}"><div class="cast-live-head"><span class="truth truth-observed">OBSERVED SCORECARD DATA</span><span class="truth truth-reconstructed">RECONSTRUCTED VISUALIZATION</span></div>
+ return `<section class="cast-replay" data-cast-replay data-edition="${e(edition)}"${course?` data-course="${e(course)}"`:''}><div class="cast-live-head"><span class="truth truth-observed">OBSERVED SCORECARD DATA</span><span class="truth truth-reconstructed" data-rc-recon>RECONSTRUCTED VISUALIZATION</span><span class="truth truth-observed" data-rc-real hidden>VERIFIED COURSE ROUTING</span></div>
 <div class="rc-controls"><label>Player <select data-rc-player>${opts.map((r,i)=>`<option value="${i}">${e(r.player.name)}</option>`).join('')}</select></label><label>Round <select data-rc-round></select></label><button type="button" class="button button-gold" data-rc-play>Play round</button><button type="button" class="button button-quiet" data-rc-prev aria-label="Previous hole">◀</button><button type="button" class="button button-quiet" data-rc-next aria-label="Next hole">▶</button></div>
 <div class="rc-stage"><div class="rc-canvas" data-rc-canvas></div><div class="rc-card" data-rc-card aria-live="polite"></div></div>
 <ol class="rc-strip" data-rc-strip></ol>
-<p class="gnote">Scores are as published. Exact shot locations are unavailable: the hole shape, bunkers and ball path are a generic reconstruction from par and yardage, not shot tracking.</p></section>`;
+<p class="gnote" data-rc-note>Scores are as published. Exact shot locations are unavailable: the hole shape, bunkers and ball path are a generic reconstruction from par and yardage, not shot tracking.</p></section>`;
 }
 export {label as scoreLabel};

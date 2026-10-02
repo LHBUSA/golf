@@ -1,84 +1,93 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
-import {prepareCourseMap,courseMapSvg,courseMapModule,holePanel,relativeWind,bearing,simplify,basisLabel,yardageBook,difficultyScale,ATTRIBUTION} from '../src/lib/course-map.js';
-// Synthetic OSM-shaped input (not OSM data): a grid of 18 holes around a point.
-const C=[33.5,-82.02];
-const hole=(n,ref=String(n))=>({id:'way/'+n,ref,par:'4',coords:[[C[1]+n*0.001,C[0]],[C[1]+n*0.001,C[0]+0.003]]});
-const osm=(holes)=>({as_of:'2026-10-02T00:00:00Z',course:{id:'relation/1',outer:[[C[1],C[0]-0.001],[C[1]+0.02,C[0]-0.001],[C[1]+0.02,C[0]+0.004],[C[1],C[0]+0.004],[C[1],C[0]-0.001]]},holes,features:[{id:'way/900',golf:'green',closed:true,coords:[[C[1]+0.001,C[0]+0.003],[C[1]+0.0012,C[0]+0.003],[C[1]+0.0012,C[0]+0.0032],[C[1]+0.001,C[0]+0.003]]}]});
-const setup={edition:'x-2026',year:2026,label:'2026 Test Open championship setup',par:72,yardage:7200,holes:Array.from({length:18},(_,i)=>({hole:i+1,par:i%3?4:5,yards:400}))};
-const scoring={edition:'x-2026',year:2026,basis:'hole-by-hole scorecards observed for this edition',holes:Array.from({length:18},(_,i)=>({hole:i+1,avg_to_par:(i%5-2)/10,sample:10}))};
-const full=()=>prepareCourseMap(osm(Array.from({length:18},(_,i)=>hole(i+1))),{slug:'x',name:'X',setup,scoring});
+import {courseMapSvg,courseMapModule,holePanel,relativeWind,bearing,simplify,basisLabel,yardageBook,difficultyScale,selfIntersects,resolveHoles,tierOf} from '../src/lib/course-map.js';
+import {courseMap,openData,METHOD} from '../workers/golf-api/src/course-map.js';
+import {defaultEdition,setupOptions,buildSetup} from '../workers/shared/course-setup.js';
+// Real OSM-derived prepared payloads (ODbL, © OpenStreetMap contributors) + real Augusta edition docs (2025/2026 + the 2027 stub).
+const fx=f=>JSON.parse(fs.readFileSync(new URL('./fixtures/'+f,import.meta.url),'utf8'));
+const AUG=fx('course-map-augusta.json'),BD=fx('course-map-black-desert.json'),SET=fx('course-setup-augusta.json');
+const NOW=new Date('2026-10-02T20:00:00Z');
+const A='augusta-national-golf-club-q765780';
+const augEds=[{slug:'masters-tournament-epga15-2027',year:2027,name:'Masters Tournament',starts_on:'2027-04-08',status:'scheduled',coverage:'schedule_only',course:{slug:A}},
+ {slug:'masters-tournament-q280275-2026',year:2026,name:'2026 Masters Tournament',starts_on:'2026-04-09',status:'completed',coverage:'full_field',course:{slug:A}},
+ {slug:'masters-tournament-q280275-2025',year:2025,name:'2025 Masters Tournament',starts_on:'2025-04-10',status:'completed',coverage:'full_field',course:{slug:A}}];
+const ix={courses:[{slug:A,name:'Augusta National Golf Club'},{slug:'tpc-sawgrass-q1',name:'TPC Sawgrass'}],editions:[...augEds,{slug:'players-2026',year:2026,name:'2026 The Players',starts_on:'2026-03-12',status:'completed',course:{slug:'tpc-sawgrass-q1'}}]};
+const store={['osm-routing/v1/courses/'+A+'.json']:AUG,...Object.fromEntries(SET.editions.map(e=>['projection/v2/editions/'+e.slug+'.json',e])),
+ 'projection/v2/editions/players-2026.json':{slug:'players-2026',year:2026,name:'2026 The Players',layout:{label:'2026 THE PLAYERS setup',par:72,yardage:7275,holes:Array.from({length:18},(_,i)=>({hole:i+1,par:4,yards:400}))},leaderboard:[]}};
+const envOf=st=>({PUBLIC:{get:async k=>st[k]?{text:async()=>JSON.stringify(st[k]),body:JSON.stringify(st[k])}:null}});
+const env=envOf(store);
+const api=async(slug,ed=null)=>(await courseMap(env,ix,slug,ed,NOW)).body;
 
-test('full map: exactly 18 numbered routes, unique holes, tier A, attribution',()=>{
- const m=full();assert.equal(m.tier,'A');assert.equal(m.holes.filter(h=>h.route).length,18);assert.equal(new Set(m.holes.map(h=>h.hole)).size,18);
- const svg=courseMapSvg(m);assert.equal((svg.match(/class="cm-route/g)||[]).length,18);assert.ok(svg.includes(ATTRIBUTION.text));
- const mod=courseMapModule(m);assert.match(mod,/openstreetmap\.org\/copyright/);assert.match(mod,/Open Database License/);
+test('A. a future edition stub never becomes the default setup (Augusta -> 2026, not 2027)',async()=>{
+ assert.equal(defaultEdition(augEds,NOW).slug,'masters-tournament-q280275-2026');
+ assert.deepEqual(setupOptions(augEds,NOW).map(o=>o.year),[2026,2025]);
+ // A current edition still tagged schedule_only (live week) is current, not future; completed history stays selectable.
+ assert.equal(defaultEdition([{slug:'boc-2026',starts_on:'2026-10-01',status:'in_progress',coverage:'schedule_only'},{slug:'boc-2025',starts_on:'2025-10-23',status:'completed'}],NOW).slug,'boc-2026');
+ const M=await api(A);assert.equal(M.setup.year,2026);assert.equal(M.setup.yardage,7565);assert.ok(!M.setups.some(s=>s.year===2027));
+ assert.equal((await courseMap(env,ix,A,'masters-tournament-epga15-2027',NOW)).status,404,'future stub not selectable');
 });
-test('duplicate or non-numeric refs are never guessed; missing stays missing',()=>{
- const hs=Array.from({length:18},(_,i)=>hole(i+1));hs[4]=hole(5,'4');hs[9]=hole(10,'10a');hs.push(hole(19,'19'));
- const m=prepareCourseMap(osm(hs),{slug:'x',name:'X',setup});
- assert.equal(m.holes.find(h=>h.hole===4).route,null,'duplicate ref 4 dropped');assert.equal(m.holes.find(h=>h.hole===5).route,null);assert.equal(m.holes.find(h=>h.hole===10).route,null);
- assert.equal(m.tier,'B');assert.equal(m.coverage.holes_mapped,15);assert.match(basisLabel(m),/15 OF 18 HOLES MAPPED/);
- assert.equal((courseMapSvg(m).match(/class="cm-route/g)||[]).length,15);
+test('B. setup and scoring come from one edition; no sample -> explicit empty state, never another year',async()=>{
+ for(const ed of [null,'masters-tournament-q280275-2025']){const M=await api(A,ed);
+  assert.equal(M.scoring.edition,M.setup.edition);for(const h of M.holes){if(h.scoring)assert.equal(h.scoring.edition,M.setup.edition);assert.equal(h.setup.edition,M.setup.edition);}}
+ assert.equal((await api(A,'masters-tournament-q280275-2025')).scoring.cohort,'Observed field cards');
+ assert.equal((await api(A)).scoring.cohort,'Contender sample');
+ const r=buildSetup(SET.editions[0]);assert.equal(r.scoring.edition,r.setup.edition);
+ const p=await api('tpc-sawgrass-q1');assert.equal(p.scoring,null);const hp=holePanel(p,7);assert.match(hp,/No scoring sample available for the selected 2026 setup/);assert.doesNotMatch(hp,/2025/);
 });
-test('no geometry -> Level C yardage book, never a map, no OSM attribution claim',()=>{
- const m=prepareCourseMap(null,{slug:'y',name:'Y',setup});assert.equal(m.tier,'C');assert.equal(courseMapSvg(m),'');
- const mod=courseMapModule(m);assert.doesNotMatch(mod,/<svg/);assert.doesNotMatch(mod,/OpenStreetMap/);assert.match(mod,/SCORECARD LAYOUT · NO MAPPED ROUTING/);
- assert.equal((yardageBook(m).match(/cm-card/g)||[]).length,18);
-});
-test('current geometry is never labelled as a historical setup; setup changes never move geometry',()=>{
- const a=full(),b=prepareCourseMap(osm(Array.from({length:18},(_,i)=>hole(i+1))),{slug:'x',name:'X',setup:{...setup,year:2001,label:'2001 Test Open championship setup',yardage:6900,holes:setup.holes.map(h=>({...h,yards:350}))}});
- assert.deepEqual(a.holes.map(h=>h.route),b.holes.map(h=>h.route));assert.deepEqual(a.geometry.bounds,b.geometry.bounds);
- assert.match(basisLabel(b),/^VERIFIED ROUTING · CURRENT MAPPED ROUTING · OPENSTREETMAP AS OF 2026-10-02/);assert.doesNotMatch(basisLabel(b),/2001/);
- assert.match(courseMapModule(b),/not a historical setup/);
-});
-test('duplicate refs resolve only by a unique par + length match (par-3 course inside the club polygon)',async()=>{
- const {resolveHoles}=await import('../src/lib/course-map.js');
- const L=(n,m)=>[[C[1]+n*0.001,C[0]],[C[1]+n*0.001,C[0]+m/111195]];
- const champ={id:'way/a',ref:'4',par:'3',coords:L(4,240*0.9144)},short={id:'way/b',ref:'4',par:'3',coords:L(40,90*0.9144)};
- const sh=new Map([[4,{hole:4,par:3,yards:240}]]);let r=resolveHoles([champ,short],sh);assert.equal(r.accepted.length,1);assert.equal(r.accepted[0].id,'way/a');assert.equal(r.accepted[0].proof,'duplicate_ref_resolved_by_par_and_length');
- r=resolveHoles([champ,{...champ,id:'way/c'}],sh);assert.equal(r.accepted.length,0);assert.equal(r.rejected[0].reason,'duplicate_ref_ambiguous');
- r=resolveHoles([champ,short],new Map());assert.equal(r.accepted.length,0,'no setup evidence -> no guess');
-});
-test('OSM par is evidence only: displayed par/yardage come from our setup',()=>{const m=full();assert.equal(m.holes[0].par,5);assert.equal(m.holes[0].yards,400);});
-test('relative wind only with an observed bearing',()=>{
- assert.equal(relativeWind(null,270),null);assert.equal(relativeWind(0,270).label,'CROSSWIND LEFT → RIGHT');assert.equal(relativeWind(0,90).label,'CROSSWIND RIGHT → LEFT');
- assert.equal(relativeWind(0,0).kind,'into');assert.equal(relativeWind(0,180).kind,'helping');
- const m=full();const hp=holePanel(m,3,{wind:{from_deg:270,dir:'W',mph:8}});assert.match(hp,/CROSSWIND/);
- const c=prepareCourseMap(null,{slug:'y',name:'Y',setup});assert.doesNotMatch(holePanel(c,3,{wind:{from_deg:270,dir:'W',mph:8}}),/CROSSWIND|INTO|DOWNWIND/);
+test('C. wind language is geometry/weather description only',()=>{
+ assert.equal(relativeWind(null,270),null);assert.equal(relativeWind(0,null),null);
+ assert.equal(relativeWind(0,180).label,'TAILWIND');assert.equal(relativeWind(0,0).label,'HEADWIND');
+ assert.equal(relativeWind(0,270).label,'CROSSWIND · LEFT → RIGHT');assert.equal(relativeWind(0,90).label,'CROSSWIND · RIGHT → LEFT');
+ assert.equal(relativeWind(0,135).label,'QUARTERING TAILWIND');assert.equal(relativeWind(0,45).label,'QUARTERING HEADWIND');
+ for(let w=0;w<360;w+=5)assert.doesNotMatch(relativeWind(37,w).label,/HELP|HURT|EASIER|HARDER|ADVANTAGE|CLUB/);
  assert.equal(Math.round(bearing([[0,0],[0,1]])),0);assert.equal(Math.round(bearing([[0,0],[1,0]])),90);
 });
-test('PBEcast current hole highlights the whole route; never a player or ball marker',()=>{
- const svg=courseMapSvg(full(),{current:16});assert.equal((svg.match(/is-current/g)||[]).length,1);assert.doesNotMatch(svg,/ball|player|location/i);
- assert.match(courseMapModule(full(),{current:16}),/CURRENT HOLE · 16/);
+test('Augusta: PARTIAL 17/18, hole 6 withheld (never drawn, never guessed), attribution on the map',async()=>{
+ const M=await api(A);assert.equal(tierOf(M),'B');assert.equal(M.coverage.holes_mapped,17);
+ const h6=M.holes.find(h=>h.hole===6);assert.equal(h6.geometry_status,'withheld');assert.equal(h6.route,null);
+ const mod=courseMapModule(M);assert.match(mod,/17 OF 18 HOLE ROUTES VERIFIED/);assert.match(mod,/Hole 6 routing withheld pending identity verification/);
+ assert.equal((courseMapSvg(M).match(/class="cm-route/g)||[]).length,17);assert.doesNotMatch(courseMapSvg(M),/data-hole="6"/);
+ assert.match(mod,/openstreetmap\.org\/copyright/);assert.match(mod,/© OpenStreetMap contributors/);assert.match(mod,/Open Database License/);
+ assert.match(holePanel(M,6),/Hole 6 routing withheld/);
 });
-test('difficulty overlay keeps cohort/sample labels and needs real observations',()=>{
- const mod=courseMapModule(full(),{overlay:'difficulty'});assert.match(mod,/Contender sample · 2026 edition · up to 10 cards per hole/);
- assert.equal(difficultyScale({holes:[{hole:1,avg_to_par:0.2,sample:3}]}),null);assert.equal(difficultyScale(null),null);
+test('Black Desert: VERIFIED 18/18; OSM par/length differences kept as metadata; geometry carries no setup facts',()=>{
+ assert.equal(BD.geometry_status,'VERIFIED ROUTING');assert.equal(BD.holes.filter(h=>h.route).length,18);assert.equal(new Set(BD.holes.map(h=>h.hole)).size,18);
+ assert.equal(BD.geometry_metadata_conflicts.find(c=>c.hole===13).field,'par');
+ assert.ok(BD.holes.every(h=>!('par' in h)&&!('yards' in h)));assert.match(BD._license,/ODbL/);
 });
-test('focus zooms to the hole and the panel shows only sourced fields',()=>{
- const m=full();const svg=courseMapSvg(m,{focus:12});assert.match(svg,/hole 12 focused/);const hp=holePanel(m,12);
- assert.match(hp,/HOLE 12/);assert.match(hp,/Contenders’ average/);assert.match(hp,/Observed cards/);assert.doesNotMatch(hp,/landing|club|pin|ideal|strategy/i);
+test('no geometry -> scorecard layout (Level C), never a map, no OSM attribution claim',async()=>{
+ const M=await api('tpc-sawgrass-q1');assert.equal(tierOf(M),'C');assert.equal(courseMapSvg(M),'');assert.equal(M.attribution,null);
+ const mod=courseMapModule(M);assert.doesNotMatch(mod,/<svg/);assert.doesNotMatch(mod,/OpenStreetMap/);assert.match(mod,/SCORECARD LAYOUT · NO MAPPED ROUTING/);
+ assert.equal((yardageBook(M).match(/class="cm-card"/g)||[]).length,18);assert.ok(M.holes.every(h=>h.geometry_status==='none'&&h.route===null));
+});
+test('a setup switch changes par/yards/scoring, never geometry; labels say current routing',async()=>{
+ const a=await api(A),b=await api(A,'masters-tournament-q280275-2025');
+ assert.deepEqual(a.holes.map(h=>h.route),b.holes.map(h=>h.route));assert.deepEqual(a.bounds,b.bounds);assert.equal(a.geometry_as_of,b.geometry_as_of);
+ assert.notEqual(a.setup.yardage,b.setup.yardage);
+ assert.match(courseMapModule(b),/Current mapped routing · 2025 championship setup/);assert.match(basisLabel(b),/CURRENT MAPPED ROUTING · OPENSTREETMAP AS OF/);assert.doesNotMatch(basisLabel(b),/2025/);
+ assert.match(courseMapModule(a),/<option value="masters-tournament-q280275-2025">2025/);
+});
+test('PBEcast: the current hole is a whole highlighted route, never a golfer/ball marker; wind only on observed bearings',()=>{
+ const M={...BD,course:{slug:'bd',name:'Black Desert'},bounds:BD.geometry.bounds,holes:BD.holes.map(h=>({...h,geometry_status:'verified',setup:{edition:'e',par:4,yards:500},scoring:null}))};
+ const svg=courseMapSvg(M,{current:16});assert.equal((svg.match(/cm-route is-current/g)||[]).length,1);assert.doesNotMatch(svg,/ball|player|golfer|marker|location/i);
+ const mod=courseMapModule(M,{current:16,mode:'cast'});assert.match(mod,/CURRENT HOLE<\/span> <b>16<\/b> · PAR 4 · 500 YDS/);assert.match(mod,/COURSE VIEW/);assert.doesNotMatch(mod,/data-cm-setup/);
+ const hp=holePanel(M,16,{wind:{from_deg:157.5,dir:'SSE',mph:8,precision:'locality'}});assert.match(hp,/SSE · 8 MPH/);assert.match(hp,/PBE-derived from sourced routing \+ weather observation \(town-level estimate\)/);
+ const un={...M,holes:M.holes.map(h=>h.hole===16?{...h,geometry_status:'unmapped',route:null,bearing_deg:null}:h)};assert.doesNotMatch(holePanel(un,16,{wind:{from_deg:157.5,dir:'SSE',mph:8}}),/WIND/);
+});
+test('difficulty overlay: real observations only; cohort and edition labelled',async()=>{
+ const M=await api(A);assert.ok(difficultyScale(M));const mod=courseMapModule(M,{overlay:'difficulty'});
+ assert.match(mod,/Contender sample · 2026 edition/);assert.match(mod,/Not the full field/);assert.equal((courseMapSvg(M,{overlay:'difficulty'}).match(/cm-d[0-4]/g)||[]).length,17);
+ assert.equal(difficultyScale({holes:[{hole:1,scoring:{avg_to_par:0.2,sample:3}}]}),null);
+});
+test('payloads stay light and topology-safe',()=>{for(const m of [AUG,BD]){assert.ok(JSON.stringify(m).length<60000);for(const k of Object.keys(m.geometry.features))for(const r of m.geometry.features[k])assert.equal(selfIntersects(r),false);}});
+test('duplicate refs resolve only by a unique par + length match (par-3 course inside the club polygon)',()=>{
+ const C=[33.5,-82.02],L=(n,m)=>[[C[1]+n*0.001,C[0]],[C[1]+n*0.001,C[0]+m/111195]];
+ const champ={id:'way/a',ref:'4',par:'3',coords:L(4,240*0.9144)},short={id:'way/b',ref:'4',par:'3',coords:L(40,90*0.9144)};
+ const sh=new Map([[4,{hole:4,par:3,yards:240}]]);let r=resolveHoles([champ,short],sh);assert.equal(r.accepted.length,1);assert.equal(r.accepted[0].id,'way/a');
+ r=resolveHoles([champ,{...champ,id:'way/c'}],sh);assert.equal(r.accepted.length,0);r=resolveHoles([champ,short],new Map());assert.equal(r.accepted.length,0,'no setup evidence -> no guess');
+});
+test('ODbL open data: licence, attribution, per-course downloads and the method are served',async()=>{
+ const env2=envOf({...store,'osm-routing/v1/index.json':{generated_at:'2026-10-02',counts:{},courses:[{slug:A,name:'Augusta',status:'partial',holes_mapped:17,osm_course:'way/1',retrieved_at:'2026-10-02'},{slug:'x',name:'X',status:'held',holes_mapped:0}]}});
+ const i=await openData(env2,[]);assert.equal(i.body.licence,'ODbL-1.0');assert.match(i.body.attribution,/OpenStreetMap contributors/);assert.equal(i.body.courses.length,1);assert.equal(i.body.courses[0].download,'/v1/open-data/course-routing/'+A+'.geojson');
+ const m=await openData(env2,['method']);assert.match(m.text,/ODbL/);assert.match(METHOD,/Prove hole numbers/);
 });
 test('simplify keeps endpoints and drops collinear points',()=>{assert.deepEqual(simplify([[0,0],[1,0.01],[2,0]],1),[[0,0],[2,0]]);});
-// Real prepared fixtures (OSM-derived, ODbL): Augusta National (tier A expected) and Black Desert (review).
-for(const f of ['course-map-augusta.json','course-map-black-desert.json']){const p=new URL('./fixtures/'+f,import.meta.url);if(!fs.existsSync(p))continue;
- test('fixture '+f+': licence note, unique holes, routes match tier',()=>{const m=JSON.parse(fs.readFileSync(p,'utf8'));assert.match(m._license,/ODbL/);assert.equal(new Set(m.holes.map(h=>h.hole)).size,18);
-  assert.equal(m.holes.filter(h=>h.route).length,m.coverage.holes_mapped);if(m.tier==='A')assert.equal(m.coverage.holes_mapped,18);assert.ok(courseMapSvg(m).includes(ATTRIBUTION.text));assert.ok(JSON.stringify(m).length<200000,'payload stays light');});}
-test('setup selector changes par/yards/scoring, never geometry; labels current routing vs championship yardage',async()=>{
- const {withSetup,spatialState}=await import('../src/lib/course-map.js');const a=full();
- const s25={...setup,edition:'x-2025',year:2025,label:'2025 Test Open championship setup',yardage:7000,holes:setup.holes.map(h=>({...h,yards:380}))};
- const b=withSetup(a,s25,null);assert.equal(b.geometry,a.geometry);assert.deepEqual(b.holes.map(h=>h.route),a.holes.map(h=>h.route));assert.equal(b.holes[0].yards,380);
- const mod=courseMapModule(b,{setups:[{edition:'x-2026',year:2026},{edition:'x-2025',year:2025}]});assert.match(mod,/Current mapped routing · 2025 championship yardage/);assert.match(mod,/aria-pressed="true">2025/);
- assert.equal(spatialState(a),'VERIFIED ROUTING');assert.equal(spatialState(prepareCourseMap(null,{slug:'y',name:'Y',setup})),'RECONSTRUCTED');
-});
-test('topology-safe simplification never returns a self-intersecting ring',async()=>{const {selfIntersects}=await import('../src/lib/course-map.js');
- assert.equal(selfIntersects([[0,0],[2,0],[2,2],[0,2],[0,0]]),false);assert.equal(selfIntersects([[0,0],[2,2],[2,0],[0,2],[0,0]]),true);
- const m=full();for(const k of Object.keys(m.geometry.features))for(const r of m.geometry.features[k])assert.equal(selfIntersects(r),false);});
-test('wind label is PBE-derived and descriptive only; mobile card has prev/next',()=>{const hp=holePanel(full(),3,{wind:{from_deg:270,dir:'W',mph:8}});assert.match(hp,/PBE-derived from sourced routing \+ weather observation/);assert.doesNotMatch(hp,/club effect is|expected|strokes gained/i);assert.match(hp,/data-cm-hole="2"/);assert.match(hp,/data-cm-hole="4"/);});
-test('identity review or a par conflict can never be VERIFIED',async()=>{const {spatialState}=await import('../src/lib/course-map.js');
- const hs=Array.from({length:18},(_,i)=>hole(i+1));const r=prepareCourseMap(osm(hs),{slug:'x',name:'X',setup},{review:'name_only'});assert.equal(spatialState(r),'PARTIAL ROUTING');assert.match(basisLabel(r),/IDENTITY PENDING REVIEW/);
- const p=prepareCourseMap(osm(hs),{slug:'x',name:'X',setup},{parConflicts:[13]});assert.equal(p.tier,'B');assert.match(basisLabel(p),/OSM PAR DIFFERS ON 13/);});
-test('cohort label follows the sample: contender cards vs observed field cards',async()=>{const {cohortLabel}=await import('../src/lib/course-map.js');
- assert.equal(cohortLabel({holes:[{hole:1,sample:10}]}),'Contender sample');assert.equal(cohortLabel({holes:[{hole:1,sample:368}]}),'Observed field cards');
- const m={...full(),scoring:{...scoring,holes:scoring.holes.map(h=>({...h,sample:368}))}};const hp=holePanel(m,3);assert.doesNotMatch(hp,/Contenders’ average|Not the full field/);assert.match(hp,/Observed field cards/);
- assert.equal((courseMapSvg(full(),{overlay:'difficulty'}).match(/cm-d[0-4]/g)||[]).length,18);});

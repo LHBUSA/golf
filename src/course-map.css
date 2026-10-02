@@ -1,4 +1,4 @@
-/* Course Maps V1 prototype styles (not imported by any page yet). */
+/* Course Geo V1: course pages (light page, dark module) and PBEcast Course View. */
 .cm{--cm-bg:#0b1f19;--cm-ink:#eef2ec;--cm-mute:#a9bcb0;--cm-gold:#e0c27a;background:var(--cm-bg);color:var(--cm-ink);padding:16px;border-radius:4px;display:grid;gap:10px}
 .cm-head{display:grid;gap:4px}
 .cm-k{margin:0;font:700 11px/1.2 var(--sans,system-ui);letter-spacing:1.8px;color:var(--cm-gold)}
@@ -43,3 +43,36 @@
 .cm-nav{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
 @media(max-width:600px){.cm-panel{position:sticky;bottom:0;background:#0b1f19f2;border:1px solid #e0c27a66;border-left-width:3px;border-radius:6px 6px 0 0;padding:12px;box-shadow:0 -8px 24px #0008}.cm-big{font-size:22px}}
 .cm-line.cm-d0{stroke:#5e9b6e;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d1{stroke:#93a768;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d2{stroke:#c8aa68;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d3{stroke:#c47c4f;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}.cm-line.cm-d4{stroke:#b2483a;stroke-opacity:1;stroke-dasharray:none;stroke-width:3}
+
+.cm-host{min-height:620px}
+.cm-host:empty{background:#0b1f19;border-radius:4px}
+@media(max-width:600px){.cm-host{min-height:560px}}
+.cm-controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:4px}
+.cm-controls:empty{display:none}
+.cm-setupsel{display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--sans,system-ui);letter-spacing:.8px;color:var(--cm-mute)}
+.cm-setupsel select{font:600 12.5px/1.2 var(--sans,system-ui);color:var(--cm-ink);background:#10291f;border:1px solid #ffffff33;border-radius:3px;padding:7px 8px;min-height:34px;max-width:min(70vw,320px)}
+.cm-modes{display:inline-flex;border:1px solid #ffffff33;border-radius:3px;overflow:hidden}
+.cm-modes button{font:700 11px/1 var(--sans,system-ui);letter-spacing:.6px;color:var(--cm-ink);background:transparent;border:0;padding:8px 11px;min-height:34px;cursor:pointer}
+.cm-modes button+button{border-left:1px solid #ffffff33}
+.cm-modes button[aria-pressed=true]{background:var(--cm-gold);color:#10291f}
+.cm-current{display:inline-flex;gap:8px;align-items:baseline}
+.cm-current b{font-size:15px}
+.cm-keys{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px}
+.cm-keys button{font:700 11.5px/1 var(--sans,system-ui);color:var(--cm-ink);background:#ffffff0d;border:1px solid #ffffff26;border-radius:3px;min-height:32px;padding:0;cursor:pointer;font-variant-numeric:tabular-nums}
+.cm-keys button:hover{border-color:#ffffff66}
+.cm-keys button[aria-pressed=true]{background:#e0c27a26;border-color:var(--cm-gold)}
+.cm-keys button.is-current{box-shadow:inset 0 -3px 0 var(--cm-gold)}
+.cm-keys button.is-unmapped{color:var(--cm-mute);border-style:dashed}
+@media(max-width:700px){.cm-keys{grid-template-columns:repeat(9,minmax(0,1fr))}}
+.cm button:focus-visible,.cm select:focus-visible,.cm a:focus-visible{outline:2px solid var(--cm-gold);outline-offset:2px}
+.cm-route .cm-num{cursor:pointer}
+.cm-route.is-focus .cm-num circle{fill:var(--cm-gold)}.cm-route.is-focus .cm-num text{fill:#10291f}
+.cm-k2{margin:6px 0 0;font:700 9.5px/1.2 var(--sans,system-ui);letter-spacing:1.4px;color:var(--cm-mute)}
+.cm-wind{display:grid;gap:2px}.cm-wind p{margin:0}.cm-wv b{color:var(--cm-ink);font-size:14px}.cm-wkind{font:700 13px/1.2 var(--sans,system-ui);letter-spacing:1px;color:var(--cm-gold)}
+.cm-panel .cm-note{max-width:62ch}
+.cm-book .cm-card{color:var(--cm-ink);cursor:pointer;font:inherit}
+.cm-cast{padding:14px;border:1px solid #ffffff1c;background:#10291f}
+.cm-cast .cm-svg{max-height:62vh}
+@media(min-width:900px){.cm-cast{grid-template-columns:minmax(0,1fr) minmax(220px,300px);grid-template-areas:"head head" "cur cur" "stage panel" "keys keys" "note note" "attr attr";align-items:start}
+ .cm-cast .cm-head{grid-area:head}.cm-cast .cm-current{grid-area:cur}.cm-cast .cm-stage{grid-area:stage}.cm-cast [data-cm-panelhost]{grid-area:panel}.cm-cast .cm-keys{grid-area:keys}.cm-cast .cm-withheld{grid-area:note}.cm-cast .cm-attrib{grid-area:attr}}
+.rc-real{display:grid;gap:6px}.rc-real .cm-svg{max-height:520px;border-radius:3px}.rc-real-attr{margin:0;font-size:11px;color:#c9d3cc}

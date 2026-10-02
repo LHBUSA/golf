@@ -14,3 +14,7 @@ supabase/.temp/
 
 .vercel
 data/public/bundle.json
+
+# OSM (ODbL) licensed archive + prepared store; published via R2 osm-routing/v1, not git
+data/osm-cache/
+data/osm-routing/

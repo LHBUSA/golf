@@ -6,6 +6,7 @@ import {renderNews,feed,newsSitemap,newsUrlset,newsIndex} from './news-ssr.js';
 const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
 import {noTransform} from './transport.js';
+import {courseMap,openData} from './course-map.js';
 import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
@@ -139,10 +140,18 @@ async function route(request,env){
     }
     case 'courses':{
      if(!id)return ok(ix.courses);
+     if(sub==='map'){const r=await courseMap(env,ix,id,url.searchParams.get('edition'));return json(r.body,r.status,r.status===200?'public, max-age=300, s-maxage=1800':'no-store');}
      const d=await doc(env,'courses/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const c=publicCourse(d);
      if(!sub)return ok(c,{provenance:d.provenance,method:ix.methods.course});
      if(sub==='history')return ok(c.editions);
      return json({error:'not_found'},404);
+    }
+    case 'open-data':{
+     if(id!=='course-routing')return json({error:'not_found'},404);
+     const r=await openData(env,parts.slice(2));
+     if(r.text)return new Response(r.text,{status:200,headers:{...headers(r.cache),'content-type':'text/markdown; charset=utf-8'}});
+     if(r.stream)return new Response(r.stream,{status:200,headers:{...headers(r.cache),'content-type':r.type,'access-control-allow-origin':'*'}});
+     return json(r.body,r.status,r.status===200?r.cache:'no-store');
     }
     case 'matchups':{
      if(!id||!sub)return ok({featured:ix.featured_matchups||[]});

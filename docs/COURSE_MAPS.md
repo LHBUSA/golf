@@ -270,3 +270,28 @@ ODbL note:
 3. Publish the ODbL derived dataset / method page (4.6), plus attribution on every map surface.
 4. golf-api `GET /v1/courses/:slug/map` (ODbL notice), then the `/course/:slug` module, then PBEcast Course View: current-hole highlight, scorecard ↔ map sync, relative wind.
 5. Browser QA at 390/768/1024/1440/1920 with axe and CLS. Deploy only after owner sign-off.
+
+
+## 10. Stage B (owner GO 2026-10-02) — production rules as built
+
+**Owner decisions.** Map direction approved; ODbL architecture approved; Black Desert identity cleared on first-party evidence; OSM par is metadata, never setup truth; St Andrews not merged on name.
+
+**Pipeline.** `scripts/osm-routing.mjs collect | relations | prepare | upload`.
+- *collect*: one Overpass query per course (radius 2 km, `out geom`), priority order (current week, majors, most editions, PGA, LPGA, rest), waits for a free slot per `/api/status`, honours 429, retries a 504 once after 90 s then records a barrier (`data/osm-cache/_barriers.json`). Resumable: cached extracts are never re-fetched.
+- *relations*: extracts taken with `out geom tags` lost multipolygon members (the `tags` verbosity drops them); this re-fetches only those relations with `out geom` and merges them in place.
+- *prepare*: identity match, hole proof, topology-safe simplification → `data/osm-routing/v1/` (mirrors R2 `osm-routing/v1/`): `courses/{slug}.json` (web payload), `dataset/{slug}.geojson` (ODbL derivative: lon/lat, OSM ids), `index.json` (coverage). Evidence copy: `docs/evidence/course-geo-coverage.json`.
+- *upload*: R2 `golf-public/osm-routing/v1/**` (isolated prefix; no OSM-derived data enters Supabase).
+
+**Why routing stays out of `golf_holes.routing` for now.** The columns exist and remain the intended home, but writing them needs the DB writer and would place ODbL derivative data inside the sports graph. The isolated R2 store is the licensed dataset, is what we publish under ODbL, and keeps the share-alike boundary clean. Moving it into `golf_holes.routing` later is additive.
+
+**Identity rules added in Stage B** (`workers/shared/course-geo.js`).
+1. Par conflict = `geometry_metadata_conflicts` (field `par`); never blocks or demotes geometry.
+2. Hole numbering vs setup: 2+ holes where BOTH par and length (>25%) disagree = evidence of a different (member) numbering → every length-mismatched hole is withheld (`routing_numbering_differs_from_setup`); more than three → the course is held. Without that evidence a length-only difference (forward-tee route) is kept and recorded as metadata (field `length`).
+3. Shared-name resort: another course in the extract that matches our canonical name at least as well as the target requires 15+ proven holes agreeing on length (Carnoustie: the point falls in Burnside → held; Augusta next to Augusta Country Club → accepted on hole evidence).
+4. Documented identity evidence (`workers/shared/course-identity.js`) may clear exactly one named element (Black Desert). Proven canonical duplicates (St Andrews ec37 = Q167245 via ESPN venue 37) never take geometry; the merge is prepared in `docs/evidence/course-merge-st-andrews.json`, not applied.
+
+**Setup/scoring.** `workers/shared/course-setup.js`: default setup = latest edition with `starts_on <= today` (scheduled/cancelled excluded) — future stubs never default. Setup and scoring are built from the same edition document; a mismatch throws. No scoring sample → explicit empty state; another year is never substituted.
+
+**API.** `GET /v1/courses/:slug/map[?edition=]` (golf-api `src/course-map.js`), `GET /v1/open-data/course-routing`, `/{slug}.geojson`, `/method`.
+
+**UI.** Course page module (setup selector, routing/difficulty toggle, hole keys, focused-hole card with prev/next, mobile bottom card). PBEcast Course View: current hole (next hole in order of play) highlighted as a whole route; scorecard ↔ map selection sync; hole-relative wind (TAILWIND / QUARTERING TAILWIND / CROSSWIND · L→R / R→L / QUARTERING HEADWIND / HEADWIND) only on observed bearings. Archive replay: verified holes show real routing with no ball flight; unmapped holes keep the labelled reconstruction.

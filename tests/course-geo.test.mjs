@@ -17,10 +17,24 @@ test('point outside every boundary: near + same name -> review only; otherwise n
  const near=matchCourse({...canon,latitude:9.9995,longitude:20.01},[course(1,'Alpha National Golf Club',20,10),...holes18(20,10)],SH);assert.equal(near.decision,'review_point_outside_boundary');assert.equal(near.state,'REVIEW_OR_NONE');
  const far=matchCourse({...canon,latitude:9.9,longitude:20.01},[course(1,'Alpha National Golf Club',20,10)],SH);assert.equal(far.decision,'no_match_point_outside_boundary');});
 test('name-only location (no canonical coords) is always review',()=>{const r=matchCourse({...canon,latitude:null,longitude:null},[course(1,'Alpha National',20,10),...holes18(20,10)],SH,{namedId:'way/1'});assert.equal(r.decision,'review_no_canonical_coords');assert.equal(r.state,'REVIEW_OR_NONE');});
-test('par conflict keeps geometry partial; locality conflict -> review',()=>{
- const hs=holes18(20,10);hs[12]=hole(2012,13,20.013,10.002,'5');const r=matchCourse(canon,[course(1,'Alpha National',20,10),...hs],SH);assert.equal(r.decision,'exact');assert.equal(r.state,'PARTIAL ROUTING');assert.deepEqual(r.evidence.par.disagree,[13]);
- const l=matchCourse(canon,[course(1,'Alpha National',20,10,0.02,{'addr:city':'Gamma'}),...holes18(20,10)],SH);assert.equal(l.decision,'exact','region vs town granularity is not a conflict');assert.equal(l.evidence.locality_ok,null);
+test('an OSM par conflict is metadata: geometry stays VERIFIED; locality granularity is not a conflict; country conflict -> review',()=>{
+ const hs=holes18(20,10);hs[12]=hole(2012,13,20.013,10.002,'5');const r=matchCourse(canon,[course(1,'Alpha National',20,10),...hs],SH);assert.equal(r.decision,'exact');assert.equal(r.state,'VERIFIED ROUTING');assert.deepEqual(r.evidence.par.disagree,[13]);
+ const l=matchCourse(canon,[course(1,'Alpha National',20,10,0.02,{'addr:city':'Gamma'}),...holes18(20,10)],SH);assert.equal(l.decision,'exact');assert.equal(l.evidence.locality_ok,null);
  const c=matchCourse(canon,[course(1,'Alpha National',20,10,0.02,{'addr:country':'GB'}),...holes18(20,10)],SH);assert.equal(c.decision,'review_country_conflict');});
+// holes18 routes are ~0.003 deg (~364 yd) long; SH says 360 yd par 4.
+test('renumbered routing (2+ holes with par AND length disagreeing) withholds every length-mismatched hole',()=>{
+ const hs=holes18(20,10);hs[14]=hole(2014,15,20.015,10.002,'3',0.0011);hs[16]=hole(2016,17,20.017,10.002,'3',0.0011);hs[15]=hole(2015,16,20.016,10.002,'4',0.0055);
+ const r=matchCourse(canon,[course(1,'Alpha National',20,10),...hs],SH);assert.equal(r.decision,'exact');assert.equal(r.evidence.proven,15);
+ assert.deepEqual(r.evidence.rejected.filter(x=>x.reason==='routing_numbering_differs_from_setup').map(x=>x.ref),[15,16,17]);assert.equal(r.state,'PARTIAL ROUTING');});
+test('a length-only difference (same par, e.g. forward-tee route) is kept and recorded, never withheld',()=>{
+ const hs=holes18(20,10);hs[2]=hole(2002,3,20.003,10.002,'4',0.002);const r=matchCourse(canon,[course(1,'Alpha National',20,10),...hs],SH);
+ assert.equal(r.evidence.proven,18);assert.deepEqual(r.evidence.length_conflicts.map(c=>c.hole),[3]);assert.equal(r.state,'VERIFIED ROUTING');});
+test('more than three renumbered holes holds the course (wrong course inside a multi-course property)',()=>{
+ const hs=holes18(20,10).map((h,i)=>i%2?hole(3000+i,i+1,20+0.001*(i+1),10.002,'3',0.0011):h);
+ const r=matchCourse(canon,[course(1,'Alpha National',20,10),...hs],SH);assert.equal(r.decision,'review_routing_differs_from_setup');assert.equal(r.state,'REVIEW_OR_NONE');});
+test('shared-name resort: a neighbour named as well as the target needs 15+ proven holes agreeing on length',()=>{
+ const strong=matchCourse(canon,[course(1,'Alpha National Championship',20,10),course(2,'Alpha National Burnside',20.03,10),...holes18(20,10)],SH);assert.equal(strong.decision,'exact');
+ const weak=matchCourse(canon,[course(1,'Alpha National Championship',20,10),course(2,'Alpha National Burnside',20.03,10),...holes18(20,10).slice(0,10)],SH);assert.equal(weak.decision,'review_resort_shared_name');});
 test('operator tag counts as name evidence (club operates a course named "Old Course")',()=>{const r=matchCourse({...canon,name:'Royal Alpha Golf Club'},[course(1,'Old Course',20,10,0.02,{operator:'Royal Alpha Golf Club'})],SH);assert.equal(r.evidence.name_score,1);assert.equal(r.decision,'exact');});
 test('two canonical courses -> one OSM course: both held as duplicate identity',async()=>{const {holdSharedTargets}=await import('../workers/shared/course-geo.js');
  const rows=holdSharedTargets([{slug:'a',decision:'exact',state:'VERIFIED ROUTING',osm_course:{id:'way/1'}},{slug:'b',decision:'exact',state:'VERIFIED ROUTING',osm_course:{id:'way/1'}},{slug:'c',decision:'exact',state:'VERIFIED ROUTING',osm_course:{id:'way/2'}}]);

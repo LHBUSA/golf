@@ -1,0 +1,45 @@
+{
+ "generated": "2026-10-02",
+ "status": "PREPARED, NOT APPLIED (database identity merge; apply via the golf DB writer with owner approval)",
+ "verdict": "same physical course",
+ "primary": {
+  "slug": "old-course-at-st-andrews-q167245",
+  "name": "Old Course at St Andrews",
+  "wikidata": "Q167245",
+  "editions": 33
+ },
+ "duplicate": {
+  "slug": "st-andrews-links-old-course-ec37",
+  "name": "St Andrews Links (Old Course)",
+  "source": "espn",
+  "espn_venue_id": "37",
+  "editions": 1
+ },
+ "evidence": [
+  "ESPN venue id 37 on both: ec37 (from the-open-epga29-2027) and women-s-british-open-q429896-2024 linked to Q167245",
+  "Same ESPN venue name, city (St. Andrews), country (Scotland), par 72",
+  "2027 stub hole yardages vs 2022 Open setup: 376/375 453/452 397/398 480/480 568/570 412/414 390/371 175/174 352/352 380/386 174/174 348/348 465/465 618/614 456/455 423/418 455/495 357/356",
+  "ec37 coordinates are a town-centre point 1.0 km from the course coordinates on Q167245"
+ ],
+ "not_merged": [
+  {
+   "slug": "siam-country-club-pattaya-old-course-ec10671",
+   "reason": "different course (Pattaya, Thailand); shares only the words 'Old Course'"
+  }
+ ],
+ "before": {
+  "golf_editions(the-open-epga29-2027).course": "st-andrews-links-old-course-ec37",
+  "course_count": 267
+ },
+ "after": {
+  "golf_editions(the-open-epga29-2027).course": "old-course-at-st-andrews-q167245",
+  "st-andrews-links-old-course-ec37": "identity_status=merged, merged_into=Q167245 course id; ESPN venue 37 crosswalk moves to the primary",
+  "course_count": 266
+ },
+ "operations": [
+  "UPDATE edition the-open-epga29-2027 course_id -> primary course id",
+  "ADD crosswalk espn venue 37 -> primary course id",
+  "MARK ec37 identity_status='merged' (audit row in golf_source_changes)",
+  "REBUILD projection; /course/st-andrews-links-old-course-ec37 redirects to the primary"
+ ]
+}

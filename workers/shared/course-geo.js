@@ -1,7 +1,7 @@
 // Course Geo V1: strict identity matcher between a canonical PBE course and OpenStreetMap golf features.
 // Pure (no I/O). Never attaches by name alone; resorts / multi-course properties and anything uncertain -> review.
-// OSM par is a consistency signal only; championship par/yardage always come from our setups.
-import {resolveHoles} from '../../src/lib/course-map.js';
+// OSM par is a consistency signal only (recorded as a metadata conflict); championship par/yardage always come from our setups.
+import {resolveHoles,routeLengthM} from '../../src/lib/course-map.js';
 
 const STOP=new Set(['golf','club','course','courses','country','cc','gc','links','the','and','&','of','at','resort','national','g','c','golfclub']);
 export const norm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(t=>t&&!STOP.has(t));
@@ -49,15 +49,34 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
   const res=resolveHoles(holes.map(h=>({id:'way/'+h.id,ref:h.tags.ref,par:h.tags.par,coords:h.geometry.map(p=>[p.lon,p.lat])})),setupHoles);
   ev.proven=res.accepted.length;ev.proofs=res.accepted.reduce((o,h)=>(o[h.proof]=(o[h.proof]||0)+1,o),{});ev.rejected=res.rejected.filter(r=>r.ref!=null).slice(0,20);
   for(const h of res.accepted){const s=setupHoles.get(h.hole);if(s&&h.par!=null&&Number.isInteger(Number(h.par))){ev.par.compared++;if(Number(h.par)===s.par)ev.par.agree++;else ev.par.disagree.push(h.hole);}}
+  // Hole numbering vs the championship setup. A member routing can number holes differently from the tournament
+  // routing (Hoylake). Evidence of renumbering = 2+ holes where BOTH par and length (>25%) disagree; then every
+  // length-mismatched hole is withheld (its number is unproven). Without that evidence, a length difference alone
+  // (e.g. a route drawn from a forward tee) is recorded as metadata and the hole is kept.
+  const chk=res.accepted.map(h=>{const s=setupHoles.get(h.hole),y=routeLengthM(h.coords)/0.9144;return {h,y,len:Number.isInteger(s?.yards)&&Math.abs(y-s.yards)/s.yards>0.25,par:Number.isInteger(s?.par)&&h.par!=null&&Number.isInteger(Number(h.par))&&Number(h.par)!==s.par,s};});
+  const renumbered=chk.filter(c=>c.len&&c.par).length>=2,bad=[];
+  ev.length_conflicts=chk.filter(c=>c.len&&!renumbered).map(c=>({hole:c.h.hole,mapped_yards:Math.round(c.y),setup_yards:c.s.yards}));
+  res.accepted=chk.filter(c=>{if(c.len&&renumbered){bad.push({ref:c.h.hole,candidates:1,reason:'routing_numbering_differs_from_setup',mapped_yards:Math.round(c.y),setup_yards:c.s.yards});return false;}return true;}).map(c=>c.h);
+  ev.length_mismatch=bad;ev.rejected=[...ev.rejected,...bad];ev.proven=res.accepted.length;
   ev.accepted=res.accepted;
+  // Shared-name resort: another course in the extract matches our canonical name at least as well as the target
+  // (Carnoustie Championship / Burnside / Buddon). The point alone cannot pick the right one: hold for review.
+  const tScore=nameScore(canon.name,target.tags?.name);
+  ev.shared_name_neighbours=courses.filter(e=>e!==target&&e.tags?.name&&nameScore(canon.name,e.tags.name)>=0.5&&nameScore(canon.name,e.tags.name)>=tScore).map(e=>e.type+'/'+e.id+' '+e.tags.name);
   if(!decision){
-   const nameOk=ev.name_score>=0.5,holesOk=ev.proven===18&&ev.par.disagree.length===0&&ev.par.compared>=17;
+   // Routing answers WHERE a hole is; tournament setups answer HOW it plays. An OSM par tag that differs from our setup is
+   // recorded as geometry_metadata_conflict and never blocks or demotes geometry (owner rule 2026-10-02).
+   const nameOk=ev.name_score>=0.5,holesOk=ev.proven===18;
    if(ev.country_ok===false)decision='review_country_conflict';
+   else if(ev.length_mismatch.length>3)decision='review_routing_differs_from_setup';
+   // A shared-name neighbour (same club / next door) needs strong hole evidence: 15+ proven holes that agree with the
+   // setup lengths. Otherwise the point alone cannot prove which course it is.
+   else if(ev.shared_name_neighbours.length&&(ev.proven<15||ev.length_mismatch.length>2))decision='review_resort_shared_name';
    else if(!nameOk&&!holesOk)decision='review_weak_identity';
    else decision='exact';
   }
  }
- const state=decision!=='exact'?'REVIEW_OR_NONE':ev.proven===18&&!ev.par.disagree.length?'VERIFIED ROUTING':ev.proven>0?'PARTIAL ROUTING':'NO ROUTING';
+ const state=decision!=='exact'?'REVIEW_OR_NONE':ev.proven===18?'VERIFIED ROUTING':ev.proven>0?'PARTIAL ROUTING':'NO ROUTING';
  return {decision,state,target,evidence:ev};
 }
 

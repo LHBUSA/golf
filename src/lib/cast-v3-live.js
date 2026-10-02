@@ -1,5 +1,6 @@
 // PBEcast V3 controller: one state object per mounted cast, small region diffs on refresh, no timers per render.
-import {castShell,commandBar,towerRows,focusPanel,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
+import {fetchCourseMap,mountCourseMap} from './course-map-live.js';
+import {castShell,commandBar,currentHole,towerRows,focusPanel,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
 import {e} from './ui.js';
 
 const STATE=new WeakMap();
@@ -12,16 +13,16 @@ export function castV3(host,r,mv){
  s.ev=r.event;s.weather=r.weather_now||null;s.layout=r.course_holes||[];s.points=(mv?.points||[]).filter(p=>p.top?.length);
  s.holes=new Map((r.hole_scores||[]).filter(h=>h.round==null||h.round===r.event.round).map(h=>[h.slug||h.name,h.holes||[]]));
  const rows=s.ev.leaderboard||[];if(!s.selected||!rows.some(x=>key(x)===s.selected))s.selected=key(rows.find(x=>x.status==='active')||rows[0]);
- render(s);s.prevRows=new Map(rows.map(x=>[key(x),{position:x.position,total_to_par:x.total_to_par,today_to_par:x.today_to_par,thru:x.thru}]));
+ render(s);syncMap(s);s.prevRows=new Map(rows.map(x=>[key(x),{position:x.position,total_to_par:x.total_to_par,today_to_par:x.today_to_par,thru:x.thru}]));
 }
 
 function mount(host,slug){
  const root=host.querySelector('[data-cv3]');const q=sel=>root.querySelector(sel);
  const s={host,root,slug,selected:null,filter:narrow()?'selected':'top5',focusKey:null,cursor:null,selHole:null,seen:null,prevRows:null,first:true,
-  bar:q('[data-cv3-bar]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
+  bar:q('[data-cv3-bar]'),cmapEl:q('[data-cv3-cmap]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
-  if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
+  if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.map?.setFocus(s.selHole??(narrow()?curHole(s):null));s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
   if(t.dataset.cv3Filter){s.filter=t.dataset.cv3Filter;renderTimeline(s);return;}
   if(t.dataset.cv3Series){const k=t.dataset.cv3Series;if((s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);return;}
   if(t.hasAttribute('data-cv3-fs'))toggleFullscreen(s);});
@@ -48,7 +49,7 @@ function tickClock(s){const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)
 
 function select(s,k){s.selected=k;s.selHole=null;s.cursor=null;
  for(const b of s.tower.querySelectorAll('[data-cv3-pick]')){const on=b.dataset.cv3Pick===k;b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));}
- s.tower.__html=null;renderFocus(s);renderPulse(s);renderTimeline(s);
+ s.tower.__html=null;renderFocus(s);renderPulse(s);renderTimeline(s);syncMap(s,{refocus:true});
  if(narrow())s.focus.scrollIntoView?.({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
 
 function render(s){
@@ -63,7 +64,20 @@ function render(s){
  s.first=false;
 }
 function row(s){return (s.ev.leaderboard||[]).find(x=>key(x)===s.selected);}
-function renderFocus(s){const r=row(s);set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole}));}
+function curHole(s){return currentHole(row(s));}
+const windOf=w=>w&&Number.isFinite(w.wind_from_deg)?{from_deg:w.wind_from_deg,dir:w.wind_dir,mph:w.wind_mph,precision:w.precision}:null;
+// PBEcast Course View: the real routing of the course being played (when mapped). Highlights the selected golfer's
+// current hole as a whole route; map and scorecard selections drive each other. No golfer, ball or position marker.
+function syncMap(s,{refocus=false}={}){
+ if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));return;}
+ const slug=s.ev?.course?.slug;if(!slug||s.mapReq)return;
+ s.mapReq=fetchCourseMap(slug).then(M=>{if(!M||!M.geometry||!s.root.isConnected)return;
+  s.cmapEl.hidden=false;
+  s.map=mountCourseMap(s.cmapEl,M,{mode:'cast',current:curHole(s),wind:windOf(s.weather),focus:s.selHole??(narrow()?curHole(s):null),
+   onSelect:h=>{s.selHole=h;renderFocus(s);if(h!=null)s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.classList.add('is-on');}});
+  renderFocus(s);});
+}
+function renderFocus(s){const r=row(s);set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole,realRoute:h=>!!s.map?.hasRoute(h)}));}
 function renderPulse(s){
  const ev=pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});
  set(s.pulse,pulseList(ev,{seen:s.seen}));s.seen=new Set(ev.map(x=>x.t+'|'+x.text));

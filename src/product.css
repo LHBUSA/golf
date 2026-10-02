@@ -437,9 +437,9 @@ polyline.gp-0,polyline.gp-1,polyline.gp-2,polyline.gp-3,polyline.gp-4{fill:none}
 .mv-tick{stroke:#9aa79f;stroke-width:1}
 /* ---- PBEcast Live V3: broadcast command center (dark). Observed / derived / reconstructed labels live in markup. */
 .cv3{--c3-bg:#0b1f19;--c3-panel:#10291f;--c3-line:#ffffff1c;--c3-ink:#eef2ec;--c3-mute:#a9bcb0;--c3-gold:#e0c27a;--c3-up:#8fd3a8;--c3-down:#e89a8d;
- display:grid;grid-template-columns:minmax(0,4fr) minmax(0,2.6fr) minmax(0,3.4fr);grid-template-areas:"bar bar bar" "tower focus focus" "tl tl pulse" "ctx ctx ctx" "truth truth truth";gap:14px;align-content:start;background:var(--c3-bg);color:var(--c3-ink);padding:16px max(16px,4%) 22px}
+ display:grid;grid-template-columns:minmax(0,4fr) minmax(0,2.6fr) minmax(0,3.4fr);grid-template-areas:"bar bar bar" "tower focus focus" "cmap cmap pulse" "tl tl pulse" "ctx ctx ctx" "truth truth truth";gap:14px;align-content:start;background:var(--c3-bg);color:var(--c3-ink);padding:16px max(16px,4%) 22px}
 .cv3>*{min-width:0}
-.cv3-bar{grid-area:bar}.cv3-tower{grid-area:tower}.cv3-focus{grid-area:focus}.cv3-tl{grid-area:tl}.cv3-pulse{grid-area:pulse}.cv3-ctx{grid-area:ctx}.cv3-truth{grid-area:truth;margin:0}
+.cv3-bar{grid-area:bar}.cv3-cmap{grid-area:cmap}.cv3-cmap[hidden]{display:none}.cv3-tower{grid-area:tower}.cv3-focus{grid-area:focus}.cv3-tl{grid-area:tl}.cv3-pulse{grid-area:pulse}.cv3-ctx{grid-area:ctx}.cv3-truth{grid-area:truth;margin:0}
 .cv3 .cv3-truth{color:var(--c3-mute)}
 .cv3-tower,.cv3-focus,.cv3-tl,.cv3-pulse,.cv3-fieldbox,.cv3-wxbox{background:var(--c3-panel);border:1px solid var(--c3-line);border-radius:4px;padding:14px}
 .cv3-sh{font:700 11px/1.2 var(--sans);letter-spacing:1.8px;text-transform:uppercase;color:var(--c3-gold);margin:0 0 10px}
@@ -524,7 +524,8 @@ polyline.gp-0,polyline.gp-1,polyline.gp-2,polyline.gp-3,polyline.gp-4{fill:none}
 .cv3-hd-fig .rc-ball,.cv3-hd-fig .rc-trail{display:none}
 .cv3-noholes{margin:0}
 /* Scoring pulse */
-.cv3-pl{list-style:none;margin:0;padding:0;display:grid;align-content:start;gap:2px;height:400px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#ffffff33 transparent}
+.cv3-pulse{display:flex;flex-direction:column}
+.cv3-pl{list-style:none;margin:0;padding:0;display:grid;align-content:start;gap:2px;height:400px;flex:1 1 400px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#ffffff33 transparent}
 .cv3-pl li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;padding:7px 8px;border-left:2px solid #ffffff26;background:#ffffff06;font:700 11.5px/1.35 var(--sans);letter-spacing:.4px}
 .cv3-pl time{font-weight:600;color:var(--c3-mute);font-variant-numeric:tabular-nums}
 .cv3-pl .pl-lead{border-left-color:var(--c3-gold)}.cv3-pl .pl-lead span{color:var(--c3-gold)}
@@ -587,9 +588,9 @@ polyline.gp-0,polyline.gp-1,polyline.gp-2,polyline.gp-3,polyline.gp-4{fill:none}
 .cv3.is-immersive{position:fixed;inset:0;z-index:1000;overflow:auto}
 body.cv3-lock{overflow:hidden}
 .cv3.is-fs .cv3-list{height:calc(100vh - 230px)}
-@media(min-width:1600px){.cv3.is-fs{grid-template-columns:minmax(0,3.2fr) minmax(0,3.4fr) minmax(0,2.6fr);grid-template-areas:"bar bar bar" "tower focus pulse" "tower tl tl" "ctx ctx ctx" "truth truth truth"}.cv3.is-fs .cv3-pl{height:max(200px,calc(100vh - 640px))}}
+@media(min-width:1600px){.cv3.is-fs{grid-template-columns:minmax(0,3.2fr) minmax(0,3.4fr) minmax(0,2.6fr);grid-template-areas:"bar bar bar" "tower focus pulse" "tower cmap cmap" "tower tl tl" "ctx ctx ctx" "truth truth truth"}.cv3.is-fs .cv3-pl{height:max(200px,calc(100vh - 640px))}}
 /* Responsive */
-@media(max-width:899px){.cv3{grid-template-columns:minmax(0,1fr);grid-template-areas:"bar" "focus" "tower" "pulse" "tl" "ctx" "truth";padding:14px 16px 20px}
+@media(max-width:899px){.cv3{grid-template-columns:minmax(0,1fr);grid-template-areas:"bar" "focus" "cmap" "tower" "pulse" "tl" "ctx" "truth";padding:14px 16px 20px}
  .cv3-list{height:380px}.cv3-pl{height:300px}.cv3-focus{min-height:540px}.cv3-ctx{grid-template-columns:1fr}.cv3-hd{grid-template-columns:minmax(0,1fr) minmax(0,140px)}}
 @media(max-width:600px){.cv3-plot{height:220px}.cv3-wxmini{display:none}.cv3-strip{gap:3px}.hc-s i{width:22px;height:22px;font-size:12px}.cv3-tower,.cv3-focus,.cv3-tl,.cv3-pulse,.cv3-fieldbox,.cv3-wxbox{padding:12px}
  .cv3-thead,.cv3-list button{grid-template-columns:32px 26px minmax(0,1fr) 38px 40px 48px;gap:5px}.cv3-list button{font-size:13px;padding:8px}.cv3-hd{grid-template-columns:1fr}.cv3-hd-fig{max-width:200px}}
