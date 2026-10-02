@@ -87,7 +87,7 @@ test('focus panel: observed scorecard, labelled derivations, reconstruction disc
  assert.match(html,/PBE-DERIVED/);assert.match(html,/RECONSTRUCTED/);assert.match(html,/not shot tracking/);
  assert.equal((html.match(/data-cv3-hole=/g)||[]).length,HOLES.get(SMO).length);
  assert.doesNotMatch(html,/ShotLink|carry|club|lie\b|proximity|strokes gained/i);
- const lpga=focusPanel({...EV,holes_available:false},r,{holes:null,layout:null});assert.match(lpga,/round totals, not hole-by-hole/);assert.doesNotMatch(lpga,/data-cv3-hole/);
+ const lpga=focusPanel({...EV,holes_available:false},r,{holes:null,layout:null});assert.match(lpga,/Hole-by-hole scores aren’t published for this tour/);assert.doesNotMatch(lpga,/data-cv3-hole/);
  assert.equal(resultKind(holeDiff(H(1,5,3))),'eagle');assert.equal(resultKind(holeDiff(H(1,4,7))),'double');
 });
 test('weather: town-level estimate never called course weather; course clock from the forecast offset',()=>{

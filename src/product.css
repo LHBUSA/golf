@@ -628,3 +628,9 @@ body.cv3-lock{overflow:hidden}
 .story-ledger-wrap{max-width:100%}.story-ledger td,.story-ledger th{vertical-align:top}
 @media (max-width:600px){.story-ledger{font-size:12px}.story-ledger td:nth-child(3){min-width:150px}.story-ledger td:first-child{min-width:130px}}
 .gchart .gp-legend svg.gp-key{width:14px;height:6px;flex:0 0 14px;border:0;background:none;display:inline-block}.gp-legend .gp-key rect{stroke:none}
+
+/* Unavailable values: em dash, muted; future (unplayed) round columns muted including the header. */
+.board .na{color:var(--muted);position:relative}
+.board th.is-future{position:relative}
+.board th.is-future{color:#a9bcb0;font-weight:400;font-style:italic}
+.board td.is-future{background:#f4f5f0}
