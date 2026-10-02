@@ -2,7 +2,7 @@
 // never reach static HTML or unauthenticated responses.
 export const norm=s=>String(s||'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
 export const canonicalPair=(a,b)=>[a,b].sort();
-const fingerprint=dna=>{const w=dna?.l24m&&Object.values(dna.l24m.metrics).some(m=>m.percentile!==null)?dna.l24m:dna?.all;if(!w)return null;return {window:w.window.label,division:w.division,cohort:w.cohort,editions:w.editions,dimensions:Object.entries(w.metrics).map(([code,m])=>({code,percentile:m.percentile,confidence:m.confidence,sample:m.sample,basis:m.basis}))};};
+const fingerprint=dna=>{const w=dna?.l24m&&Object.values(dna.l24m.metrics).some(m=>m.percentile!==null)?dna.l24m:dna?.all;if(!w)return null;return {window:w.window.label,division:w.division,cohort:w.cohort,editions:w.editions,dimensions:Object.entries(w.metrics).map(([code,m])=>({code,percentile:m.percentile,confidence:m.confidence,sample:m.sample,basis:m.basis,cohort_size:m.cohort_size??null}))};};
 export function publicPlayer(d){const {dna,...rest}=d;return {...rest,recent:d.results.slice(0,10),course_history:d.course_history.map(h=>({...h})),dna_public:fingerprint(dna),premium:{available:Boolean(dna),modules:['raw DNA values and cohort sizes','24-month and all-observed windows','Course Fit components','matchup DNA detail']}};}
 export function premiumPlayer(d){return {slug:d.slug,name:d.name,dna:d.dna};}
 export function publicCourse(d){return {...d,player_history:d.player_history.map(({fit,...h})=>h)};}

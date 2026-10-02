@@ -1,6 +1,7 @@
 // Golf charts: static SVG strings (prerender + browser), PropBetEdge DNA visual language.
 // Every chart carries an accessible name and a text/table equivalent. Null values are never drawn as 0.
 import {e} from './ui.js';
+import {TIERS} from '../../workers/shared/dna.js';
 export const DIM_AXIS={scoring:['SCORING','SCR'],consistency:['CONSISTENCY','CON'],under_par:['UNDER PAR','UND'],cuts:['CUTS MADE','CUT'],top10:['TOP 10','T10'],contention:['CONTENTION','CNT'],form:['FORM','FRM'],majors:['MAJORS','MAJ'],par3:['PAR 3','P3'],par4:['PAR 4','P4'],par5:['PAR 5','P5']};
 export const DIM_NAME={scoring:'Scoring vs field',consistency:'Consistency',under_par:'Under-par rounds',cuts:'Cuts made',top10:'Top-10 rate',contention:'Contention (top 5)',form:'Recent form',majors:'Major performance',par3:'Par-3 scoring',par4:'Par-4 scoring',par5:'Par-5 scoring'};
 const ord=n=>{const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
@@ -19,7 +20,7 @@ export function radar(dims,{overlay=null,labelA='',labelB='',title='Player DNA f
 }
 // Percentile tracks with quartile ticks.
 export function tracks(dims,{definitions={}}={}){
- return `<div class="gtracks" role="list">${dims.map(d=>`<div class="gtrack-row" role="listitem"><span class="gtrack-name">${e(DIM_NAME[d.code]||d.code)}${definitions[d.code]?`<small>${e(definitions[d.code])}</small>`:''}</span><span class="gtrack" aria-hidden="true">${d.percentile===null?'':`<i data-w="${Math.round(d.percentile)}" class="${d.percentile>=75?'hi':d.percentile<=25?'lo':''}"></i>`}</span><b class="gtrack-v">${d.percentile===null?'—':ord(d.percentile)}</b><span class="gconf gconf-${String(d.confidence||'').toLowerCase()}">${e(d.confidence==='INSUFFICIENT'?'Insufficient':d.confidence?d.confidence[0]+d.confidence.slice(1).toLowerCase():'')} · n=${e(d.sample??0)}</span></div>`).join('')}</div>`;
+ return `<div class="gtracks" role="list">${dims.map(d=>`<div class="gtrack-row" role="listitem"><span class="gtrack-name">${e(DIM_NAME[d.code]||d.code)}${definitions[d.code]?`<small>${e(definitions[d.code])}</small>`:''}</span><span class="gtrack" aria-hidden="true">${d.percentile===null?'':`<i data-w="${Math.round(d.percentile)}" class="${d.percentile>=75?'hi':d.percentile<=25?'lo':''}"></i>`}</span><b class="gtrack-v">${d.percentile===null||d.percentile===undefined?'—':ord(d.percentile)}</b>${withheldReason(d)?`<span class="gconf gconf-withheld" title="${e(withheldReason(d).detail)}">${e(withheldReason(d).short)} · ${e(withheldReason(d).detail)}</span>`:`<span class="gconf gconf-${String(d.confidence||'').toLowerCase()}">${e(d.confidence?d.confidence[0]+d.confidence.slice(1).toLowerCase():'')} · n=${e(d.sample??0)}</span>`}</div>`).join('')}</div>`;
 }
 // Form trend: strokes vs field per event (positive = better), ordered by date. Optional second series.
 export function formChart(series,{other=null,labelA='',labelB='',title='Form: strokes per round vs field'}={}){
@@ -47,11 +48,41 @@ export function finishBars(d){
  return `<div class="gfinish" role="table" aria-label="Finish distribution over ${d.starts} full-field starts">${rows.map(([k,v])=>`<div class="gfinish-row" role="row"><span role="rowheader">${k}</span><span class="gfinish-bar" aria-hidden="true"><i data-w="${Math.round(100*v/d.starts)}"></i></span><b role="cell">${v}</b><small role="cell">${Math.round(100*v/d.starts)}%</small></div>`).join('')}<p class="gnote">${d.starts} full-field starts in coverage.</p></div>`;
 }
 export {ord};
+// Why a DNA percentile is not shown, from the actual publication gates (TIERS Limited floor, cohort >= 10).
+// Par-3/4/5 use hole-level data from events with full-field hole-by-hole cards only; when a player has none, the
+// dimension is not comparable at all (not a sample shortfall).
+const FLOOR=Object.fromEntries(Object.entries(TIERS).map(([k,v])=>[k,v.at(-1)[1]]));
+export function withheldReason(d){
+ if(typeof d?.percentile==='number'&&Number.isFinite(d.percentile))return null;
+ const n=Number.isFinite(d?.sample)?d.sample:0,basis=d?.basis||'';
+ if(basis==='holes'&&!n)return {short:'Percentile withheld',detail:'Full-field comparable hole data is not available for this dimension.'};
+ const min=FLOOR[basis];
+ if(min&&n<min)return {short:'Percentile withheld',detail:basis==='holes'?`Qualifies at ${min} holes from full-field hole-by-hole events; ${n} observed.`:`Qualifies at ${min} full-field ${basis} (Limited confidence); ${n} observed.`};
+ if(Number.isFinite(d?.cohort_size)&&d.cohort_size<10)return {short:'Percentile withheld',detail:`Only ${d.cohort_size} qualifying players in the cohort; percentiles need 10.`};
+ return {short:'Percentile withheld',detail:'Below the published confidence floor.'};
+}
 
 // Bag DNA: performance in bag-related areas (no equipment credit). Categories average their component percentiles.
+// Truth rules: an unavailable value is "—" with its reason, never 0; an unavailable percentile has no bar, never 50th.
+// A category whose every component is unpublished for the tour is not graded and is named in one note instead.
+const fin=v=>typeof v==='number'&&Number.isFinite(v);
+const naWhy=x=>x?.unavailable==='not_published_for_tour'?'Not published by ESPN for this tour':'Not published for this player';
 export function bagDna(b,{other=null,labelA='',labelB=''}={}){
  if(!b?.available)return b?.reason?`<p class="empty-note">${e(b.reason)}</p>`:'';
- const cat=(c,o)=>`<div class="bag-cat"><div class="bag-head"><h3>${e(c.label)}</h3><b>${c.percentile===null?'—':ord(c.percentile)}</b>${o?`<b class="bag-b">${o.percentile===null?'—':ord(o.percentile)}</b>`:''}</div><span class="gtrack bag-track" aria-hidden="true">${c.percentile===null?'':`<i data-w="${c.percentile}" class="${c.percentile>=75?'hi':c.percentile<=25?'lo':''}"></i>`}</span>${o?`<span class="gtrack bag-track is-b" aria-hidden="true">${o.percentile===null?'':`<i data-w="${o.percentile}"></i>`}</span>`:''}<ul class="bag-parts">${c.components.map((x,i)=>{const y=o?.components?.[i];return `<li><span>${e(x.label)}</span><span>${x.value===null?'—':e(x.value)} <small>${e(x.unit)}</small>${x.rank?` <small>· tour rank ${e(x.rank)}</small>`:''}</span><b>${x.percentile===null?'—':ord(x.percentile)}</b>${o?`<b class="bag-b">${y?.percentile===null||!y?'—':ord(y.percentile)}</b>`:''}</li>`;}).join('')}</ul></div>`;
+ const unpublished=c=>c.components.every(x=>!fin(x.value)&&x.unavailable==='not_published_for_tour');
+ const shown=b.categories.map((c,i)=>[c,i]).filter(([c])=>!unpublished(c)),hidden=b.categories.filter(unpublished);
+ const pctCell=p=>fin(p)?ord(p):'—';
+ const cat=(c,o)=>`<div class="bag-cat"><div class="bag-head"><h3>${e(c.label)}</h3><b>${pctCell(c.percentile)}</b>${o?`<b class="bag-b">${pctCell(o.percentile)}</b>`:''}</div><span class="gtrack bag-track" aria-hidden="true">${fin(c.percentile)?`<i data-w="${c.percentile}" class="${c.percentile>=75?'hi':c.percentile<=25?'lo':''}"></i>`:''}</span>${o?`<span class="gtrack bag-track is-b" aria-hidden="true">${fin(o.percentile)?`<i data-w="${o.percentile}"></i>`:''}</span>`:''}${fin(c.percentile)?'':`<p class="bag-withheld">Percentile withheld · ${c.components.length>1?'a component is not published':'not published'}</p>`}<ul class="bag-parts">${c.components.map((x,i)=>{const y=o?.components?.[i];return `<li><span>${e(x.label)}</span><span>${fin(x.value)?`${e(x.value)} <small>${e(x.unit)}</small>`:`<span title="${e(naWhy(x))}">— <small>not published</small></span>`}${x.rank?` <small>· tour rank ${e(x.rank)}</small>`:''}</span><b>${pctCell(x.percentile)}</b>${o?`<b class="bag-b">${y?pctCell(y.percentile):'—'}</b>`:''}</li>`;}).join('')}</ul></div>`;
  const oc=other?.available?other.categories:null;
- return `<div class="bag-dna" role="group" aria-label="Bag DNA percentiles${oc?' comparison':''}">${oc?`<p class="glegend"><span class="gkey gkey-a"></span>${e(labelA)} <span class="gkey gkey-b"></span>${e(labelB)}</p>`:''}<div class="bag-grid">${b.categories.map((c,i)=>cat(c,oc?.[i])).join('')}</div><p class="gnote">${e(b.season)} ${e(b.tour||'')} season statistics from ESPN · population ${e(b.population)} players (${e(b.qualification)}) · as of ${e(b.as_of)}. ${e(b.formula)}</p><p class="bag-disclosure">${e(b.disclosure)}</p></div>`;
+ const note=hidden.length?`<p class="bag-unpublished">ESPN does not publish ${e(hidden.map(c=>c.label.toLowerCase()).join(', '))} statistics for the ${e(b.season)} ${e(b.tour||'tour')}, so ${hidden.length===1?'that category is':'those categories are'} not graded.</p>`:'';
+ return `<div class="bag-dna" role="group" aria-label="Bag DNA percentiles${oc?' comparison':''}">${oc?`<p class="glegend"><span class="gkey gkey-a"></span>${e(labelA)} <span class="gkey gkey-b"></span>${e(labelB)}</p>`:''}${shown.length?`<div class="bag-grid">${shown.map(([c,i])=>cat(c,oc?.[i])).join('')}</div>`:''}${note}<p class="gnote">${e(b.season)} ${e(b.tour||'')} season statistics from ESPN · population ${e(b.population)} players (${e(b.qualification)}) · as of ${e(b.as_of)}. ${e(b.formula)}</p><p class="bag-disclosure">${e(b.disclosure)}</p></div>`;
+}
+
+// Recent-form sparkline: the same observed field-relative event values as the form chart (strokes per round vs field,
+// positive = better), last up to 10 events, zero baseline. A visual encoding only: no score, trend or forecast.
+export function sparkline(series,{n=10,label='Recent form'}={}){
+ const pts=(series||[]).filter(p=>typeof p.vs_field==='number'&&Number.isFinite(p.vs_field)).slice(-n);if(pts.length<4)return '';
+ const W=168,H=44,P=5,m=Math.max(1,...pts.map(p=>Math.abs(p.vs_field))),x=i=>P+i*(W-2*P)/(pts.length-1),y=v=>H/2-v/m*(H/2-P);
+ const fmt=v=>(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2);
+ return `<figure class="spark"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="group" aria-label="${e(label)}: last ${pts.length} observed events, strokes per round versus field"><line class="spark-zero" x1="${P}" x2="${W-P}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}"/><polyline class="spark-line" points="${pts.map((p,i)=>f1([x(i),y(p.vs_field)])).join(' ')}"/>${pts.map((p,i)=>`<g class="spark-pt ${p.vs_field>=0?'pos':'neg'}" tabindex="0" role="img" aria-label="${e(p.name)}${p.ends_on?' ('+e(p.ends_on)+')':''}: ${fmt(p.vs_field)} per round vs field"><title>${e(p.name)}: ${fmt(p.vs_field)} per round vs field</title><circle cx="${x(i).toFixed(1)}" cy="${y(p.vs_field).toFixed(1)}" r="3"/></g>`).join('')}</svg><figcaption>Last ${pts.length} events vs field · above the line = better than the field</figcaption></figure>`;
 }

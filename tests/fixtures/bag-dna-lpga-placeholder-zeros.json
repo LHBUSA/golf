@@ -1,0 +1,224 @@
+{
+"_source": "ESPN core API season statistics captured 2026-10-02 (owner-approved Golf source); trimmed to the stats PBE uses",
+"lpga_athlete_5075190_saki_baba_2026": {
+"splits": {
+"categories": [
+{
+"name": "general",
+"stats": [
+{
+"name": "tournamentsPlayed",
+"value": 18.0,
+"displayValue": "18",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "puttsGirAvg",
+"value": null,
+"displayValue": "0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "cutsMade",
+"value": 9.0,
+"displayValue": "9",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "roundsPlayed",
+"value": 51.0,
+"displayValue": "51",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "holesPerEagle",
+"value": 0.0,
+"displayValue": "0.0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "greensInRegPct",
+"value": 0.0,
+"displayValue": "0.0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "savePct",
+"value": 0.0,
+"displayValue": "0.0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "birdiesPerRound",
+"value": 0.0,
+"displayValue": "0.000",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "yardsPerDrive",
+"value": 0.0,
+"displayValue": "0.0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "driveAccuracyPct",
+"value": 0.0,
+"displayValue": "0.0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "scoringAverage",
+"value": 72.882355,
+"displayValue": "72.9",
+"rank": null,
+"rankDisplayValue": null
+}
+]
+}
+]
+}
+},
+"pga_athlete_9478_2026": {
+"splits": {
+"categories": [
+{
+"name": "general",
+"stats": [
+{
+"name": "tournamentsPlayed",
+"value": 20.0,
+"displayValue": "20",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "puttsGirAvg",
+"value": 1.694,
+"displayValue": "1.694",
+"rank": 3,
+"rankDisplayValue": "3rd"
+},
+{
+"name": "cutsMade",
+"value": 19.0,
+"displayValue": "19",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "roundsPlayed",
+"value": 78.0,
+"displayValue": "78",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "holesPerEagle",
+"value": 140.4,
+"displayValue": "140.4",
+"rank": 47,
+"rankDisplayValue": "47th"
+},
+{
+"name": "greensInRegPct",
+"value": 72.86324,
+"displayValue": "72.9",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "savePct",
+"value": 53.04348,
+"displayValue": "53.0",
+"rank": null,
+"rankDisplayValue": null
+},
+{
+"name": "birdiesPerRound",
+"value": 4.820513,
+"displayValue": "4.821",
+"rank": 1,
+"rankDisplayValue": "1st"
+},
+{
+"name": "yardsPerDrive",
+"value": 312.7,
+"displayValue": "312.7",
+"rank": 36,
+"rankDisplayValue": "36th"
+},
+{
+"name": "driveAccuracyPct",
+"value": 63.944954,
+"displayValue": "63.9",
+"rank": 33,
+"rankDisplayValue": "33rd"
+},
+{
+"name": "scoringAverage",
+"value": 67.85897,
+"displayValue": "67.9",
+"rank": 1,
+"rankDisplayValue": "1st"
+}
+]
+}
+]
+}
+},
+"production_before": {
+"player": "saki-baba-q113563622",
+"season_stats_2026": {
+"driveAccuracyPct": 0,
+"tournamentsPlayed": 17,
+"birdiesPerRound": 0,
+"greensInRegPct": 0,
+"puttsGirAvg": 0,
+"wins": 0,
+"yardsPerDrive": 0,
+"holesPerEagle": 0,
+"topTenFinishes": 0,
+"scoringAverage": 72.82,
+"officialAmount": 189964,
+"cutsMade": 8,
+"savePct": 0,
+"roundsPlayed": 50,
+"cupPoints": 0
+},
+"bag_dna_driver": {
+"code": "driver",
+"label": "Driver",
+"percentile": 50,
+"components": [
+{
+"code": "yardsPerDrive",
+"label": "Distance",
+"unit": "yards",
+"value": 0,
+"rank": null,
+"percentile": 50,
+"population": 156
+},
+{
+"code": "driveAccuracyPct",
+"label": "Accuracy",
+"unit": "% fairways",
+"value": 0,
+"rank": null,
+"percentile": 50,
+"population": 156
+}
+]
+}
+}
+}

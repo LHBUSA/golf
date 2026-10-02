@@ -5,6 +5,7 @@ import {SourceBlockedError} from '../../shared/http.js';
 import {CORE,getJSON,pool,archive,LEAGUES} from './espn.js';
 import {writePlan} from './writer.js';
 import {Plan} from './plan.js';
+import {cleanStat} from '../../shared/season-stats.js';
 export const STAT_VERSION='espn-golf-season/1';
 // code -> [name, unit, direction, definition]
 export const STATS={
@@ -27,7 +28,12 @@ export const STATS={
 const num=v=>{if(v===null||v===undefined)return null;const n=Number(String(v).replace(/[$,%]/g,''));return Number.isFinite(n)?n:null;};
 export function parseSeasonStats(body){
  const out={};
- for(const c of body?.splits?.categories||[])for(const st of c.stats||[]){if(!STATS[st.name])continue;const v=num(st.value??st.displayValue);out[st.name]={value:v,rank:Number.isFinite(Number(st.rank))&&st.rank?Number(st.rank):null,display:st.displayValue??null};}
+ for(const c of body?.splits?.categories||[])for(const st of c.stats||[]){if(!STATS[st.name])continue;
+  // An explicit null value is missing even when displayValue says "0"; displayValue is used only when value is absent.
+  // An unranked zero on a rate statistic is ESPN's "not measured" placeholder (LPGA), never a measurement.
+  const rank=Number.isFinite(Number(st.rank))&&st.rank?Number(st.rank):null;
+  const raw=st.value===undefined?num(st.displayValue):st.value===null?null:num(st.value);
+  out[st.name]={value:cleanStat(st.name,raw,rank),rank,display:st.displayValue??null};}
  return out;
 }
 export async function runEspnStats(env,db,{league='pga',season=2026,limit=250,budgetMs=200000}={}){

@@ -2,7 +2,7 @@
 // from public projection data; nothing computes ad-hoc scores. Missing values are omitted, never zero.
 // Raw values behind percentiles are All Access: rendered as locked slots and filled after verification.
 import {e,a,kicker,portrait,fmtDate,pos,section,division} from './ui.js';
-import {radar,formChart,roundProfile,bagDna,ord} from './charts.js';
+import {radar,formChart,roundProfile,bagDna,ord,withheldReason,sparkline} from './charts.js';
 export const DNA_ORDER=['par3','par4','par5','scoring','consistency','under_par','cuts','top10','contention','form','majors'];
 export const DNA_META={
  par3:{label:'Par-3 scoring',desc:'Performance relative to the field on par-3 holes.'},
@@ -20,7 +20,10 @@ const RELIABLE={HIGH:3,MEDIUM:2,LIMITED:1};
 // ---------------------------------------------------------------- models
 export function dnaModel(fp){
  if(!fp?.dimensions)return null;const by=new Map(fp.dimensions.map(d=>[d.code,d]));
- const metrics=DNA_ORDER.filter(k=>by.has(k)).map(k=>{const d=by.get(k);return {key:k,label:DNA_META[k].label,description:DNA_META[k].desc,percentile:d.percentile??null,sample_n:d.sample??null,basis:d.basis||null,confidence:d.confidence||null,direction:'higher_better'};});
+ // Par-3/4/5 rows with no full-field hole data are shown as not comparable (with the reason), never as a sample gap,
+ // and are excluded from the radar (missing:true).
+ const hasHoles=['par3','par4','par5'].some(k=>by.has(k));
+ const metrics=DNA_ORDER.filter(k=>by.has(k)||(['par3','par4','par5'].includes(k)&&!hasHoles)).map(k=>{const d=by.get(k)||{percentile:null,sample:0,basis:'holes',confidence:null,missing:true};const m={key:k,label:DNA_META[k].label,description:DNA_META[k].desc,percentile:d.percentile??null,sample_n:d.sample??null,basis:d.basis||null,confidence:d.confidence||null,cohort_size:d.cohort_size??null,missing:!!d.missing,direction:'higher_better'};m.withheld=withheldReason({percentile:m.percentile,sample:m.sample_n,basis:m.basis,cohort_size:m.cohort_size});return m;});
  return {window:fp.window,cohort:fp.cohort,editions:fp.editions??null,division:fp.division,metrics,ranked:metrics.filter(m=>m.percentile!==null)};
 }
 function trend(form){const f=(form||[]).filter(x=>Number.isFinite(x.vs_field));if(f.length<4)return null;const last=f.slice(-3),prev=f.slice(-6,-3);if(!prev.length)return null;const m=a=>a.reduce((s,x)=>s+x.vs_field,0)/a.length;const d=m(last)-m(prev);return d>0.4?'Trending up':d<-0.4?'Trending down':'Holding steady';}
@@ -30,16 +33,16 @@ const pct=v=>v===null||v===undefined?'—':ord(v);
 const bar=(v,cls='')=>`<span class="mb-track" aria-hidden="true">${v===null||v===undefined?'':`<i data-w="${Math.round(v)}" class="${cls} ${v>=75?'hi':v<=25?'lo':''}"></i>`}</span>`;
 export function metricBars(model,{rawSlots=true}={}){
  if(!model?.metrics.length)return '';
- return `<div class="mbars" role="list">${model.metrics.map(m=>`<div class="mbar" role="listitem"><div class="mbar-head"><span class="mbar-label">${e(m.label)}</span><b class="mbar-pct">${m.percentile===null?'—':m.percentile}</b></div>${bar(m.percentile)}<div class="mbar-foot">${rawSlots?`<span class="mbar-raw" data-raw="${e(m.key)}"><span class="lock">All Access value</span></span>`:''}<span class="mbar-n">${m.sample_n!==null?`n=${e(m.sample_n)} ${e(m.basis||'')}`:''}${m.confidence?` · ${e(m.confidence==='INSUFFICIENT'?'limited sample':m.confidence.toLowerCase())}`:''}</span></div><p class="mbar-desc">${e(m.description)}</p></div>`).join('')}</div>`;
+ return `<div class="mbars" role="list">${model.metrics.map(m=>`<div class="mbar" role="listitem"><div class="mbar-head"><span class="mbar-label">${e(m.label)}</span><b class="mbar-pct">${m.percentile===null?'—':m.percentile}</b></div>${bar(m.percentile)}<div class="mbar-foot">${rawSlots&&!m.missing?`<span class="mbar-raw" data-raw="${e(m.key)}"><span class="lock">All Access value</span></span>`:''}${m.withheld?`<span class="mbar-why" title="${e(m.withheld.detail)}"><b>${e(m.withheld.short)}</b> · ${e(m.withheld.detail)}</span>`:`<span class="mbar-n">${m.sample_n!==null?`n=${e(m.sample_n)} ${e(m.basis||'')}`:''}${m.confidence?` · ${e(m.confidence.toLowerCase())}`:''}</span>`}</div><p class="mbar-desc">${e(m.description)}</p></div>`).join('')}</div>`;
 }
 // ---------------------------------------------------------------- player
 export function dnaHero(d,model,{asOf=null}={}){
  if(!model)return `<p class="empty-note">Not enough full-field rounds in our record to publish Player DNA yet.</p>`;
  const r=model.ranked,best=r.slice().sort((x,y)=>y.percentile-x.percentile)[0],reliable=r.slice().sort((x,y)=>(RELIABLE[y.confidence]||0)-(RELIABLE[x.confidence]||0)||(y.sample_n||0)-(x.sample_n||0)||y.percentile-x.percentile)[0];
  const form=r.find(m=>m.key==='form'),major=r.find(m=>m.key==='majors')||r.find(m=>m.key==='contention'),tr=trend(d.visuals?.form);
- const cards=[best&&['Best DNA edge',best.label,pct(best.percentile)+' percentile'],reliable&&reliable!==best&&['Most reliable',reliable.label,`${pct(reliable.percentile)} · n=${reliable.sample_n??'—'}`],form&&['Recent form',pct(form.percentile)+' percentile',tr?`Last three starts vs the three before: ${tr.toLowerCase()}`:'Strokes vs field across recent starts'],major&&(major.key==='majors'?['Major performance',`${d.summary?.major_wins||0} major win${d.summary?.major_wins===1?'':'s'} · ${d.summary?.major_appearances_observed||0} starts`,pct(major.percentile)+' percentile']:['Contention profile',major.label,pct(major.percentile)+' percentile'])].filter(Boolean).slice(0,4);
- const rad=r.length>=3?radar(model.metrics.map(m=>({code:m.key,percentile:m.percentile})),{title:d.name+' Golf DNA'}):'';
- return `<div class="dna-hero"><div class="dna-hero-head"><div><p class="eyebrow">GOLF DNA</p><h2>${e(d.name)}</h2><p class="dna-sub">${e(model.window)} · ${e(model.cohort)}${asOf?` · Updated ${e(fmtDate(String(asOf).slice(0,10)))}`:''}</p></div></div><div class="dna-hero-grid">${rad?`<div class="dna-hero-radar">${rad}</div>`:''}<div class="dna-cards">${cards.map(([k,t,v])=>`<article class="dna-card"><span class="micro-label">${e(k)}</span><b>${e(t)}</b><span>${e(v)}</span></article>`).join('')}</div></div></div>`;
+ const cards=[best&&['Best DNA edge',best.label,pct(best.percentile)+' percentile'],reliable&&reliable!==best&&['Most reliable',reliable.label,`${pct(reliable.percentile)} · n=${reliable.sample_n??'—'}`],form&&['Recent form',pct(form.percentile)+' percentile',tr?`Last three starts vs the three before: ${tr.toLowerCase()}`:'Strokes vs field across recent starts',sparkline(d.visuals?.form,{label:d.name+' recent form'})],major&&(major.key==='majors'?['Major performance',`${d.summary?.major_wins||0} major win${d.summary?.major_wins===1?'':'s'} · ${d.summary?.major_appearances_observed||0} starts`,pct(major.percentile)+' percentile']:['Contention profile',major.label,pct(major.percentile)+' percentile'])].filter(Boolean).slice(0,4);
+ const rad=r.length>=3?radar(model.metrics.filter(m=>!m.missing).map(m=>({code:m.key,percentile:m.percentile})),{title:d.name+' Golf DNA'}):'';
+ return `<div class="dna-hero"><div class="dna-hero-head"><div><p class="eyebrow">GOLF DNA</p><h2>${e(d.name)}</h2><p class="dna-sub">${e(model.window)} · ${e(model.cohort)}${asOf?` · Updated ${e(fmtDate(String(asOf).slice(0,10)))}`:''}</p></div></div><div class="dna-hero-grid">${rad?`<div class="dna-hero-radar">${rad}</div>`:''}<div class="dna-cards">${cards.map(([k,t,v,x])=>`<article class="dna-card"><span class="micro-label">${e(k)}</span><b>${e(t)}</b><span>${e(v)}</span>${x||''}</article>`).join('')}</div></div></div>`;
 }
 export function recentForm(d){
  const f=d.visuals?.form||[];if(f.filter(x=>Number.isFinite(x.vs_field)).length<2)return '';
@@ -78,7 +81,7 @@ export function historyTimeline(d){
 const EDGE=15,CLOSE=8;
 export function matchupModel(m){
  const A=dnaModel(m.dna.a),B=dnaModel(m.dna.b);if(!A||!B)return null;
- const rows=DNA_ORDER.map(k=>({key:k,label:DNA_META[k].label,a:A.metrics.find(x=>x.key===k)||null,b:B.metrics.find(x=>x.key===k)||null})).filter(r=>r.a||r.b).map(r=>({...r,delta:r.a?.percentile!=null&&r.b?.percentile!=null?r.a.percentile-r.b.percentile:null}));
+ const rows=DNA_ORDER.map(k=>({key:k,label:DNA_META[k].label,a:A.metrics.find(x=>x.key===k&&!x.missing)||null,b:B.metrics.find(x=>x.key===k&&!x.missing)||null})).filter(r=>r.a||r.b).map(r=>({...r,delta:r.a?.percentile!=null&&r.b?.percentile!=null?r.a.percentile-r.b.percentile:null}));
  const both=rows.filter(r=>r.delta!==null);
  return {A,B,rows,comparable:m.dna.comparable,left_edges:both.filter(r=>r.delta>=EDGE).sort((x,y)=>y.delta-x.delta),right_edges:both.filter(r=>r.delta<=-EDGE).sort((x,y)=>x.delta-y.delta),close:both.filter(r=>Math.abs(r.delta)<CLOSE)};
 }

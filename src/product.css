@@ -634,3 +634,15 @@ body.cv3-lock{overflow:hidden}
 .board th.is-future{position:relative}
 .board th.is-future{color:#a9bcb0;font-weight:400;font-style:italic}
 .board td.is-future{background:#f4f5f0}
+
+/* Player DNA truth pass: withheld reasons, unpublished Bag DNA note, recent-form sparkline. */
+.mbar-why{font-size:11px;color:var(--muted);line-height:1.35}.mbar-why b{font-weight:700;color:var(--ink-2)}
+.gconf-withheld{color:#c9d6cd}
+.bag-withheld{margin:6px 0 0;font-size:11px;color:#a9bcb0}
+.bag-unpublished{margin:10px 0 0;font-size:12px;border-left:3px solid var(--gold);padding:6px 10px;background:var(--card)}
+.spark{margin:8px 0 0}.spark svg{display:block;width:168px;max-width:100%;height:auto;overflow:visible}
+.spark figcaption{font-size:10px;color:#a9bcb0;margin-top:2px}
+.spark-zero{stroke:#ffffff40;stroke-width:1;stroke-dasharray:2 3}
+.spark-line{fill:none;stroke:#d8c48f;stroke-width:1.6;stroke-linejoin:round}
+.spark-pt circle{fill:#0b1f19;stroke:#d8c48f;stroke-width:1.5}.spark-pt.pos circle{fill:#d8c48f}
+.spark-pt:focus{outline:none}.spark-pt:focus circle,.spark-pt:hover circle{stroke:#fff;stroke-width:2.5;r:4.5}

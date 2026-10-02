@@ -1,3 +1,4 @@
+import {cleanStat} from './season-stats.js';
 import {tourRef} from './tours.js';
 // Public projection: canonical SPORTS rows -> derived, versioned public documents in R2.
 // Every derived number names its method, sample, cohort and coverage. Unknown stays null.
@@ -164,7 +165,9 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
  }
  // ---- ESPN season statistics + Bag DNA (performance in bag-related areas; equipment gets no credit)
  const statsByPlayer=new Map();
- for(const r of g.seasonStats||[]){const code=r.golf_stat_definitions?.code,season=Number(r.golf_seasons?.label),tour=tours.get(r.golf_seasons?.tour_id)?.name;if(!code||!season)continue;const m=statsByPlayer.get(r.player_id)||{};const k=season+'|'+tour;(m[k]||={season,tour,as_of:r.effective_on,capture_id:r.capture_id,values:{}}).values[code]=Number(r.value);if(r.effective_on>m[k].as_of)m[k].as_of=r.effective_on;statsByPlayer.set(r.player_id,m);}
+ for(const r of g.seasonStats||[]){const code=r.golf_stat_definitions?.code,season=Number(r.golf_seasons?.label),tour=tours.get(r.golf_seasons?.tour_id)?.name;if(!code||!season)continue;const m=statsByPlayer.get(r.player_id)||{};const k=season+'|'+tour;(m[k]||={season,tour,as_of:r.effective_on,capture_id:r.capture_id,values:{}}).values[code]=r.value===null||r.value===undefined?null:Number(r.value);if(r.effective_on>m[k].as_of)m[k].as_of=r.effective_on;statsByPlayer.set(r.player_id,m);}
+ // Rows already stored before the parser fix carry ESPN's unranked 0.0 placeholders: apply the same rule here.
+ for(const m of statsByPlayer.values())for(const v of Object.values(m))for(const c of Object.keys(v.values))if(!c.endsWith('_rank'))v.values[c]=cleanStat(c,v.values[c],v.values[c+'_rank']);
  const BAG=[['driver','Driver',[['yardsPerDrive','Distance','yards','higher'],['driveAccuracyPct','Accuracy','% fairways','higher']]],['irons','Irons / approach',[['greensInRegPct','Greens in regulation','% holes','higher']]],['short_game','Short game (sand)',[['savePct','Sand saves','% saved','higher']]],['putter','Putter',[['puttsGirAvg','Putts per GIR','putts','lower']]],['scoring','Scoring',[['scoringAverage','Scoring average','strokes','lower'],['birdiesPerRound','Birdies per round','birdies','higher']]]];
  const BAG_MIN_ROUNDS=20,bagPop=new Map();
  for(const [pid,m] of statsByPlayer)for(const v of Object.values(m)){if(!(v.values.roundsPlayed>=BAG_MIN_ROUNDS))continue;const k=v.season+'|'+v.tour;(bagPop.get(k)||bagPop.set(k,[]).get(k)).push(v.values);}
@@ -173,8 +176,10 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   const latest=Object.values(m).filter(v=>v.values.roundsPlayed>=BAG_MIN_ROUNDS).sort((a,b)=>b.season-a.season)[0];
   if(!latest)return {available:false,reason:'Fewer than '+BAG_MIN_ROUNDS+' rounds in any ESPN season statistics in coverage.'};
   const pop=bagPop.get(latest.season+'|'+latest.tour)||[];
-  const cats=BAG.map(([code,label,comps])=>{const parts=comps.map(([c,l,unit,dir])=>{const v=latest.values[c];const cohort=pop.map(x=>x[c]).filter(Number.isFinite);return {code:c,label:l,unit,value:Number.isFinite(v)?v:null,rank:latest.values[c+'_rank']??null,percentile:Number.isFinite(v)?percentileOf(v,cohort,dir):null,population:cohort.length};});
-   const ok=parts.every(x=>x.percentile!==null);return {code,label,percentile:ok?Math.round(mean(parts.map(x=>x.percentile))):null,components:parts};});
+  const cats=BAG.map(([code,label,comps])=>{const parts=comps.map(([c,l,unit,dir])=>{const v=latest.values[c];const cohort=pop.map(x=>x[c]).filter(Number.isFinite);const has=Number.isFinite(v)&&cohort.length>0;
+    // Unavailable stays null with a reason: either the source publishes no figure for this tour/season at all, or none for this player.
+    return {code:c,label:l,unit,value:Number.isFinite(v)?v:null,rank:latest.values[c+'_rank']??null,percentile:has?percentileOf(v,cohort,dir):null,population:cohort.length,unavailable:Number.isFinite(v)?null:cohort.length?'not_published_for_player':'not_published_for_tour'};});
+   const ok=parts.every(x=>x.percentile!==null);return {code,label,percentile:ok?Math.round(mean(parts.map(x=>x.percentile))):null,graded:ok,withheld:ok?null:parts.every(x=>x.unavailable==='not_published_for_tour')?'not_published_for_tour':'component_unavailable',components:parts};});
   return {available:true,method:'golf-bag-dna/1.0.0',season:latest.season,tour:latest.tour,as_of:latest.as_of,source:'ESPN season statistics',population:pop.length,qualification:'>= '+BAG_MIN_ROUNDS+' rounds in the season',categories:cats,formula:'Each component is a mid-rank percentile within the same tour and season population; a category is the mean of its component percentiles.',disclosure:'Bag DNA grades the golfer’s observed performance profile. Equipment shown reflects the latest verified bag snapshot and is not assigned causal credit for performance.'};
  }
  const seasonStatsOf=pid=>{const m=statsByPlayer.get(pid);if(!m)return [];return Object.values(m).sort((a,b)=>b.season-a.season).map(v=>({season:v.season,tour:v.tour,as_of:v.as_of,source:'ESPN',values:Object.fromEntries(Object.entries(v.values).filter(([k])=>!k.endsWith('_rank'))),ranks:Object.fromEntries(Object.entries(v.values).filter(([k])=>k.endsWith('_rank')).map(([k,x])=>[k.slice(0,-5),x]))}));};
