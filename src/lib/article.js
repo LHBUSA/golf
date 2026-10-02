@@ -3,6 +3,7 @@
 import {e,a,kicker,fmtDate,section,toPar} from './ui.js';
 import {radar,tracks,formChart} from './charts.js';
 import {videoTile} from './video.js';
+import {movementChart} from './movement.js';
 const media=(sha,w,f)=>`/api/v1/media/${sha}/${w}.${f}`;
 const segHtml=segs=>(segs||[]).map(s=>s.t==='link'?`<a class="story-link" href="${e(s.href)}" data-entity="${e(s.entity_type)}">${e(s.v)}</a>`:s.t==='fact'?`<span class="story-fact" data-fact="${e(s.fact)}">${e(s.v)}</span>`:e(s.v)).join('');
 const when=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZone:'UTC',timeZoneName:'short'});};
@@ -52,13 +53,14 @@ export function articleChart(c){
   case 'past_winners':return pastWinners(c);
   case 'field_form':return fieldForm(c);
   case 'course_dna':return courseDna(c);
+  case 'movement':return movementChart(c.points,{title:c.title});
   case 'dna':return `<div class="dna-panel story-dna"><div class="dna-grid">${radar(c.dims,{title:c.title})}${tracks(c.dims)}</div><p class="gnote">${e(c.window)} · percentiles within the player’s tour cohort. ${a('/player/'+c.player.slug,'Full profile')}</p></div>`;
   case 'form':return formChart(c.series,{title:c.title})+`<p class="gnote">${a('/player/'+c.player.slug,'Results and history')}</p>`;
   default:return '';
  }
 }
 // Module groups in reading order; anything not grouped falls to the end of the body.
-const GROUPS=[['LEADERBOARD','The board',['leaderboard','round_progress','scorecard']],['PLAYER DNA','The player',['winner_dna','player_dna','winner_form','player_form']],['COURSE','The course',['hole_difficulty','course_dna']],['WEATHER','Conditions',['weather']],['FIELD','Field intelligence',['field_form','past_winners']]];
+const GROUPS=[['LEADERBOARD','The board',['leaderboard','movement','round_progress','scorecard']],['PLAYER DNA','The player',['winner_dna','player_dna','winner_form','player_form']],['COURSE','The course',['hole_difficulty','course_dna']],['WEATHER','Conditions',['weather']],['FIELD','Field intelligence',['field_form','past_winners']]];
 // ---------------------------------------------------------------- page
 export function heroHtml(h,a_){
  if(h?.photo?.sha256){const p=h.photo,ratio=p.height&&p.width?p.height/p.width:.66;

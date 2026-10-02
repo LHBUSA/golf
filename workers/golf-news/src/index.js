@@ -21,7 +21,8 @@ export function makeCtx(env,ix,{today=new Date().toISOString().slice(0,10),editi
  const window=ix.editions.filter(e=>forced.has(e.slug)||e.status!=='completed'&&e.starts_on&&days(today,e.starts_on)<=10&&days(e.ends_on||e.starts_on,today)<=1);
  const recent=ix.editions.filter(e=>forced.has(e.slug)||e.status==='completed'&&e.ends_on&&days(e.ends_on,today)>=0&&days(e.ends_on,today)<=14);
  const liveMemo=new Map(),live=s=>{if(!liveMemo.has(s))liveMemo.set(s,getJSON(env.PUBLIC,'live/v1/events/'+s+'.json').catch(()=>null));return liveMemo.get(s);};
- return {ix,today,as_of:ix.as_of,window,recent,forced,live,ed:s=>get('editions/'+s+'.json'),pl:s=>get('players/'+s+'.json'),co:s=>get('courses/'+s+'.json'),ixPlayer:s=>ixPlayers.get(s)};
+ const movement=s=>getJSON(env.PUBLIC,'live/v1/movement/'+s+'.json').catch(()=>null);
+ return {ix,today,as_of:ix.as_of,window,recent,forced,live,movement,ed:s=>get('editions/'+s+'.json'),pl:s=>get('players/'+s+'.json'),co:s=>get('courses/'+s+'.json'),ixPlayer:s=>ixPlayers.get(s)};
 }
 // One run at a time (cron and admin share this lease).
 async function lease(env,ms){

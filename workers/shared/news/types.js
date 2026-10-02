@@ -72,6 +72,8 @@ export const TYPES={
     if(climbers[0]){const x=climbers[0];P.fact('climber',x.s.player.name,null,'Biggest climb into the top ten');P.fact('climber_from',pp.get(x.s.player.slug),ORD(pp.get(x.s.player.slug)),'Position before the round');P.fact('climber_to',x.s.position,(x.s.tied?'a share of ':'')+ORD(x.s.position),'Position after the round');P.entity('x1','player',x.s.player.slug,x.s.player.name);}}
    if(n===2){const cut=ed.leaderboard.filter(r=>r.status==='cut');if(cut.length>=10){const made=st.length;P.fact('made_cut',made,String(made),'Players through to the weekend',{unit:'players'});}}
    P.chart('leaderboard',leaderboardChart(st,n,`Leaderboard after the ${roundWord(n)} round`));
+   // Observed movement during this round (ESPN snapshots), never interpolated.
+   const mv=ctx.movement?await ctx.movement(c.edition):null,mp=(mv?.points||[]).filter(x=>x.round===n);if(mp.length>=3)P.chart('movement',{type:'movement',title:`Leaderboard movement, ${roundWord(n)} round`,points:mp});
    if(n>=2)P.chart('round_progress',progressChart(ed.leaderboard,n,st,'Leaders, score to par by round'));
    const wc=weatherChart(ed);if(wc)P.chart('weather',wc);
    P.material(3,`${roundWord(n)} round complete`);if(ed.is_major)P.material(1,'major');

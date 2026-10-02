@@ -6,13 +6,15 @@ import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,t
 // @ts-ignore
 import {portrait,e} from './lib/ui.js';
 // @ts-ignore
-import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow} from './lib/live-ui.js';
+import {heroLive,liveRail,liveBoard,playerLive,pbecastLive,weatherNow,castPlayer} from './lib/live-ui.js';
 // @ts-ignore
 import {videoTile,TYPE_LABEL} from './lib/video.js';
 // @ts-ignore
 import {fillRaw} from './lib/dna-ui.js';
 // @ts-ignore
 import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
+// @ts-ignore
+import {movementChart} from './lib/movement.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -91,7 +93,8 @@ async function hydrateLive(){
    if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${liveBoard(ev,{limit:40})}</section>`).join('');
   }}
  if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const r=slug?await get('/'+encodeURIComponent(slug)):null;
-  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}`;}if(cast)cast.innerHTML=pbecastLive(r.event,r.hole_scores);}}
+  const mv=slug&&r?.event?await get('/'+encodeURIComponent(slug)+'/movement'):null;
+  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}${movementChart(mv?.points||[],{title:'Leaderboard movement'})}`;}if(cast){cast.innerHTML=pbecastLive(r.event,r.hole_scores,{weather:r.weather_now,layout:r.course_holes,movement:movementChart(mv?.points||[],{title:'Leaders over time',compact:true})});const rows=r.event.leaderboard.filter((x:any)=>x.status==='active').slice(0,12);const hs=new Map((r.hole_scores||[]).map((h:any)=>[h.slug||h.name,h.holes]));cast.querySelectorAll('[data-cv2-pick]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.getAttribute('data-cv2-pick'));cast.querySelectorAll('[data-cv2-pick]').forEach(x=>x.classList.toggle('is-on',x===b));const p=cast.querySelector('[data-cv2-player]');if(p)p.innerHTML=castPlayer(r.event,rows[i],hs.get(rows[i]?.slug||rows[i]?.name),r.course_holes);}));}}}
  if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final')pl.innerHTML=playerLive(r.event,r.player);}
 }
 hydrateLive();

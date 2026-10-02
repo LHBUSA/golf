@@ -33,11 +33,26 @@ export function playerLive(ev,p){
  const cur=(p.rounds||[]).find(r=>r.round===ev.round);
  return `<section class="data-section live-player" id="live"><p class="eyebrow">CURRENT TOURNAMENT</p><h2>${a('/tournament/'+ev.edition.slug,ev.edition.name)}</h2><div class="lp-grid"><div><span class="micro-label">POSITION</span><b>${e(p.status!=='active'?p.status.toUpperCase():p.position||'—')}</b></div><div><span class="micro-label">TOTAL</span><b>${e(tp(p.total_to_par))}</b></div><div><span class="micro-label">ROUND ${e(ev.round)}</span><b>${e(tp(p.today_to_par))}</b><small>${p.thru===18?'Finished':p.thru>0?'Thru '+p.thru:p.tee_time?'Tee time '+time(p.tee_time):''}</small></div>${cur?.strokes!=null&&cur.complete?`<div><span class="micro-label">ROUND SCORE</span><b>${e(cur.strokes)}</b></div>`:''}</div><p class="live-line">${badge(ev)} <span class="live-age">${e(updated(ev))} · ESPN</span></p></section>`;
 }
-// PBEcast observed scoring: hole results ESPN posted. Never shot positions.
-export function pbecastLive(ev,holeScores){
- const top=ev.leaderboard.filter(r=>r.status==='active').slice(0,8),hs=new Map((holeScores||[]).map(h=>[h.slug||h.name,h.holes]));
- const label={'-3':'albatross','-2':'eagle','-1':'birdie','0':'par','1':'bogey','2':'double bogey'};
- return `<section class="cast-live" aria-label="Observed live scoring"><div class="cast-live-head"><span class="truth truth-observed">OBSERVED SCORECARD DATA</span>${badge(ev)}<span class="live-age">${e(updated(ev))}</span></div><div class="cast-live-grid">${top.map(r=>{const holes=hs.get(r.slug||r.name)||[];const last=holes.slice(-3).reverse();return `<article class="cast-live-card"><header><b>${name(r)}</b><span>${e(r.position||'—')} · ${e(tp(r.total_to_par))}</span></header><p class="micro-label">ROUND ${e(ev.round)} · ${r.thru===18?'FINISHED':r.thru>0?'THRU '+e(r.thru):'NOT STARTED'}</p>${last.length?`<ul>${last.map(h=>{const d=h.par?h.strokes-h.par:null;return `<li class="ch ${d<0?'is-under':d>0?'is-over':''}"><span>${e(h.hole)}</span>${e(h.strokes)}<small>${e(d===null?'':label[String(Math.max(-3,Math.min(2,d)))]||'+'+d)}</small></li>`;}).join('')}</ul>`:`<p class="gnote">${ev.holes_available?'No holes posted yet.':'This tour’s feed posts round totals, not hole scores.'}</p>`}</article>`;}).join('')}</div><p class="gnote">Hole results as posted by ESPN. Ball positions are not tracked; any course animation is a reconstruction.</p></section>`;
+// PBEcast Live V2: observed scoring (ESPN) for a selected player, with weather, course context and movement.
+// Never shot positions; hole shapes and ball paths elsewhere are labelled reconstructions.
+const RES={'-3':'Albatross','-2':'Eagle','-1':'Birdie','0':'Par','1':'Bogey','2':'Double bogey'};
+const resLabel=d=>d===null||d===undefined?'':RES[String(Math.max(-3,Math.min(2,d)))]||('+'+d);
+export function castPlayer(ev,r,holes,layout){
+ if(!r)return '';const yard=new Map((layout||[]).map(h=>[h.hole,h]));
+ const hs=(holes||[]),last=hs.slice(-4).reverse();
+ const lastHole=hs.at(-1),lh=lastHole?yard.get(lastHole.hole):null;
+ const stat=(k,v)=>`<div><span class="micro-label">${e(k)}</span><b>${e(v)}</b></div>`;
+ return `<div class="cv2-player"><h3>${name(r)}</h3><div class="cv2-stats">${stat('Position',r.status!=='active'?r.status.toUpperCase():r.position||'—')}${stat('Score',tp(r.total_to_par))}${stat('Today',tp(r.today_to_par))}${stat('Thru',thruText(r))}${stat('Round',ev.round??'—')}</div>
+${last.length?`<p class="micro-label">LAST HOLES</p><ol class="cv2-holes">${last.map(h=>{const d=h.par!=null?h.strokes-h.par:null;return `<li class="${d<0?'is-under':d>0?'is-over':''}"><b>${e(h.hole)}</b><span>${e(resLabel(d)||h.strokes)}</span><small>${e(h.strokes)} on a par ${e(h.par??'—')}</small></li>`;}).join('')}</ol>`:`<p class="gnote">${ev.holes_available?(r.thru>0?'Hole results not posted yet.':'Not started.'):'This tour’s feed posts round totals, not hole scores.'}</p>`}
+${lh?`<p class="cv2-course">Last completed: hole ${e(lastHole.hole)} · par ${e(lh.par??'—')}${lh.yards?` · ${e(lh.yards)} yards`:''}</p>`:''}</div>`;
+}
+export function pbecastLive(ev,holeScores,{weather=null,movement='',layout=null}={}){
+ const rows=ev.leaderboard.filter(r=>r.status==='active').slice(0,12),hs=new Map((holeScores||[]).map(h=>[h.slug||h.name,h.holes]));
+ const first=rows[0];
+ return `<section class="cast-live cv2" aria-label="PBEcast live" data-cv2><div class="cast-live-head"><span class="truth truth-observed">OBSERVED SCORECARD DATA</span>${badge(ev)}<span class="live-age">${e(updated(ev))}</span></div>
+<div class="cv2-grid"><ol class="cv2-board">${rows.map((r,i)=>`<li><button type="button" data-cv2-pick="${i}" class="${i===0?'is-on':''}"><span class="cv2-pos">${e(r.position||'—')}</span><span class="cv2-name">${e(r.name)}</span><span class="cv2-tot">${e(tp(r.total_to_par))}</span><span class="cv2-thru">${e(thruText(r))}</span></button></li>`).join('')}</ol>
+<div class="cv2-side"><div data-cv2-player>${castPlayer(ev,first,hs.get(first?.slug||first?.name),layout)}</div>${weather?`<div class="cv2-wx">${weatherNow(weather)}</div>`:''}${movement?`<div class="cv2-move">${movement}</div>`:''}</div></div>
+<p class="gnote">Positions, scores and hole results as posted by ESPN. Ball positions are not tracked; any course animation in PBEcast is a labelled reconstruction.</p></section>`;
 }
 export function weatherNow(w){
  if(!w)return '';return `<p class="live-wx"><span>${e(w.temp_f??'—')}°F</span><span>Wind ${e(w.wind_dir||'')} ${e(w.wind_mph??'—')} mph</span>${w.gust_mph!=null?`<span>Gust ${e(w.gust_mph)} mph</span>`:''}<small>Forecast for this hour · ${w.precision==='locality'?'town-level estimate':'course point'} · updated ${e(ago(w.age_seconds))}</small></p>`;

@@ -3,13 +3,15 @@
 // inferred: positions, thru, holes and tee times are exactly what ESPN reports; missing stays null.
 import {CORE,LEAGUES,getJSON,pool,idOf,archive,UpstreamBusy} from './espn.js';
 import {toParNum,LIVE_VERSION,liveState} from '../../shared/live.js';
+import {stableId} from '../../shared/store.js';
+import {digest} from '../../shared/http.js';
 export const LIVE_PARSER='espn-golf-live/1.0.0';
 const DAY=86400000;
 const putJSON=(b,k,v,cache)=>b.put(k,JSON.stringify(v),{httpMetadata:{contentType:'application/json',...(cache?{cacheControl:cache}:{})}});
 const getJ=async(b,k)=>{const o=await b.get(k);return o?JSON.parse(await o.text()):null;};
 const STATUS={STATUS_CUT:'cut',STATUS_WITHDRAWN:'withdrawn',STATUS_WD:'withdrawn',STATUS_DISQUALIFIED:'disqualified',STATUS_DQ:'disqualified',STATUS_DNS:'dns',STATUS_DID_NOT_START:'dns'};
 // Pure normalization of one competitor (status + linescores). Exported for tests.
-export function normalizeCompetitor(id,st,ls,{name=null,slug=null}={}){
+export function normalizeCompetitor(id,st,ls,{name=null,slug=null,player_id=null}={}){
  const period=Number(st?.period)||null,thru=Number.isInteger(st?.thru)?st.thru:null;
  const rounds=(ls?.items||[]).map(r=>{const holes=(r.linescores||[]).filter(h=>Number.isFinite(h.value)).map(h=>({hole:Number(h.period),strokes:Math.round(h.value),par:Number.isFinite(h.par)?h.par:null,type:h.scoreType?.name||null}));
   const has=Number.isFinite(r.value);const rn=Number(r.period);
@@ -20,7 +22,7 @@ export function normalizeCompetitor(id,st,ls,{name=null,slug=null}={}){
  const cur=rounds.find(r=>r.round===period);
  const started=thru!==null&&thru>0;
  const pos=st?.position;
- return {espn_id:String(id),slug,name,status:STATUS[st?.type?.name]||'active',status_name:st?.type?.name||null,
+ return {espn_id:String(id),player_id,slug,name,status:STATUS[st?.type?.name]||'active',status_name:st?.type?.name||null,
   position_display:pos?.displayName||null,position_num:Number(pos?.id)||null,tied:pos?typeof pos.isTie==='boolean'?pos.isTie:null:null,
   total_to_par:total,today_to_par:started&&cur?cur.to_par:null,today_strokes:started&&cur?cur.strokes:null,
   current_round:period,thru,hole:Number.isInteger(st?.hole)?st.hole:null,start_hole:Number(st?.startHole)||null,tee_time:st?.teeTime||cur?.tee_time||null,playoff:st?.playoff??null,
@@ -28,7 +30,7 @@ export function normalizeCompetitor(id,st,ls,{name=null,slug=null}={}){
 }
 async function names(env,league,ids,db){
  const out=new Map();if(!ids.length)return out;
- for(let i=0;i<ids.length;i+=100){const rows=await db('golf_player_identities',`select=provider_id,golf_players(slug,full_name)&source_id=eq.espn&provider_id=in.(${ids.slice(i,i+100).join(',')})`);for(const r of rows)if(r.golf_players)out.set(String(r.provider_id),{slug:r.golf_players.slug,name:r.golf_players.full_name});}
+ for(let i=0;i<ids.length;i+=100){const rows=await db('golf_player_identities',`select=provider_id,player_id,golf_players(slug,full_name)&source_id=eq.espn&provider_id=in.(${ids.slice(i,i+100).join(',')})`);for(const r of rows)if(r.golf_players)out.set(String(r.provider_id),{slug:r.golf_players.slug,name:r.golf_players.full_name,player_id:r.player_id});}
  // Unmapped athletes (identity held or new): display ESPN's name without a profile link.
  const cache=JSON.parse(await env.STATE.get('espn:names:v1')||'{}');const missing=ids.filter(id=>!out.has(id)&&!cache[id]);
  await pool(2,missing.slice(0,40),async id=>{try{const a=await getJSON(`${CORE}/leagues/${league}/athletes/${id}`);cache[id]=a.displayName||a.fullName||null;}catch(e){if(e instanceof UpstreamBusy)throw e;}});
@@ -74,6 +76,7 @@ export async function runLive(env,db,{now=new Date(),force=false}={}){
   // History: bounded movement series; full snapshots only when the board changes.
   const mk='live/v1/movement/'+ed.slug+'.json',mv=await getJ(env.PUBLIC,mk)||{edition:ed.slug,points:[]};const pt=movementPoint(snap);
   const sig=JSON.stringify(pt.top.map(x=>[x.slug||x.name,x.pos,x.to_par,x.thru]));
+  try{const ps=await persistSnapshot(env,db,snap);out.db=(out.db||[]);out.db.push(ps.stored?'stored':ps.reason);}catch(e){out.db_error=String(e.message).slice(0,160);}
   if(JSON.stringify((mv.points.at(-1)?.top||[]).map(x=>[x.slug||x.name,x.pos,x.to_par,x.thru]))!==sig){mv.points.push(pt);mv.points=mv.points.slice(-400);await putJSON(env.PUBLIC,mk,mv);await putJSON(env.PRIVATE||env.RAW,`golf/live/${ed.slug}/${snap.fetched_at}.json`,snap);}
   // When ESPN reports the event final, hand the event to the ingest lane immediately.
   if(snap.event_status.completed){const items=JSON.parse(await env.STATE.get('espn:items:v1')||'{}');const k=`${snap.league}:${snap.espn_event_id}`;if(items[k]){items[k].next_at=0;await env.STATE.put('espn:items:v1',JSON.stringify(items));}}
@@ -81,4 +84,40 @@ export async function runLive(env,db,{now=new Date(),force=false}={}){
  }
  await putJSON(env.PUBLIC,'live/v1/current.json',{version:LIVE_VERSION,as_of:new Date().toISOString(),events:current});
  return out;
+}
+
+// ---------------- durable observations (golf_live_snapshots / _rows): insert-only, change-only, capped.
+export const SNAPSHOT_CAP=600;
+export async function snapshotRows(snap){
+ const sig=JSON.stringify(snap.players.map(p=>[p.espn_id,p.position_num,p.total_to_par,p.today_to_par,p.thru,p.status]).sort());
+ const hash=await digest(new TextEncoder().encode(sig));
+ const id=await stableId('live:'+snap.edition.id+':'+snap.fetched_at);
+ const small=v=>Number.isInteger(v)?v:null;
+ return {hash,header:{id,edition_id:snap.edition.id,captured_at:snap.fetched_at,source_updated_at:snap.source_updated_at,status:snap.event_status.name||'unknown',state:snap.event_status.state,round:small(snap.event_status.period),leaderboard_hash:hash,players:snap.players.length,capture_id:snap.capture_id||null,parser_version:snap.parser||'espn-golf-live/1.0.0'},
+  rows:snap.players.map(p=>({snapshot_id:id,espn_id:p.espn_id,player_id:p.player_id||null,position:small(p.position_num),tied:typeof p.tied==='boolean'?p.tied:null,position_display:p.position_display,score_to_par:small(p.total_to_par),today:small(p.today_to_par),thru:small(p.thru),round:small(p.current_round),status:p.status}))};
+}
+export async function persistSnapshot(env,db,snap){
+ if(await env.STATE.get('live:db:missing'))return {stored:false,reason:'tables_not_migrated'};
+ const r=await snapshotRows(snap),k='live:db:last:'+snap.edition.id,last=JSON.parse(await env.STATE.get(k)||'null');
+ if(last?.hash===r.hash)return {stored:false,reason:'unchanged'};
+ if((last?.count||0)>=SNAPSHOT_CAP)return {stored:false,reason:'cap_reached'};
+ try{
+  await db('golf_live_snapshots','on_conflict=edition_id,captured_at',{method:'POST',headers:{prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(r.header)});
+  for(let i=0;i<r.rows.length;i+=200)await db('golf_live_snapshot_rows','on_conflict=snapshot_id,espn_id',{method:'POST',headers:{prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(r.rows.slice(i,i+200))});
+ }catch(e){if(/PGRST205|42P01|does not exist|Could not find the table/.test(e.message)){await env.STATE.put('live:db:missing','1',{expirationTtl:3600});return {stored:false,reason:'tables_not_migrated'};}throw e;}
+ await env.STATE.put(k,JSON.stringify({hash:r.hash,count:(last?.count||0)+1,at:snap.fetched_at}));
+ return {stored:true,rows:r.rows.length};
+}
+// Replays the archived change snapshots (R2 golf-source golf/live/...) into the tables once they exist.
+export async function backfillSnapshots(env,db,{limit=200}={}){
+ await env.STATE.delete('live:db:missing');
+ const done=new Set(JSON.parse(await env.STATE.get('live:db:backfilled')||'[]'));let cursor,stored=0,seen=0,skipped=0;
+ do{const l=await env.RAW.list({prefix:'golf/live/',cursor,limit:500});cursor=l.truncated?l.cursor:undefined;
+  for(const o of l.objects){if(done.has(o.key))continue;if(seen>=limit){cursor=undefined;break;}seen++;
+   const snap=JSON.parse(await (await env.RAW.get(o.key)).text());
+   const r=await persistSnapshot(env,db,snap);if(r.reason==='tables_not_migrated')return {lane:'live-backfill',status:'tables_not_migrated'};
+   r.stored?stored++:skipped++;done.add(o.key);}
+ }while(cursor);
+ await env.STATE.put('live:db:backfilled',JSON.stringify([...done]));
+ return {lane:'live-backfill',seen,stored,skipped};
 }

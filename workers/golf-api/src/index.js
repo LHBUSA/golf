@@ -83,7 +83,9 @@ export default {
       const ev=publicEvent(snap,now),me=snap.players.filter(p=>p.holes?.length).map(p=>({slug:p.slug,name:p.name,round:p.current_round,holes:p.holes}));
       // Weather join: the forecast hour covering now (NWS), with the forecast point's precision.
       let weather_now=null;try{const w=await env.PUBLIC.get('weather/v1/forecast/'+snap.edition.id+'.json').then(o=>o?o.json():null);if(w?.hours?.length){const h=w.hours.filter(x=>Date.parse(x.t)<=now).at(-1);if(h&&now-Date.parse(h.t)<2*3600000)weather_now={...h,precision:w.precision||'venue',locality:w.locality?.label||null,issued:w.forecast_update_time||w.fetched_at,age_seconds:Math.round((now-Date.parse(w.fetched_at))/1000),source:w.source};}}catch{}
-      return json({availability:ev.state==='unavailable'?'unavailable':'available',source:'ESPN Golf core API',as_of:snap.fetched_at,freshness_seconds:ev.age_seconds,event:ev,hole_scores:me,weather_now},200,LIVE_CACHE);}
+      // Course context: sourced hole par/yardage from the edition layout (never inferred).
+      let course_holes=null;try{const d=await doc(env,'editions/'+id+'.json');course_holes=d?.layout?.holes?.length?d.layout.holes.map(h=>({hole:h.hole,par:h.par??null,yards:h.yards??null})):null;}catch{}
+      return json({availability:ev.state==='unavailable'?'unavailable':'available',source:'ESPN Golf core API',as_of:snap.fetched_at,freshness_seconds:ev.age_seconds,event:ev,hole_scores:me,weather_now,course_holes},200,LIVE_CACHE);}
      const who=url.searchParams.get('player');
      if(who){for(const s of cur?.events||[]){const p=s.players.find(x=>x.slug===who);if(p){const ev=publicEvent(s,now);return json({availability:'available',source:'ESPN Golf core API',event:{...ev,leaderboard:[]},player:ev.leaderboard.find(x=>x.slug===who)},200,LIVE_CACHE);}}return json({availability:'unavailable',player:null},200,LIVE_CACHE);}
      const events=orderEvents((cur?.events||[]).map(s=>publicEvent(s,now))).map(ev=>({...ev,leaderboard:ev.leaderboard.slice(0,Number(url.searchParams.get('top'))||10)}));
