@@ -5,6 +5,7 @@ import {renderNews,feed,newsSitemap,newsUrlset,newsIndex} from './news-ssr.js';
 // The card renderer (wasm + fonts) loads only for /og requests.
 const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
+import {noTransform} from './transport.js';
 import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
@@ -22,7 +23,10 @@ function envelope(ix,data,{availability='available',coverage=null,reason=null,so
 const unavailable=(ix,reason,extra={})=>envelope(ix,null,{availability:'unavailable',reason,...extra});
 const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost','/admin/news-compare']);
 export default {
- async fetch(request,env={}){
+ // Every response leaves with no-transform: see transport.js (Vercel cache vs Accept-Encoding).
+ async fetch(request,env={}){return noTransform(await route(request,env));}
+};
+async function route(request,env){
   const url=new URL(request.url),path=url.pathname;
   if(ADMIN.has(path)){
    if(request.method!=='POST')return json({error:'method_not_allowed'},405);
@@ -150,5 +154,4 @@ export default {
     default:return json({error:'not_found'},404);
    }
   }catch(error){console.error(JSON.stringify({worker:'golf-api',error:error.message}));return json(unavailable(ix,'projection_read_failed'),503);}
- }
-};
+}
