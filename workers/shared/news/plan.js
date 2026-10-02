@@ -37,6 +37,16 @@ const METHOD={
  playoff:'Players and scores from the ESPN live scoring snapshot.'};
 // Chart order: the writer's intents first (validated), then any packet chart the type always shows.
 const ALWAYS={final:['leaderboard'],round_recap:['leaderboard','movement'],preview:['past_winners'],course_weather:['weather'],cut:['leaderboard'],notable_round:['scorecard'],major_history:['past_winners'],player_form:['player_form'],course_intelligence:['course_dna']};
+// Restrained emphasis: prose facts are plain by default. A class's anchor facts and one standout per section
+// (section.em) are emphasised at their first mention only, at most one per paragraph, never a long phrase.
+const ANCHORS={final:['to_par','margin','playoff'],round_recap:['lead_score','lead_margin'],preview:[],course_intelligence:[]};
+const EM_MAX=5,EM_MAX_CHARS=22;
+export function applyEmphasis(sections,packet,draftSections=[]){
+ const seen=new Set(),anchors=new Set(ANCHORS[packet.type]||[]);let budget=EM_MAX;
+ return sections.map((s,i)=>{const pick=new Set([...anchors,draftSections[i]?.em].filter(Boolean));
+  return {...s,paragraphs:s.paragraphs.map(p=>{let used=false;return p.map(g=>{if(g.t!=='fact')return g;const first=!seen.has(g.fact);seen.add(g.fact);
+   if(!used&&budget>0&&first&&pick.has(g.fact)&&String(g.v).length<=EM_MAX_CHARS){used=true;budget--;if(!draftSections[i]?.em||g.fact!==draftSections[i].em)anchors.delete(g.fact);return {...g,em:true};}return g;});})};});
+}
 export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior=null,now=new Date().toISOString(),status='published'}){
  const res=x=>resolveHref(x);
  const seg=t=>segments(t,packet,res),txt=t=>plain(segments(t,packet,res,{links:false}));
@@ -53,7 +63,7 @@ export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior
  const doc={version:ARTICLE_VERSION,slug,type:packet.type,category:TYPES[packet.type]?.category||'GOLF',topic:packet.topic,status,
   headline:seg(draft.headline),dek:seg(draft.dek),headline_text:txt(draft.headline),dek_text:txt(draft.dek),
   seo:{title:seoTitle,description:txt(draft.seo_description||draft.dek).slice(0,170),social:txt(draft.social_headline||draft.headline)},
-  sections:draft.sections.map(s=>({heading:txt(s.heading),paragraphs:s.paragraphs.map(seg),...(s.module&&s.module!=='none'?{module:s.module}:{})})),
+  sections:applyEmphasis(draft.sections.map(s=>({heading:txt(s.heading),paragraphs:s.paragraphs.map(seg),...(s.module&&s.module!=='none'?{module:s.module}:{})})),packet,draft.sections),
   quick_facts:(QUICK[packet.type]||[]).map(id=>F(packet,id)).filter(Boolean).slice(0,6).map(f=>({fact:f.id,label:f.label,display:f.display})),
   charts:chartIds.map(id=>({id,...packet.chart_data[id]})),
   hero,video,

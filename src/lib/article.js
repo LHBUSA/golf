@@ -5,7 +5,7 @@ import {radar,tracks,formChart} from './charts.js';
 import {videoTile} from './video.js';
 import {movementChart} from './movement.js';
 const media=(sha,w,f)=>`/api/v1/media/${sha}/${w}.${f}`;
-const segHtml=segs=>(segs||[]).map(s=>s.t==='link'?`<a class="story-link" href="${e(s.href)}" data-entity="${e(s.entity_type)}">${e(s.v)}</a>`:s.t==='fact'?`<span class="story-fact" data-fact="${e(s.fact)}">${e(s.v)}</span>`:e(s.v)).join('');
+const segHtml=segs=>(segs||[]).map(s=>s.t==='link'?`<a class="story-link" href="${e(s.href)}" data-entity="${e(s.entity_type)}">${e(s.v)}</a>`:s.t==='fact'?`<span class="story-fact${s.em?' story-em':''}" data-fact="${e(s.fact)}">${e(s.v)}</span>`:e(s.v)).join('');
 const when=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZone:'UTC',timeZoneName:'short'});};
 const minutes=a=>Math.max(1,Math.round(a.sections.flatMap(s=>s.paragraphs).map(p=>p.map(x=>x.v).join('')).join(' ').split(/\s+/).length/220));
 const f1=v=>Number(v).toFixed(1);

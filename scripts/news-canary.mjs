@@ -30,7 +30,7 @@ function grade(plan,gates,packetFacts){if(!plan)return null;
  const dupSents=sents.length-new Set(sents.map(x=>x.toLowerCase())).size;
  const derived=new Set(packetFacts.filter(f=>String(f.source).startsWith('Derived from')).map(f=>f.id));
  const reasons=gates?.reasons||[...(gates?.fact||[]),...(gates?.numeric||[])];
- return {gates_ok:Boolean(gates?.ok),unsupported_claims:reasons.filter(x=>/unsupported_|unknown_fact|unknown_entity|invented_|pronoun|injury|quotation|prediction|betting/.test(x)).length,numeric_issues:reasons.filter(x=>/number|ordinal/.test(x)).length,
+ return {gates_ok:Boolean(gates?.ok),unsupported_claims:reasons.filter(x=>/unsupported_|unknown_fact|unknown_entity|invented_|outcome_claim|pronoun|injury|quotation|prediction|betting/.test(x)).length,numeric_issues:reasons.filter(x=>/number|ordinal/.test(x)).length,
   narrative_words:plan.words,sections:plan.sections.length,facts_used:(plan.facts_used||[]).length,derived_facts_used:(plan.facts_used||[]).filter(id=>derived.has(id)).length,
   modules:plan.charts.length,modules_introduced:(plan.modules||[]).length,avg_sentence_words:Math.round(words.length/Math.max(1,sents.length)*10)/10,flesch_reading_ease:flesch,duplicate_sentences:dupSents,
   premium_safe:!PREMIUM.test(text),headline:plan.headline,dek:plan.dek,seo:{title:plan.seo.title,title_len:plan.seo.title.length,desc_len:plan.seo.description.length,ok:plan.seo.title.length<=65&&plan.seo.description.length>=50&&plan.seo.description.length<=170&&Boolean(plan.canonical&&plan.og_image&&plan.jsonld_type)},links:plan.links};}
@@ -38,7 +38,7 @@ for(const [cls,c] of Object.entries(report.classes))for(const topic of c.topics)
  const facts=d.packet.facts,v4=grade(d.desk_v4?.plan,d.desk_v4?.gates,facts),v5=grade(d.desk.plan,{ok:d.desk.gates.ok,reasons:[...d.desk.gates.fact,...d.desk.gates.numeric]},facts),o=d.openai,oa=grade(o.plan,o.gates,facts);
  for(const g of [v4,v5,oa].filter(Boolean)){g.dead_links=[];for(const l of g.links){const st=await head(l);if(st!==200)g.dead_links.push(l+' '+st);}}
  const clean=g=>g&&g.gates_ok&&!g.unsupported_claims&&!g.numeric_issues&&!g.dead_links.length&&g.seo.ok&&g.premium_safe&&!g.duplicate_sentences;
- const deskPass=clean(v5)&&(d.type!=='final'||v5.modules_introduced>=Math.min(3,v5.modules))&&(!v4||v5.narrative_words>=v4.narrative_words);
+ const deskPass=clean(v5)&&v5.modules_introduced>=Math.min(2,v5.modules)&&(!v4||v5.narrative_words>=v4.narrative_words);
  const openaiPass=Boolean(o.status==='validated'&&clean(oa));
  c.results.push({topic,desk_v5_pass:Boolean(deskPass),openai_pass:openaiPass,pass:openaiPass,openai_status:o.status,reason:o.reason,usd:o.usd,
   hold_reasons:openaiPass?[]:[...(o.status!=='validated'?['openai_'+o.status+(o.reason?':'+o.reason:'')]:[]),...(o.attempts.at(-1)?.fact||[]),...(o.attempts.at(-1)?.numeric||[]),...(oa?.dead_links||[]).map(x=>'dead_link '+x)],

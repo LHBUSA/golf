@@ -130,7 +130,7 @@ async function compareEditors(env,packet,ctx){
  const videos=(await getJSON(env.PUBLIC,'video/v1/index.json').catch(()=>null))?.videos||[];
  const media={hero:await pickHero(packet,ctx),video:pickVideo(packet,videos)};
  const doc=compareDoc(packet,desk,deskV,log,{mode:ep.status==='validated'?'openai':'deterministic_fallback',reason:ep.status==='validated'?null:(ep.reason||ep.status)},media);
- doc.desk.version=packet.type==='final'?DESK_V5:DESK_VERSION;doc.desk.draft=desk;doc.desk_v4={version:DESK_VERSION,gates:{ok:v4V.ok,reasons:v4V.reasons},plan:planSummary(packet,v4,{...media,editor:'deterministic_fallback'}),draft:v4};
+ doc.desk.version=DESK_V5;doc.desk.draft=desk;doc.desk_v4={version:DESK_VERSION,gates:{ok:v4V.ok,reasons:v4V.reasons},plan:planSummary(packet,v4,{...media,editor:'deterministic_fallback'}),draft:v4};
  await putJSON(env.PRIVATE,'news/v2/compare/'+packet.topic.replace(/[^a-z0-9:-]/gi,'_')+'.json',doc);
  return {summary:{editor:doc.chosen_editor,openai_status:ep.status,reason:doc.fallback_reason,desk_ok:deskV.ok,openai_ok:doc.openai.gates?.ok??null,usd:ep.usd||0}};
 }

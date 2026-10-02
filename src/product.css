@@ -290,7 +290,7 @@ figure{margin:0}figcaption{font-size:10px;line-height:1.5;color:var(--muted);mar
 .story-section h2{font:400 26px/1.2 var(--serif);margin:26px 0 10px}
 .story-section p{font:400 19px/1.65 var(--serif);margin:0 0 16px;color:#1f2a24}
 .story-link{color:var(--pine-2);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
-.story-fact{font-weight:700}
+.story-fact{font-weight:inherit}.story-fact.story-em{font-weight:700}
 .story-module{margin:22px 0 28px}
 .story-module-title{font:700 12px/1.2 var(--sans);letter-spacing:1.4px;text-transform:uppercase;margin:0 0 10px;color:var(--pine-2)}
 .story-group{border-bottom:1px solid var(--line)}

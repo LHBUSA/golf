@@ -71,6 +71,9 @@ export function finalStoryV5(p){
  if(charts.has('weather'))d.sections.push(S('Conditions',['The tournament-week forecast is shown below. It is a forecast issued before play, not observed conditions.'],'weather'));
  if(p.context.edition&&has('final_front_nine'))d.sections.push(S('Replay it',[`PBEcast rebuilds ${his} final round hole by hole from the published scorecard.`],'pbecast'));
  d.sections=d.sections.filter(Boolean);
+ // One standout per section at most (rendered with restraint by applyEmphasis).
+ const EM={'':'final_round','How it turned':'gain_on_r3_leader','What the numbers say':'final_vs_prior_avg','What it means':'win_ordinal'};
+ for(const s of d.sections){const id=EM[s.heading];if(id&&has(id))s.em=id;}
  if(p.facts.some(f=>f.id.startsWith('final_')&&f.source?.includes('hole-by-hole')))d.known_limits.push('Hole-by-hole figures come from the published scorecard; they do not show when each hole was played relative to the rest of the field.');
  // SEO title: the most specific candidate that fits once rendered (never a truncated headline).
  const render=t=>t.replace(/\{f:([a-z0-9_]+)\}/g,(_,id)=>p.facts.find(f=>f.id===id)?.display||'');

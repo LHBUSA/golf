@@ -83,3 +83,38 @@ test('narrative rules are encoded thresholds',()=>{assert.deepEqual(RULES.close_
 test('narrative SEO: titles are never cut inside a word',async()=>{const ed=comebackEdition();ed.tournament.name='Extraordinarily Long Sponsored Invitational Championship Presented Locally';ed.name='2026 '+ed.tournament.name;
  const pk=await packet(ed);const a=buildArticle({packet:pk,draft:deskDraft(pk,{version:DESK_V5}),editor:{mode:'x'},slug:'s',ctx:{},hero:null});
  assert.ok(a.seo.title.length<=65);const words=new Set(`Will Winner wins comes from back to win rallies the at ${ed.tournament.name} eight strokes`.split(/\s+/));for(const w of a.seo.title.split(' '))assert.ok(words.has(w),'whole word: '+w);});
+// ---------------------------------------------------------------- preview / course / recap (v5)
+import {applyEmphasis} from '../workers/shared/news/plan.js';
+const HOLES=PARS.map((p,i)=>({hole:i+1,par:p,yards:p===3?200+i:p===5?560+i:(i%2?470:380)+i,sample:300,avg_to_par:p===5?-0.5:p===3?0.15:(i%2?0.2:-0.05)}));
+const courseDoc={slug:'narr-links',name:'Narr Links',dna:{full_field_editions:3,confidence:'MEDIUM',edition_range:[2023,2025],dimensions:[{code:'difficulty',label:'Scoring difficulty',value:-0.5,unit:'u',percentile:40,confidence:'MEDIUM',sample:3},{code:'spread',label:'Spread',value:3.3,percentile:80,confidence:'MEDIUM',sample:3},{code:'birdie_window',label:'Under-par rounds',value:55.2,percentile:60,confidence:'MEDIUM',sample:3},{code:'winning_score',label:'Winning score',value:-17.3,percentile:null,sample:3}]},
+ contender_hole_scoring:{edition:'narr-open-2025',year:2025,holes:HOLES},editions:[{year:2025,coverage:'full_field',winner:{slug:'w',name:'Will Winner'},to_par:-18},{year:2024,coverage:'full_field',winner:{slug:'u',name:'Uma Second'},to_par:-16}],
+ player_history:[{slug:'w',name:'Will Winner',full_field_starts:3,top10:2,wins:1,best_finish:1,scoring_vs_field:2.9,fit:{secret:1}},{slug:'c',name:'Cal Fourth',full_field_starts:3,top10:1,wins:0,best_finish:6}]};
+function upcoming(){const e=comebackEdition();return {...e,slug:'narr-open-2026u',status:'scheduled',starts_on:'2026-10-08',ends_on:'2026-10-11',leaderboard:[],defending_champion:{slug:'w',name:'Will Winner'},past_editions:[{slug:'a',year:2025,winner:{slug:'w',name:'Will Winner'},to_par:-18},{slug:'b',year:2024,winner:{slug:'u',name:'Uma Second'},to_par:-16}]};}
+const preCtx=ed=>({today:'2026-10-05',as_of:'x',window:[ed],recent:[],ed:async()=>ed,pl:async s=>s==='w'?pl:null,co:async()=>courseDoc,ixPlayer:()=>null,live:async()=>null,movement:async()=>null});
+async function v5(type,ed=upcoming()){const c=preCtx(ed);const P=await TYPES[type].build(c,TYPES[type].detect(c)[0]);const pk=await P.freeze();const d=deskDraft(pk,{version:DESK_V5});return {pk,d,v:validateDraft(pk,d,{resolve:resolveHref}),text:d.sections.flatMap(s=>s.paragraphs).map(p=>plain(segments(p,pk,resolveHref,{links:false}))).join(' ')};}
+
+test('course v5: derived course facts are exact and the story passes every gate',async()=>{const {pk,v,text,d}=await v5('course_intelligence');
+ assert.deepEqual(v.reasons,[]);assert.equal(F(pk,'cd_window_type').display,'par 5s');assert.equal(F(pk,'cd_par5_total').value,-1.5);
+ assert.equal(F(pk,'cd_demand_type').display,'par 3s');assert.match(text,/they played over par/);
+ assert.ok(F(pk,'cd_long_par4s')&&pk.context.course_signature.long_iron,'long par 4s are 0.25 harder');
+ assert.match(text,/Will Winner has two top-ten finishes in three starts, including a win/);
+ for(const h of ['What kind of course is this?','Where it creates separation','Scoring profile','Hole and yardage demands','Player types that fit','Historical context','Course DNA'])assert.ok(d.sections.some(s=>s.heading===h),h);
+ assert.doesNotMatch(JSON.stringify(pk.facts),/scoring_vs_field|secret|2\.9/,'no premium fit or strokes-vs-field values');});
+
+test('preview v5: unpublished field is stated, defending champion form is public, no picks language',async()=>{const {pk,v,text}=await v5('preview');
+ assert.deepEqual(v.reasons,[]);assert.match(text,/has not been published yet/);assert.match(text,/defending champion sits in the 95th percentile for recent form/);
+ assert.doesNotMatch(text,/should win|best bet|favou?rite|lock/i);assert.ok(pk.charts.includes('course_dna')&&pk.charts.includes('hole_difficulty'));});
+
+test('round recap v5: lead change, movers, low round and what remains; never an outcome claim',async()=>{const ed=comebackEdition();ed.status='in_progress';ed.starts_on='2026-10-01';ed.ends_on='2026-10-04';
+ for(const r of ed.leaderboard){r.rounds=r.rounds.slice(0,3);r.status='unknown';delete r.winner;}
+ const c={...preCtx(ed),today:'2026-10-03',window:[ed]};const P=await TYPES.round_recap.build(c,{type:'round_recap',edition:ed.slug});const pk=await P.freeze();const d=deskDraft(pk,{version:DESK_V5});const v=validateDraft(pk,d,{resolve:resolveHref});
+ assert.deepEqual(v.reasons,[]);const text=d.sections.flatMap(s=>s.paragraphs).map(p=>plain(segments(p,pk,resolveHref,{links:false}))).join(' ');
+ assert.equal(F(pk,'rounds_left').display,'one round');assert.match(text,/completed rounds only/);
+ const bad=validateDraft(pk,{...d,sections:[...d.sections,{heading:'X',paragraphs:['{f:leaders} is in control.']}]},{resolve:resolveHref});assert.match(bad.reasons.join(),/outcome_claim/);});
+
+test('emphasis: anchors and one standout per section, first mention only, never long phrases, budget of five',async()=>{const pk=await packet();const d=deskDraft(pk,{version:DESK_V5});
+ const a=buildArticle({packet:pk,draft:d,editor:{mode:'x'},slug:'s',ctx:{},hero:null});const em=a.sections.flatMap(s=>s.paragraphs.flat()).filter(g=>g.em);
+ assert.ok(em.length>=1&&em.length<=5,'count '+em.length);assert.equal(new Set(em.map(g=>g.fact)).size,em.length,'first mention only');
+ for(const s of a.sections)for(const p of s.paragraphs)assert.ok(p.filter(g=>g.em).length<=1,'one per paragraph');for(const g of em)assert.ok(g.v.length<=22,g.v);
+ const html=articlePage(a);assert.ok((html.match(/story-em/g)||[]).length===em.length);
+ assert.equal(applyEmphasis([{heading:'x',paragraphs:[[{t:'fact',fact:'winner',v:'Will Winner'}]]}],pk,[{}])[0].paragraphs[0][0].em,undefined,'names are not emphasised');});

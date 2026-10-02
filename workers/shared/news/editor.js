@@ -9,7 +9,7 @@ export function articleSchema(packet){
  const str={type:'string'},arr=items=>({type:'array',items});
  return {type:'object',additionalProperties:false,required:['headline','dek','sections','chart_intents','link_intents','known_limits','seo_title','seo_description','social_headline'],properties:{
   headline:str,dek:str,
-  sections:arr({type:'object',additionalProperties:false,required:['heading','paragraphs','module'],properties:{heading:str,paragraphs:arr(str),module:{type:'string',enum:['none',...packet.charts,...(packet.context?.edition?['pbecast']:[])]}}}),
+  sections:arr({type:'object',additionalProperties:false,required:['heading','paragraphs','module','em'],properties:{heading:str,paragraphs:arr(str),em:{type:'string',enum:['none',...packet.facts.map(f=>f.id)]},module:{type:'string',enum:['none',...packet.charts,...(packet.context?.edition?['pbecast']:[])]}}}),
   chart_intents:arr({type:'string',enum:charts}),link_intents:arr({type:'string',enum:ents}),known_limits:arr(str),
   seo_title:str,seo_description:str,social_headline:str}};
 }
@@ -29,6 +29,7 @@ TRUTH
 CRAFT
 - Lead with what happened or what matters this week, using the strongest facts. Plain, confident sports-desk English.
 - Write a story, not a stat sheet. For a final, follow: an unheaded lede (heading ""), then The result, How it turned, The profile behind it, What the numbers say, What it means, then short sections that introduce the remaining modules. Answer what happened, why it mattered, how it turned, what the data shows that the leaderboard does not, and what it means in the player's form and record.
+- Emphasis is restrained: set a section's "em" to the one fact that anchors it, or "none". Never more than one.
 - Every data module must be introduced by prose: set a section's "module" to the chart (or "pbecast") that its paragraphs introduce; otherwise "none". The baseline shows the placement.
 - Use context.signals: they are tested narrative findings (comeback, wire_to_wire, final_round_surge, close_finish, runner_up_matched_final_round, dna_matches_week...). Only describe a signal that is present.
 - Length follows the facts: do not pad a thin packet.

@@ -4,6 +4,7 @@ import {Packet,toParWords,toParShort,posWords,list,dayName,addDays,roundWord,ORD
 import {roundsComplete,standingsAfter,roundStats,holeDifficulty,weatherDays,r1,mean,boardFromSnapshot} from './golf-math.js';
 import {liveState,toParText} from '../live.js';
 import {finalNarrative,countWord} from './narrative.js';
+import {courseNarrative,courseHistoryPlayers,formFacts,recapNarrative} from './narrative-pre.js';
 const strokesW=n=>n===1?'one stroke':n<10?`${countWord(n)} strokes`:`${n} strokes`;
 const MIN_MATERIAL=3;
 export const THRESHOLD=MIN_MATERIAL;
@@ -50,6 +51,14 @@ export const TYPES={
    if(ed.is_major)P.material(2,'major championship');
    if(ed.espn?.course?.par||ed.layout?.par)P.material(1,'course setup');
    const wc=weatherChart(ed);if(wc){P.chart('weather',wc);P.material(1,'forecast available');const g=Math.max(...wc.days.map(d=>d.gust_max??0));if(g)P.fact('max_gust',g,`${g} mph`,'Strongest forecast gust (7am–7pm)',{source:'NOAA National Weather Service',unit:'mph'});}
+   // Narrative context (public data only).
+   const co=ed.course?.slug&&ctx.co?await ctx.co(ed.course.slug):null;let sigC={};
+   if(co){sigC=courseNarrative(P,co,{withHistory:false});P.context.course_signature={separation:sigC.separation||null,difficulty:sigC.difficulty||null,long_iron:Boolean(sigC.long_iron)};const cd=co.dna;if(cd?.dimensions?.length&&cd.full_field_editions>=2)P.chart('course_dna',{type:'course_dna',title:`${co.name} Course DNA`,course:{name:co.name,slug:co.slug},dimensions:cd.dimensions.filter(d=>d.value!==null).map(d=>({code:d.code,label:d.label,value:d.value,unit:d.unit,percentile:d.percentile,confidence:d.confidence}))});}
+   const fieldSlugs=new Set([...(ed.leaderboard||[]).map(r=>r.player?.slug),...(ed.field?.entries||[]).map(x=>x.slug)].filter(Boolean));P.context.field_published=fieldSlugs.size>=20;
+   if(co)await courseHistoryPlayers(P,co,ctx,{key:'ch',max:3,window:sigC.window,demand:sigC.demand,restrictTo:P.context.field_published?fieldSlugs:null});
+   if(dc?.slug){const f=await formFacts(P,ctx,dc.slug,'dc',{before:ed.starts_on});P.context.dc_in_form=Boolean(f?.strong);}
+   if(P.context.field_published&&ctx.ixPlayer){const hot=[...fieldSlugs].map(s=>ctx.ixPlayer(s)).filter(p=>Number.isInteger(p?.form?.percentile)&&p.form.percentile>=90&&p.slug!==dc?.slug).sort((a,b)=>b.form.percentile-a.form.percentile).slice(0,3);
+    for(const [i,p] of hot.entries()){P.entity('fm'+(i+1),'player',p.slug,p.name);await formFacts(P,ctx,p.slug,'fm'+(i+1),{before:ed.starts_on});}}
    P.limit('Previews describe the field, the course and the history in our record. They are not a forecast of the result.');
    return P;}},
  // ---------------------------------------------------------------- ROUND RECAPS (R1-R3)
@@ -79,6 +88,8 @@ export const TYPES={
    if(n>=2)P.chart('round_progress',progressChart(ed.leaderboard,n,st,'Leaders, score to par by round'));
    const wc=weatherChart(ed);if(wc)P.chart('weather',wc);
    P.material(3,`${roundWord(n)} round complete`);if(ed.is_major)P.material(1,'major');
+   await recapNarrative(P,{ed,n,ctx});
+   if(leaders.length===1&&leaders[0].player.slug){const lp=await ctx.pl(leaders[0].player.slug);P.chart('leader_dna',playerDnaChart(lp));}
    P.limit('Standings are computed from posted round scores; players still on the course are not included.');
    return P;}},
  // ---------------------------------------------------------------- FINAL
@@ -202,8 +213,11 @@ export const TYPES={
    if(diff?.percentile!==null&&diff?.percentile!==undefined)P.fact('difficulty_pct',diff.percentile,ORD(diff.percentile)+' percentile','Difficulty among measured courses');
    if(spread?.value)P.fact('spread',spread.value,spread.value.toFixed(2),'Round-score spread (standard deviation)',{unit:'strokes'});
    P.chart('course_dna',{type:'course_dna',title:`${co.name} Course DNA`,course:{name:co.name,slug:co.slug},dimensions:(dna.dimensions||[]).filter(d=>d.value!==null).map(d=>({code:d.code,label:d.label,value:d.value,unit:d.unit,percentile:d.percentile,confidence:d.confidence}))});
+   const sig=courseNarrative(P,co);await courseHistoryPlayers(P,co,ctx,{key:'ch',max:4,window:sig.window,demand:sig.demand});P.context.course_signature={separation:sig.separation||null,difficulty:sig.difficulty||null,long_iron:Boolean(sig.long_iron)};
+   const wc=weatherChart(ed);if(wc)P.chart('weather',wc);
    P.material(3,'measured course DNA');
    P.limit('Course DNA is measured from full-field editions in our record; setups can change year to year.');
+   P.limit('Hole scoring comes from one edition’s published cards; it describes how that week played, not a fixed property of the hole.');
    return P;}},
  // ---------------------------------------------------------------- LIVE SIGNALS (from ESPN snapshots)
  play_suspended:{label:'Play suspended',category:'LIVE',
