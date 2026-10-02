@@ -28,7 +28,7 @@ function coursePieces(p,k){const {has,val}=k;const w=val('cd_window_type'),dm=va
 }
 function historyPlayers(p,k,{inField}){const {has,ent,val}=k;const out=[];
  const dm=val('cd_demand_type');const types=[has('cd_window_type')?'score on the {f:cd_window_type}':null,dm&&val('cd_par'+dm+'_avg')>0?'hold their ground on the {f:cd_demand_type}':null,p.context.course_signature?.long_iron?'handle long approach shots':null].filter(Boolean);
- const lead=types.length?`On these numbers, the course aligns with players who ${types.join(' and ')}.`:null;
+ const lead=types.length?`On these numbers, the course aligns with players who ${types.length>2?types.slice(0,-1).join(', ')+' and '+types.at(-1):types.join(' and ')}.`:null;
  for(const key of ['ch1','ch2','ch3','ch4'])if(ent(key)&&has(key+'_record')){const dnaId=p.facts.find(f=>f.id.startsWith(key+'_dna_'))?.id;out.push(`${out.length?'':'At this course, '}{e:${key}} has {f:${key}_record}${dnaId?`, and ranks in the {f:${dnaId}} in Player DNA`:''}.`);}
   if(!out.length)return lead?[lead]:[];
  return [lead,inField?'Among players in the field, the strongest records here belong to these players.':'The strongest records here in our results belong to these players. The field for this edition has not been published yet, so they may not all be entered.',...out].filter(Boolean);
@@ -62,7 +62,7 @@ export function courseV5(p){const k=kit(p),{has,ent,val,charts,course,event}=k,c
   has('dna_editions')&&val('dna_editions')<=3?'A sample of {f:dna_editions} editions is limited, so these figures describe recent setups rather than a settled profile.':null,
   sg.separation==='separates'&&has('cd_spread_pct')?`${sg.difficulty==='easy'?'It gives up scores, but it still':'It'} separates the field: its scoring spread ranks in the {f:cd_spread_pct}.`:sg.separation==='bunches'&&has('cd_spread_pct')?'It bunches the field: its scoring spread ranks in the {f:cd_spread_pct}.':null]));
  d.sections.push(S('What kind of course is this?',[c.mix,c.underpar]));
- d.sections.push(S('Where it creates separation',[c.demand,c.hardest,has('cd_spread_pct')?'Spread is the standard deviation of round scores within an edition; a higher percentile means rounds here vary more than at most courses.':null]));
+ d.sections.push(S('Where it creates separation',[has('cd_spread_pct')?'Its scoring spread, the standard deviation of round scores within an edition, ranks in the {f:cd_spread_pct} among measured courses; a higher percentile means rounds here vary more than at most courses.':null,c.demand,c.hardest]));
  d.sections.push(S('Scoring profile',[c.window,c.easiest,c.nines],null,null));
  d.sections.push(S('Hole and yardage demands',[c.longiron,c.par3,charts.has('hole_difficulty')?'The chart shows every hole’s field average against par from that edition’s published cards.':null],charts.has('hole_difficulty')?'hole_difficulty':null));
  d.sections.push(S('Player types that fit',historyPlayers(p,k,{inField:false})));
@@ -80,16 +80,17 @@ export function recapV5(p){const k=kit(p),{has,ent,val,charts,course,event,sig,H
  d.headline=`${multi?'{f:leaders} share':'{f:leaders} leads'} the {f:event} after the {f:round_word} round`;
  d.dek=`${multi?'{f:leaders} are tied':'{f:leaders} is'} at {f:lead_score}${course?' at {f:course}':''}.${has('lead_margin')?' The lead is {f:lead_margin}.':''}${has('rounds_left')?' The schedule has {f:rounds_left} left.':''}`;
  d.sections.push(S('',[join(`${multi?'{f:leaders} share the lead':L+' leads'} ${event} after the {f:round_word} round at {f:lead_score}, a total of {f:lead_total}.`,has('lead_margin')&&has('chasers')?`${(val('chasers')||[]).length>1?'{f:chasers} are':'{f:chasers} is'} {f:lead_margin} back.`:null),
-  has('leader_round')?join(`{f:leaders} shot {f:leader_round}, {f:leader_round_to_par}, in the round.`,has('leader_from')?`${He||'The leader'} began the day in {f:leader_from}${has('leader_was_back')?', {f:leader_was_back} behind {f:prev_leaders}':''}.`:null):null]));
+  has('leader_round')&&val('round_number')>1?join(`{f:leaders} shot {f:leader_round}, {f:leader_round_to_par}, in the round.`,has('leader_from')?`${He||'The leader'} began the day in {f:leader_from}${has('leader_was_back')?', {f:leader_was_back} behind {f:prev_leaders}':''}.`:null):null]));
  const changed=[];
  if(sig.has('lead_changed')&&has('prev_leaders'))changed.push(join('The lead changed hands.',has('prev_leader_round')?`{f:prev_leaders} shot {f:prev_leader_round}${has('prev_leader_now')?' and is now in {f:prev_leader_now}':''}.`:`{f:prev_leaders} led entering the round.`));
  else if(sig.has('lead_held')&&has('prev_leaders'))changed.push(`${multi?'The leaders held their place':'{f:leaders} held the lead'} from the previous round.`);
  if(has('round_average'))changed.push(join('The field averaged {f:round_average} strokes for the round, with {f:under_par_count} of {f:round_field} players under par.'));
- d.sections.push(S('What changed today',changed));
+ d.sections.push(S(val('round_number')>1?'What changed today':'How the course played',changed));
  const moved=[];if(has('movers'))moved.push('The biggest climbs into the top ten: {f:movers}.');else if(has('climber'))moved.push(`{e:x1} climbed from {f:climber_from} to {f:climber_to}.`);
  if(has('made_cut'))moved.push('{f:made_cut} players are through to the weekend.');
  d.sections.push(S('Who moved',moved));
- if(has('low_round'))d.sections.push(S('Low round',[join(`The low round of the day was {f:low_round}, by ${['l1','l2'].filter(ent).map(x=>`{e:${x}}`).join(' and ')||'{f:low_round_players}'}.`,has('low_round_pos')?'It moved that player into {f:low_round_pos}.':null)],null,'low_round'));
+ const leaderLow=!multi&&(val('low_round_players')||[]).length===1&&val('low_round_players')[0]===(val('leaders')||[])[0];
+ if(has('low_round'))d.sections.push(S('Low round',[leaderLow?'The leader’s {f:low_round} was also the low round of the day.':join(`The low round of the day was {f:low_round}, by ${['l1','l2'].filter(ent).map(x=>`{e:${x}}`).join(' and ')||'{f:low_round_players}'}.`,has('low_round_pos')?'It moved that player into {f:low_round_pos}.':null)],null,'low_round'));
  const mvChart=charts.has('movement')?'movement':charts.has('leaderboard')?'leaderboard':null;
  d.sections.push(S('Leaderboard movement',[mvChart==='movement'?'The movement chart plots each observed scoring snapshot during the round. Markers are observations; dotted links between them are not measured positions.':mvChart?'The leaderboard below is computed from completed round scores only.':null],mvChart));
  if(charts.has('round_progress'))d.sections.push(S('Round by round',['The chart tracks the leaders’ totals after each completed round.'],'round_progress'));

@@ -22,7 +22,8 @@ for(const cls of CLASSES){const got=[];
 const docs=await (await fetch(`${API}/admin/news-compare?limit=200`,{method:'POST',headers:{authorization:'Bearer '+TOKEN}})).json();
 const head=async u=>{try{return (await fetch(SITE+u,{method:'HEAD',redirect:'manual'})).status;}catch{return 0;}};
 // Three-way grading per packet: current desk (v4), contextual desk (v5) and the OpenAI edit (when the key exists).
-const PREMIUM=/vs_field|field_form|strokes per round|against the field average/i;
+// Player-level premium values (strokes vs field, form leaders, Course Fit). Course-level scoring is public.
+const PREMIUM=/vs_field|field_form|course fit|strokes (better|worse) than the field|against the field average|strokes-gained|strokes gained/i;
 const syl=w=>Math.max(1,(w.toLowerCase().replace(/[^a-z]/g,'').replace(/e$/,'').match(/[aeiouy]+/g)||[]).length);
 function grade(plan,gates,packetFacts){if(!plan)return null;
  const text=plan.sections.map(s=>s.text).join(' '),sents=text.split(/(?<=[.!?])\s+/).filter(x=>x.split(/\s+/).length>2),words=text.split(/\s+/).filter(Boolean);

@@ -1,17 +1,17 @@
 {
- "generated_at": "2026-10-02T13:30:55.483Z",
+ "generated_at": "2026-10-02T13:59:02.543Z",
  "classes": {
-  "final": {
+  "preview": {
    "requested": 3,
    "available": 3,
    "topics": [
-    "final:walmart-nw-arkansas-championship-q2948746-2026",
-    "final:biltmore-championship-asheville-q141566450-2026",
-    "final:tour-championship-q1619413-2026"
+    "preview:baycurrent-classic-q60987711-2026",
+    "preview:butterfield-bermuda-championship-q85746680-2026",
+    "preview:bmw-ladies-championship-q74123953-2026"
    ],
    "results": [
     {
-     "topic": "final:walmart-nw-arkansas-championship-q2948746-2026",
+     "topic": "preview:baycurrent-classic-q60987711-2026",
      "desk_v5_pass": true,
      "openai_pass": false,
      "pass": false,
@@ -26,27 +26,28 @@
       "gates_ok": true,
       "unsupported_claims": 0,
       "numeric_issues": 0,
-      "narrative_words": 79,
-      "sections": 3,
-      "facts_used": 14,
+      "narrative_words": 52,
+      "sections": 2,
+      "facts_used": 10,
       "derived_facts_used": 0,
-      "modules": 4,
+      "modules": 2,
       "modules_introduced": 0,
-      "avg_sentence_words": 11.3,
-      "flesch_reading_ease": 60,
+      "avg_sentence_words": 10.4,
+      "flesch_reading_ease": 61,
       "duplicate_sentences": 0,
       "premium_safe": true,
-      "headline": "Yuna Nishimura wins the Walmart NW Arkansas Championship",
-      "dek": "Yuna Nishimura won the 2026 Walmart NW Arkansas Championship at Pinnacle Country Club at 21 under par, by five strokes. Chun In-gee, Chanettee Wannasaen and Aki Iwai shared the runner-up spot.",
+      "headline": "Xander Schauffele returns to defend the Baycurrent Classic",
+      "dek": "The 2026 Baycurrent Classic starts Thursday, October 8 at Yokohama Country Club in Yokohama, Japan.",
       "seo": {
-       "title": "Yuna Nishimura wins the Walmart NW Arkansas Championship",
-       "title_len": 56,
-       "desc_len": 170,
+       "title": "Baycurrent Classic preview: field, history and course",
+       "title_len": 53,
+       "desc_len": 99,
        "ok": true
       },
       "links": [
-       "/course/pinnacle-country-club-ec10683",
-       "/player/yuna-nishimura-q100453668"
+       "/tournament/baycurrent-classic-q60987711-2026",
+       "/course/yokohama-country-club-ec11328",
+       "/player/xander-schauffele-q27306341"
       ],
       "dead_links": []
      },
@@ -54,121 +55,41 @@
       "gates_ok": true,
       "unsupported_claims": 0,
       "numeric_issues": 0,
-      "narrative_words": 240,
-      "sections": 5,
-      "facts_used": 22,
-      "derived_facts_used": 12,
-      "modules": 4,
-      "modules_introduced": 3,
-      "avg_sentence_words": 15,
-      "flesch_reading_ease": 70,
+      "narrative_words": 320,
+      "sections": 6,
+      "facts_used": 30,
+      "derived_facts_used": 20,
+      "modules": 2,
+      "modules_introduced": 2,
+      "avg_sentence_words": 13.9,
+      "flesch_reading_ease": 77,
       "duplicate_sentences": 0,
       "premium_safe": true,
-      "headline": "Yuna Nishimura leads from start to finish at the Walmart NW Arkansas Championship",
-      "dek": "Yuna Nishimura held the lead entering the final round and closed with 66 to win at 21 under par by five strokes.",
+      "headline": "Xander Schauffele returns to defend the Baycurrent Classic",
+      "dek": "The 2026 Baycurrent Classic starts Thursday, October 8 at Yokohama Country Club. In our record, 56.3% of rounds there finished under par.",
       "seo": {
-       "title": "Yuna Nishimura leads from start to finish at the Walmart NW Arkan",
-       "title_len": 65,
-       "desc_len": 112,
+       "title": "Baycurrent Classic preview: course demands and history",
+       "title_len": 54,
+       "desc_len": 137,
        "ok": true
       },
       "links": [
-       "/tournament/walmart-nw-arkansas-championship-q2948746-2026",
-       "/course/pinnacle-country-club-ec10683",
-       "/player/yuna-nishimura-q100453668",
-       "/player/chun-in-gee-q20038845"
+       "/tournament/baycurrent-classic-q60987711-2026",
+       "/course/yokohama-country-club-ec11328",
+       "/player/xander-schauffele-q27306341"
       ],
       "dead_links": []
      },
      "openai": null,
      "media": {
       "hero": "player",
-      "hero_subject": "Yuna Nishimura",
-      "hero_licence": "CC BY-SA 4.0",
-      "video": "WDqRy8-1mkg"
-     }
-    },
-    {
-     "topic": "final:biltmore-championship-asheville-q141566450-2026",
-     "desk_v5_pass": true,
-     "openai_pass": false,
-     "pass": false,
-     "openai_status": "unavailable",
-     "reason": "no_api_key",
-     "usd": 0,
-     "hold_reasons": [
-      "openai_unavailable:no_api_key"
-     ],
-     "desk_v5_hold": [],
-     "current_desk": {
-      "gates_ok": true,
-      "unsupported_claims": 0,
-      "numeric_issues": 0,
-      "narrative_words": 101,
-      "sections": 4,
-      "facts_used": 18,
-      "derived_facts_used": 0,
-      "modules": 5,
-      "modules_introduced": 0,
-      "avg_sentence_words": 12.6,
-      "flesch_reading_ease": 73,
-      "duplicate_sentences": 0,
-      "premium_safe": true,
-      "headline": "Jacob Bridgeman wins the Biltmore Championship Asheville",
-      "dek": "Jacob Bridgeman won the 2026 Biltmore Championship Asheville at The Cliffs at Walnut Cove at 26 under par, by two strokes. Ben James was the runner-up.",
-      "seo": {
-       "title": "Jacob Bridgeman wins the Biltmore Championship Asheville",
-       "title_len": 56,
-       "desc_len": 151,
-       "ok": true
-      },
-      "links": [
-       "/course/the-cliffs-at-walnut-cove-ec3024",
-       "/player/jacob-bridgeman-q134986006"
-      ],
-      "dead_links": []
-     },
-     "contextual_desk": {
-      "gates_ok": true,
-      "unsupported_claims": 0,
-      "numeric_issues": 0,
-      "narrative_words": 564,
-      "sections": 8,
-      "facts_used": 55,
-      "derived_facts_used": 39,
-      "modules": 5,
-      "modules_introduced": 6,
-      "avg_sentence_words": 16.1,
-      "flesch_reading_ease": 73,
-      "duplicate_sentences": 0,
-      "premium_safe": true,
-      "headline": "Jacob Bridgeman comes from four strokes back to win the Biltmore Championship Asheville",
-      "dek": "A closing 61 took Jacob Bridgeman from a share of 4th place to the title at 26 under par at The Cliffs at Walnut Cove, two strokes clear of Ben James.",
-      "seo": {
-       "title": "Jacob Bridgeman comes from four strokes back to win the Biltmore ",
-       "title_len": 65,
-       "desc_len": 150,
-       "ok": true
-      },
-      "links": [
-       "/tournament/biltmore-championship-asheville-q141566450-2026",
-       "/course/the-cliffs-at-walnut-cove-ec3024",
-       "/player/jacob-bridgeman-q134986006",
-       "/player/ben-james-q140407945",
-       "/player/ben-kohles-q4886014"
-      ],
-      "dead_links": []
-     },
-     "openai": null,
-     "media": {
-      "hero": "player",
-      "hero_subject": "Jacob Bridgeman",
+      "hero_subject": "Xander Schauffele",
       "hero_licence": "CC BY-SA 4.0",
       "video": null
      }
     },
     {
-     "topic": "final:tour-championship-q1619413-2026",
+     "topic": "preview:butterfield-bermuda-championship-q85746680-2026",
      "desk_v5_pass": true,
      "openai_pass": false,
      "pass": false,
@@ -183,27 +104,29 @@
       "gates_ok": true,
       "unsupported_claims": 0,
       "numeric_issues": 0,
-      "narrative_words": 103,
-      "sections": 4,
-      "facts_used": 18,
+      "narrative_words": 55,
+      "sections": 2,
+      "facts_used": 10,
       "derived_facts_used": 0,
-      "modules": 5,
+      "modules": 3,
       "modules_introduced": 0,
-      "avg_sentence_words": 12.9,
-      "flesch_reading_ease": 73,
+      "avg_sentence_words": 11,
+      "flesch_reading_ease": 70,
       "duplicate_sentences": 0,
       "premium_safe": true,
-      "headline": "Scottie Scheffler wins the Tour Championship",
-      "dek": "Scottie Scheffler won the 2026 Tour Championship at East Lake Golf Club at 16 under par, by three strokes. Viktor Hovland was the runner-up.",
+      "headline": "Adam Schenk returns to defend the Butterfield Bermuda Championship",
+      "dek": "The 2026 Butterfield Bermuda Championship starts Thursday, October 22 at Port Royal Golf Course in Southampton Parish, Bermuda.",
       "seo": {
-       "title": "Scottie Scheffler wins the Tour Championship at 16 under par",
-       "title_len": 60,
-       "desc_len": 140,
+       "title": "Adam Schenk defends at the Butterfield Bermuda Championship",
+       "title_len": 59,
+       "desc_len": 127,
        "ok": true
       },
       "links": [
-       "/course/east-lake-golf-club-ec57",
-       "/player/scottie-scheffler-q30161386"
+       "/tournament/butterfield-bermuda-championship-q85746680-2026",
+       "/course/port-royal-golf-course-ec10935",
+       "/player/adam-schenk-q67316209",
+       "/player/adam-schenk-q67316209"
       ],
       "dead_links": []
      },
@@ -211,38 +134,117 @@
       "gates_ok": true,
       "unsupported_claims": 0,
       "numeric_issues": 0,
-      "narrative_words": 484,
-      "sections": 8,
-      "facts_used": 47,
-      "derived_facts_used": 33,
-      "modules": 5,
-      "modules_introduced": 6,
-      "avg_sentence_words": 14.7,
+      "narrative_words": 415,
+      "sections": 7,
+      "facts_used": 35,
+      "derived_facts_used": 25,
+      "modules": 3,
+      "modules_introduced": 3,
+      "avg_sentence_words": 15.4,
       "flesch_reading_ease": 75,
       "duplicate_sentences": 0,
       "premium_safe": true,
-      "headline": "Scottie Scheffler comes from three strokes back to win the Tour Championship",
-      "dek": "A closing 66 took Scottie Scheffler from a share of 3rd place to the title at 16 under par at East Lake Golf Club, three strokes clear of Viktor Hovland.",
+      "headline": "Adam Schenk returns to defend the Butterfield Bermuda Championship",
+      "dek": "The 2026 Butterfield Bermuda Championship starts Thursday, October 22 at Port Royal Golf Course. In our record, 57.3% of rounds there finished under par.",
       "seo": {
-       "title": "Scottie Scheffler rallies to win the Tour Championship",
-       "title_len": 54,
+       "title": "Butterfield Bermuda Championship preview",
+       "title_len": 40,
        "desc_len": 153,
        "ok": true
       },
       "links": [
-       "/tournament/tour-championship-q1619413-2026",
-       "/course/east-lake-golf-club-ec57",
-       "/player/scottie-scheffler-q30161386",
-       "/player/viktor-hovland-q56184515",
-       "/player/viktor-hovland-q56184515"
+       "/tournament/butterfield-bermuda-championship-q85746680-2026",
+       "/course/port-royal-golf-course-ec10935",
+       "/player/adam-schenk-q67316209",
+       "/player/adam-schenk-q67316209",
+       "/player/seamus-power-q24007705",
+       "/player/vince-whaley-e4408315"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
+     "media": {
+      "hero": "fallback",
+      "hero_subject": null,
+      "hero_licence": null,
+      "video": null
+     }
+    },
+    {
+     "topic": "preview:bmw-ladies-championship-q74123953-2026",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "usd": 0,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 52,
+      "sections": 2,
+      "facts_used": 10,
+      "derived_facts_used": 0,
+      "modules": 1,
+      "modules_introduced": 0,
+      "avg_sentence_words": 10.4,
+      "flesch_reading_ease": 84,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Kim Sei-young returns to defend the BMW Ladies Championship",
+      "dek": "The 2026 BMW Ladies Championship starts Thursday, October 22 at Pine Beach Golf Links in Haenam-gun.",
+      "seo": {
+       "title": "BMW Ladies Championship preview: field, history and course",
+       "title_len": 58,
+       "desc_len": 100,
+       "ok": true
+      },
+      "links": [
+       "/tournament/bmw-ladies-championship-q74123953-2026",
+       "/course/pine-beach-golf-links-ec11335",
+       "/player/kim-sei-young-q19561022"
+      ],
+      "dead_links": []
+     },
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 100,
+      "sections": 4,
+      "facts_used": 13,
+      "derived_facts_used": 3,
+      "modules": 1,
+      "modules_introduced": 1,
+      "avg_sentence_words": 12.5,
+      "flesch_reading_ease": 75,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Kim Sei-young returns to defend the BMW Ladies Championship",
+      "dek": "The 2026 BMW Ladies Championship starts Thursday, October 22 at Pine Beach Golf Links. In our record, 73.2% of rounds there finished under par.",
+      "seo": {
+       "title": "BMW Ladies Championship preview: course demands and history",
+       "title_len": 59,
+       "desc_len": 143,
+       "ok": true
+      },
+      "links": [
+       "/tournament/bmw-ladies-championship-q74123953-2026",
+       "/course/pine-beach-golf-links-ec11335",
+       "/player/kim-sei-young-q19561022"
       ],
       "dead_links": []
      },
      "openai": null,
      "media": {
       "hero": "player",
-      "hero_subject": "Scottie Scheffler",
-      "hero_licence": "CC BY-SA 4.0",
+      "hero_subject": "Kim Sei-young",
+      "hero_licence": "CC BY-SA 2.0",
       "video": null
      }
     }
@@ -251,6 +253,434 @@
    "desk_v5_passes": 3,
    "recommend_promotion": false,
    "recommend_desk_v5": true
+  },
+  "course_intelligence": {
+   "requested": 3,
+   "available": 3,
+   "topics": [
+    "course:port-royal-golf-course-ec10935:butterfield-bermuda-championship-q85746680-2026",
+    "course:vidanta-vallarta-ec11163:vidantaworld-mexico-open-q2491733-2026",
+    "course:kuala-lumpur-golf-and-country-club-west-course-ec11198:maybank-championship-q126910602-2026"
+   ],
+   "results": [
+    {
+     "topic": "course:port-royal-golf-course-ec10935:butterfield-bermuda-championship-q85746680-2026",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "usd": 0,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 38,
+      "sections": 1,
+      "facts_used": 6,
+      "derived_facts_used": 0,
+      "modules": 2,
+      "modules_introduced": 0,
+      "avg_sentence_words": 12.7,
+      "flesch_reading_ease": 60,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "How Port Royal Golf Course plays: Course DNA for the Butterfield Bermuda Championship",
+      "dek": "Measured across 3 full-field editions in our record.",
+      "seo": {
+       "title": "Port Royal Golf Course Course DNA",
+       "title_len": 33,
+       "desc_len": 52,
+       "ok": true
+      },
+      "links": [
+       "/course/port-royal-golf-course-ec10935"
+      ],
+      "dead_links": []
+     },
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 479,
+      "sections": 8,
+      "facts_used": 38,
+      "derived_facts_used": 30,
+      "modules": 2,
+      "modules_introduced": 2,
+      "avg_sentence_words": 15.5,
+      "flesch_reading_ease": 73,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "How Port Royal Golf Course plays: Course DNA for the Butterfield Bermuda Championship",
+      "dek": "57.3% of rounds at Port Royal Golf Course finished under par across 3 full-field editions. Here is where it gives and where it takes.",
+      "seo": {
+       "title": "How Port Royal Golf Course plays: Course DNA",
+       "title_len": 44,
+       "desc_len": 133,
+       "ok": true
+      },
+      "links": [
+       "/tournament/butterfield-bermuda-championship-q85746680-2026",
+       "/course/port-royal-golf-course-ec10935",
+       "/player/adam-schenk-q67316209",
+       "/player/seamus-power-q24007705",
+       "/player/adam-schenk-q67316209",
+       "/player/seamus-power-q24007705",
+       "/player/vince-whaley-e4408315",
+       "/player/max-mcgreevy-q136974551"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
+     "media": {
+      "hero": "fallback",
+      "hero_subject": null,
+      "hero_licence": null,
+      "video": null
+     }
+    },
+    {
+     "topic": "course:vidanta-vallarta-ec11163:vidantaworld-mexico-open-q2491733-2026",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "usd": 0,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 36,
+      "sections": 1,
+      "facts_used": 6,
+      "derived_facts_used": 0,
+      "modules": 2,
+      "modules_introduced": 0,
+      "avg_sentence_words": 12,
+      "flesch_reading_ease": 49,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "How Vidanta Vallarta plays: Course DNA for the VidantaWorld Mexico Open",
+      "dek": "Measured across 3 full-field editions in our record.",
+      "seo": {
+       "title": "Vidanta Vallarta Course DNA",
+       "title_len": 27,
+       "desc_len": 52,
+       "ok": true
+      },
+      "links": [
+       "/course/vidanta-vallarta-ec11163"
+      ],
+      "dead_links": []
+     },
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 439,
+      "sections": 8,
+      "facts_used": 36,
+      "derived_facts_used": 28,
+      "modules": 2,
+      "modules_introduced": 2,
+      "avg_sentence_words": 14.6,
+      "flesch_reading_ease": 73,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "How Vidanta Vallarta plays: Course DNA for the VidantaWorld Mexico Open",
+      "dek": "59.9% of rounds at Vidanta Vallarta finished under par across 3 full-field editions. Here is where it gives and where it takes.",
+      "seo": {
+       "title": "How Vidanta Vallarta plays: Course DNA",
+       "title_len": 38,
+       "desc_len": 127,
+       "ok": true
+      },
+      "links": [
+       "/tournament/vidantaworld-mexico-open-q2491733-2026",
+       "/course/vidanta-vallarta-ec11163",
+       "/player/jake-knapp-q125179476",
+       "/player/tony-finau-q17505091",
+       "/player/tony-finau-q17505091",
+       "/player/jake-knapp-q125179476",
+       "/player/patrick-rodgers-q17381297",
+       "/player/sami-valimaki-q86834198"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
+     "media": {
+      "hero": "fallback",
+      "hero_subject": null,
+      "hero_licence": null,
+      "video": null
+     }
+    },
+    {
+     "topic": "course:kuala-lumpur-golf-and-country-club-west-course-ec11198:maybank-championship-q126910602-2026",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "usd": 0,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 42,
+      "sections": 1,
+      "facts_used": 6,
+      "derived_facts_used": 0,
+      "modules": 1,
+      "modules_introduced": 0,
+      "avg_sentence_words": 14,
+      "flesch_reading_ease": 58,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "How Kuala Lumpur Golf and Country Club (West Course) plays: Course DNA for the Maybank Championship",
+      "dek": "Measured across 3 full-field editions in our record.",
+      "seo": {
+       "title": "Kuala Lumpur Golf and Country Club (West Course) Course DNA",
+       "title_len": 59,
+       "desc_len": 52,
+       "ok": true
+      },
+      "links": [
+       "/course/kuala-lumpur-golf-and-country-club-west-course-ec11198"
+      ],
+      "dead_links": []
+     },
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 277,
+      "sections": 6,
+      "facts_used": 19,
+      "derived_facts_used": 11,
+      "modules": 1,
+      "modules_introduced": 1,
+      "avg_sentence_words": 17.3,
+      "flesch_reading_ease": 62,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "How Kuala Lumpur Golf and Country Club (West Course) plays: Course DNA for the Maybank Championship",
+      "dek": "66.3% of rounds at Kuala Lumpur Golf and Country Club (West Course) finished under par across 3 full-field editions. Here is where it gives and where it takes.",
+      "seo": {
+       "title": "Kuala Lumpur Golf and Country Club (West Course) Course DNA",
+       "title_len": 59,
+       "desc_len": 159,
+       "ok": true
+      },
+      "links": [
+       "/tournament/maybank-championship-q126910602-2026",
+       "/course/kuala-lumpur-golf-and-country-club-west-course-ec11198",
+       "/player/yin-ruoning-q117400663",
+       "/player/celine-boutier-q61678020",
+       "/player/yin-ruoning-q117400663",
+       "/player/celine-boutier-q61678020",
+       "/player/jeeno-thitikul-e10982",
+       "/player/hannah-green-q64797635"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
+     "media": {
+      "hero": "fallback",
+      "hero_subject": null,
+      "hero_licence": null,
+      "video": null
+     }
+    }
+   ],
+   "passes": 0,
+   "desk_v5_passes": 3,
+   "recommend_promotion": false,
+   "recommend_desk_v5": true
+  },
+  "round_recap": {
+   "requested": 3,
+   "available": 2,
+   "topics": [
+    "round:lotte-championship-q11838868-2026:1",
+    "round:bank-of-utah-championship-q130604671-2026:1"
+   ],
+   "results": [
+    {
+     "topic": "round:lotte-championship-q11838868-2026:1",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "usd": 0,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 56,
+      "sections": 2,
+      "facts_used": 11,
+      "derived_facts_used": 0,
+      "modules": 3,
+      "modules_introduced": 0,
+      "avg_sentence_words": 14,
+      "flesch_reading_ease": 91,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "A Lim Kim leads the Lotte Championship after the first round",
+      "dek": "A Lim Kim is at 7 under par at Hoakalei Country Club. The lead is one stroke.",
+      "seo": {
+       "title": "Lotte Championship round recap: A Lim Kim leads",
+       "title_len": 47,
+       "desc_len": 77,
+       "ok": true
+      },
+      "links": [
+       "/tournament/lotte-championship-q11838868-2026",
+       "/player/a-lim-kim-q104177988",
+       "/player/a-lim-kim-q104177988"
+      ],
+      "dead_links": []
+     },
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 170,
+      "sections": 6,
+      "facts_used": 17,
+      "derived_facts_used": 5,
+      "modules": 3,
+      "modules_introduced": 2,
+      "avg_sentence_words": 14.2,
+      "flesch_reading_ease": 73,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "A Lim Kim leads the Lotte Championship after the first round",
+      "dek": "A Lim Kim is at 7 under par at Hoakalei Country Club. The lead is one stroke. The schedule has three rounds left.",
+      "seo": {
+       "title": "Lotte Championship round recap: A Lim Kim leads",
+       "title_len": 47,
+       "desc_len": 113,
+       "ok": true
+      },
+      "links": [
+       "/tournament/lotte-championship-q11838868-2026",
+       "/player/a-lim-kim-q104177988",
+       "/player/a-lim-kim-q104177988"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
+     "media": {
+      "hero": "fallback",
+      "hero_subject": null,
+      "hero_licence": null,
+      "video": "QHVy0bB5Ss0"
+     }
+    },
+    {
+     "topic": "round:bank-of-utah-championship-q130604671-2026:1",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
+     "openai_status": "unavailable",
+     "reason": "no_api_key",
+     "usd": 0,
+     "hold_reasons": [
+      "openai_unavailable:no_api_key"
+     ],
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 60,
+      "sections": 2,
+      "facts_used": 11,
+      "derived_facts_used": 0,
+      "modules": 4,
+      "modules_introduced": 0,
+      "avg_sentence_words": 15,
+      "flesch_reading_ease": 79,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Zach Bauchou leads the Bank of Utah Championship after the first round",
+      "dek": "Zach Bauchou is at 9 under par at Black Desert Resort Golf Course. The lead is one stroke.",
+      "seo": {
+       "title": "Bank of Utah Championship round recap: Zach Bauchou leads",
+       "title_len": 57,
+       "desc_len": 90,
+       "ok": true
+      },
+      "links": [
+       "/tournament/bank-of-utah-championship-q130604671-2026",
+       "/player/zach-bauchou-q140946391",
+       "/player/zach-bauchou-q140946391"
+      ],
+      "dead_links": []
+     },
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 173,
+      "sections": 6,
+      "facts_used": 17,
+      "derived_facts_used": 5,
+      "modules": 4,
+      "modules_introduced": 2,
+      "avg_sentence_words": 14.4,
+      "flesch_reading_ease": 69,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Zach Bauchou leads the Bank of Utah Championship after the first round",
+      "dek": "Zach Bauchou is at 9 under par at Black Desert Resort Golf Course. The lead is one stroke. The schedule has three rounds left.",
+      "seo": {
+       "title": "Bank of Utah Championship round recap: Zach Bauchou leads",
+       "title_len": 57,
+       "desc_len": 126,
+       "ok": true
+      },
+      "links": [
+       "/tournament/bank-of-utah-championship-q130604671-2026",
+       "/player/zach-bauchou-q140946391",
+       "/player/zach-bauchou-q140946391"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
+     "media": {
+      "hero": "fallback",
+      "hero_subject": null,
+      "hero_licence": null,
+      "video": "UEznl6tHRII"
+     }
+    }
+   ],
+   "passes": 0,
+   "desk_v5_passes": 2,
+   "recommend_promotion": false,
+   "recommend_desk_v5": false
   }
  }
 }

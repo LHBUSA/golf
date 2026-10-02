@@ -21,8 +21,8 @@
   "vars": {
     "PUBLISH_ENABLED": "true",
     "NEWS_MODE": "canary",
-    "NEWS_CANARY_TYPES": "final",
-    "NEWS_DESK_V5_TYPES": "final",
+    "NEWS_CANARY_TYPES": "final,preview,course_intelligence",
+    "NEWS_DESK_V5_TYPES": "final,preview,course_intelligence,round_recap",
     "GOLF_EDITORIAL_MODEL": "gpt-5.6-sol",
     "GOLF_OPENAI_DAILY_MAX_USD": "5",
     "GOLF_EDITORIAL_MAX_OUTPUT_TOKENS": "6000"
