@@ -59,7 +59,8 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
    let chosen=null,editor={mode:'deterministic_fallback',version:deskVersion},editorLog=null;
    const prevDraft=rec?.draft_key?await getJSON(PRIV,rec.draft_key):null;
    // A deterministic draft written by an older desk is replaced by the current desk (model drafts are kept).
-   const staleDesk=prevDraft?.editor?.mode==='deterministic_fallback'&&prevDraft.editor.version!==deskVersion&&deskV.ok;
+   // 'desk' is the legacy label for a deterministic draft.
+   const staleDesk=['deterministic_fallback','desk'].includes(prevDraft?.editor?.mode)&&prevDraft.editor.version!==deskVersion&&deskV.ok;
    if(prevDraft&&!staleDesk){const v=validateDraft(packet,prevDraft.draft,{resolve:resolveHref});if(v.ok){chosen=prevDraft.draft;editor=prevDraft.editor;}}
    if(!chosen&&!rec&&mode!=='desk'){
     const ep=await editorialPass(env,packet,desk,{resolve:resolveHref});editorLog={status:ep.status,reason:ep.reason||null,attempts:ep.attempts||[],usd:ep.usd||0,model:ep.model||null,draft:ep.draft||null};

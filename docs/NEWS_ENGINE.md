@@ -36,6 +36,28 @@ The packet owns truth. Prose is written with tokens: `{f:fact_id}` renders a pac
 
 Updates: preview, weather, history, form and course stories are *updates* when facts move. Any other fact change is a *correction* and is listed on the article with prior values.
 
+## Narrative context layer (Golf Desk v5, finals)
+
+`narrative.js` adds **derived facts** to the frozen packet (`class: 'D'`, source `Derived from …`), computed only
+from the final board, round scores, the champion's published hole cards, Player DNA and recent results. Each one
+appears in the evidence ledger with its derivation. Signals use encoded thresholds (`RULES`): close finish
+(margin <= 2), dominant (>= 5), consistent week (round spread <= 3), final-round surge (>= 3 better than the
+earlier-round average), contention window (3 strokes), DNA strength (>= 80th percentile).
+
+Never derived: live lead changes from final cards, order of play from hole numbers (birdie runs never cross the
+turn; holes 13–18 are named by number, not "the finish"), causation. A DNA trait is tied to the week only when
+the week's cards single that hole type out (ties never link); otherwise the copy says the result "fits" the profile.
+
+`desk-final.js` (`golf-desk/5.0.0`) writes: unheaded lede, The result, How it turned, The profile behind it,
+What the numbers say, What it means, then module sections. A section's `module` names the chart (or `pbecast`)
+its prose introduces; the page renders the module directly after that prose. Thin packets give short stories.
+
+Publishing uses v5 for the classes in `NEWS_DESK_V5_TYPES` (currently `final`). Older deterministic drafts are
+re-drafted when the class switches; model drafts are kept. A packet that only gains facts is an `enrichment`
+revision, never a correction. Extra gates: causation, hype adjectives, crowd/atmosphere colour, pronouns outside
+the tour division in the packet, unknown modules. Compare mode always stores current desk, contextual desk and
+OpenAI; `scripts/news-canary.mjs` grades all three.
+
 ## Gates (`validate.js`)
 
 Unknown fact or entity, any digit outside a token, spelled numbers, ordinals outside "<n> round", betting/prediction language, injuries, quotes and attributions, URLs, course-condition claims (firmness, green speed), equipment/caddie/sponsor claims, superlatives, headline/dek length, headline must name the subject, minimum facts and words per type, chart and link intents limited to the packet.
