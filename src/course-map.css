@@ -1,6 +1,7 @@
 /* Course Geo V1: course pages (light page, dark module) and PBEcast Course View. */
 .cm{--cm-bg:#0b1f19;--cm-ink:#eef2ec;--cm-mute:#a9bcb0;--cm-gold:#e0c27a;background:var(--cm-bg);color:var(--cm-ink);padding:16px;border-radius:4px;display:grid;gap:10px}
-.cm-head{display:grid;gap:4px}
+.cm{grid-template-columns:minmax(0,1fr);min-width:0;max-width:100%}.cm>*{min-width:0}
+.cm-head{display:grid;gap:4px;min-width:0}.cm-basis,.cm-setup{overflow-wrap:anywhere}
 .cm-k{margin:0;font:700 11px/1.2 var(--sans,system-ui);letter-spacing:1.8px;color:var(--cm-gold)}
 .cm-basis{margin:0;font:700 10px/1.3 var(--sans,system-ui);letter-spacing:1.4px;color:var(--cm-mute)}
 .cm-setup{margin:0;font:600 12.5px/1.4 var(--sans,system-ui)}
@@ -25,7 +26,7 @@
 .cm-scale path{stroke:var(--cm-ink);stroke-width:2;vector-effect:non-scaling-stroke}.cm-scale text{fill:var(--cm-mute);font-family:var(--sans,system-ui)}
 .cm-attr{fill:#d6e0d9;font-family:var(--sans,system-ui);paint-order:stroke;stroke:#0f2a20;stroke-width:3px;stroke-linejoin:round}
 .cm-legend,.cm-attrib,.cm-note{margin:0;font-size:11.5px;color:var(--cm-mute)}
-.cm-attrib a{color:var(--cm-ink)}
+.cm-attrib a{color:var(--cm-ink);text-decoration:underline;text-underline-offset:2px}
 .cm-ramp{display:inline-block;width:80px;height:6px;border-radius:3px;background:linear-gradient(90deg,#5e9b6e,#c8aa68,#b2483a);vertical-align:middle}
 .cm-panel{border-left:3px solid var(--cm-gold);padding:6px 0 6px 12px;display:grid;gap:4px}
 .cm-big{margin:0;font:400 26px/1.1 Georgia,serif}
@@ -49,8 +50,8 @@
 @media(max-width:600px){.cm-host{min-height:560px}}
 .cm-controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:4px}
 .cm-controls:empty{display:none}
-.cm-setupsel{display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--sans,system-ui);letter-spacing:.8px;color:var(--cm-mute)}
-.cm-setupsel select{font:600 12.5px/1.2 var(--sans,system-ui);color:var(--cm-ink);background:#10291f;border:1px solid #ffffff33;border-radius:3px;padding:7px 8px;min-height:34px;max-width:min(70vw,320px)}
+.cm-setupsel{display:inline-flex;flex-wrap:wrap;max-width:100%;align-items:center;gap:8px;font:700 11px/1 var(--sans,system-ui);letter-spacing:.8px;color:var(--cm-mute)}
+.cm-setupsel select{font:600 12.5px/1.2 var(--sans,system-ui);color:var(--cm-ink);background:#10291f;border:1px solid #ffffff33;border-radius:3px;padding:7px 8px;min-height:34px;max-width:100%;min-width:0}
 .cm-modes{display:inline-flex;border:1px solid #ffffff33;border-radius:3px;overflow:hidden}
 .cm-modes button{font:700 11px/1 var(--sans,system-ui);letter-spacing:.6px;color:var(--cm-ink);background:transparent;border:0;padding:8px 11px;min-height:34px;cursor:pointer}
 .cm-modes button+button{border-left:1px solid #ffffff33}
