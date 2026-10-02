@@ -32,5 +32,5 @@ export function courseImage(c,{cls='course-photo',eager=false,caption=true}={}){
 export const pill=(t,tone='')=>`<span class="pill ${tone}">${e(t)}</span>`;
 export const conf=c=>`<span class="conf conf-${String(c||'').toLowerCase()}">${e(c==='INSUFFICIENT'?'Insufficient sample':c?c[0]+c.slice(1).toLowerCase()+' confidence':'')}</span>`;
 export const heading=(eyebrow,title,lede,extra='')=>`<section class="page-heading data-heading"><div>${kicker(eyebrow)}<h1>${e(title)}</h1>${lede?`<p>${e(lede)}</p>`:''}${extra}</div></section>`;
-export const section=(eyebrow,title,body,{id='',cls=''}={})=>`<section class="data-section ${cls}"${id?` id="${id}"`:''}>${eyebrow?kicker(eyebrow):''}${title?`<h2>${e(title)}</h2>`:''}${body}</section>`;
+export const section=(eyebrow,title,body,{id='',cls=''}={})=>`<section class="data-section ${cls}"${id?` id="${id}"`:''}>${eyebrow?kicker(eyebrow):''}${title?`<h2${id?` id="${id}-h"`:''}>${e(title)}</h2>`:''}${body}</section>`;
 export const stat=(label,value,note='')=>`<div class="stat"><span class="stat-value">${e(value??'—')}</span><span class="stat-label">${e(label)}</span>${note?`<span class="stat-note">${e(note)}</span>`:''}</div>`;

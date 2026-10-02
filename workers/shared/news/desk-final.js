@@ -69,7 +69,7 @@ export function finalStoryV5(p){
  // The course (hole difficulty follows)
  if(has('hardest_hole'))d.sections.push(S('The course',['The hardest hole for the week was {f:hardest_hole}, playing {f:hardest_hole_avg} strokes against par on average.',has('cut_line')?'The cut fell at {f:cut_line}.':null,charts.has('hole_difficulty')?'The chart shows the field’s average score against par on every hole.':null],charts.has('hole_difficulty')?'hole_difficulty':null));
  if(charts.has('weather'))d.sections.push(S('Conditions',['The tournament-week forecast is shown below. It is a forecast issued before play, not observed conditions.'],'weather'));
- if(p.context.edition&&has('final_front_nine'))d.sections.push(S('Replay it',[`PBEcast rebuilds ${his} final round hole by hole from the published scorecard.`],'pbecast'));
+ if(p.context.edition&&has('final_front_nine'))d.sections.push(S('Replay it',[`See how ${his} final round unfolded in the PBEcast replay: step through it hole by hole, or switch to another player or round from the same published scorecards.`],'pbecast'));
  d.sections=d.sections.filter(Boolean);
  // One standout per section at most (rendered with restraint by applyEmphasis).
  const EM={'':'final_round','How it turned':'gain_on_r3_leader','What the numbers say':'final_vs_prior_avg','What it means':'win_ordinal'};

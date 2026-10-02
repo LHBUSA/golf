@@ -118,3 +118,10 @@ test('emphasis: anchors and one standout per section, first mention only, never 
  for(const s of a.sections)for(const p of s.paragraphs)assert.ok(p.filter(g=>g.em).length<=1,'one per paragraph');for(const g of em)assert.ok(g.v.length<=22,g.v);
  const html=articlePage(a);assert.ok((html.match(/story-em/g)||[]).length===em.length);
  assert.equal(applyEmphasis([{heading:'x',paragraphs:[[{t:'fact',fact:'winner',v:'Will Winner'}]]}],pk,[{}])[0].paragraphs[0][0].em,undefined,'names are not emphasised');});
+test('render: every module has one visible title; no aria-label or caption copies it',async()=>{const pk=await packet();const a=buildArticle({packet:pk,draft:deskDraft(pk,{version:DESK_V5}),editor:{mode:'x'},slug:'s',ctx:{},hero:null});
+ a.pbecast={href:'/pbecast?e=x'};const html=articlePage(a);const mods=html.split('<div class="story-module"').slice(1).map(m=>m.split('<section')[0]);assert.ok(mods.length>=4,'modules '+mods.length);
+ for(const m of mods){const kind=m.match(/data-kind="([^"]+)"/)?.[1];const titles=[...m.matchAll(/<(h3|caption)[^>]*>([^<]+)</g)].map(x=>x[2].trim());
+  assert.ok(titles.length<=1||kind==='weather','one visible title: '+kind+' '+titles);const t=titles[0];if(!t)continue;
+  for(const l of m.matchAll(/aria-label="([^"]+)"/g))assert.ok(!l[1].startsWith(t),`${kind}: aria-label repeats "${t}"`);
+  for(const c of m.matchAll(/<figcaption>([^<]*)</g))assert.ok(!c[1].startsWith(t),`${kind}: caption repeats title`);}
+ assert.match(html,/aria-labelledby="evidence-h"/);assert.match(html,/<h2 id="evidence-h">Evidence ledger<\/h2>/);});

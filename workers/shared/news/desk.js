@@ -2,7 +2,7 @@
 // prose with {f:fact_id} value tokens and {e:entity_key} link tokens. No digits ever appear outside tokens.
 import {finalStoryV5} from './desk-final.js';
 import {previewV5,courseV5,recapV5} from './desk-pre.js';
-export const DESK_VERSION='golf-desk/4.0.0',DESK_V5='golf-desk/5.0.0';
+export const DESK_VERSION='golf-desk/4.0.0',DESK_V5='golf-desk/5.1.0';
 // v5 replaces the writer for the types it covers; everything else stays on v4.
 export const V5_TYPES=['final','preview','course_intelligence','round_recap'];
 export const deskVersionFor=(type,enabled=[])=>V5_TYPES.includes(type)&&enabled.includes(type)?DESK_V5:DESK_VERSION;
