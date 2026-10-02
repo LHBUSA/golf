@@ -1,7 +1,7 @@
 // OpenAI editorial pass (Responses API, strict Structured Outputs). The model writes prose with tokens;
 // it never owns a number, URL, chart value, video id, image licence, date, score, equipment or caddie fact.
 import {validateDraft} from './validate.js';
-export const EDITOR_VERSION='golf-editor/4.0.0';
+export const EDITOR_VERSION='golf-editor/5.0.0';
 // Hard-coded so a price change is a reviewed code change (USD per million tokens).
 export const PRICE={input:1.25,output:10.0};
 export function articleSchema(packet){
@@ -9,7 +9,7 @@ export function articleSchema(packet){
  const str={type:'string'},arr=items=>({type:'array',items});
  return {type:'object',additionalProperties:false,required:['headline','dek','sections','chart_intents','link_intents','known_limits','seo_title','seo_description','social_headline'],properties:{
   headline:str,dek:str,
-  sections:arr({type:'object',additionalProperties:false,required:['heading','paragraphs'],properties:{heading:str,paragraphs:arr(str)}}),
+  sections:arr({type:'object',additionalProperties:false,required:['heading','paragraphs','module'],properties:{heading:str,paragraphs:arr(str),module:{type:'string',enum:['none',...packet.charts,...(packet.context?.edition?['pbecast']:[])]}}}),
   chart_intents:arr({type:'string',enum:charts}),link_intents:arr({type:'string',enum:ents}),known_limits:arr(str),
   seo_title:str,seo_description:str,social_headline:str}};
 }
@@ -20,11 +20,18 @@ TRUTH
 - Every value (score, total, position, count, date, distance, money, percentage, year, speed) must be written as a fact token {f:FACT_ID} from the packet. Never type a digit. Never spell a count or placing in words ("three", "fifth"); use the fact token.
 - To name a player, course, tournament or comparison with a link, write an entity token {e:ENTITY_KEY}. Never write a URL.
 - Do not invent quotes, feelings, motivations, injuries, equipment, caddies, sponsorships, course firmness or green speed.
-- No betting language, predictions, odds, favourites or certainty words. No superlatives such as historic or best ever.
+- No betting language, predictions, odds, favourites or certainty words. No superlatives such as historic, stunning, incredible or best ever.
+- No causal claims ("because", "thanks to", "won it with") unless a fact states the cause. Prefer "consistent with", "fits", "aligns with".
+- No crowd, fan, atmosphere or weather colour unless a fact states it. No invented turning points: hole facts describe the player's own card, never when it happened relative to others.
+- Pronouns: use only those in context.pronoun (from the tour division). If it is null, use names.
+- Derived facts (source begins "Derived from") are computed from the data; use them exactly as displayed.
 
 CRAFT
 - Lead with what happened or what matters this week, using the strongest facts. Plain, confident sports-desk English.
-- Three to five sections, each with a short descriptive heading (plain text, no tokens needed) and one to three paragraphs.
+- Write a story, not a stat sheet. For a final, follow: an unheaded lede (heading ""), then The result, How it turned, The profile behind it, What the numbers say, What it means, then short sections that introduce the remaining modules. Answer what happened, why it mattered, how it turned, what the data shows that the leaderboard does not, and what it means in the player's form and record.
+- Every data module must be introduced by prose: set a section's "module" to the chart (or "pbecast") that its paragraphs introduce; otherwise "none". The baseline shows the placement.
+- Use context.signals: they are tested narrative findings (comeback, wire_to_wire, final_round_surge, close_finish, runner_up_matched_final_round, dna_matches_week...). Only describe a signal that is present.
+- Length follows the facts: do not pad a thin packet.
 - Headline names the subject; dek is one or two sentences. seo_title at most about sixty characters once tokens render; seo_description is a single sentence; social_headline is short and specific.
 - chart_intents: choose only charts that support the story. link_intents: the entity keys you linked.
 - known_limits: restate the packet limits that matter to a reader, in plain words.

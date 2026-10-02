@@ -21,15 +21,29 @@ for(const cls of CLASSES){const got=[];
 }
 const docs=await (await fetch(`${API}/admin/news-compare?limit=200`,{method:'POST',headers:{authorization:'Bearer '+TOKEN}})).json();
 const head=async u=>{try{return (await fetch(SITE+u,{method:'HEAD',redirect:'manual'})).status;}catch{return 0;}};
+// Three-way grading per packet: current desk (v4), contextual desk (v5) and the OpenAI edit (when the key exists).
+const PREMIUM=/vs_field|field_form|strokes per round|against the field average/i;
+const syl=w=>Math.max(1,(w.toLowerCase().replace(/[^a-z]/g,'').replace(/e$/,'').match(/[aeiouy]+/g)||[]).length);
+function grade(plan,gates,packetFacts){if(!plan)return null;
+ const text=plan.sections.map(s=>s.text).join(' '),sents=text.split(/(?<=[.!?])\s+/).filter(x=>x.split(/\s+/).length>2),words=text.split(/\s+/).filter(Boolean);
+ const flesch=Math.round(206.835-1.015*(words.length/Math.max(1,sents.length))-84.6*(words.reduce((a,w)=>a+syl(w),0)/Math.max(1,words.length)));
+ const dupSents=sents.length-new Set(sents.map(x=>x.toLowerCase())).size;
+ const derived=new Set(packetFacts.filter(f=>String(f.source).startsWith('Derived from')).map(f=>f.id));
+ const reasons=gates?.reasons||[...(gates?.fact||[]),...(gates?.numeric||[])];
+ return {gates_ok:Boolean(gates?.ok),unsupported_claims:reasons.filter(x=>/unsupported_|unknown_fact|unknown_entity|invented_|pronoun|injury|quotation|prediction|betting/.test(x)).length,numeric_issues:reasons.filter(x=>/number|ordinal/.test(x)).length,
+  narrative_words:plan.words,sections:plan.sections.length,facts_used:(plan.facts_used||[]).length,derived_facts_used:(plan.facts_used||[]).filter(id=>derived.has(id)).length,
+  modules:plan.charts.length,modules_introduced:(plan.modules||[]).length,avg_sentence_words:Math.round(words.length/Math.max(1,sents.length)*10)/10,flesch_reading_ease:flesch,duplicate_sentences:dupSents,
+  premium_safe:!PREMIUM.test(text),headline:plan.headline,dek:plan.dek,seo:{title:plan.seo.title,title_len:plan.seo.title.length,desc_len:plan.seo.description.length,ok:plan.seo.title.length<=65&&plan.seo.description.length>=50&&plan.seo.description.length<=170&&Boolean(plan.canonical&&plan.og_image&&plan.jsonld_type)},links:plan.links};}
 for(const [cls,c] of Object.entries(report.classes))for(const topic of c.topics){const d=docs.find(x=>x.topic===topic);if(!d)continue;
- const o=d.openai,pl=o.plan,dk=d.desk.plan,unsupported=(o.attempts.at(-1)?.fact||[]).filter(x=>/unsupported_|injury|quotation|url_in_prose|prediction|betting/.test(x));
- const links=pl?.links||[];const dead=[];for(const l of links){const st=await head(l);if(st!==200)dead.push(l+' '+st);}
- const seo=pl?{title_len:pl.seo.title.length,desc_len:pl.seo.description.length,ok:pl.seo.title.length<=65&&pl.seo.description.length>=50&&pl.seo.description.length<=170&&Boolean(pl.canonical&&pl.og_image&&pl.jsonld_type)}:null;
- const pass=o.status==='validated'&&o.gates?.ok&&!unsupported.length&&!dead.length&&seo?.ok&&d.chosen_editor==='openai';
- c.results.push({topic,editor:d.chosen_editor,openai_status:o.status,reason:o.reason,pass:Boolean(pass),
-  hold_reasons:pass?[]:[...(o.status!=='validated'?['openai_'+o.status+(o.reason?':'+o.reason:'')]:[]),...(o.attempts.at(-1)?.fact||[]),...(o.attempts.at(-1)?.numeric||[]),...dead.map(x=>'dead_link '+x),...(seo&&!seo.ok?['seo']:[])],
-  numeric_issues:(o.attempts.at(-1)?.numeric||[]).length,unsupported_claims:unsupported.length,links:links.length,dead_links:dead.length,seo,usd:o.usd,
-  desk:{ok:d.desk.gates.ok,headline:dk?.headline,words:dk?.words},openai:{headline:pl?.headline,words:pl?.words,sections:pl?.sections?.map(s=>s.heading)},media:pl?.media||dk?.media});}
-for(const c of Object.values(report.classes)){c.passes=c.results.filter(r=>r.pass).length;c.recommend_promotion=c.available>=3&&c.passes===3;}
+ const facts=d.packet.facts,v4=grade(d.desk_v4?.plan,d.desk_v4?.gates,facts),v5=grade(d.desk.plan,{ok:d.desk.gates.ok,reasons:[...d.desk.gates.fact,...d.desk.gates.numeric]},facts),o=d.openai,oa=grade(o.plan,o.gates,facts);
+ for(const g of [v4,v5,oa].filter(Boolean)){g.dead_links=[];for(const l of g.links){const st=await head(l);if(st!==200)g.dead_links.push(l+' '+st);}}
+ const clean=g=>g&&g.gates_ok&&!g.unsupported_claims&&!g.numeric_issues&&!g.dead_links.length&&g.seo.ok&&g.premium_safe&&!g.duplicate_sentences;
+ const deskPass=clean(v5)&&(d.type!=='final'||v5.modules_introduced>=Math.min(3,v5.modules))&&(!v4||v5.narrative_words>=v4.narrative_words);
+ const openaiPass=Boolean(o.status==='validated'&&clean(oa));
+ c.results.push({topic,desk_v5_pass:Boolean(deskPass),openai_pass:openaiPass,pass:openaiPass,openai_status:o.status,reason:o.reason,usd:o.usd,
+  hold_reasons:openaiPass?[]:[...(o.status!=='validated'?['openai_'+o.status+(o.reason?':'+o.reason:'')]:[]),...(o.attempts.at(-1)?.fact||[]),...(o.attempts.at(-1)?.numeric||[]),...(oa?.dead_links||[]).map(x=>'dead_link '+x)],
+  desk_v5_hold:deskPass?[]:[...(d.desk.gates.fact||[]),...(d.desk.gates.numeric||[]),...(v5?.dead_links||[]),...(v5&&!v5.seo.ok?['seo']:[]),...(v5&&!v5.premium_safe?['premium_data']:[]),...(v5?.duplicate_sentences?['duplicate_sentences']:[])],
+  current_desk:v4,contextual_desk:v5,openai:oa,media:d.desk.plan?.media});}
+for(const c of Object.values(report.classes)){c.passes=c.results.filter(r=>r.pass).length;c.desk_v5_passes=c.results.filter(r=>r.desk_v5_pass).length;c.recommend_promotion=c.available>=3&&c.passes===3;c.recommend_desk_v5=c.available>=3&&c.desk_v5_passes===3;}
 await fs.writeFile('docs/evidence/news-canary.json',JSON.stringify(report,null,1));
-for(const [cls,c] of Object.entries(report.classes))console.log(`${cls}: ${c.passes}/${c.available} pass (requested ${c.requested})${c.recommend_promotion?' -> recommend promotion':''}`,JSON.stringify(c.results.map(r=>({topic:r.topic,pass:r.pass,hold:r.hold_reasons.slice(0,3)}))));
+for(const [cls,c] of Object.entries(report.classes))console.log(`${cls}: openai ${c.passes}/${c.available}, contextual desk ${c.desk_v5_passes}/${c.available} (requested ${c.requested})${c.recommend_promotion?' -> recommend OpenAI promotion':''}${c.recommend_desk_v5?' -> contextual desk ready':''}`,JSON.stringify(c.results.map(r=>({topic:r.topic,v4_words:r.current_desk?.narrative_words,v5_words:r.contextual_desk?.narrative_words,v5:r.desk_v5_pass,v5_hold:r.desk_v5_hold.slice(0,3),openai:r.openai_pass,hold:r.hold_reasons.slice(0,2)}))));

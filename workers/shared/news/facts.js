@@ -19,6 +19,8 @@ export class Packet{
   if(this.facts.some(f=>f.id===id))throw Error('duplicate_fact:'+id);
   this.facts.push({id,value,display:String(display??value),label,unit,source,capture_id:capture,class:'A'});return true;
  }
+ // A derived fact: computed deterministically from other packet sources; the ledger names the derivation.
+ derive(id,value,display,label,{from}={}){const ok=this.fact(id,value,display,label,{source:'Derived from '+(from||'packet data')});if(ok)this.facts.at(-1).class='D';return ok;}
  has(id){return this.facts.some(f=>f.id===id);}
  get(id){return this.facts.find(f=>f.id===id);}
  // Entities are what the writer may link to; hrefs are resolved by the application, never by the model.

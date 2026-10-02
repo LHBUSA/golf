@@ -3,6 +3,8 @@
 import {Packet,toParWords,toParShort,posWords,list,dayName,addDays,roundWord,ORD} from './facts.js';
 import {roundsComplete,standingsAfter,roundStats,holeDifficulty,weatherDays,r1,mean,boardFromSnapshot} from './golf-math.js';
 import {liveState,toParText} from '../live.js';
+import {finalNarrative,countWord} from './narrative.js';
+const strokesW=n=>n===1?'one stroke':n<10?`${countWord(n)} strokes`:`${n} strokes`;
 const MIN_MATERIAL=3;
 export const THRESHOLD=MIN_MATERIAL;
 const nameOf=ed=>ed.tournament?.name||ed.name.replace(/^\d{4}\s+/,'');
@@ -90,11 +92,11 @@ export const TYPES={
    if(Number.isInteger(w.to_par))P.fact('to_par',w.to_par,toParWords(w.to_par),'Winning score');
    const rounds=(w.rounds||[]).filter(r=>Number.isInteger(r.strokes));if(rounds.length){P.fact('winner_rounds',rounds.map(r=>r.strokes),list(rounds.map(r=>String(r.strokes))),'Champion’s rounds');P.fact('final_round',rounds.at(-1).strokes,String(rounds.at(-1).strokes),'Champion’s final round',{unit:'strokes'});}
    const second=board.filter(r=>r.status==='finished'&&r.position===2&&r.player?.slug);if(second.length){P.fact('runner_up',second.map(r=>r.player.name),list(second.map(r=>r.player.name)),'Runner-up');second.slice(0,2).forEach((r,i)=>P.entity('p'+(i+2),'player',r.player.slug,r.player.name));}
-   if(second.length&&Number.isInteger(w.strokes)&&Number.isInteger(second[0].strokes)){const m=second[0].strokes-w.strokes;if(m>0)P.fact('margin',m,m===1?'one stroke':`${m} strokes`,'Winning margin',{unit:'strokes'});else if(m===0)P.fact('playoff',true,'a playoff','Decided by');}
+   if(second.length&&Number.isInteger(w.strokes)&&Number.isInteger(second[0].strokes)){const m=second[0].strokes-w.strokes;if(m>0)P.fact('margin',m,strokesW(m),'Winning margin',{unit:'strokes'});else if(m===0)P.fact('playoff',true,'a playoff','Decided by');}
    const n=Math.max(...board.map(r=>(r.rounds||[]).length));
-   if(n>=4){const st3=standingsAfter(board,n-1);const wl=st3.find(s=>s.player.slug===w.player.slug);const lead3=st3.filter(s=>s.position===1);
+   if(n>=3){const st3=standingsAfter(board,n-1);const wl=st3.find(s=>s.player.slug===w.player.slug);const lead3=st3.filter(s=>s.position===1);
     if(lead3.length){P.fact('r3_leaders',lead3.map(s=>s.player.name),list(lead3.map(s=>s.player.name)),'Leader entering the final round');}
-    if(wl){P.fact('winner_start_pos',wl.position,wl.position===1?(wl.tied?'a share of the lead':'the lead'):(wl.tied?'a share of ':'')+ORD(wl.position)+' place','Champion’s position entering the final round');if(wl.position>1){const back=wl.to_par-lead3[0].to_par;P.fact('winner_deficit',back,back===1?'one stroke':`${back} strokes`,'Deficit entering the final round',{unit:'strokes'});P.material(1,'comeback');}}
+    if(wl){P.fact('winner_start_pos',wl.position,wl.position===1?(wl.tied?'a share of the lead':'the lead'):(wl.tied?'a share of ':'')+ORD(wl.position)+' place','Champion’s position entering the final round');if(wl.position>1){const back=wl.to_par-lead3[0].to_par;P.fact('winner_deficit',back,strokesW(back),'Deficit entering the final round',{unit:'strokes'});P.material(1,'comeback');}}
     P.chart('round_progress',progressChart(board,n,standingsAfter(board,n),'Contenders, score to par by round'));}
    const st=standingsAfter(board,n);if(st.length>=10)P.chart('leaderboard',{...leaderboardChart(st,n,'Final leaderboard'),rows:board.filter(r=>r.status==='finished'&&r.player?.slug).sort((a,b)=>a.position-b.position).slice(0,10).map(r=>({name:r.player.name,slug:r.player.slug,pos:(r.tied?'T':'')+r.position,to_par:r.to_par,rounds:(r.rounds||[]).map(x=>x.strokes)}))});
    const rsn=roundStats(board,n);if(rsn){P.fact('final_low',rsn.low,String(rsn.low),'Low final round',{unit:'strokes'});P.fact('final_low_players',rsn.low_players.map(p=>p.name),list(rsn.low_players.map(p=>p.name)),'Low final round by');}
@@ -102,6 +104,7 @@ export const TYPES={
    const pl=await ctx.pl(w.player.slug);
    if(pl){P.fact('career_wins',pl.summary?.wins_observed??null,null,'Wins in our record',{unit:'wins'});if(ed.is_major)P.fact('major_wins',pl.summary?.major_wins??null,null,'Major wins in our record',{unit:'wins'});P.chart('winner_dna',playerDnaChart(pl));P.chart('winner_form',formChartSpec(pl));P.context.winner_photo=Boolean(pl.photo?.derivatives);}
    const hd=holeDifficulty(board,ed.layout);if(hd){P.chart('hole_difficulty',{type:'holes',title:'Hole difficulty: field average to par',...hd});const hard=hd.holes.slice().sort((a,b)=>b.avg_to_par-a.avg_to_par)[0];P.fact('hardest_hole',hard.hole,`the ${ORD(hard.hole)}`,'Hardest hole');P.fact('hardest_hole_avg',hard.avg_to_par,`${hard.avg_to_par>0?'+':''}${hard.avg_to_par.toFixed(2)}`,'Hardest hole, field average to par');}
+   finalNarrative(P,{ed,board,n,winnerRow:w,player:pl});
    const wc=weatherChart(ed);if(wc)P.chart('weather',wc);
    P.material(3,'tournament complete');if(ed.is_major)P.material(2,'major');
    P.limit('Positions and totals are the published final leaderboard; career counts cover events in our record only.');

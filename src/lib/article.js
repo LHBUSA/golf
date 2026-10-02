@@ -74,7 +74,11 @@ export function articlePage(art,{related=[],video=null}={}){
  const chartFig=c=>{placed.add(c.id);return `<div class="story-module" data-chart="${e(c.id)}">${c.type==='weather'||c.type==='leaderboard'||c.type==='scorecard'?'':`<h3 class="story-module-title">${e(c.title||'')}</h3>`}${articleChart(c)}</div>`;};
  // One visual early so the story never reads as a wall of text.
  const lead=['leaderboard','scorecard','round_progress','weather','past_winners','course_dna','player_form'].map(id=>charts.get(id)).find(Boolean);
- const body=art.sections.map((s,i)=>`<section class="story-section"><h2>${e(s.heading)}</h2>${s.paragraphs.map(p=>`<p>${segHtml(p)}</p>`).join('')}</section>${i===0&&lead?chartFig(lead):''}`).join('');
+ // A section that names a module introduces it: the module renders directly after that prose.
+ const placedByProse=art.sections.some(s=>s.module);let pbecastPlaced=false;
+ const pbecastBlock=()=>{pbecastPlaced=true;return `<div class="story-module" data-chart="pbecast"><p><a class="button button-gold" href="${e(art.pbecast.href)}">Open the PBEcast replay</a></p><p class="gnote">Hole-by-hole replay built from published scorecards. Shot locations are reconstructed, not tracked.</p></div>`;};
+ const moduleAfter=s=>s.module==='pbecast'?(art.pbecast?pbecastBlock():''):s.module&&charts.get(s.module)&&!placed.has(s.module)?chartFig(charts.get(s.module)):'';
+ const body=art.sections.map((s,i)=>`<section class="story-section${s.heading?'':' story-lede'}">${s.heading?`<h2>${e(s.heading)}</h2>`:''}${s.paragraphs.map(p=>`<p>${segHtml(p)}</p>`).join('')}</section>${moduleAfter(s)}${!placedByProse&&i===0&&lead?chartFig(lead):''}`).join('');
  const groups=GROUPS.map(([k,t,ids])=>{const cs=ids.map(id=>charts.get(id)).filter(c=>c&&!placed.has(c.id));return cs.length?section(k,t,cs.map(chartFig).join(''),{cls:'story-group'}):'';}).join('');
  const rest=[...charts.values()].filter(c=>!placed.has(c.id)).map(chartFig).join('');
  const ent=t=>art.entities.filter(x=>x.type===t);
@@ -89,7 +93,7 @@ ${art.quick_facts?.length?`<aside class="story-quick" aria-label="Quick data"><d
 <div class="story-body">${body}</div>
 ${groups}${rest}
 ${vid?section('OFFICIAL VIDEO',vid.label||'Watch',videoCard(vid)):''}
-${art.pbecast?section('PBECAST','Replay it',`<p><a class="button button-gold" href="${e(art.pbecast.href)}">Open the PBEcast replay</a></p><p class="gnote">Hole-by-hole replay built from published scorecards. Shot locations are reconstructed, not tracked.</p>`):''}
+${art.pbecast&&!pbecastPlaced?section('PBECAST','Replay it',`<p><a class="button button-gold" href="${e(art.pbecast.href)}">Open the PBEcast replay</a></p><p class="gnote">Hole-by-hole replay built from published scorecards. Shot locations are reconstructed, not tracked.</p>`):''}
 ${relCards.length?section('RELATED','In this story',`<div class="story-related">${relCards.map(([k,x])=>`<a class="story-rel" href="${e(x.href)}"><span class="micro-label">${k}</span><b>${e(x.name)}</b></a>`).join('')}</div>`):''}
 ${section('EVIDENCE','Evidence ledger',`<div class="table-wrap" tabindex="0" role="region" aria-label="Evidence ledger"><table class="index-table story-ledger"><thead><tr><th scope="col">Fact</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead><tbody>${art.evidence.map(f=>`<tr><td>${e(f.label)}</td><td>${e(f.display)}</td><td>${e(f.source||'')}</td></tr>`).join('')}</tbody></table></div><p class="gnote">${e(byEditor)} Packet ${e(String(art.packet_sha256||'').slice(0,12))}.</p>`,{id:'evidence'})}
 ${art.corrections?.length?section('CORRECTIONS','Corrections',`<ul class="story-corrections">${art.corrections.map(c=>`<li><time datetime="${e(c.at)}">${e(when(c.at))}</time>: ${c.facts.map(f=>`${e(f.label)} changed from ${e(f.was)} to ${e(f.now??'removed')}`).join('; ')}.</li>`).join('')}</ul>`):''}

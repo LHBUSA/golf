@@ -1,8 +1,13 @@
 // Deterministic Golf Desk writer. Emits the same structure the OpenAI editor must emit:
 // prose with {f:fact_id} value tokens and {e:entity_key} link tokens. No digits ever appear outside tokens.
-export const DESK_VERSION='golf-desk/4.0.0';
+import {finalStoryV5} from './desk-final.js';
+export const DESK_VERSION='golf-desk/4.0.0',DESK_V5='golf-desk/5.0.0';
+// v5 replaces the writer for the types it covers; everything else stays on v4.
+export const V5_TYPES=['final'];
+export const deskVersionFor=(type,enabled=[])=>V5_TYPES.includes(type)&&enabled.includes(type)?DESK_V5:DESK_VERSION;
 const S=(heading,...paragraphs)=>({heading,paragraphs:paragraphs.filter(Boolean)});
-export function deskDraft(p){
+export function deskDraft(p,{version=DESK_VERSION}={}){
+ if(version===DESK_V5&&p.type==='final')return finalStoryV5(p);
  const has=id=>p.facts.some(f=>f.id===id),ent=k=>p.entities.some(x=>x.key===k),E=k=>ent(k)?`{e:${k}}`:null;
  const course=has('course')?(ent('c1')?'{e:c1}':'{f:course}'):null,event=ent('t1')?'{e:t1}':'{f:event}';
  const charts=Object.keys(p.chart_data||{}),links=p.entities.map(x=>x.key);

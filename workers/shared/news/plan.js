@@ -40,19 +40,20 @@ const ALWAYS={final:['leaderboard'],round_recap:['leaderboard','movement'],previ
 export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior=null,now=new Date().toISOString(),status='published'}){
  const res=x=>resolveHref(x);
  const seg=t=>segments(t,packet,res),txt=t=>plain(segments(t,packet,res,{links:false}));
- const chartIds=[...new Set([...(draft.chart_intents||[]),...(ALWAYS[packet.type]||[])])].filter(id=>packet.chart_data[id]);
+ const chartIds=[...new Set([...(draft.chart_intents||[]),...(draft.sections||[]).map(s=>s.module).filter(Boolean),...(ALWAYS[packet.type]||[])])].filter(id=>packet.chart_data[id]);
  const used=new Set();for(const t of [draft.headline,draft.dek,...draft.sections.flatMap(s=>s.paragraphs)])for(const m of String(t).matchAll(/\{f:([a-z0-9_]+)\}/g))used.add(m[1]);
  const evidence=packet.facts.filter(f=>used.has(f.id)).map(f=>({fact:f.id,label:f.label,display:f.display,source:f.source,capture_id:f.capture_id}));
  const entities=packet.entities.map(x=>({key:x.key,type:x.type,name:x.name,href:res(x)}));
  const ent=t=>entities.filter(x=>x.type===t);
- const seoTitle=(()=>{const t=txt(draft.seo_title||draft.headline);return t.length<=65?t:txt(draft.headline).slice(0,65);})();
+ // Never cut a title inside a word: first candidate that fits, else trim at a word boundary.
+ const seoTitle=(()=>{for(const c of [draft.seo_title,draft.social_headline,draft.headline].filter(Boolean)){const t=txt(c);if(t.length<=65)return t;}const w=txt(draft.seo_title||draft.headline).split(' ');let t='';for(const x of w){if((t+' '+x).trim().length>65)break;t=(t+' '+x).trim();}return t.replace(/\s+(the|at|of|to|a|an|in|and|from)$/i,'');})();
  const sources=[...new Set(packet.facts.map(f=>f.source).filter(Boolean))];
  if(hero?.photo)sources.push(`Photo: ${hero.photo.attribution||hero.photo.author}`);
  const edition=packet.context.edition;
  const doc={version:ARTICLE_VERSION,slug,type:packet.type,category:TYPES[packet.type]?.category||'GOLF',topic:packet.topic,status,
   headline:seg(draft.headline),dek:seg(draft.dek),headline_text:txt(draft.headline),dek_text:txt(draft.dek),
   seo:{title:seoTitle,description:txt(draft.seo_description||draft.dek).slice(0,170),social:txt(draft.social_headline||draft.headline)},
-  sections:draft.sections.map(s=>({heading:txt(s.heading),paragraphs:s.paragraphs.map(seg)})),
+  sections:draft.sections.map(s=>({heading:txt(s.heading),paragraphs:s.paragraphs.map(seg),...(s.module&&s.module!=='none'?{module:s.module}:{})})),
   quick_facts:(QUICK[packet.type]||[]).map(id=>F(packet,id)).filter(Boolean).slice(0,6).map(f=>({fact:f.id,label:f.label,display:f.display})),
   charts:chartIds.map(id=>({id,...packet.chart_data[id]})),
   hero,video,

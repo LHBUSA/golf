@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-02T01:53:58.907Z",
+ "generated_at": "2026-10-02T13:30:55.483Z",
  "classes": {
   "final": {
    "requested": 3,
@@ -12,25 +12,75 @@
    "results": [
     {
      "topic": "final:walmart-nw-arkansas-championship-q2948746-2026",
-     "editor": "deterministic_fallback",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
      "openai_status": "unavailable",
      "reason": "no_api_key",
-     "pass": false,
+     "usd": 0,
      "hold_reasons": [
       "openai_unavailable:no_api_key"
      ],
-     "numeric_issues": 0,
-     "unsupported_claims": 0,
-     "links": 0,
-     "dead_links": 0,
-     "seo": null,
-     "usd": 0,
-     "desk": {
-      "ok": true,
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 79,
+      "sections": 3,
+      "facts_used": 14,
+      "derived_facts_used": 0,
+      "modules": 4,
+      "modules_introduced": 0,
+      "avg_sentence_words": 11.3,
+      "flesch_reading_ease": 60,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
       "headline": "Yuna Nishimura wins the Walmart NW Arkansas Championship",
-      "words": 66
+      "dek": "Yuna Nishimura won the 2026 Walmart NW Arkansas Championship at Pinnacle Country Club at 21 under par, by five strokes. Chun In-gee, Chanettee Wannasaen and Aki Iwai shared the runner-up spot.",
+      "seo": {
+       "title": "Yuna Nishimura wins the Walmart NW Arkansas Championship",
+       "title_len": 56,
+       "desc_len": 170,
+       "ok": true
+      },
+      "links": [
+       "/course/pinnacle-country-club-ec10683",
+       "/player/yuna-nishimura-q100453668"
+      ],
+      "dead_links": []
      },
-     "openai": {},
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 240,
+      "sections": 5,
+      "facts_used": 22,
+      "derived_facts_used": 12,
+      "modules": 4,
+      "modules_introduced": 3,
+      "avg_sentence_words": 15,
+      "flesch_reading_ease": 70,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Yuna Nishimura leads from start to finish at the Walmart NW Arkansas Championship",
+      "dek": "Yuna Nishimura held the lead entering the final round and closed with 66 to win at 21 under par by five strokes.",
+      "seo": {
+       "title": "Yuna Nishimura leads from start to finish at the Walmart NW Arkan",
+       "title_len": 65,
+       "desc_len": 112,
+       "ok": true
+      },
+      "links": [
+       "/tournament/walmart-nw-arkansas-championship-q2948746-2026",
+       "/course/pinnacle-country-club-ec10683",
+       "/player/yuna-nishimura-q100453668",
+       "/player/chun-in-gee-q20038845"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
      "media": {
       "hero": "player",
       "hero_subject": "Yuna Nishimura",
@@ -40,25 +90,76 @@
     },
     {
      "topic": "final:biltmore-championship-asheville-q141566450-2026",
-     "editor": "deterministic_fallback",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
      "openai_status": "unavailable",
      "reason": "no_api_key",
-     "pass": false,
+     "usd": 0,
      "hold_reasons": [
       "openai_unavailable:no_api_key"
      ],
-     "numeric_issues": 0,
-     "unsupported_claims": 0,
-     "links": 0,
-     "dead_links": 0,
-     "seo": null,
-     "usd": 0,
-     "desk": {
-      "ok": true,
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 101,
+      "sections": 4,
+      "facts_used": 18,
+      "derived_facts_used": 0,
+      "modules": 5,
+      "modules_introduced": 0,
+      "avg_sentence_words": 12.6,
+      "flesch_reading_ease": 73,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
       "headline": "Jacob Bridgeman wins the Biltmore Championship Asheville",
-      "words": 101
+      "dek": "Jacob Bridgeman won the 2026 Biltmore Championship Asheville at The Cliffs at Walnut Cove at 26 under par, by two strokes. Ben James was the runner-up.",
+      "seo": {
+       "title": "Jacob Bridgeman wins the Biltmore Championship Asheville",
+       "title_len": 56,
+       "desc_len": 151,
+       "ok": true
+      },
+      "links": [
+       "/course/the-cliffs-at-walnut-cove-ec3024",
+       "/player/jacob-bridgeman-q134986006"
+      ],
+      "dead_links": []
      },
-     "openai": {},
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 564,
+      "sections": 8,
+      "facts_used": 55,
+      "derived_facts_used": 39,
+      "modules": 5,
+      "modules_introduced": 6,
+      "avg_sentence_words": 16.1,
+      "flesch_reading_ease": 73,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Jacob Bridgeman comes from four strokes back to win the Biltmore Championship Asheville",
+      "dek": "A closing 61 took Jacob Bridgeman from a share of 4th place to the title at 26 under par at The Cliffs at Walnut Cove, two strokes clear of Ben James.",
+      "seo": {
+       "title": "Jacob Bridgeman comes from four strokes back to win the Biltmore ",
+       "title_len": 65,
+       "desc_len": 150,
+       "ok": true
+      },
+      "links": [
+       "/tournament/biltmore-championship-asheville-q141566450-2026",
+       "/course/the-cliffs-at-walnut-cove-ec3024",
+       "/player/jacob-bridgeman-q134986006",
+       "/player/ben-james-q140407945",
+       "/player/ben-kohles-q4886014"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
      "media": {
       "hero": "player",
       "hero_subject": "Jacob Bridgeman",
@@ -68,25 +169,76 @@
     },
     {
      "topic": "final:tour-championship-q1619413-2026",
-     "editor": "deterministic_fallback",
+     "desk_v5_pass": true,
+     "openai_pass": false,
+     "pass": false,
      "openai_status": "unavailable",
      "reason": "no_api_key",
-     "pass": false,
+     "usd": 0,
      "hold_reasons": [
       "openai_unavailable:no_api_key"
      ],
-     "numeric_issues": 0,
-     "unsupported_claims": 0,
-     "links": 0,
-     "dead_links": 0,
-     "seo": null,
-     "usd": 0,
-     "desk": {
-      "ok": true,
+     "desk_v5_hold": [],
+     "current_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 103,
+      "sections": 4,
+      "facts_used": 18,
+      "derived_facts_used": 0,
+      "modules": 5,
+      "modules_introduced": 0,
+      "avg_sentence_words": 12.9,
+      "flesch_reading_ease": 73,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
       "headline": "Scottie Scheffler wins the Tour Championship",
-      "words": 103
+      "dek": "Scottie Scheffler won the 2026 Tour Championship at East Lake Golf Club at 16 under par, by three strokes. Viktor Hovland was the runner-up.",
+      "seo": {
+       "title": "Scottie Scheffler wins the Tour Championship at 16 under par",
+       "title_len": 60,
+       "desc_len": 140,
+       "ok": true
+      },
+      "links": [
+       "/course/east-lake-golf-club-ec57",
+       "/player/scottie-scheffler-q30161386"
+      ],
+      "dead_links": []
      },
-     "openai": {},
+     "contextual_desk": {
+      "gates_ok": true,
+      "unsupported_claims": 0,
+      "numeric_issues": 0,
+      "narrative_words": 484,
+      "sections": 8,
+      "facts_used": 47,
+      "derived_facts_used": 33,
+      "modules": 5,
+      "modules_introduced": 6,
+      "avg_sentence_words": 14.7,
+      "flesch_reading_ease": 75,
+      "duplicate_sentences": 0,
+      "premium_safe": true,
+      "headline": "Scottie Scheffler comes from three strokes back to win the Tour Championship",
+      "dek": "A closing 66 took Scottie Scheffler from a share of 3rd place to the title at 16 under par at East Lake Golf Club, three strokes clear of Viktor Hovland.",
+      "seo": {
+       "title": "Scottie Scheffler rallies to win the Tour Championship",
+       "title_len": 54,
+       "desc_len": 153,
+       "ok": true
+      },
+      "links": [
+       "/tournament/tour-championship-q1619413-2026",
+       "/course/east-lake-golf-club-ec57",
+       "/player/scottie-scheffler-q30161386",
+       "/player/viktor-hovland-q56184515",
+       "/player/viktor-hovland-q56184515"
+      ],
+      "dead_links": []
+     },
+     "openai": null,
      "media": {
       "hero": "player",
       "hero_subject": "Scottie Scheffler",
@@ -96,7 +248,9 @@
     }
    ],
    "passes": 0,
-   "recommend_promotion": false
+   "desk_v5_passes": 3,
+   "recommend_promotion": false,
+   "recommend_desk_v5": true
   }
  }
 }
