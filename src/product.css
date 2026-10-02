@@ -482,3 +482,4 @@ polyline.gp-0,polyline.gp-1,polyline.gp-2,polyline.gp-3,polyline.gp-4{fill:none}
 .story-module .gnote,.story-module figcaption{font-size:11px;color:var(--muted)}
 .story-ledger-wrap{max-width:100%}.story-ledger td,.story-ledger th{vertical-align:top}
 @media (max-width:600px){.story-ledger{font-size:12px}.story-ledger td:nth-child(3){min-width:150px}.story-ledger td:first-child{min-width:130px}}
+.gchart .gp-legend svg.gp-key{width:14px;height:6px;flex:0 0 14px;border:0;background:none;display:inline-block}.gp-legend .gp-key rect{stroke:none}
