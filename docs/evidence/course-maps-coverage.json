@@ -1,6 +1,6 @@
 {
  "summary": {
-  "generated_at": "2026-10-02T21:41:30.265Z",
+  "generated_at": "2026-10-02T21:42:28.904Z",
   "source": "OpenStreetMap via Overpass API (discovery only; raw extracts not committed)",
   "licence_note": "Counts only; no OSM geometry in this file.",
   "canonical_courses_total": 267,
@@ -12,17 +12,17 @@
   "overall": {
    "courses": 32,
    "audited": 22,
-   "exact_match": 11,
-   "verified_routing_18": 5,
-   "partial_routing": 6,
-   "review_holds": 5,
-   "no_match_or_no_osm": 6,
-   "exact_with_zero_routing": 0,
-   "with_greens": 11,
-   "with_tees": 11,
-   "with_fairways": 11,
-   "with_bunkers": 11,
-   "with_water": 8
+   "exact_match": 15,
+   "verified_routing_18": 6,
+   "partial_routing": 8,
+   "review_holds": 7,
+   "no_match_or_no_osm": 0,
+   "exact_with_zero_routing": 1,
+   "with_greens": 15,
+   "with_tees": 15,
+   "with_fairways": 15,
+   "with_bunkers": 15,
+   "with_water": 11
   },
   "by": {
    "current_week": {
@@ -43,47 +43,47 @@
    "majors": {
     "courses": 19,
     "audited": 14,
-    "exact_match": 9,
+    "exact_match": 11,
     "verified_routing_18": 4,
-    "partial_routing": 5,
-    "review_holds": 1,
-    "no_match_or_no_osm": 4,
+    "partial_routing": 7,
+    "review_holds": 3,
+    "no_match_or_no_osm": 0,
     "exact_with_zero_routing": 0,
-    "with_greens": 9,
-    "with_tees": 9,
-    "with_fairways": 9,
-    "with_bunkers": 9,
-    "with_water": 6
+    "with_greens": 11,
+    "with_tees": 11,
+    "with_fairways": 11,
+    "with_bunkers": 11,
+    "with_water": 7
    },
    "men_PGA_and_others": {
     "courses": 28,
     "audited": 19,
-    "exact_match": 10,
-    "verified_routing_18": 5,
-    "partial_routing": 5,
-    "review_holds": 4,
-    "no_match_or_no_osm": 5,
-    "exact_with_zero_routing": 0,
-    "with_greens": 10,
-    "with_tees": 10,
-    "with_fairways": 10,
-    "with_bunkers": 10,
-    "with_water": 7
+    "exact_match": 14,
+    "verified_routing_18": 6,
+    "partial_routing": 7,
+    "review_holds": 5,
+    "no_match_or_no_osm": 0,
+    "exact_with_zero_routing": 1,
+    "with_greens": 14,
+    "with_tees": 14,
+    "with_fairways": 14,
+    "with_bunkers": 14,
+    "with_water": 10
    },
    "women_LPGA_and_others": {
     "courses": 19,
     "audited": 15,
-    "exact_match": 9,
+    "exact_match": 11,
     "verified_routing_18": 4,
-    "partial_routing": 5,
-    "review_holds": 3,
-    "no_match_or_no_osm": 3,
+    "partial_routing": 7,
+    "review_holds": 4,
+    "no_match_or_no_osm": 0,
     "exact_with_zero_routing": 0,
-    "with_greens": 9,
-    "with_tees": 9,
-    "with_fairways": 9,
-    "with_bunkers": 9,
-    "with_water": 6
+    "with_greens": 11,
+    "with_tees": 11,
+    "with_fairways": 11,
+    "with_bunkers": 11,
+    "with_water": 7
    }
   }
  },
@@ -110,10 +110,15 @@
    "name_score": 1,
    "distance_m": null,
    "nearest": null,
-   "resort_neighbours": [],
-   "golf_hole_ways_in_boundary": 0,
-   "numbered_holes_proven": 0,
-   "proofs": {},
+   "resort_neighbours": [
+    "Hawaii Prince Golf Club",
+    "Coral Creek Golf Course"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
    "rejected_refs": [],
    "par_check": {
     "compared": 0,
@@ -121,13 +126,13 @@
     "disagree": []
    },
    "setup_edition": null,
-   "complete_18": false,
+   "complete_18": true,
    "features": {
-    "tee": 0,
-    "green": 0,
-    "fairway": 0,
-    "bunker": 0,
-    "water": 0
+    "tee": 69,
+    "green": 22,
+    "fairway": 24,
+    "bunker": 117,
+    "water": 22
    }
   },
   {
@@ -153,7 +158,9 @@
    "name_score": 1,
    "distance_m": null,
    "nearest": null,
-   "resort_neighbours": [],
+   "resort_neighbours": [
+    "Entrada at Snow Canyon Country Club"
+   ],
    "golf_hole_ways_in_boundary": 18,
    "numbered_holes_proven": 18,
    "proofs": {
@@ -243,32 +250,41 @@
     "women"
    ],
    "audited": true,
-   "decision": "no_match_point_outside_boundary",
+   "decision": "review_point_outside_boundary",
    "state": "REVIEW_OR_NONE",
-   "osm_course": null,
-   "name_score": null,
-   "distance_m": null,
+   "osm_course": {
+    "id": "relation/4082115",
+    "name": "Westin Mission Hills Resort - Pete Dye Course"
+   },
+   "name_score": 1,
+   "distance_m": 67,
    "nearest": [
-    {
-     "id": "way/542172234",
-     "name": "Anneberg Golf Course",
-     "dist_m": 1743,
-     "name_score": 0
-    },
     {
      "id": "relation/4082110",
      "name": "Arnold Palmer Course",
-     "dist_m": null,
+     "dist_m": 12,
      "name_score": 0
+    },
+    {
+     "id": "relation/4082115",
+     "name": "Westin Mission Hills Resort - Pete Dye Course",
+     "dist_m": 67,
+     "name_score": 1
     },
     {
      "id": "relation/4082111",
      "name": "Dinah Shore Tournament Course",
-     "dist_m": null,
+     "dist_m": 663,
      "name_score": 0
     }
    ],
-   "resort_neighbours": [],
+   "resort_neighbours": [
+    "Anneberg Golf Course",
+    "Arnold Palmer Course",
+    "Dinah Shore Tournament Course",
+    "Pete Dye Challenge Course",
+    "Westin Mission Hills Resort - Gary Player Signature Golf Course"
+   ],
    "golf_hole_ways_in_boundary": 0,
    "numbered_holes_proven": 0,
    "proofs": {},
@@ -285,7 +301,7 @@
     "green": 0,
     "fairway": 0,
     "bunker": 0,
-    "water": 0
+    "water": 8
    }
   },
   {
@@ -355,12 +371,21 @@
     "men"
    ],
    "audited": true,
-   "decision": "no_match_point_outside_boundary",
+   "decision": "review_point_outside_boundary",
    "state": "REVIEW_OR_NONE",
-   "osm_course": null,
-   "name_score": null,
-   "distance_m": null,
+   "osm_course": {
+    "id": "relation/12095589",
+    "name": "Prestwick Golf Club"
+   },
+   "name_score": 1,
+   "distance_m": 31,
    "nearest": [
+    {
+     "id": "relation/12095589",
+     "name": "Prestwick Golf Club",
+     "dist_m": 31,
+     "name_score": 1
+    },
     {
      "id": "way/43546577",
      "name": "St. Nicholas Golf Club",
@@ -372,18 +397,19 @@
      "name": "St. Cuthbert Golf Club",
      "dist_m": 1537,
      "name_score": 0
-    },
-    {
-     "id": "way/18080206",
-     "name": "Old Course",
-     "dist_m": 1748,
-     "name_score": 0
     }
    ],
-   "resort_neighbours": [],
-   "golf_hole_ways_in_boundary": 0,
-   "numbered_holes_proven": 0,
-   "proofs": {},
+   "resort_neighbours": [
+    "Old Course",
+    "St. Nicholas Golf Club",
+    "St. Cuthbert Golf Club",
+    "Portland Course"
+   ],
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
    "rejected_refs": [],
    "par_check": {
     "compared": 0,
@@ -391,12 +417,12 @@
     "disagree": []
    },
    "setup_edition": null,
-   "complete_18": false,
+   "complete_18": true,
    "features": {
-    "tee": 0,
-    "green": 0,
-    "fairway": 0,
-    "bunker": 0,
+    "tee": 64,
+    "green": 20,
+    "fairway": 21,
+    "bunker": 99,
     "water": 0
    }
   },
@@ -464,36 +490,36 @@
     "women"
    ],
    "audited": true,
-   "decision": "no_match_point_outside_boundary",
-   "state": "REVIEW_OR_NONE",
-   "osm_course": null,
-   "name_score": null,
-   "distance_m": null,
-   "nearest": [
-    {
-     "id": "relation/6174192",
-     "name": "Oakmont Country Club",
-     "dist_m": null,
-     "name_score": 1
-    }
-   ],
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "relation/6174192",
+    "name": "Oakmont Country Club"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
    "resort_neighbours": [],
-   "golf_hole_ways_in_boundary": 0,
-   "numbered_holes_proven": 0,
-   "proofs": {},
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
    "rejected_refs": [],
    "par_check": {
-    "compared": 0,
-    "agree": 0,
-    "disagree": []
+    "compared": 18,
+    "agree": 17,
+    "disagree": [
+     9
+    ]
    },
    "setup_edition": "u-s-open-epga24-2025",
-   "complete_18": false,
+   "complete_18": true,
    "features": {
-    "tee": 0,
-    "green": 0,
-    "fairway": 0,
-    "bunker": 0,
+    "tee": 60,
+    "green": 22,
+    "fairway": 27,
+    "bunker": 182,
     "water": 0
    }
   },
@@ -606,49 +632,40 @@
     "women"
    ],
    "audited": true,
-   "decision": "no_match_point_outside_boundary",
-   "state": "REVIEW_OR_NONE",
-   "osm_course": null,
-   "name_score": null,
-   "distance_m": null,
-   "nearest": [
-    {
-     "id": "way/1065983050",
-     "name": "The Hay",
-     "dist_m": 1280,
-     "name_score": 0
-    },
-    {
-     "id": "way/36435651",
-     "name": "Cypress Point Golf Course",
-     "dist_m": 2201,
-     "name_score": 0
-    },
-    {
-     "id": "way/281477606",
-     "name": "Spyglass Hill Golf Course",
-     "dist_m": 2394,
-     "name_score": 0
-    }
+   "decision": "exact",
+   "state": "PARTIAL ROUTING",
+   "osm_course": {
+    "id": "relation/3741806",
+    "name": "Pebble Beach Golf Course"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Cypress Point Golf Course",
+    "Spyglass Hill Golf Course",
+    "The Hay",
+    "Poppy Hills Golf Course"
    ],
-   "resort_neighbours": [],
-   "golf_hole_ways_in_boundary": 0,
-   "numbered_holes_proven": 0,
-   "proofs": {},
+   "golf_hole_ways_in_boundary": 17,
+   "numbered_holes_proven": 17,
+   "proofs": {
+    "unique_ref": 17
+   },
    "rejected_refs": [],
    "par_check": {
-    "compared": 0,
-    "agree": 0,
+    "compared": 17,
+    "agree": 17,
     "disagree": []
    },
    "setup_edition": "at-t-pebble-beach-pro-am-epga5-2027",
    "complete_18": false,
    "features": {
-    "tee": 0,
-    "green": 0,
-    "fairway": 0,
-    "bunker": 0,
-    "water": 0
+    "tee": 70,
+    "green": 18,
+    "fairway": 26,
+    "bunker": 118,
+    "water": 1
    }
   },
   {
@@ -817,36 +834,114 @@
     "men"
    ],
    "audited": true,
-   "decision": "no_match_point_outside_boundary",
-   "state": "REVIEW_OR_NONE",
-   "osm_course": null,
-   "name_score": null,
-   "distance_m": null,
-   "nearest": [
-    {
-     "id": "relation/1783026",
-     "name": "Sawgrass Country Club",
-     "dist_m": null,
-     "name_score": 1
-    },
-    {
-     "id": "relation/1783123",
-     "name": "TPC Sawgrass",
-     "dist_m": null,
-     "name_score": 1
-    },
-    {
-     "id": "relation/1784678",
-     "name": "The Yards",
-     "dist_m": null,
-     "name_score": 0
-    }
+   "decision": "exact",
+   "state": "NO ROUTING",
+   "osm_course": {
+    "id": "relation/1783123",
+    "name": "TPC Sawgrass"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
+   "resort_neighbours": [
+    "Sawgrass Country Club",
+    "The Yards"
    ],
-   "resort_neighbours": [],
-   "golf_hole_ways_in_boundary": 0,
+   "golf_hole_ways_in_boundary": 36,
    "numbered_holes_proven": 0,
    "proofs": {},
-   "rejected_refs": [],
+   "rejected_refs": [
+    {
+     "ref": 1,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 2,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 3,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 4,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 5,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 6,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 7,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 8,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 9,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 10,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 11,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 12,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 13,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 14,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 15,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 16,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 17,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    },
+    {
+     "ref": 18,
+     "candidates": 2,
+     "reason": "duplicate_ref_no_par_length_match"
+    }
+   ],
    "par_check": {
     "compared": 0,
     "agree": 0,
@@ -855,11 +950,11 @@
    "setup_edition": null,
    "complete_18": false,
    "features": {
-    "tee": 0,
-    "green": 0,
-    "fairway": 0,
-    "bunker": 0,
-    "water": 0
+    "tee": 117,
+    "green": 60,
+    "fairway": 48,
+    "bunker": 155,
+    "water": 67
    }
   },
   {
@@ -1029,37 +1124,35 @@
     "men"
    ],
    "audited": true,
-   "decision": "no_match_point_outside_boundary",
-   "state": "REVIEW_OR_NONE",
-   "osm_course": null,
-   "name_score": null,
-   "distance_m": null,
-   "nearest": [
-    {
-     "id": "relation/4091841",
-     "name": "TPC River Highlands",
-     "dist_m": null,
-     "name_score": 1
-    }
-   ],
+   "decision": "exact",
+   "state": "VERIFIED ROUTING",
+   "osm_course": {
+    "id": "relation/4091841",
+    "name": "TPC River Highlands"
+   },
+   "name_score": 1,
+   "distance_m": 0,
+   "nearest": null,
    "resort_neighbours": [],
-   "golf_hole_ways_in_boundary": 0,
-   "numbered_holes_proven": 0,
-   "proofs": {},
+   "golf_hole_ways_in_boundary": 18,
+   "numbered_holes_proven": 18,
+   "proofs": {
+    "unique_ref": 18
+   },
    "rejected_refs": [],
    "par_check": {
-    "compared": 0,
-    "agree": 0,
+    "compared": 18,
+    "agree": 18,
     "disagree": []
    },
    "setup_edition": "travelers-championship-epga26-2027",
-   "complete_18": false,
+   "complete_18": true,
    "features": {
-    "tee": 0,
-    "green": 0,
-    "fairway": 0,
-    "bunker": 0,
-    "water": 0
+    "tee": 68,
+    "green": 30,
+    "fairway": 20,
+    "bunker": 70,
+    "water": 8
    }
   },
   {
@@ -1090,37 +1183,30 @@
     "men"
    ],
    "audited": true,
-   "decision": "review_weak_identity",
+   "decision": "review_multiple_containing",
    "state": "REVIEW_OR_NONE",
-   "osm_course": {
-    "id": "way/928691954",
-    "name": null
-   },
-   "name_score": 0,
-   "distance_m": 0,
+   "osm_course": null,
+   "name_score": null,
+   "distance_m": null,
    "nearest": null,
-   "resort_neighbours": [
-    "Victory Links Golf Course"
-   ],
-   "golf_hole_ways_in_boundary": 9,
-   "numbered_holes_proven": 9,
-   "proofs": {
-    "unique_ref": 9
-   },
+   "resort_neighbours": [],
+   "golf_hole_ways_in_boundary": 0,
+   "numbered_holes_proven": 0,
+   "proofs": {},
    "rejected_refs": [],
    "par_check": {
-    "compared": 9,
-    "agree": 9,
+    "compared": 0,
+    "agree": 0,
     "disagree": []
    },
    "setup_edition": "3m-open-epga3468-2027",
    "complete_18": false,
    "features": {
-    "tee": 43,
-    "green": 9,
-    "fairway": 9,
-    "bunker": 39,
-    "water": 11
+    "tee": 0,
+    "green": 0,
+    "fairway": 0,
+    "bunker": 0,
+    "water": 0
    }
   },
   {
@@ -1247,7 +1333,11 @@
    "distance_m": 0,
    "nearest": null,
    "resort_neighbours": [
-    "Portland Course"
+    "Portland Course",
+    "Troon Lochgreen",
+    "Troon Darley",
+    "Troon Fullarton",
+    "Prestwick Golf Club"
    ],
    "golf_hole_ways_in_boundary": 18,
    "numbered_holes_proven": 18,
