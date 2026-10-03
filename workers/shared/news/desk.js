@@ -1,13 +1,16 @@
 // Deterministic Golf Desk writer. Emits the same structure the OpenAI editor must emit:
 // prose with {f:fact_id} value tokens and {e:entity_key} link tokens. No digits ever appear outside tokens.
 import {finalStoryV5} from './desk-final.js';
-import {previewV5,courseV5,recapV5} from './desk-pre.js';
-export const DESK_VERSION='golf-desk/4.0.0',DESK_V5='golf-desk/5.1.0';
+import {previewV5,previewV6,courseV5,recapV5} from './desk-pre.js';
+export const DESK_VERSION='golf-desk/4.0.0',DESK_V5='golf-desk/5.1.0',DESK_V6='golf-desk/6.0.0';
+// v6 (Article Experience V2) covers previews; other v5 classes keep 5.1.0 so they are not re-drafted needlessly.
+export const V6_TYPES=['preview'];
 // v5 replaces the writer for the types it covers; everything else stays on v4.
 export const V5_TYPES=['final','preview','course_intelligence','round_recap'];
-export const deskVersionFor=(type,enabled=[])=>V5_TYPES.includes(type)&&enabled.includes(type)?DESK_V5:DESK_VERSION;
+export const deskVersionFor=(type,enabled=[])=>V6_TYPES.includes(type)&&enabled.includes(type)?DESK_V6:V5_TYPES.includes(type)&&enabled.includes(type)?DESK_V5:DESK_VERSION;
 const S=(heading,...paragraphs)=>({heading,paragraphs:paragraphs.filter(Boolean)});
 export function deskDraft(p,{version=DESK_VERSION}={}){
+ if(version===DESK_V6&&p.type==='preview')return previewV6(p);
  if(version===DESK_V5){const w={final:finalStoryV5,preview:previewV5,course_intelligence:courseV5,round_recap:recapV5}[p.type];if(w)return w(p);}
  const has=id=>p.facts.some(f=>f.id===id),ent=k=>p.entities.some(x=>x.key===k),E=k=>ent(k)?`{e:${k}}`:null;
  const course=has('course')?(ent('c1')?'{e:c1}':'{f:course}'):null,event=ent('t1')?'{e:t1}':'{f:event}';

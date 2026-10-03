@@ -1,7 +1,9 @@
 // Deterministic content/chart/media/link plans and the published article document.
 import {segments,plain,resolveHref} from './validate.js';
 import {TYPES} from './types.js';
-export const ARTICLE_VERSION='golf-article/4';
+import {HIGHLIGHT_FACTS,FINGERPRINT_FACTS} from './extras.js';
+export {HIGHLIGHT_FACTS,FINGERPRINT_FACTS};
+export const ARTICLE_VERSION='golf-article/5';
 export const slugify=s=>String(s).normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,110);
 const F=(p,id)=>p.facts.find(f=>f.id===id);
 // Stable, readable slugs. Frozen at first publication by the caller (topic record keeps it).
@@ -47,11 +49,27 @@ export function applyEmphasis(sections,packet,draftSections=[]){
   return {...s,paragraphs:s.paragraphs.map(p=>{let used=false;return p.map(g=>{if(g.t!=='fact')return g;const first=!seen.has(g.fact);seen.add(g.fact);
    if(!used&&budget>0&&first&&pick.has(g.fact)&&String(g.v).length<=EM_MAX_CHARS){used=true;budget--;if(!draftSections[i]?.em||g.fact!==draftSections[i].em)anchors.delete(g.fact);return {...g,em:true};}return g;});})};});
 }
+// ---------------------------------------------------------------- Article Experience V2 (golf-article/5)
+// "At a glance" highlights, the course fingerprint and callouts are APPLICATION-OWNED selections of packet facts:
+// value = the fact's own display, caption = the fact's own label. No new numbers, no prose parsing. Every fact
+// they show is added to the evidence ledger.
+const pickFacts=(packet,ids,min)=>{const xs=ids.map(id=>F(packet,id)).filter(Boolean).map(f=>({fact:f.id,label:f.label,display:f.display}));return xs.length>=min?xs:[];};
+export function articleExtras(packet){
+ // Never repeat the quick-data row: highlights are what the row does not already show.
+ const highlights=pickFacts(packet,(HIGHLIGHT_FACTS[packet.type]||[]).filter(id=>!(QUICK[packet.type]||[]).includes(id)),3).slice(0,5);
+ const fp=['preview','course_intelligence','course_weather','major_history'].includes(packet.type)&&packet.chart_data.hole_difficulty?pickFacts(packet,FINGERPRINT_FACTS,3):[];
+ const fingerprint=fp.length?{course:packet.entities.find(x=>x.type==='course')?.name||F(packet,'course')?.display||null,items:fp,chart:'hole_difficulty'}:null;
+ // Callout: the front/back split when it exists and the fingerprint does not already show it.
+ const split=!fingerprint?pickFacts(packet,['cd_front_nine','cd_back_nine'],2):[];
+ const callouts=split.length?[{kind:'split',title:'The split',items:split}]:[];
+ return {highlights,fingerprint,callouts};
+}
 export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior=null,now=new Date().toISOString(),status='published'}){
  const res=x=>resolveHref(x);
  const seg=t=>segments(t,packet,res),txt=t=>plain(segments(t,packet,res,{links:false}));
  const chartIds=[...new Set([...(draft.chart_intents||[]),...(draft.sections||[]).map(s=>s.module).filter(Boolean),...(ALWAYS[packet.type]||[])])].filter(id=>packet.chart_data[id]);
  const used=new Set();for(const t of [draft.headline,draft.dek,...draft.sections.flatMap(s=>s.paragraphs)])for(const m of String(t).matchAll(/\{f:([a-z0-9_]+)\}/g))used.add(m[1]);
+ const extras=articleExtras(packet);for(const x of [...extras.highlights,...(extras.fingerprint?.items||[]),...extras.callouts.flatMap(c=>c.items)])used.add(x.fact);
  const evidence=packet.facts.filter(f=>used.has(f.id)).map(f=>({fact:f.id,label:f.label,display:f.display,source:f.source,capture_id:f.capture_id}));
  const entities=packet.entities.map(x=>({key:x.key,type:x.type,name:x.name,href:res(x)}));
  const ent=t=>entities.filter(x=>x.type===t);
@@ -66,6 +84,7 @@ export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior
   sections:applyEmphasis(draft.sections.map(s=>({heading:txt(s.heading),paragraphs:s.paragraphs.map(seg),...(s.module&&s.module!=='none'?{module:s.module}:{})})),packet,draft.sections),
   quick_facts:(QUICK[packet.type]||[]).map(id=>F(packet,id)).filter(Boolean).slice(0,6).map(f=>({fact:f.id,label:f.label,display:f.display})),
   charts:chartIds.map(id=>({id,...packet.chart_data[id]})),
+  highlights:extras.highlights,fingerprint:extras.fingerprint,callouts:extras.callouts,story_class:packet.type,
   hero,video,
   entities,related:{players:ent('player').slice(0,6),course:ent('course')[0]||null,tournament:ent('tournament')[0]||null,matchups:ent('matchup'),majors:ent('majors')[0]||null},
   pbecast:edition&&packet.context.status!=='scheduled'?{href:'/pbecast?e='+encodeURIComponent(edition)}:null,

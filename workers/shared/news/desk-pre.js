@@ -101,3 +101,30 @@ export function recapV5(p){const k=kit(p),{has,ent,val,charts,course,event,sig,H
  d.seo_titles=[`{f:event} round recap: {f:leaders} ${multi?'share the lead':'leads'}`,`{f:leaders} ${multi?'share':'leads'} the {f:event}`];d.seo_title='{f:event} round recap';
  return done(d,p);
 }
+
+// Golf Desk v6 preview (Article Experience V2). Same token contract and gates; richer packets get a fuller story
+// from MORE supported facts, thin packets stay short. Story arc: lede -> the course -> where it gives and takes ->
+// conditions -> what the course rewards / who fits -> the defending champion -> history. A section exists only when
+// it carries a real idea (no one-sentence "What to watch" scaffolding).
+export function previewV6(p){const k=kit(p),{has,ent,val,charts,course,event}=k,c=coursePieces(p,k);
+ const d={chart_intents:[...charts],link_intents:p.entities.map(x=>x.key),known_limits:[...p.limits],sections:[]};
+ const dc=has('defending')?(ent('p1')?'{e:p1}':'{f:defending}'):null;
+ d.headline=has('defending')&&has('cd_window_type')&&has('course')?'{f:defending} returns to {f:course}, where the field scores on the {f:cd_window_type}':has('defending')?'{f:defending} returns to defend the {f:event}':'What to know before the {f:event}';
+ d.dek=`The {f:year} {f:event} starts {f:start_day}${course?' at {f:course}':''}.${has('cd_under_par_rounds')?' In our record, {f:cd_under_par_rounds} there finished under par.':has('field_major_champions')?' The field includes {f:field_major_champions}.':''}`;
+ d.sections.push(S('',[join(`${event.replace(/^the /,'The ')} begins {f:start_day}${course?` at ${course}`:''}${has('locality')?' in {f:locality}':''}${has('tour')?' on the {f:tour}':''}.`,dc?`${dc} is the defending champion.`:null,has('purse')?'The purse is {f:purse}.':null),
+  has('cd_spread_pct')&&p.context.course_signature?.separation==='separates'?'Rounds there vary more than at most courses we measure: its scoring spread ranks in the {f:cd_spread_pct}.':has('cd_spread_pct')&&p.context.course_signature?.separation==='bunches'?'Rounds there vary less than at most courses we measure: its scoring spread ranks in the {f:cd_spread_pct}.':null]));
+ d.sections.push(S('The course',[c.mix,c.underpar,c.nines],null,'cd_under_par_rounds'));
+ d.sections.push(S('Where it gives and where it fights back',[c.window,c.demand,join(c.hardest,c.longiron),c.par3,charts.has('hole_difficulty')?'The hole chart shows the field’s average score against par on every hole from that edition.':null],charts.has('hole_difficulty')?'hole_difficulty':null));
+ if(charts.has('weather')||has('max_gust'))d.sections.push(S('Conditions',[has('max_gust')?'The strongest gust in the daytime forecast for the tournament days is {f:max_gust}.':null,charts.has('weather')?'The forecast below is issued before play and is not observed conditions.':null],charts.has('weather')?'weather':null));
+ const hp=historyPlayers(p,k,{inField:p.context.field_published});const named=['ch1','ch2','ch3','ch4'].some(x=>ent(x));
+ d.sections.push(S(named?'Who fits the course':'What the course rewards',hp));
+ const form=[];if(dc&&(has('dc_recent')||has('dc_form_pct')))form.push(join(has('dc_recent')?'{f:defending} enters with {f:dc_recent} as the latest starts in our record.':null,has('dc_top10')?'The run includes {f:dc_top10}.':null,has('dc_form_pct')?'In Player DNA, the defending champion sits in the {f:dc_form_pct}.':null));
+ d.sections.push(S('The defending champion',form,charts.has('player_dna')?'player_dna':charts.has('player_form')?'player_form':null));
+ const others=[];for(const key of ['fm1','fm2','fm3'])if(ent(key)&&has(key+'_form_pct'))others.push(join(`{e:${key}} enters with Player DNA in the {f:${key}_form_pct}.`,has(key+'_recent')?`Latest starts: {f:${key}_recent}.`:null));
+ if(others.length)d.sections.push(S('Form to watch',others));
+ if(ent('m1'))d.sections.push(S('Key matchups',['{e:m1} is the head-to-head to open: the matchup page compares their shared events and Player DNA side by side.']));
+ if(charts.has('course_dna'))d.sections.push(S('Course DNA',['The Course DNA panel sets each measured dimension of the course against the other courses in our record.'],'course_dna'));
+ if(has('recent_winners')||charts.has('past_winners'))d.sections.push(S('Recent champions',[has('recent_winners')?'Recent champions in our record: {f:recent_winners}.':null,charts.has('past_winners')?'The list below holds every champion we have for this event, with winning scores.':null],charts.has('past_winners')?'past_winners':null));
+ d.seo_titles=['{f:event} preview: course demands and history','{f:event} preview','{f:event}: what to know'];d.seo_title='{f:event} preview';d.social_headline=has('defending')?'{f:defending} defends at the {f:event}':'{f:event}: what to know';
+ return done(d,p);
+}

@@ -130,6 +130,9 @@ async function hydrateLive(){
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
 hydrateLive();
+// Course View in news articles: only when the course has verified/partial routing (never decorative geometry).
+{const host=$('[data-article-course-map]');if(host){const slug=host.getAttribute('data-course')||'';
+ fetchCourseMap(slug).then((M:any)=>{if(!M?.geometry||!/VERIFIED|PARTIAL/.test(M.geometry_status||'')){host.remove();return;}host.hidden=false;mountCourseMap(host,M,{mode:'page'});});}}
 // Course map (course pages): OSM-derived current routing + one championship setup and that same edition's scoring.
 {const host=$('[data-course-map-host]');if(host){const slug=host.getAttribute('data-course')||'';
  fetchCourseMap(slug).then((M:any)=>{if(!M||(!M.setup&&!M.geometry)){host.remove();return;}

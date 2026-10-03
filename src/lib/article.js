@@ -2,12 +2,13 @@
 // Values arrive pre-rendered from the frozen packet; this file never computes a number shown as a fact.
 import {e,a,kicker,fmtDate,section,toPar} from './ui.js';
 import {radar,tracks,formChart} from './charts.js';
+import {HIGHLIGHT_FACTS,FINGERPRINT_FACTS} from '../../workers/shared/news/extras.js';
 import {videoTile} from './video.js';
 import {movementChart} from './movement.js';
 const media=(sha,w,f)=>`/api/v1/media/${sha}/${w}.${f}`;
 const segHtml=segs=>(segs||[]).map(s=>s.t==='link'?`<a class="story-link" href="${e(s.href)}" data-entity="${e(s.entity_type)}">${e(s.v)}</a>`:s.t==='fact'?`<span class="story-fact${s.em?' story-em':''}" data-fact="${e(s.fact)}">${e(s.v)}</span>`:e(s.v)).join('');
 const when=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZone:'UTC',timeZoneName:'short'});};
-const minutes=a=>Math.max(1,Math.round(a.sections.flatMap(s=>s.paragraphs).map(p=>p.map(x=>x.v).join('')).join(' ').split(/\s+/).length/220));
+const minutes=a=>Math.max(1,Math.ceil(a.sections.flatMap(s=>s.paragraphs).map(p=>p.map(x=>x.display??x.v).join('')).join(' ').split(/\s+/).length/220));
 const f1=v=>Number(v).toFixed(1);
 // ---------------------------------------------------------------- charts
 function leaderboard(c,o={}){
@@ -23,10 +24,6 @@ function progress(c,o={}){
  const rounds=Array.from({length:n},(_,i)=>`<text class="gtick" x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="middle">R${i+1}</text>`).join('');
  return `<figure class="gchart story-progress"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.titleId?'Score to par after each round':e(c.title)}: ${e(s.map(p=>`${p.name} ${p.points.map(toPar).join(', ')}`).join('; '))}">${ticks}${rounds}${lines}</svg><figcaption>${o.titleId?'':e(c.title)+'. '}Lower is better; cumulative score to par after each round.</figcaption><ul class="gp-legend" aria-hidden="true">${s.map((p,k)=>`<li><svg class="gp-key" viewBox="0 0 14 6" width="14" height="6"><rect class="gp-${k}" width="14" height="6" rx="2"/></svg>${e(p.name)} <b>${e(toPar(p.points.at(-1)))}</b></li>`).join('')}</ul></figure>`;
 }
-function holes(c,o={}){
- const max=Math.max(.3,...c.holes.map(h=>Math.abs(h.avg_to_par)));
- return `<div class="story-holes" role="table" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}><div class="story-holes-grid">${c.holes.map(h=>{const w=Math.round(Math.abs(h.avg_to_par)/max*100);return `<div class="sh-col" role="row"><span class="sh-bar ${h.avg_to_par>0?'is-over':'is-under'}" aria-hidden="true"><i data-w="${w}"></i></span><b role="cell">${h.avg_to_par>0?'+':''}${h.avg_to_par.toFixed(2)}</b><span role="rowheader">${h.hole}</span><small>Par ${e(h.par)}</small></div>`;}).join('')}</div><p class="gnote">Field average to par per hole across ${e(c.cards)} complete hole-by-hole cards. Above the line played over par.</p></div>`;
-}
 function scorecard(c){
  const cls=d=>d<=-2?'sc-eagle':d===-1?'sc-birdie':d===1?'sc-bogey':d>=2?'sc-double':'';
  const half=hs=>`<tr><th scope="row">Hole</th>${hs.map(h=>`<td>${h.hole}</td>`).join('')}</tr><tr><th scope="row">Par</th>${hs.map(h=>`<td>${e(h.par)}</td>`).join('')}</tr><tr><th scope="row">Score</th>${hs.map(h=>`<td class="${cls(h.to_par)}">${e(h.strokes)}</td>`).join('')}</tr>`;
@@ -41,8 +38,42 @@ export function weatherModule(c,{title=c.title||'Tournament-week forecast'}={}){
  return `<div class="wx" data-weather><div class="wx-head"><h3>${e(title)}</h3><p>${prec}</p></div><div class="wx-legend" aria-hidden="true"><span>Temp</span><span>Wind</span><span>Gust</span><span>Rain</span></div><div class="wx-grid">${c.days.map(day).join('')}</div><p class="gnote">${e(c.source||'NOAA National Weather Service')} forecast${c.licence_url?` (<a href="${e(c.licence_url)}" rel="license noopener">licence</a>)`:''}, updated ${e(when(c.issued))}. Forecast, not observed conditions. Periods: 7–11am, 11am–3pm, 3–7pm local${c.tz_basis&&c.tz_basis!=='NWS forecast office'?` (${e(c.tz_basis)})`:''}.${c.has_gust===false?' Gusts are not in this provider’s forecast for this location.':''}</p></div>`;
 }
 function pastWinners(c){return `<div class="table-wrap" tabindex="0" role="region" aria-labelledby="${e(c.id||'pw')}-cap"><table class="index-table"><caption id="${e(c.id||'pw')}-cap">${e(c.title)}</caption><thead><tr><th scope="col">Year</th><th scope="col">Champion</th><th scope="col" class="num">To par</th></tr></thead><tbody>${c.rows.map(r=>`<tr><td>${r.edition?a('/tournament/'+r.edition,String(r.year)):e(r.year)}</td><th scope="row">${r.slug?a('/player/'+r.slug,r.name):e(r.name)}</th><td class="num">${e(r.to_par===null||r.to_par===undefined?'—':toPar(r.to_par))}</td></tr>`).join('')}</tbody></table></div>`;}
-function fieldForm(c,o={}){const max=Math.max(.5,...c.rows.map(r=>Math.abs(r.form||0)));return `<div class="gtracks story-form" role="list" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}>${c.rows.map(r=>`<div class="gtrack-row" role="listitem"><span class="gtrack-name">${a('/player/'+r.slug,r.name)}<small>${e(r.rounds)} rounds</small></span><span class="gtrack" aria-hidden="true"><i data-w="${Math.round(Math.abs(r.form)/max*100)}" class="${r.form>0?'hi':'lo'}"></i></span><b class="gtrack-v">${r.form>0?'+':''}${f1(r.form)}</b></div>`).join('')}<p class="gnote">Strokes per round versus the field over recent full-field events in our record. Higher is better.</p></div>`;}
-function courseDna(c,o={}){return `<div class="gtracks" role="list" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}>${c.dimensions.map(d=>`<div class="gtrack-row" role="listitem"><span class="gtrack-name">${e(d.label)}<small>${e(d.unit||'')}</small></span><span class="gtrack" aria-hidden="true">${d.percentile===null||d.percentile===undefined?'':`<i data-w="${d.percentile}"></i>`}</span><b class="gtrack-v">${e(typeof d.value==='number'?(Math.round(d.value*100)/100):d.value)}</b></div>`).join('')}<p class="gnote">${a('/course/'+c.course.slug,'Full Course DNA')} · percentile among measured courses where shown.</p></div>`;}
+function fieldForm(c,o={}){const max=Math.max(.5,...c.rows.map(r=>Math.abs(r.form||0)));return `<div class="story-fform"><div class="gtracks story-form" role="list" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}>${c.rows.map(r=>`<div class="gtrack-row" role="listitem"><span class="gtrack-name">${a('/player/'+r.slug,r.name)}<small>${e(r.rounds)} rounds</small></span><span class="gtrack" aria-hidden="true"><i data-w="${Math.round(Math.abs(r.form)/max*100)}" class="${r.form>0?'hi':'lo'}"></i></span><b class="gtrack-v">${r.form>0?'+':''}${f1(r.form)}</b></div>`).join('')}</div><p class="gnote">Strokes per round versus the field over recent full-field events in our record. Higher is better.</p></div>`;}
+function courseDna(c,o={}){return `<div class="story-cdna"><div class="gtracks" role="list" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}>${c.dimensions.map(d=>`<div class="gtrack-row" role="listitem"><span class="gtrack-name">${e(d.label)}<small>${e(d.unit||'')}</small></span><span class="gtrack" aria-hidden="true">${d.percentile===null||d.percentile===undefined?'':`<i data-w="${d.percentile}"></i>`}</span><b class="gtrack-v">${e(typeof d.value==='number'?(Math.round(d.value*100)/100):d.value)}</b></div>`).join('')}</div><p class="gnote">${a('/course/'+c.course.slug,'Full Course DNA')} · percentile among measured courses where shown.</p></div>`;}
+// ---------------------------------------------------------------- Article Experience V2 modules
+// Course-scoring strip: centreline = par; bars up = played over par, down = under par. Values are the chart's own.
+function holes(c,o={}){
+ const max=Math.max(.3,...c.holes.map(h=>Math.abs(h.avg_to_par)));const hard=new Set(c.holes.slice().sort((a,b)=>b.avg_to_par-a.avg_to_par||a.hole-b.hole).slice(0,3).map(h=>h.hole));
+ const sg=v=>(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2);
+ const col=h=>{const w=Math.max(3,Math.round(Math.abs(h.avg_to_par)/max*100)),over=h.avg_to_par>0,lab=`Hole ${h.hole}, par ${h.par}${h.yards?`, ${h.yards} yards`:''}: ${sg(h.avg_to_par)} against par${hard.has(h.hole)?', among the three hardest':''}`;
+  return `<li class="sh2-col${over?' is-over':h.avg_to_par<0?' is-under':''}${hard.has(h.hole)?' is-hard':''}" tabindex="0" aria-label="${e(lab)}" title="${e(lab)}"><span class="sh2-v" aria-hidden="true">${sg(h.avg_to_par)}</span><span class="sh2-plot" aria-hidden="true"><span class="sh2-up">${over?`<i data-w="${w}"></i>`:''}</span><span class="sh2-dn">${over?'':`<i data-w="${w}"></i>`}</span></span><b class="sh2-n" aria-hidden="true">${h.hole}</b><small aria-hidden="true">P${e(h.par)}${h.yards?` · ${e(h.yards)}`:''}</small></li>`;};
+ const nine=(hs,t)=>`<div class="sh2-nine"><p class="sh2-k">${t}</p><ol class="sh2-row">${hs.map(col).join('')}</ol></div>`;
+ return `<div class="sh2" role="group" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}><div class="sh2-legend" aria-hidden="true"><span class="sh2-key is-over">Above the line: harder than par</span><span class="sh2-key is-under">Below: easier than par</span><span class="sh2-key is-hard">Ringed: three hardest</span></div><div class="sh2-nines">${nine(c.holes.filter(h=>h.hole<=9),'FRONT NINE')}${nine(c.holes.filter(h=>h.hole>9),'BACK NINE')}</div><details class="sh2-table"><summary>Hole-by-hole values</summary><div class="table-wrap" tabindex="0" role="region" aria-label="Hole values"><table class="index-table"><thead><tr><th scope="col">Hole</th><th scope="col" class="num">Par</th><th scope="col" class="num">Yards</th><th scope="col" class="num">Field avg to par</th></tr></thead><tbody>${c.holes.map(h=>`<tr><td>${h.hole}</td><td class="num">${e(h.par)}</td><td class="num">${e(h.yards??'—')}</td><td class="num">${sg(h.avg_to_par)}</td></tr>`).join('')}</tbody></table></div></details><p class="gnote">Field average to par per hole across ${e(c.cards)} complete hole-by-hole cards.</p></div>`;
+}
+// Compact Player DNA: only the published dimensions in the packet chart, strongest first. No composite.
+const DNA_LABEL={scoring:'Scoring vs field',consistency:'Consistency',under_par:'Under-par rounds',cuts:'Cuts made',top10:'Top-10 rate',contention:'Contention (top 5)',form:'Recent form',majors:'Majors',par3:'Par-3 scoring',par4:'Par-4 scoring',par5:'Par-5 scoring'};
+const ordS=n=>{const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
+function dnaCompact(c,o={}){
+ const dims=(c.dims||[]).filter(d=>Number.isFinite(d.percentile)).sort((a,b)=>b.percentile-a.percentile||String(a.code).localeCompare(b.code));if(!dims.length)return '';
+ return `<div class="sdna"><div class="sdna-list" role="list" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}>${dims.map(d=>`<div class="sdna-row" role="listitem"><span class="sdna-l">${e(DNA_LABEL[d.code]||d.code)}</span><span class="sdna-bar" aria-hidden="true"><i data-w="${Math.round(d.percentile)}"></i></span><b class="sdna-v">${e(d.percentile)}</b><small class="sdna-n">${e(ordS(d.percentile))} pct${Number.isFinite(d.sample)?` · n=${e(d.sample)}`:''}${d.confidence?` · ${e(String(d.confidence).toLowerCase())}`:''}</small></div>`).join('')}</div><p class="gnote">${e(c.window||'')} · percentiles within the player’s tour cohort; individual dimensions, no composite score. <a class="text-link" href="/player/${e(c.player.slug)}#dna">Explore full Player DNA <span aria-hidden="true">→</span></a></p></div>`;
+}
+// Recent starts: the exact published results (finish + event), newest first. No trajectory claim.
+function formStrip(c,o={}){
+ const pos=f=>f.status==='finished'&&Number.isInteger(f.position)?(f.tied?'T'+f.position:String(f.position)):({cut:'MC',withdrawn:'WD',disqualified:'DQ'}[f.status]||'—');
+ const rows=(c.series||[]).slice(-6).reverse();if(!rows.length)return '';
+ return `<div class="sform"><ol class="sform-list" ${o.titleId?`aria-labelledby="${o.titleId}"`:`aria-label="${e(c.title)}"`}>${rows.map(f=>`<li><b class="sform-pos${pos(f)==='1'?' is-win':''}">${e(pos(f))}</b><span>${e(String(f.name||'').replace(/^\d{4}\s+/,''))}</span>${f.ends_on?`<small>${e(new Date(f.ends_on+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',year:'numeric',timeZone:'UTC'}))}</small>`:''}</li>`).join('')}</ol><p class="gnote">Published finishes in our record. <a class="text-link" href="/player/${e(c.player.slug)}">Results and history</a></p></div>`;
+}
+// Recent winners rail: year, linked champion, winning score, linked edition.
+function winnersRail(c){return `<ol class="swin" aria-label="${e(c.title)}">${c.rows.map(r=>`<li><span class="swin-y">${r.edition?a('/tournament/'+r.edition,String(r.year),'swin-ed'):e(r.year)}</span><span class="swin-n">${r.slug?a('/player/'+r.slug,r.name,'swin-p'):e(r.name)}</span><b class="swin-s">${e(r.to_par===null||r.to_par===undefined?'—':toPar(r.to_par))}</b></li>`).join('')}</ol>`;}
+// Highlights ("at a glance"): packet facts only (display + label).
+const GLANCE={preview:'The week at a glance',final:'The result in 30 seconds',course_intelligence:'The course at a glance'};
+function highlightsBlock(art){const hs=art.highlights||[];if(hs.length<3)return '';
+ return `<section class="story-glance" aria-labelledby="glance-h"><h2 class="story-glance-h" id="glance-h">${e(GLANCE[art.type]||'The story in 30 seconds')}</h2><dl class="story-glance-grid">${hs.map(h=>`<div><dd>${e(h.display)}</dd><dt>${e(h.label)}</dt></div>`).join('')}</dl></section>`;}
+function fingerprintBlock(fp,chart){if(!fp?.items?.length)return '';
+ const sg=v=>(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2);const hard=chart?.holes?chart.holes.slice().sort((a,b)=>b.avg_to_par-a.avg_to_par||a.hole-b.hole).slice(0,3):[];
+ return `<section class="story-fp" aria-labelledby="fp-h"><p class="story-fp-k">${e((fp.course||'Course').toUpperCase())} · COURSE FINGERPRINT</p><h3 class="sr-only" id="fp-h">${e(fp.course||'Course')} course fingerprint</h3><dl class="story-fp-grid">${fp.items.filter(i=>!['cd_hardest','cd_easiest'].includes(i.fact)).map(i=>`<div><dt>${e(i.label)}</dt><dd>${e(i.display)}</dd></div>`).join('')}</dl>${hard.length?`<div class="story-fp-hard"><p class="micro-label">HARDEST HOLES</p><ol>${hard.map(h=>`<li><b>No. ${h.hole}</b> par ${e(h.par)}${h.yards?` · ${e(h.yards)} yd`:''} <span>${sg(h.avg_to_par)}</span></li>`).join('')}</ol></div>`:''}</section>`;}
+function calloutBlock(cl){return `<aside class="story-callout" aria-label="${e(cl.title)}"><p class="story-callout-k">${e(cl.title.toUpperCase())}</p><dl>${cl.items.map(i=>`<div><dd>${e(i.display)}</dd><dt>${e(i.label)}</dt></div>`).join('')}</dl></aside>`;}
+
 export function articleChart(c,o={}){
  switch(c.type){
   case 'leaderboard':return leaderboard(c,o);
@@ -50,12 +81,12 @@ export function articleChart(c,o={}){
   case 'holes':return holes(c,o);
   case 'scorecard':return scorecard(c);
   case 'weather':return weatherModule(c);
-  case 'past_winners':return pastWinners(c);
+  case 'past_winners':return winnersRail(c);
   case 'field_form':return fieldForm(c,o);
   case 'course_dna':return courseDna(c,o);
   case 'movement':return movementChart(c.points,{title:c.title,titled:Boolean(o.titleId)});
-  case 'dna':return `<div class="dna-panel story-dna"><div class="dna-grid">${radar(c.dims,{title:o.titleId?'':c.title})}${tracks(c.dims)}</div><p class="gnote">${e(c.window)} · percentiles within the player’s tour cohort. ${a('/player/'+c.player.slug,'Full profile')}</p></div>`;
-  case 'form':return formChart(c.series,{title:o.titleId?'':c.title})+`<p class="gnote">${a('/player/'+c.player.slug,'Results and history')}</p>`;
+  case 'dna':return dnaCompact(c,o);
+  case 'form':return formStrip(c,o);
   default:return '';
  }
 }
@@ -67,39 +98,68 @@ export function heroHtml(h,a_){
   return `<figure class="story-hero${ratio>1.1?' is-portrait':''}"><picture><source type="image/avif" srcset="${[640,960].map(w=>media(p.sha256,w,'avif')+' '+w+'w').join(', ')}" sizes="(max-width:900px) 100vw, 900px"><img src="${media(p.sha256,960,'webp')}" srcset="${[640,960].map(w=>media(p.sha256,w,'webp')+' '+w+'w').join(', ')}" sizes="(max-width:900px) 100vw, 900px" width="960" height="${Math.round(960*ratio)}" alt="${e(h.name||'')}" fetchpriority="high"></picture><figcaption>${e(h.name||'')}${p.author?` · Photo: ${e(p.author)}`:''}${p.licence?` · ${p.licence_url?`<a href="${e(p.licence_url)}" rel="license noopener">${e(p.licence)}</a>`:e(p.licence)}`:''}${p.source_url?` · <a href="${e(p.source_url)}" rel="noopener">source</a>`:''}</figcaption></figure>`;}
  return `<div class="story-hero is-art" role="img" aria-label="${e(a_.category)} artwork"><span class="story-art-kicker">${e(a_.category)}</span><span class="story-art-title">${e(a_.context?.tour||'GOLF')}</span></div>`;
 }
+// ---------------------------------------------------------------- page (Article Experience V2)
+// Renders golf-article/5 documents and, compatibly, golf-article/4 (highlights/fingerprint derived from the ledger,
+// which only holds packet facts). Every value shown comes from the document; nothing here computes a fact.
+const sid=t=>'s-'+String(t).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+const fromLedger=(art,ids,min)=>{const by=new Map((art.evidence||[]).map(f=>[f.fact,f]));const xs=ids.map(id=>by.get(id)).filter(Boolean).map(f=>({fact:f.fact,label:f.label,display:f.display}));return xs.length>=min?xs:[];};
+// Pairs: a module that brings its companion (same subject) directly after it.
+const PAIR={player_dna:'player_form',winner_dna:'winner_form'};
+// Where official video sits by class (after the first section that introduces this module, else at the end).
+const VIDEO_AFTER={preview:['hole_difficulty','weather'],course_intelligence:['hole_difficulty','course_dna'],final:['leaderboard','progress','round_progress'],round_recap:['leaderboard','movement'],notable_round:['scorecard']};
+const COURSE_MAP_TYPES=new Set(['preview','course_intelligence','course_weather','major_history']);
 export function articlePage(art,{related=[],video=null}={}){
  const updated=art.updated_at&&art.published_at&&Date.parse(art.updated_at)-Date.parse(art.published_at)>=5*60000;
  const byEditor=art.editor?.mode==='openai'?'Written with AI assistance from a frozen fact packet; every number is checked against it.':'Written by the Golf Desk from a frozen fact packet.';
  const charts=new Map(art.charts.map(c=>[c.id,c]));const placed=new Set();
- const chartFig=c=>{placed.add(c.id);const headed=!['weather','leaderboard','scorecard','past_winners'].includes(c.type)&&c.title,tid=headed?`mt-${c.id}`:null;return `<div class="story-module" data-chart="${e(c.id)}" data-kind="${e(c.type)}">${headed?`<h3 class="story-module-title" id="${tid}">${e(c.title)}</h3>`:''}${articleChart(c,{titleId:tid})}</div>`;};
- // One visual early so the story never reads as a wall of text.
+ const quick=new Set((art.quick_facts||[]).map(q=>q.fact));
+ const highlights=art.highlights||fromLedger(art,(HIGHLIGHT_FACTS[art.type]||[]).filter(id=>!quick.has(id)),3).slice(0,5);
+ const fingerprint=art.fingerprint!==undefined?art.fingerprint:(COURSE_MAP_TYPES.has(art.type)&&charts.has('hole_difficulty')?(xs=>xs.length?{course:art.related?.course?.name||null,items:xs,chart:'hole_difficulty'}:null)(fromLedger(art,FINGERPRINT_FACTS,3)):null);
+ const callouts=art.callouts||[];
+ const WIDE=new Set(['holes','weather','movement','leaderboard','progress']);
+ const chartFig=c=>{placed.add(c.id);const headed=!['weather','leaderboard','scorecard','past_winners'].includes(c.type)&&c.title,tid=headed?`mt-${c.id}`:null;
+  const inner=c.type==='holes'&&fingerprint?.chart===c.id?fingerprintBlock(fingerprint,c)+articleChart(c,{titleId:tid}):articleChart(c,{titleId:tid});
+  const mod=`<div class="story-module" data-chart="${e(c.id)}" data-kind="${e(c.type)}"${WIDE.has(c.type)?' data-wide':''}>${headed?`<h3 class="story-module-title" id="${tid}">${e(c.title)}</h3>`:''}${inner}</div>`;
+  const pair=PAIR[c.id]&&charts.get(PAIR[c.id])&&!placed.has(PAIR[c.id])?chartFig(charts.get(PAIR[c.id])):'';
+  return mod+pair;};
  const lead=['leaderboard','scorecard','round_progress','weather','past_winners','course_dna','player_form'].map(id=>charts.get(id)).find(Boolean);
- // A section that names a module introduces it: the module renders directly after that prose.
- const placedByProse=art.sections.some(s=>s.module);let pbecastPlaced=false;
+ const placedByProse=art.sections.some(s=>s.module);let pbecastPlaced=false,videoPlaced=false,cmapPlaced=false;
+ const vid=video||art.video;
+ const videoBlock=()=>{videoPlaced=true;return `<section class="story-video" aria-labelledby="sv-h"><p class="micro-label">OFFICIAL VIDEO</p><h2 id="sv-h">${e(vid.label||'Watch')}</h2>${videoCard(vid)}</section>`;};
+ const courseSlug=(art.related?.course?.href||'').replace(/^\/course\//,'');
+ const cmapBlock=()=>{cmapPlaced=true;return COURSE_MAP_TYPES.has(art.type)&&/^[a-z0-9-]+$/.test(courseSlug)?`<section class="story-cmap" data-article-course-map data-course="${e(courseSlug)}" aria-label="Course view" hidden></section>`:'';};
  const pbecastBlock=()=>{pbecastPlaced=true;return `<div class="story-module" data-chart="pbecast" data-kind="pbecast"><p><a class="button button-gold" href="${e(art.pbecast.href)}">Open the PBEcast replay</a></p><p class="gnote">Hole-by-hole replay built from published scorecards. Shot locations are reconstructed, not tracked.</p></div>`;};
- const moduleAfter=s=>s.module==='pbecast'?(art.pbecast?pbecastBlock():''):s.module&&charts.get(s.module)&&!placed.has(s.module)?chartFig(charts.get(s.module)):'';
- const body=art.sections.map((s,i)=>`<section class="story-section${s.heading?'':' story-lede'}">${s.heading?`<h2>${e(s.heading)}</h2>`:''}${s.paragraphs.map(p=>`<p>${segHtml(p)}</p>`).join('')}</section>${moduleAfter(s)}${!placedByProse&&i===0&&lead?chartFig(lead):''}`).join('');
+ const afterModule=id=>{let x='';if((id==='hole_difficulty'||id==='course_dna')&&!cmapPlaced)x+=cmapBlock();if(vid&&!videoPlaced&&(VIDEO_AFTER[art.type]||[]).includes(id))x+=videoBlock();return x;};
+ const moduleAfter=s=>{if(s.module==='pbecast')return art.pbecast?pbecastBlock():'';if(s.module&&charts.get(s.module)&&!placed.has(s.module))return chartFig(charts.get(s.module))+afterModule(s.module);return '';};
+ const headed=art.sections.filter(s=>s.heading);let calloutDone=false;
+ const body=art.sections.map((s,i)=>{const isCourse=/^(the course|what the week demands|how it plays)/i.test(s.heading||'');
+  const call=!calloutDone&&callouts.length&&isCourse?(calloutDone=true,callouts.map(calloutBlock).join('')):'';
+  return `<section class="story-section${s.heading?'':' story-lede'}"${s.heading?` id="${sid(s.heading)}"`:''}>${s.heading?`<h2>${e(s.heading)}</h2>`:''}${s.paragraphs.map(p=>`<p>${segHtml(p)}</p>`).join('')}${call}</section>${moduleAfter(s)}${!placedByProse&&i===0&&lead?chartFig(lead):''}`;}).join('');
  const groups=GROUPS.map(([k,t,ids])=>{const cs=ids.map(id=>charts.get(id)).filter(c=>c&&!placed.has(c.id));return cs.length?section(k,t,cs.map(chartFig).join(''),{cls:'story-group'}):'';}).join('');
  const rest=[...charts.values()].filter(c=>!placed.has(c.id)).map(chartFig).join('');
- const ent=t=>art.entities.filter(x=>x.type===t);
+ const seenHref=new Set(),ent=t=>art.entities.filter(x=>x.type===t&&x.href&&!seenHref.has(x.href)&&seenHref.add(x.href));
  const relCards=[...ent('player').slice(0,4).map(x=>['PLAYER',x]),...ent('course').slice(0,1).map(x=>['COURSE',x]),...ent('tournament').slice(0,1).map(x=>['TOURNAMENT',x]),...ent('majors').slice(0,1).map(x=>['MAJORS',x]),...ent('matchup').slice(0,2).map(x=>['MATCHUP',x])];
- const vid=video||art.video;
- return `<article class="story-page" data-article="${e(art.slug)}" data-article-type="${e(art.type)}">
-<header class="story-head">${kicker(art.category+(art.context?.is_major?' · MAJOR':''))}<h1>${segHtml(art.headline.map(s=>s.t==='link'?{t:'text',v:s.v}:s))}</h1><p class="story-dek">${segHtml(art.dek)}</p>
-<p class="story-byline"><span class="story-desk">PropBetEdge Golf Desk</span> · <time datetime="${e(art.published_at)}">Published ${e(when(art.published_at))}</time>${updated?` · <time datetime="${e(art.updated_at)}">Updated ${e(when(art.updated_at))}</time>`:''} · ${minutes(art)} min read</p></header>
-${heroHtml(art.hero,art)}
-<div class="story-layout"><div class="story-main">
-${art.quick_facts?.length?`<aside class="story-quick" aria-label="Quick data"><dl>${art.quick_facts.map(q=>`<div><dt>${e(q.label)}</dt><dd>${e(q.display)}</dd></div>`).join('')}</dl></aside>`:''}
-<div class="story-body">${body}</div>
+ // In-article navigation only for rich stories (4+ headed sections).
+ const nav=headed.length>=4?`<nav class="story-nav" aria-label="In this article"><ol>${headed.map(s=>`<li><a href="#${sid(s.heading)}">${e(s.heading)}</a></li>`).join('')}<li><a href="#evidence">Evidence</a></li></ol></nav>`:'';
+ const srcCount=new Set((art.evidence||[]).map(f=>f.source).filter(Boolean)).size;
+ const photoCredit=art.hero?.photo?`${art.hero.photo.author||''}${art.hero.photo.licence?' / '+art.hero.photo.licence:''}`:null;
+ const built=`<section class="story-built" aria-labelledby="built-h"><h2 id="built-h">How this story was built</h2><dl><div><dt>Data</dt><dd>${e((art.sources||[]).filter(s=>!/^Photo:/.test(s)).join(' · '))}</dd></div>${photoCredit?`<div><dt>Image</dt><dd>${e(photoCredit)}</dd></div>`:''}${(art.known_limits||[]).map(l=>`<div><dt>Limit</dt><dd>${e(l)}</dd></div>`).join('')}${art.method?`<div><dt>Method</dt><dd>${e(art.method)}</dd></div>`:''}<div><dt>Editor</dt><dd>${e(byEditor)}</dd></div><div><dt>Packet</dt><dd><code>${e(String(art.packet_sha256||'').slice(0,12))}</code></dd></div></dl></section>`;
+ const evidence=`<section class="story-evidence" id="evidence" aria-labelledby="evidence-h"><details><summary><span class="micro-label">EVIDENCE & METHODOLOGY</span><h2 id="evidence-h">Evidence ledger</h2><span class="story-ev-h">${e(art.evidence.length)} verified facts · ${e(srcCount)} sources and derivations · packet ${e(String(art.packet_sha256||'').slice(0,12))}</span><span class="story-ev-cta">View the full evidence ledger</span></summary><div class="table-wrap story-ledger-wrap" tabindex="0" role="region" aria-label="Evidence ledger"><table class="index-table story-ledger"><thead><tr><th scope="col">Fact</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead><tbody>${art.evidence.map(f=>`<tr><td>${e(f.label)}</td><td>${e(f.display)}</td><td>${e(f.source||'')}</td></tr>`).join('')}</tbody></table></div></details></section>`;
+ const qf=art.quick_facts?.length?`<aside class="story-quick" aria-label="Quick data"><dl>${art.quick_facts.map(q=>`<div><dt>${e(q.label)}</dt><dd>${e(q.display)}</dd></div>`).join('')}</dl></aside>`:'';
+ const railRel=relCards.length?`<div class="story-rail-block"><p class="micro-label">IN THIS STORY</p><div class="story-related">${relCards.map(([k,x])=>`<a class="story-rel" href="${e(x.href)}"><span class="micro-label">${k}</span><b>${e(x.name)}</b></a>`).join('')}</div></div>`:'';
+ const railPb=art.pbecast&&!art.sections.some(s=>s.module==='pbecast')?`<div class="story-rail-block"><p class="micro-label">PBECAST</p><p><a class="text-link" href="${e(art.pbecast.href)}">Follow the tournament in PBEcast</a></p></div>`:'';
+ return `<article class="story-page story-v2" data-article="${e(art.slug)}" data-article-type="${e(art.type)}">
+<header class="story-top"><div class="story-head">${kicker(art.category+(art.context?.tour?' · '+art.context.tour:'')+(art.context?.is_major?' · MAJOR':''))}<h1>${segHtml(art.headline.map(s=>s.t==='link'?{t:'text',v:s.v}:s))}</h1><p class="story-dek">${segHtml(art.dek)}</p>
+<p class="story-byline"><span class="story-desk">PropBetEdge Golf Desk</span> · <time datetime="${e(art.published_at)}">Published ${e(when(art.published_at))}</time>${updated?` · <time datetime="${e(art.updated_at)}">Updated ${e(when(art.updated_at))}</time>`:''} · ${minutes(art)} min read</p></div>
+${heroHtml(art.hero,art)}</header>
+<div class="story-intro">${qf}${highlightsBlock({...art,highlights})}${nav}</div>
+<div class="story-layout"><div class="story-main"><div class="story-body">${body}</div>${cmapPlaced?'':cmapBlock()}
 ${groups}${rest}
-${vid?section('OFFICIAL VIDEO',vid.label||'Watch',videoCard(vid)):''}
-${art.pbecast&&!pbecastPlaced?section('PBECAST','Replay it',`<p><a class="button button-gold" href="${e(art.pbecast.href)}">Open the PBEcast replay</a></p><p class="gnote">Hole-by-hole replay built from published scorecards. Shot locations are reconstructed, not tracked.</p>`):''}
-${relCards.length?section('RELATED','In this story',`<div class="story-related">${relCards.map(([k,x])=>`<a class="story-rel" href="${e(x.href)}"><span class="micro-label">${k}</span><b>${e(x.name)}</b></a>`).join('')}</div>`):''}
-${section('EVIDENCE','Evidence ledger',`<div class="table-wrap story-ledger-wrap" tabindex="0" role="region" aria-labelledby="evidence-h"><table class="index-table story-ledger"><thead><tr><th scope="col">Fact</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead><tbody>${art.evidence.map(f=>`<tr><td>${e(f.label)}</td><td>${e(f.display)}</td><td>${e(f.source||'')}</td></tr>`).join('')}</tbody></table></div><p class="gnote">${e(byEditor)} Packet ${e(String(art.packet_sha256||'').slice(0,12))}.</p>`,{id:'evidence'})}
-${art.corrections?.length?section('CORRECTIONS','Corrections',`<ul class="story-corrections">${art.corrections.map(c=>`<li><time datetime="${e(c.at)}">${e(when(c.at))}</time>: ${c.facts.map(f=>`${e(f.label)} changed from ${e(f.was)} to ${e(f.now??'removed')}`).join('; ')}.</li>`).join('')}</ul>`):''}
-${section('SOURCES','Sources, limits and method',`<ul class="source-list">${art.sources.map(s=>`<li>${e(s)}</li>`).join('')}</ul>${art.known_limits.length?`<h3>Known limits</h3><ul class="source-list">${art.known_limits.map(l=>`<li>${e(l)}</li>`).join('')}</ul>`:''}${art.method?`<h3>Method</h3><p>${e(art.method)}</p>`:''}`)}
-</div></div>
-${related.length?section('MORE FROM THE DESK','Related stories',`<div class="story-list-grid">${related.map(storyCard).join('')}</div>`):''}
+${vid&&!videoPlaced?videoBlock():''}
+${art.pbecast&&!pbecastPlaced&&!railPb?section('PBECAST','Replay it',`<p><a class="button button-gold" href="${e(art.pbecast.href)}">Open the PBEcast replay</a></p><p class="gnote">Hole-by-hole replay built from published scorecards. Shot locations are reconstructed, not tracked.</p>`):''}
+</div><aside class="story-rail" aria-label="Story context">${railRel}${railPb}</aside></div>
+<div class="story-trust">${art.corrections?.length?section('CORRECTIONS','Corrections',`<ul class="story-corrections">${art.corrections.map(c=>`<li><time datetime="${e(c.at)}">${e(when(c.at))}</time>: ${c.facts.map(f=>`${e(f.label)} changed from ${e(f.was)} to ${e(f.now??'removed')}`).join('; ')}.</li>`).join('')}</ul>`):''}${built}${evidence}</div>
+${related.length?section('MORE FROM THE DESK','Related coverage',`<div class="story-list-grid">${related.map(storyCard).join('')}</div>`):''}
 </article>`;
 }
 export function videoCard(v){return videoTile(v);}

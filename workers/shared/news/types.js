@@ -56,7 +56,9 @@ export const TYPES={
    if(co){sigC=courseNarrative(P,co,{withHistory:false});P.context.course_signature={separation:sigC.separation||null,difficulty:sigC.difficulty||null,long_iron:Boolean(sigC.long_iron)};const cd=co.dna;if(cd?.dimensions?.length&&cd.full_field_editions>=2)P.chart('course_dna',{type:'course_dna',title:`${co.name} Course DNA`,course:{name:co.name,slug:co.slug},dimensions:cd.dimensions.filter(d=>d.value!==null).map(d=>({code:d.code,label:d.label,value:d.value,unit:d.unit,percentile:d.percentile,confidence:d.confidence}))});}
    const fieldSlugs=new Set([...(ed.leaderboard||[]).map(r=>r.player?.slug),...(ed.field?.entries||[]).map(x=>x.slug)].filter(Boolean));P.context.field_published=fieldSlugs.size>=20;
    if(co)await courseHistoryPlayers(P,co,ctx,{key:'ch',max:3,window:sigC.window,demand:sigC.demand,restrictTo:P.context.field_published?fieldSlugs:null});
-   if(dc?.slug){const f=await formFacts(P,ctx,dc.slug,'dc',{before:ed.starts_on});P.context.dc_in_form=Boolean(f?.strong);}
+   if(dc?.slug){const f=await formFacts(P,ctx,dc.slug,'dc',{before:ed.starts_on});P.context.dc_in_form=Boolean(f?.strong);
+    // Public profile visuals for the defending champion: DNA percentiles (no raw values) and published results.
+    if(f?.pl){P.chart('player_dna',playerDnaChart(f.pl));const fc=formChartSpec(f.pl);if(fc)P.chart('player_form',{...fc,series:fc.series.map(({vs_field,...x})=>x)});}}
    if(P.context.field_published&&ctx.ixPlayer){const hot=[...fieldSlugs].map(s=>ctx.ixPlayer(s)).filter(p=>Number.isInteger(p?.form?.percentile)&&p.form.percentile>=90&&p.slug!==dc?.slug).sort((a,b)=>b.form.percentile-a.form.percentile).slice(0,3);
     for(const [i,p] of hot.entries()){P.entity('fm'+(i+1),'player',p.slug,p.name);await formFacts(P,ctx,p.slug,'fm'+(i+1),{before:ed.starts_on});}}
    P.limit('Previews describe the field, the course and the history in our record. They are not a forecast of the result.');
