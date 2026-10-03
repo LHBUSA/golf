@@ -1,6 +1,8 @@
 import './data.css';
 import './product.css';
 import './course-map.css';
+import './vendor/kalshi/kalshi-market-ui.css';
+import './kalshi.css';
 import {initAnalytics,track,pageType,destination} from './analytics.js';
 // @ts-ignore shared JS modules
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
@@ -26,6 +28,8 @@ import {fillRaw,dnaModel,dnaBody,dnaContext,metricBars,windowFingerprint} from '
 import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
 // @ts-ignore
 import {mountMovement} from './lib/movement-live.js';
+// @ts-ignore Kalshi Market Intelligence (prediction market; same-origin /api/markets only)
+import {hydrateKalshi,boardWithin} from './lib/kalshi-live.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -66,7 +70,7 @@ if(m&&$('[data-matchup-finder]')){const [a,b]=[m[1],m[2]].sort();if(a!==m[1])loc
 // PBEcast edition switching
 const castSel=$<HTMLSelectElement>('[data-cast-select]');
 function bindCast(){$<HTMLSelectElement>('[data-cast-select]')?.addEventListener('change',ev=>{const v=(ev.target as HTMLSelectElement).value;history.replaceState(null,'','/pbecast?tournament='+encodeURIComponent(v));loadCast(v);});}
-async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null)]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);const lc=$('[data-live-cast]');if(lc&&d.data.status!=='completed')lc.innerHTML=castShell();bindCast();hydrateLive();initReplay();}}
+async function loadCast(slug:string){const [ix,d]=await Promise.all([index(),fetch('/api/v1/tournaments/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).catch(()=>null),boardWithin()]);const main=$('main');if(ix&&d?.data&&main){main.innerHTML=pbecast(ix,d.data);const lc=$('[data-live-cast]');if(lc&&d.data.status!=='completed')lc.innerHTML=castShell();bindCast();hydrateKalshi(main);hydrateLive();initReplay();}}
 if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournament');if(q&&q!==castSel.value)loadCast(q);}
 // Premium modules: values are requested only after server-side All Access verification.
 async function premium(){
@@ -107,8 +111,8 @@ if(location.pathname==='/all-access'){
 // Hub pages re-render from the live projection when it is newer than the static build.
 const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live};
 const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[location.pathname];
-if(stamp){fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).then(ix=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
- if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
+if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,location.pathname)?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
+ if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);hydrateKalshi(main);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
 
 // ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
 const LIVE_SHOWN=new Set(['live','stale','suspended','round_complete','pre','final']);
@@ -130,6 +134,8 @@ async function hydrateLive(){
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
 hydrateLive();
+// Kalshi prediction-market mounts (tournament card, PBEcast strip, card lines). Never blocks any other module.
+hydrateKalshi(document);
 // Course View in news articles: only when the course has verified/partial routing (never decorative geometry).
 {const host=$('[data-article-course-map]');if(host){const slug=host.getAttribute('data-course')||'';
  fetchCourseMap(slug).then((M:any)=>{if(!M?.geometry||!/VERIFIED|PARTIAL/.test(M.geometry_status||'')){host.remove();return;}host.hidden=false;mountCourseMap(host,M,{mode:'page'});});}}

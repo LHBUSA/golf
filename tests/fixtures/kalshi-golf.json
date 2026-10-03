@@ -1,0 +1,1226 @@
+{
+ "_note": "Captured 2026-10-03 from propsports-markets (market-intel/1); trimmed to 10 outcomes. Test fixture only.",
+ "event_detail": {
+  "contract": "market-intel/1",
+  "sport": "golf",
+  "enabled": true,
+  "event": {
+   "event": {
+    "sport": "golf",
+    "competition": "pga",
+    "canonical_event_id": "70c0e316-a890-598c-ae60-17e818586f39",
+    "start_at": null,
+    "state": "in"
+   },
+   "kalshi": {
+    "source": "kalshi",
+    "source_type": "prediction_market",
+    "label": "Kalshi",
+    "attribution": "Prediction market data",
+    "link_text": "View on Kalshi",
+    "market_url": "https://kalshi.com/markets/kxpgatour/pga-tour/kxpgatour-baouc26",
+    "event_ticker": "KXPGATOUR-BAOUC26",
+    "proposition": "player_wins_tournament",
+    "state": "open",
+    "freshness": "live",
+    "read_cadence_min": 1,
+    "observed_at": "2026-10-03T15:00:56.876+00:00",
+    "age_seconds": 45,
+    "mid_rule": "Mid-market = midpoint of best YES bid and best YES ask; shown only when both exist and the spread is at most 10¢.",
+    "price_unit": "basis points of $1 (100 bp = 1¢); a YES contract pays $1 if the outcome happens",
+    "outcomes": [
+     {
+      "role": "p:austin-smotherman-q106782591",
+      "team_id": "austin-smotherman-q106782591",
+      "abbr": "Austin Smotherman",
+      "kalshi_name": "Austin Smotherman",
+      "contract": "Bank of Utah Championship: Austin Smotherman wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-ASMO",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 2100,
+      "yes_ask_bp": 2300,
+      "no_bid_bp": 7700,
+      "no_ask_bp": 7900,
+      "best_yes_bid_bp": 2100,
+      "best_yes_ask_bp": 2300,
+      "last_price_bp": 2300,
+      "mid_bp": 2200,
+      "volume": 277500.2,
+      "volume_24h": 136552.47,
+      "open_interest": 216378.01,
+      "spread_bp": 200,
+      "source_updated_at": "2026-09-28T17:23:00.859582Z",
+      "displayable": true
+     },
+     {
+      "role": "p:doug-ghim-q51548031",
+      "team_id": "doug-ghim-q51548031",
+      "abbr": "Doug Ghim",
+      "kalshi_name": "Doug Ghim",
+      "contract": "Bank of Utah Championship: Doug Ghim wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-DGHI",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 1800,
+      "yes_ask_bp": 1900,
+      "no_bid_bp": 8100,
+      "no_ask_bp": 8200,
+      "best_yes_bid_bp": 1800,
+      "best_yes_ask_bp": 1900,
+      "last_price_bp": 1900,
+      "mid_bp": 1850,
+      "volume": 141738.29,
+      "volume_24h": 41049.08,
+      "open_interest": 128136.42,
+      "spread_bp": 100,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:kevin-roy-e4408320",
+      "team_id": "kevin-roy-e4408320",
+      "abbr": "Kevin Roy",
+      "kalshi_name": "Kevin Roy",
+      "contract": "Bank of Utah Championship: Kevin Roy wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-KROY",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 1600,
+      "yes_ask_bp": 1700,
+      "no_bid_bp": 8300,
+      "no_ask_bp": 8400,
+      "best_yes_bid_bp": 1600,
+      "best_yes_ask_bp": 1700,
+      "last_price_bp": 1700,
+      "mid_bp": 1650,
+      "volume": 217730.54,
+      "volume_24h": 104125.37,
+      "open_interest": 156454.16,
+      "spread_bp": 100,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:stephan-jaeger-e6937",
+      "team_id": "stephan-jaeger-e6937",
+      "abbr": "Stephan Jaeger",
+      "kalshi_name": "Stephan Jaeger",
+      "contract": "Bank of Utah Championship: Stephan Jaeger wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-SJAE",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 640,
+      "yes_ask_bp": 700,
+      "no_bid_bp": 9300,
+      "no_ask_bp": 9360,
+      "best_yes_bid_bp": 640,
+      "best_yes_ask_bp": 700,
+      "last_price_bp": 700,
+      "mid_bp": 670,
+      "volume": 322888.17,
+      "volume_24h": 65513.73,
+      "open_interest": 256011.08,
+      "spread_bp": 60,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:michael-brennan-q136746853",
+      "team_id": "michael-brennan-q136746853",
+      "abbr": "Michael Brennan",
+      "kalshi_name": "Michael Brennan",
+      "contract": "Bank of Utah Championship: Michael Brennan wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-MBRE",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 560,
+      "yes_ask_bp": 630,
+      "no_bid_bp": 9370,
+      "no_ask_bp": 9440,
+      "best_yes_bid_bp": 560,
+      "best_yes_ask_bp": 630,
+      "last_price_bp": 560,
+      "mid_bp": 595,
+      "volume": 1177678.76,
+      "volume_24h": 402464.3,
+      "open_interest": 855063.51,
+      "spread_bp": 70,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:kevin-streelman-q2674557",
+      "team_id": "kevin-streelman-q2674557",
+      "abbr": "Kevin Streelman",
+      "kalshi_name": "Kevin Streelman",
+      "contract": "Bank of Utah Championship: Kevin Streelman wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-KSTR",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 520,
+      "yes_ask_bp": 540,
+      "no_bid_bp": 9460,
+      "no_ask_bp": 9480,
+      "best_yes_bid_bp": 520,
+      "best_yes_ask_bp": 540,
+      "last_price_bp": 540,
+      "mid_bp": 530,
+      "volume": 157512.36,
+      "volume_24h": 96074,
+      "open_interest": 108102.51,
+      "spread_bp": 20,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:steven-fisk-q136442908",
+      "team_id": "steven-fisk-q136442908",
+      "abbr": "Steven Fisk",
+      "kalshi_name": "Steven Fisk",
+      "contract": "Bank of Utah Championship: Steven Fisk wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-SFIS",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 350,
+      "yes_ask_bp": 400,
+      "no_bid_bp": 9600,
+      "no_ask_bp": 9650,
+      "best_yes_bid_bp": 350,
+      "best_yes_ask_bp": 400,
+      "last_price_bp": 350,
+      "mid_bp": 375,
+      "volume": 136953.82,
+      "volume_24h": 77845.49,
+      "open_interest": 100893.62,
+      "spread_bp": 50,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:ben-james-q140407945",
+      "team_id": "ben-james-q140407945",
+      "abbr": "Ben James",
+      "kalshi_name": "Benjamin James",
+      "contract": "Bank of Utah Championship: Benjamin James wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-BJAM",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 280,
+      "yes_ask_bp": 340,
+      "no_bid_bp": 9660,
+      "no_ask_bp": 9720,
+      "best_yes_bid_bp": 280,
+      "best_yes_ask_bp": 340,
+      "last_price_bp": 280,
+      "mid_bp": 310,
+      "volume": 948619.88,
+      "volume_24h": 179741.9,
+      "open_interest": 703635.68,
+      "spread_bp": 60,
+      "source_updated_at": "2026-09-28T17:23:00.859582Z",
+      "displayable": true
+     },
+     {
+      "role": "p:neal-shipley-q126680414",
+      "team_id": "neal-shipley-q126680414",
+      "abbr": "Neal Shipley",
+      "kalshi_name": "Neal Shipley",
+      "contract": "Bank of Utah Championship: Neal Shipley wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-NSHI",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 290,
+      "yes_ask_bp": 330,
+      "no_bid_bp": 9670,
+      "no_ask_bp": 9710,
+      "best_yes_bid_bp": 290,
+      "best_yes_ask_bp": 330,
+      "last_price_bp": 330,
+      "mid_bp": 310,
+      "volume": 410042.25,
+      "volume_24h": 145898.41,
+      "open_interest": 383527.07,
+      "spread_bp": 40,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     },
+     {
+      "role": "p:field-jackson-suber",
+      "team_id": "field-jackson-suber",
+      "abbr": "Jackson Suber",
+      "kalshi_name": "Jackson Suber",
+      "contract": "Bank of Utah Championship: Jackson Suber wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-JSUB",
+      "state": "open",
+      "result": null,
+      "yes_bid_bp": 200,
+      "yes_ask_bp": 210,
+      "no_bid_bp": 9790,
+      "no_ask_bp": 9800,
+      "best_yes_bid_bp": 200,
+      "best_yes_ask_bp": 210,
+      "last_price_bp": 190,
+      "mid_bp": 205,
+      "volume": 533050.12,
+      "volume_24h": 71898.81,
+      "open_interest": 501629.5,
+      "spread_bp": 10,
+      "source_updated_at": "2026-09-28T17:23:00.91378Z",
+      "displayable": true
+     }
+    ]
+   },
+   "movement": {
+    "kalshi": {
+     "p:austin-smotherman-q106782591": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 2100,
+        "ask_bp": 2300,
+        "last_bp": 2300,
+        "mid_bp": 2200,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 2000,
+        "ask_bp": 2300,
+        "last_bp": 2300,
+        "mid_bp": 2150,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:58:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 2000,
+        "ask_bp": 2200,
+        "last_bp": 2000,
+        "mid_bp": 2100,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 2000,
+        "ask_bp": 2200,
+        "last_bp": 2200,
+        "mid_bp": 2100,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 2100,
+        "ask_bp": 2300,
+        "last_bp": 2300,
+        "mid_bp": 2200,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 2100,
+        "ask_bp": 2300,
+        "last_bp": 2300,
+        "mid_bp": 2200,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 2200
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 2200
+      },
+      "delta_mid_bp": 0
+     },
+     "p:doug-ghim-q51548031": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 1800,
+        "ask_bp": 1900,
+        "last_bp": 1900,
+        "mid_bp": 1850,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 1800,
+        "ask_bp": 1900,
+        "last_bp": 1800,
+        "mid_bp": 1850,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 1800,
+        "ask_bp": 1900,
+        "last_bp": 1900,
+        "mid_bp": 1850,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 1800,
+        "ask_bp": 1900,
+        "last_bp": 1900,
+        "mid_bp": 1850,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 1850
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 1850
+      },
+      "delta_mid_bp": 0
+     },
+     "p:kevin-roy-e4408320": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 1600,
+        "ask_bp": 1700,
+        "last_bp": 1700,
+        "mid_bp": 1650,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 1600,
+        "ask_bp": 1700,
+        "last_bp": 1600,
+        "mid_bp": 1650,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 1600,
+        "ask_bp": 1700,
+        "last_bp": 1700,
+        "mid_bp": 1650,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 1600,
+        "ask_bp": 1700,
+        "last_bp": 1700,
+        "mid_bp": 1650,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 1650
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 1650
+      },
+      "delta_mid_bp": 0
+     },
+     "p:stephan-jaeger-e6937": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 640,
+        "ask_bp": 700,
+        "last_bp": 700,
+        "mid_bp": 670,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 640,
+        "ask_bp": 700,
+        "last_bp": 700,
+        "mid_bp": 670,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 670
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 670
+      },
+      "delta_mid_bp": 0
+     },
+     "p:michael-brennan-q136746853": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 550,
+        "ask_bp": 630,
+        "last_bp": 550,
+        "mid_bp": 590,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 560,
+        "ask_bp": 630,
+        "last_bp": 550,
+        "mid_bp": 595,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 560,
+        "ask_bp": 630,
+        "last_bp": 630,
+        "mid_bp": 595,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:58:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 560,
+        "ask_bp": 630,
+        "last_bp": 560,
+        "mid_bp": 595,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 560,
+        "ask_bp": 630,
+        "last_bp": 560,
+        "mid_bp": 595,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 590
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 595
+      },
+      "delta_mid_bp": 5
+     },
+     "p:kevin-streelman-q2674557": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 520,
+        "ask_bp": 540,
+        "last_bp": 540,
+        "mid_bp": 530,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 520,
+        "ask_bp": 540,
+        "last_bp": 540,
+        "mid_bp": 530,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 530
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 530
+      },
+      "delta_mid_bp": 0
+     },
+     "p:steven-fisk-q136442908": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 350,
+        "ask_bp": 400,
+        "last_bp": 350,
+        "mid_bp": 375,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 350,
+        "ask_bp": 400,
+        "last_bp": 350,
+        "mid_bp": 375,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 375
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 375
+      },
+      "delta_mid_bp": 0
+     },
+     "p:ben-james-q140407945": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 280,
+        "ask_bp": 340,
+        "last_bp": 340,
+        "mid_bp": 310,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 280,
+        "ask_bp": 340,
+        "last_bp": 280,
+        "mid_bp": 310,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 280,
+        "ask_bp": 340,
+        "last_bp": 280,
+        "mid_bp": 310,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 310
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 310
+      },
+      "delta_mid_bp": 0
+     },
+     "p:neal-shipley-q126680414": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 270,
+        "ask_bp": 310,
+        "last_bp": 310,
+        "mid_bp": 290,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 270,
+        "ask_bp": 310,
+        "last_bp": 330,
+        "mid_bp": 290,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 300,
+        "ask_bp": 340,
+        "last_bp": 310,
+        "mid_bp": 320,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:58:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 290,
+        "ask_bp": 320,
+        "last_bp": 310,
+        "mid_bp": 305,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 290,
+        "ask_bp": 340,
+        "last_bp": 340,
+        "mid_bp": 315,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 290,
+        "ask_bp": 330,
+        "last_bp": 330,
+        "mid_bp": 310,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 290,
+        "ask_bp": 330,
+        "last_bp": 330,
+        "mid_bp": 310,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 290
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 310
+      },
+      "delta_mid_bp": 20
+     },
+     "p:field-jackson-suber": {
+      "points": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "milestone": "first_observed",
+        "state": "open",
+        "bid_bp": 190,
+        "ask_bp": 210,
+        "last_bp": 210,
+        "mid_bp": 200,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 190,
+        "ask_bp": 210,
+        "last_bp": 190,
+        "mid_bp": 200,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "milestone": "live",
+        "state": "open",
+        "bid_bp": 200,
+        "ask_bp": 210,
+        "last_bp": 190,
+        "mid_bp": 205,
+        "result": null
+       },
+       {
+        "t": "2026-10-03T15:00:56.876Z",
+        "milestone": "current",
+        "state": "open",
+        "bid_bp": 200,
+        "ask_bp": 210,
+        "last_bp": 190,
+        "mid_bp": 205,
+        "result": null
+       }
+      ],
+      "first_mid": {
+       "t": "2026-10-03T14:53:56.888+00:00",
+       "mid_bp": 200
+      },
+      "current_mid": {
+       "t": "2026-10-03T15:00:56.876Z",
+       "mid_bp": 205
+      },
+      "delta_mid_bp": 5
+     }
+    }
+   }
+  }
+ },
+ "board": {
+  "contract": "market-intel/1",
+  "sport": "golf",
+  "enabled": true,
+  "events": [
+   {
+    "event": {
+     "sport": "golf",
+     "competition": "pga",
+     "canonical_event_id": "70c0e316-a890-598c-ae60-17e818586f39",
+     "start_at": null,
+     "state": "in"
+    },
+    "kalshi": {
+     "source": "kalshi",
+     "source_type": "prediction_market",
+     "label": "Kalshi",
+     "attribution": "Prediction market data",
+     "link_text": "View on Kalshi",
+     "market_url": "https://kalshi.com/markets/kxpgatour/pga-tour/kxpgatour-baouc26",
+     "event_ticker": "KXPGATOUR-BAOUC26",
+     "proposition": "player_wins_tournament",
+     "state": "open",
+     "freshness": "live",
+     "read_cadence_min": 1,
+     "observed_at": "2026-10-03T15:00:56.876+00:00",
+     "age_seconds": 45,
+     "mid_rule": "Mid-market = midpoint of best YES bid and best YES ask; shown only when both exist and the spread is at most 10¢.",
+     "price_unit": "basis points of $1 (100 bp = 1¢); a YES contract pays $1 if the outcome happens",
+     "outcomes": [
+      {
+       "role": "p:austin-smotherman-q106782591",
+       "team_id": "austin-smotherman-q106782591",
+       "abbr": "Austin Smotherman",
+       "kalshi_name": "Austin Smotherman",
+       "contract": "Bank of Utah Championship: Austin Smotherman wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-ASMO",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 2100,
+       "yes_ask_bp": 2300,
+       "no_bid_bp": 7700,
+       "no_ask_bp": 7900,
+       "best_yes_bid_bp": 2100,
+       "best_yes_ask_bp": 2300,
+       "last_price_bp": 2300,
+       "mid_bp": 2200,
+       "volume": 277500.2,
+       "volume_24h": 136552.47,
+       "open_interest": 216378.01,
+       "spread_bp": 200,
+       "source_updated_at": "2026-09-28T17:23:00.859582Z",
+       "displayable": true
+      },
+      {
+       "role": "p:doug-ghim-q51548031",
+       "team_id": "doug-ghim-q51548031",
+       "abbr": "Doug Ghim",
+       "kalshi_name": "Doug Ghim",
+       "contract": "Bank of Utah Championship: Doug Ghim wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-DGHI",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 1800,
+       "yes_ask_bp": 1900,
+       "no_bid_bp": 8100,
+       "no_ask_bp": 8200,
+       "best_yes_bid_bp": 1800,
+       "best_yes_ask_bp": 1900,
+       "last_price_bp": 1900,
+       "mid_bp": 1850,
+       "volume": 141738.29,
+       "volume_24h": 41049.08,
+       "open_interest": 128136.42,
+       "spread_bp": 100,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:kevin-roy-e4408320",
+       "team_id": "kevin-roy-e4408320",
+       "abbr": "Kevin Roy",
+       "kalshi_name": "Kevin Roy",
+       "contract": "Bank of Utah Championship: Kevin Roy wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-KROY",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 1600,
+       "yes_ask_bp": 1700,
+       "no_bid_bp": 8300,
+       "no_ask_bp": 8400,
+       "best_yes_bid_bp": 1600,
+       "best_yes_ask_bp": 1700,
+       "last_price_bp": 1700,
+       "mid_bp": 1650,
+       "volume": 217730.54,
+       "volume_24h": 104125.37,
+       "open_interest": 156454.16,
+       "spread_bp": 100,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:stephan-jaeger-e6937",
+       "team_id": "stephan-jaeger-e6937",
+       "abbr": "Stephan Jaeger",
+       "kalshi_name": "Stephan Jaeger",
+       "contract": "Bank of Utah Championship: Stephan Jaeger wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-SJAE",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 640,
+       "yes_ask_bp": 700,
+       "no_bid_bp": 9300,
+       "no_ask_bp": 9360,
+       "best_yes_bid_bp": 640,
+       "best_yes_ask_bp": 700,
+       "last_price_bp": 700,
+       "mid_bp": 670,
+       "volume": 322888.17,
+       "volume_24h": 65513.73,
+       "open_interest": 256011.08,
+       "spread_bp": 60,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:michael-brennan-q136746853",
+       "team_id": "michael-brennan-q136746853",
+       "abbr": "Michael Brennan",
+       "kalshi_name": "Michael Brennan",
+       "contract": "Bank of Utah Championship: Michael Brennan wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-MBRE",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 560,
+       "yes_ask_bp": 630,
+       "no_bid_bp": 9370,
+       "no_ask_bp": 9440,
+       "best_yes_bid_bp": 560,
+       "best_yes_ask_bp": 630,
+       "last_price_bp": 560,
+       "mid_bp": 595,
+       "volume": 1177678.76,
+       "volume_24h": 402464.3,
+       "open_interest": 855063.51,
+       "spread_bp": 70,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:kevin-streelman-q2674557",
+       "team_id": "kevin-streelman-q2674557",
+       "abbr": "Kevin Streelman",
+       "kalshi_name": "Kevin Streelman",
+       "contract": "Bank of Utah Championship: Kevin Streelman wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-KSTR",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 520,
+       "yes_ask_bp": 540,
+       "no_bid_bp": 9460,
+       "no_ask_bp": 9480,
+       "best_yes_bid_bp": 520,
+       "best_yes_ask_bp": 540,
+       "last_price_bp": 540,
+       "mid_bp": 530,
+       "volume": 157512.36,
+       "volume_24h": 96074,
+       "open_interest": 108102.51,
+       "spread_bp": 20,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:steven-fisk-q136442908",
+       "team_id": "steven-fisk-q136442908",
+       "abbr": "Steven Fisk",
+       "kalshi_name": "Steven Fisk",
+       "contract": "Bank of Utah Championship: Steven Fisk wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-SFIS",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 350,
+       "yes_ask_bp": 400,
+       "no_bid_bp": 9600,
+       "no_ask_bp": 9650,
+       "best_yes_bid_bp": 350,
+       "best_yes_ask_bp": 400,
+       "last_price_bp": 350,
+       "mid_bp": 375,
+       "volume": 136953.82,
+       "volume_24h": 77845.49,
+       "open_interest": 100893.62,
+       "spread_bp": 50,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:ben-james-q140407945",
+       "team_id": "ben-james-q140407945",
+       "abbr": "Ben James",
+       "kalshi_name": "Benjamin James",
+       "contract": "Bank of Utah Championship: Benjamin James wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-BJAM",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 280,
+       "yes_ask_bp": 340,
+       "no_bid_bp": 9660,
+       "no_ask_bp": 9720,
+       "best_yes_bid_bp": 280,
+       "best_yes_ask_bp": 340,
+       "last_price_bp": 280,
+       "mid_bp": 310,
+       "volume": 948619.88,
+       "volume_24h": 179741.9,
+       "open_interest": 703635.68,
+       "spread_bp": 60,
+       "source_updated_at": "2026-09-28T17:23:00.859582Z",
+       "displayable": true
+      },
+      {
+       "role": "p:neal-shipley-q126680414",
+       "team_id": "neal-shipley-q126680414",
+       "abbr": "Neal Shipley",
+       "kalshi_name": "Neal Shipley",
+       "contract": "Bank of Utah Championship: Neal Shipley wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-NSHI",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 290,
+       "yes_ask_bp": 330,
+       "no_bid_bp": 9670,
+       "no_ask_bp": 9710,
+       "best_yes_bid_bp": 290,
+       "best_yes_ask_bp": 330,
+       "last_price_bp": 330,
+       "mid_bp": 310,
+       "volume": 410042.25,
+       "volume_24h": 145898.41,
+       "open_interest": 383527.07,
+       "spread_bp": 40,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      },
+      {
+       "role": "p:field-jackson-suber",
+       "team_id": "field-jackson-suber",
+       "abbr": "Jackson Suber",
+       "kalshi_name": "Jackson Suber",
+       "contract": "Bank of Utah Championship: Jackson Suber wins",
+       "market_ticker": "KXPGATOUR-BAOUC26-JSUB",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 200,
+       "yes_ask_bp": 210,
+       "no_bid_bp": 9790,
+       "no_ask_bp": 9800,
+       "best_yes_bid_bp": 200,
+       "best_yes_ask_bp": 210,
+       "last_price_bp": 190,
+       "mid_bp": 205,
+       "volume": 533050.12,
+       "volume_24h": 71898.81,
+       "open_interest": 501629.5,
+       "spread_bp": 10,
+       "source_updated_at": "2026-09-28T17:23:00.91378Z",
+       "displayable": true
+      }
+     ]
+    }
+   },
+   {
+    "event": {
+     "sport": "golf",
+     "competition": "lpga",
+     "canonical_event_id": "3531efd3-272e-53cd-ab41-58e8a86f31ab",
+     "start_at": "2026-10-03T17:00:00+00:00",
+     "state": "pre"
+    },
+    "kalshi": {
+     "source": "kalshi",
+     "source_type": "prediction_market",
+     "label": "Kalshi",
+     "attribution": "Prediction market data",
+     "link_text": "View on Kalshi",
+     "market_url": "https://kalshi.com/markets/kxlpgatour/pga-tour/kxlpgatour-lotcpbh26",
+     "event_ticker": "KXLPGATOUR-LOTCPBH26",
+     "proposition": "player_wins_tournament",
+     "state": "open",
+     "freshness": "live",
+     "read_cadence_min": 1,
+     "observed_at": "2026-10-03T14:55:56.875+00:00",
+     "age_seconds": 36,
+     "mid_rule": "Mid-market = midpoint of best YES bid and best YES ask; shown only when both exist and the spread is at most 10¢.",
+     "price_unit": "basis points of $1 (100 bp = 1¢); a YES contract pays $1 if the outcome happens",
+     "outcomes": [
+      {
+       "role": "p:jeeno-thitikul-e10982",
+       "team_id": "jeeno-thitikul-e10982",
+       "abbr": "Jeeno Thitikul",
+       "kalshi_name": "Jeeno Thitikul",
+       "contract": "LOTTE Championship presented by Hoakalei: Jeeno Thitikul wins",
+       "market_ticker": "KXLPGATOUR-LOTCPBH26-JEETHI",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 4000,
+       "yes_ask_bp": 5400,
+       "no_bid_bp": 4600,
+       "no_ask_bp": 6000,
+       "best_yes_bid_bp": 4000,
+       "best_yes_ask_bp": 5400,
+       "last_price_bp": 5500,
+       "mid_bp": null,
+       "volume": 32338.55,
+       "volume_24h": 12469.54,
+       "open_interest": 24843.21,
+       "spread_bp": 1400,
+       "source_updated_at": "2026-09-28T17:22:00.854972Z",
+       "displayable": true
+      },
+      {
+       "role": "p:a-lim-kim-q104177988",
+       "team_id": "a-lim-kim-q104177988",
+       "abbr": "A Lim Kim",
+       "kalshi_name": "A Lim Kim",
+       "contract": "LOTTE Championship presented by Hoakalei: A Lim Kim wins",
+       "market_ticker": "KXLPGATOUR-LOTCPBH26-ALIKIM",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 1300,
+       "yes_ask_bp": 1700,
+       "no_bid_bp": 8300,
+       "no_ask_bp": 8700,
+       "best_yes_bid_bp": 1300,
+       "best_yes_ask_bp": 1700,
+       "last_price_bp": 1600,
+       "mid_bp": 1500,
+       "volume": 15457.13,
+       "volume_24h": 4331.14,
+       "open_interest": 13946.41,
+       "spread_bp": 400,
+       "source_updated_at": "2026-09-28T17:22:00.854972Z",
+       "displayable": true
+      },
+      {
+       "role": "p:ina-yoon-q134619773",
+       "team_id": "ina-yoon-q134619773",
+       "abbr": "Ina Yoon",
+       "kalshi_name": "Ina Yoon",
+       "contract": "LOTTE Championship presented by Hoakalei: Ina Yoon wins",
+       "market_ticker": "KXLPGATOUR-LOTCPBH26-INAYOO",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 1100,
+       "yes_ask_bp": 1700,
+       "no_bid_bp": 8300,
+       "no_ask_bp": 8900,
+       "best_yes_bid_bp": 1100,
+       "best_yes_ask_bp": 1700,
+       "last_price_bp": 1800,
+       "mid_bp": 1400,
+       "volume": 6036.83,
+       "volume_24h": 2746.42,
+       "open_interest": 4981.69,
+       "spread_bp": 600,
+       "source_updated_at": "2026-09-28T17:22:00.854972Z",
+       "displayable": true
+      },
+      {
+       "role": "p:miyu-yamashita-q106994576",
+       "team_id": "miyu-yamashita-q106994576",
+       "abbr": "Miyū Yamashita",
+       "kalshi_name": "Miyu Yamashita",
+       "contract": "LOTTE Championship presented by Hoakalei: Miyu Yamashita wins",
+       "market_ticker": "KXLPGATOUR-LOTCPBH26-MIYYAM",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 470,
+       "yes_ask_bp": 1000,
+       "no_bid_bp": 9000,
+       "no_ask_bp": 9530,
+       "best_yes_bid_bp": 470,
+       "best_yes_ask_bp": 1000,
+       "last_price_bp": 470,
+       "mid_bp": 735,
+       "volume": 17284.66,
+       "volume_24h": 3476.75,
+       "open_interest": 14374.91,
+       "spread_bp": 530,
+       "source_updated_at": "2026-09-28T17:22:00.903228Z",
+       "displayable": true
+      },
+      {
+       "role": "p:aki-iwai-e5129950",
+       "team_id": "aki-iwai-e5129950",
+       "abbr": "Aki Iwai",
+       "kalshi_name": "Akie Iwai",
+       "contract": "LOTTE Championship presented by Hoakalei: Akie Iwai wins",
+       "market_ticker": "KXLPGATOUR-LOTCPBH26-AKIIWA",
+       "state": "open",
+       "result": null,
+       "yes_bid_bp": 30,
+       "yes_ask_bp": 450,
+       "no_bid_bp": 9550,
+       "no_ask_bp": 9970,
+       "best_yes_bid_bp": 30,
+       "best_yes_ask_bp": 450,
+       "last_price_bp": 460,
+       "mid_bp": 240,
+       "volume": 15776.68,
+       "volume_24h": 114.98,
+       "open_interest": 15388.3,
+       "spread_bp": 420,
+       "source_updated_at": "2026-09-28T17:22:00.854972Z",
+       "displayable": true
+      }
+     ]
+    },
+    "sportsbooks": null,
+    "pbe": null,
+    "comparisons": []
+   }
+  ]
+ }
+}

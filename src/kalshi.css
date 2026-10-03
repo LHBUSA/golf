@@ -1,0 +1,22 @@
+/* Kalshi Market Intelligence: golf placements. The vendored component CSS (src/vendor/kalshi/kalshi-market-ui.css)
+   stays unchanged; this file maps golf tokens onto the component and styles the golf slots around it.
+   Prediction-market accent stays the component's cool blue, distinct from PBE gold. Empty mounts take no space. */
+.kx-mount:empty{display:none}
+.kx,.kx-strip{--pbe-ink-2:var(--night,#0b1f19);--pbe-paper:#f5f3ec;--pbe-dim:#a9bdb2;--pbe-line:rgba(255,255,255,.12);--f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--r:8px;color:var(--pbe-paper)}
+.kx.ic{border:1px solid rgba(127,184,255,.24);border-radius:8px;padding:16px;min-width:0}
+.kx a:focus-visible,.kx-strip summary:focus-visible{outline:2px solid #7fb8ff;outline-offset:2px}
+
+/* Tournament page: its own block after the live board, before the preview. */
+.kx-sec{padding-top:18px;padding-bottom:22px}
+.kx-sec .kx{max-width:760px}
+.kx-golf-note{margin:8px 2px 0;font-size:12px;line-height:1.45;color:var(--muted)}
+
+/* PBEcast: strip in the dark cast header, under the tournament selector. */
+.kx-cast{max-width:760px;margin-top:14px}
+.kx-cast .kx-golf-note{color:#c9d4cd;font-size:11.5px}
+
+/* Schedule rail (dark cards) and live-page event cards (light): one restrained line. */
+.kx-cardline{display:block;min-width:0;overflow:hidden;margin:6px 0 4px}
+.kx-cardline .kx-line{flex-wrap:wrap}
+.event-card .kx-cardline .kx-line{color:var(--ink)}
+.event-card .kx-cardline .kx-line__b{color:#1f5fae}
