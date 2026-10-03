@@ -133,9 +133,10 @@ async function hydrateLive(){
  if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final'){let traits:any=null;try{traits=JSON.parse(pl.getAttribute('data-traits')||'null');}catch{}pl.innerHTML=playerLive(r.event,r.player,{traits});}}
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
-hydrateLive();
-// Kalshi prediction-market mounts (tournament card, PBEcast strip, card lines). Never blocks any other module.
-hydrateKalshi(document);
+const liveFirstPass=hydrateLive();
+// Kalshi prediction-market mounts (tournament card, PBEcast strip, card lines). Never blocks any other module;
+// the tournament card's first paint joins the live-scoring pass (bounded) so the page shifts once, not twice.
+hydrateKalshi(document,{after:liveFirstPass});
 // Course View in news articles: only when the course has verified/partial routing (never decorative geometry).
 {const host=$('[data-article-course-map]');if(host){const slug=host.getAttribute('data-course')||'';
  fetchCourseMap(slug).then((M:any)=>{if(!M?.geometry||!/VERIFIED|PARTIAL/.test(M.geometry_status||'')){host.remove();return;}host.hidden=false;mountCourseMap(host,M,{mode:'page'});});}}

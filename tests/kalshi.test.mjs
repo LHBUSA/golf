@@ -102,7 +102,7 @@ test('poll lanes: live 20 s while the edition is in progress, pregame 45 s befor
  assert.match(src,/if\(!el\.isConnected\)return stop\(\)/,'a chain stops when its mount leaves the DOM');
  assert.match(src,/addEventListener\('pagehide'/,'every chain is cleared on pagehide');
  const main=fs.readFileSync('src/main.ts','utf8');
- assert.match(main,/hydrateKalshi\(document\)/);assert.match(main,/boardWithin\(\)\]\);const main=\$\('main'\)/,'PBEcast switch waits at most 800 ms for the board');
+ assert.match(main,/hydrateKalshi\(document,\{after:liveFirstPass\}\)/);assert.match(main,/boardWithin\(\)\]\);const main=\$\('main'\)/,'PBEcast switch waits at most 800 ms for the board');
 });
 
 test('placements: tournament block, PBEcast strip, schedule and live cards; methodology section',()=>{

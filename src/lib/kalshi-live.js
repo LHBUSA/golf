@@ -70,8 +70,8 @@ function paint(el,html){
 // One poll chain per mounted card/strip. It stops as soon as its mount leaves the DOM (PBEcast switch, hub
 // re-render) and every chain is cleared on pagehide; a hidden tab skips network reads until it is visible again.
 const chains=new Map(); // element -> stop()
-function chain(el,id,render){
- let t=0,dead=false;
+function chain(el,id,render,after=null){
+ let t=0,dead=false,first=true;
  const stop=()=>{dead=true;clearTimeout(t);chains.delete(el);};
  const tick=async force=>{
   if(dead)return;
@@ -80,6 +80,10 @@ function chain(el,id,render){
   const entry=golfEntry(await kalshi.loadEvent(id,{force}).catch(()=>null));
   if(dead)return;
   if(!el.isConnected)return stop();
+  // First paint waits (bounded) for the page's live-scoring pass so both land in the same frame: one
+  // layout shift instead of two stacked ones (golf pages are static; the market cannot be in first paint).
+  if(first&&after){first=false;await Promise.race([after.catch(()=>{}),new Promise(r=>setTimeout(r,AFTER_MAX_MS))]);if(dead||!el.isConnected)return stop();}
+  first=false;
   render(entry);
   t=setTimeout(()=>tick(true),kalshi.pollMsFor(phaseOf(entry,bounds(el))));
  };
@@ -110,11 +114,13 @@ function boardLoop(){
  * Bind every Kalshi mount under root (idempotent). Call after any HTML that may contain mounts is inserted.
  * @param {ParentNode} [root]
  */
-export function hydrateKalshi(root=document){
+export const AFTER_MAX_MS=4000;
+/** @param {{after?:Promise<unknown>|null}} [opts] first card/strip paint waits for this (bounded) */
+export function hydrateKalshi(root=document,{after=null}={}){
  for(const [el,stop] of chains)if(!el.isConnected)stop();
  for(const el of root.querySelectorAll('[data-kalshi-edition]')){
   if(chains.has(el))continue;
-  chain(el,el.dataset.kalshiEdition,entry=>paint(el,cardHtml(entry)));
+  chain(el,el.dataset.kalshiEdition,entry=>paint(el,cardHtml(entry)),after);
  }
  for(const el of root.querySelectorAll('[data-kalshi-strip]')){
   if(chains.has(el))continue;
