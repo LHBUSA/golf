@@ -145,7 +145,7 @@ async function route(request,env){
     }
     case 'courses':{
      if(!id)return ok(ix.courses);
-     if(sub==='map'){const r=await courseMap(env,ix,id,url.searchParams.get('edition'));return json(r.body,r.status,r.status===200?'public, max-age=300, s-maxage=1800':'no-store');}
+     if(sub==='map'){const r=await courseMap(env,ix,id,url.searchParams.get('edition'));return json(publicDoc(r.body),r.status,r.status===200?'public, max-age=300, s-maxage=1800':'no-store');}
      const d=await doc(env,'courses/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const c=publicCourse(d);
      if(!sub)return ok(c,{provenance:d.provenance,method:ix.methods.course});
      if(sub==='history')return ok(c.editions);
