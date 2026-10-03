@@ -13,8 +13,8 @@ test('suspended with no published reason: says so plainly, never invents one',()
 });
 test('reason and restart only when the source text states them, quoted with the source',()=>{
  const r=statusReport(ev({status_detail:'Round 2 - Suspended due to darkness. Play will resume at 7:30 a.m.'}));
- assert.equal(r.reason.label,'darkness');assert.equal(r.reason.source,'ESPN event status');assert.match(r.restart.phrase,/^will resume at 7:30 a/);
- assert.match(r.sentence,/Play is suspended \(darkness, per ESPN event status\)/);assert.doesNotMatch(r.sentence,/No official reason/);
+ assert.equal(r.reason.label,'darkness');assert.equal(r.reason.source,'PropSports event status');assert.match(r.restart.phrase,/^will resume at 7:30 a/);
+ assert.match(r.sentence,/Play is suspended \(darkness, per PropSports event status\)/);assert.doesNotMatch(r.sentence,/No official reason/);
  assert.equal(reasonIn('Round 2 - Suspended'),null);assert.equal(restartIn('Round 2 - Suspended'),null);
  assert.equal(reasonIn('Play suspended: dangerous weather in the area').label,'dangerous weather');
 });

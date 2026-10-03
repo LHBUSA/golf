@@ -16,8 +16,8 @@ export function statusReport(ev,{now=Date.now()}={}){
  if(!kind)return null;
  const rows=(ev.leaderboard||[]).filter(r=>r.status==='active');
  const unfinished=rows.filter(r=>r.thru>0&&r.thru<18).length,notStarted=rows.filter(r=>!(r.thru>0)).length,finished=rows.filter(r=>r.thru===18).length;
- // Reason / restart: the ESPN status text first, then matched ESPN news; never inferred.
- const sources=[{source:'ESPN event status',text:detail,url:null,published:ev.fetched_at||null},...(ev.status_notes||[]).map(n=>({source:n.source||'ESPN',text:`${n.headline||''}. ${n.description||''}`,url:n.url,published:n.published,headline:n.headline}))];
+ // Reason / restart: the observed event status text first, then matched publisher news; never inferred.
+ const sources=[{source:'PropSports event status',text:detail,url:null,published:ev.fetched_at||null},...(ev.status_notes||[]).map(n=>({source:n.source||'ESPN',text:`${n.headline||''}. ${n.description||''}`,url:n.url,published:n.published,headline:n.headline}))]; // source-brand:allow (named publisher: matched news headlines keep their publisher)
  let reason=null,restart=null;for(const s of sources){if(!reason){const r=reasonIn(s.text);if(r)reason={...r,source:s.source,url:s.url,published:s.published,headline:s.headline||null};}if(!restart){const x=restartIn(s.text);if(x)restart={phrase:x,source:s.source,url:s.url,published:s.published};}}
  const round=ev.round,what=kind==='round_complete'?`Round ${round} complete`:kind==='delayed'?`Round ${round} delayed`:kind==='postponed'?`Round ${round} postponed`:`Round ${round} suspended`;
  let sentence;
@@ -27,6 +27,6 @@ export function statusReport(ev,{now=Date.now()}={}){
   sentence+=restart?` ${restart.source}: “${restart.phrase}”.`:' No restart time has been published in the observed feed.';
   if(!reason)sentence+=' No official reason has been published in the observed feed yet.';}
  return {version:STATUS_REASON_VERSION,kind,title:what.toUpperCase(),sentence,reason,restart,
-  affected:{round,unfinished,not_started:notStarted,finished,basis:'PBE-derived from the observed ESPN board (thru counts)'},
-  status:{text:detail||null,name:name||null,source:'ESPN event status',since:ev.status_since||null,updated:ev.fetched_at||null}};
+  affected:{round,unfinished,not_started:notStarted,finished,basis:'PBE-derived from the observed scoring board (thru counts)'},
+  status:{text:detail||null,name:name||null,source:'PropSports event status',since:ev.status_since||null,updated:ev.fetched_at||null}};
 }

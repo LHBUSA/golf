@@ -66,7 +66,7 @@ export function withheldReason(d){
 // Truth rules: an unavailable value is "—" with its reason, never 0; an unavailable percentile has no bar, never 50th.
 // A category whose every component is unpublished for the tour is not graded and is named in one note instead.
 const fin=v=>typeof v==='number'&&Number.isFinite(v);
-const naWhy=x=>x?.unavailable==='not_published_for_tour'?'Not published by ESPN for this tour':'Not published for this player';
+const naWhy=x=>x?.unavailable==='not_published_for_tour'?'Not published for this tour':'Not published for this player';
 export function bagDna(b,{other=null,labelA='',labelB=''}={}){
  if(!b?.available)return b?.reason?`<p class="empty-note">${e(b.reason)}</p>`:'';
  const unpublished=c=>c.components.every(x=>!fin(x.value)&&x.unavailable==='not_published_for_tour');
@@ -74,8 +74,8 @@ export function bagDna(b,{other=null,labelA='',labelB=''}={}){
  const pctCell=p=>fin(p)?ord(p):'—';
  const cat=(c,o)=>`<div class="bag-cat"><div class="bag-head"><h3>${e(c.label)}</h3><b>${pctCell(c.percentile)}</b>${o?`<b class="bag-b">${pctCell(o.percentile)}</b>`:''}</div><span class="gtrack bag-track" aria-hidden="true">${fin(c.percentile)?`<i data-w="${c.percentile}" class="${c.percentile>=75?'hi':c.percentile<=25?'lo':''}"></i>`:''}</span>${o?`<span class="gtrack bag-track is-b" aria-hidden="true">${fin(o.percentile)?`<i data-w="${o.percentile}"></i>`:''}</span>`:''}${fin(c.percentile)?'':`<p class="bag-withheld">Percentile withheld · ${c.components.length>1?'a component is not published':'not published'}</p>`}<ul class="bag-parts">${c.components.map((x,i)=>{const y=o?.components?.[i];return `<li><span>${e(x.label)}</span><span>${fin(x.value)?`${e(x.value)} <small>${e(x.unit)}</small>`:`<span title="${e(naWhy(x))}">— <small>not published</small></span>`}${x.rank?` <small>· tour rank ${e(x.rank)}</small>`:''}</span><b>${pctCell(x.percentile)}</b>${o?`<b class="bag-b">${y?pctCell(y.percentile):'—'}</b>`:''}</li>`;}).join('')}</ul></div>`;
  const oc=other?.available?other.categories:null;
- const note=hidden.length?`<p class="bag-unpublished">ESPN does not publish ${e(hidden.map(c=>c.label.toLowerCase()).join(', '))} statistics for the ${e(b.season)} ${e(b.tour||'tour')}, so ${hidden.length===1?'that category is':'those categories are'} not graded.</p>`:'';
- return `<div class="bag-dna" role="group" aria-label="Bag DNA percentiles${oc?' comparison':''}">${oc?`<p class="glegend"><span class="gkey gkey-a"></span>${e(labelA)} <span class="gkey gkey-b"></span>${e(labelB)}</p>`:''}${shown.length?`<div class="bag-grid">${shown.map(([c,i])=>cat(c,oc?.[i])).join('')}</div>`:''}${note}<p class="gnote">${e(b.season)} ${e(b.tour||'')} season statistics from ESPN · population ${e(b.population)} players (${e(b.qualification)}) · as of ${e(b.as_of)}. ${e(b.formula)}</p><p class="bag-disclosure">${e(b.disclosure)}</p></div>`;
+ const note=hidden.length?`<p class="bag-unpublished">No published ${e(hidden.map(c=>c.label.toLowerCase()).join(', '))} statistics for the ${e(b.season)} ${e(b.tour||'tour')}, so ${hidden.length===1?'that category is':'those categories are'} not graded.</p>`:'';
+ return `<div class="bag-dna" role="group" aria-label="Bag DNA percentiles${oc?' comparison':''}">${oc?`<p class="glegend"><span class="gkey gkey-a"></span>${e(labelA)} <span class="gkey gkey-b"></span>${e(labelB)}</p>`:''}${shown.length?`<div class="bag-grid">${shown.map(([c,i])=>cat(c,oc?.[i])).join('')}</div>`:''}${note}<p class="gnote">${e(b.season)} ${e(b.tour||'')} season statistics · population ${e(b.population)} players (${e(b.qualification)}) · as of ${e(b.as_of)}. ${e(b.formula)}</p><p class="bag-disclosure">${e(b.disclosure)}</p></div>`;
 }
 
 // Recent-form sparkline: the same observed field-relative event values as the form chart (strokes per round vs field,

@@ -35,8 +35,8 @@ const METHOD={
  major_history:'Champions are those recorded in our tournament history; earlier editions may be missing from the record.',
  player_form:'Form is the player’s most recent full-field starts in our record and strokes per round against the field.',
  course_intelligence:'Course DNA aggregates full-field editions at this course in our record.',
- play_suspended:'Status and scores from the ESPN live scoring snapshot at the time shown.',
- playoff:'Players and scores from the ESPN live scoring snapshot.'};
+ play_suspended:'Status and scores from the PropSports live scoring snapshot at the time shown.',
+ playoff:'Players and scores from the PropSports live scoring snapshot.'};
 // Chart order: the writer's intents first (validated), then any packet chart the type always shows.
 const ALWAYS={final:['leaderboard'],round_recap:['leaderboard','movement'],preview:['past_winners'],course_weather:['weather'],cut:['leaderboard'],notable_round:['scorecard'],major_history:['past_winners'],player_form:['player_form'],course_intelligence:['course_dna']};
 // Restrained emphasis: prose facts are plain by default. A class's anchor facts and one standout per section

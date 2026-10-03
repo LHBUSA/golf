@@ -126,7 +126,7 @@ export function historyTimeline(d){
  for(const x of (d.seasons||[]).slice(0,3))items.push([`${x.season} season`,`${x.events_observed} events · ${x.wins} wins · ${x.top10} top 10s`,x.full_field_starts?`${x.cuts_made}/${x.full_field_starts} cuts`:null]);
  const first=(d.results||[]).at(-1);if(first)items.push(['First event in our record',first.edition.name,first.edition.ends_on?fmtDate(first.edition.ends_on):null]);
  if(!items.length)return '';
- return `<ol class="htl">${items.map(([k,v,n])=>`<li><span class="micro-label">${e(k)}</span><b>${e(v)}</b>${n?`<small>${e(n)}</small>`:''}</li>`).join('')}</ol><p class="gnote">College and debut from the ESPN athlete record; results observed in our coverage.</p>`;
+ return `<ol class="htl">${items.map(([k,v,n])=>`<li><span class="micro-label">${e(k)}</span><b>${e(v)}</b>${n?`<small>${e(n)}</small>`:''}</li>`).join('')}</ol><p class="gnote">College and debut from the PropSports athlete record; results observed in our coverage.</p>`;
 }
 // ---------------------------------------------------------------- matchup
 const EDGE=15,CLOSE=8;

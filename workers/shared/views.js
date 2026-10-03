@@ -42,9 +42,35 @@ export function matchupPremium(a,b){return {a:{slug:a.slug,dna:a.dna},b:{slug:b.
 export function publicPlayerDoc(d){if(!d)return d;const {dna,...rest}=d;return {...rest,dna_public:pubFp(d),premium:{available:Boolean(dna)||Boolean(d.premium?.available)}};}
 export function projectionPublic(key,doc){
  if(!doc||typeof doc!=='object')return doc;
- if(key.startsWith('players/'))return publicPlayerDoc(doc);
- if(key.startsWith('courses/'))return doc.player_history?publicCourse(doc):doc;
- if(key.startsWith('editions/'))return publicEdition(doc);
- if(key==='bundle.json')return {...doc,players:(doc.players||[]).map(publicPlayerDoc),courses:(doc.courses||[]).map(c=>c.player_history?publicCourse(c):c),editions:(doc.editions||[]).map(publicEdition)};
- return doc;
+ if(key.startsWith('players/'))return publicDoc(publicPlayerDoc(doc));
+ if(key.startsWith('courses/'))return publicDoc(doc.player_history?publicCourse(doc):doc);
+ if(key.startsWith('editions/'))return publicDoc(publicEdition(doc));
+ if(key==='bundle.json')return publicDoc({...doc,players:(doc.players||[]).map(publicPlayerDoc),courses:(doc.courses||[]).map(c=>c.player_history?publicCourse(c):c),editions:(doc.editions||[]).map(publicEdition)});
+ return publicDoc(doc);
 }
+
+// Customer source boundary (PropBetEdge network standard "DATA · PropSports"). Public documents attribute facts to
+// PropSports, not to the collection lane that supplied them. Upstream ids, endpoint URLs and lane names stay in the
+// internal projection (R2), captures and the documented provenance blocks, which pass through untouched.
+export const PUBLIC_SOURCE='PropSports';
+export const PUBLIC_ATTRIBUTION='Results adapted in part from Wikipedia contributors (CC BY-SA 4.0; the redistributed results dataset is available under the same licence). Photographs carry per-image credit (Wikimedia Commons). Forecasts: NOAA National Weather Service and MET Norway (CC BY 4.0). Course routing © OpenStreetMap contributors (ODbL) where mapped.';
+const LANE=/\s*\(ESPN\)|\bESPN(?:'s)?(?: Golf)?(?: core)?(?: API)?\b/g;
+export const brandText=s=>typeof s==='string'?s.replace(LANE,m=>m.trim().startsWith('(')?'':PUBLIC_SOURCE):s;
+// provenance / source_state / sources are the documented provenance contract; image URLs and credits stay as published.
+const KEEP=new Set(['provenance','source_state','sources','photo','headshot','media_credits','credit']);
+const TEXT=new Set(['source','basis','note','label','reason','wording','formula','qualification']);
+const MODE={espn_core_snapshots:'observed_snapshots',espn_core:'observed','espn-core-observed':'observed'};
+function walk(v){
+ if(Array.isArray(v))return v.map(walk);
+ if(!v||typeof v!=='object')return v;
+ const out={};
+ for(const [k,x] of Object.entries(v)){
+  if(KEEP.has(k)){out[k]=x;continue;}
+  if(k==='external_ids'||k==='profile_url'||/(^|_)espn_|_espn$/.test(k))continue;
+  if(k==='espn'){if(x&&typeof x==='object'){const {event_id,...rest}=x;out.event_record=walk(rest);}continue;}
+  if((k==='live_scoring'||k==='tee_times')&&typeof x==='string'){out[k]=MODE[x]||x;continue;}
+  out[k]=typeof x==='string'?(TEXT.has(k)?brandText(x):x):walk(x);
+ }
+ return out;
+}
+export function publicDoc(doc){return walk(doc);}

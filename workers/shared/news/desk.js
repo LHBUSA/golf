@@ -20,7 +20,7 @@ export function deskDraft(p,{version=DESK_VERSION}={}){
  if(p.type==='preview'){
   d.headline=has('defending')?`{f:defending} returns to defend the {f:event}`:`What to know before the {f:event}`;
   d.dek=`The {f:year} {f:event} starts {f:start_day}${where}.${has('field_major_champions')?' The field includes {f:field_major_champions}.':''}`;
-  d.sections.push(S('The week',`${event} begins {f:start_day}${where}${has('tour')?' on the {f:tour}':''}.`,has('par')&&has('yards')?`The course plays to {f:par} and {f:yards}.`:null,has('purse')?`The purse is {f:purse}.`:null,has('field_size')?`ESPN lists a field of {f:field_size} players.`:null));
+  d.sections.push(S('The week',`${event} begins {f:start_day}${where}${has('tour')?' on the {f:tour}':''}.`,has('par')&&has('yards')?`The course plays to {f:par} and {f:yards}.`:null,has('purse')?`The purse is {f:purse}.`:null,has('field_size')?`The field lists {f:field_size} players.`:null));
   if(has('defending')||has('recent_winners'))d.sections.push(S('Recent history',has('defending')?`${E('p1')||'{f:defending}'} is the defending champion.`:null,has('recent_winners')?`Recent champions in our record: {f:recent_winners}.`:null));
   if(has('field_major_champions'))d.sections.push(S('Who is here',has('field_major_champions')?`Major champions in the field: ${['p2','p3','p4','p5'].filter(ent).map(k=>`{e:${k}}`).join(', ')}.`:null,ent('m1')?`See the head-to-head in {e:m1}.`:null));
   if(has('max_gust'))d.sections.push(S('Weather','The strongest gust in the daytime forecast for the tournament days is {f:max_gust}.'));
@@ -76,8 +76,8 @@ export function deskDraft(p,{version=DESK_VERSION}={}){
   d.seo_title=`{f:course} Course DNA`;d.social_headline=`How {f:course} plays`;
  }else if(p.type==='play_suspended'){
   d.headline=`Play suspended in the {f:round_word} round of the {f:event}`;
-  d.dek=`ESPN reports play suspended${course?` at ${course}`:''}.${has('leaders')?' {f:leaders} led at {f:lead_score} when play stopped.':''}`;
-  d.sections.push(S('Where things stand',`Play in the {f:round_word} round of ${event} is suspended in the ESPN scoring feed.`,has('leaders')?'At the stoppage, {f:leaders} led at {f:lead_score}.':null,'Scores are as of {f:snapshot_time}.'));
+  d.dek=`Play is suspended${course?` at ${course}`:''}.${has('leaders')?' {f:leaders} led at {f:lead_score} when play stopped.':''}`;
+  d.sections.push(S('Where things stand',`Play in the {f:round_word} round of ${event} is suspended in the observed scoring feed.`,has('leaders')?'At the stoppage, {f:leaders} led at {f:lead_score}.':null,'Scores are as of {f:snapshot_time}.'));
   d.seo_title=`{f:event}: play suspended in the {f:round_word} round`;d.social_headline=`Play suspended at the {f:event}`;
  }else if(p.type==='playoff'){
   d.headline=`{f:playoff_players} head to a playoff at the {f:event}`;

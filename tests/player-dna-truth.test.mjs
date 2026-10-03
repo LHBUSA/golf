@@ -52,8 +52,8 @@ test('projection: a single missing PGA value is null for that player only; the c
 test('renderer: production failing payload renders no 0 yards and no 50th; unpublished categories are named once',()=>{
  const before={available:true,season:2026,tour:'LPGA Tour',population:156,qualification:'>= 20 rounds in the season',as_of:'2026-10-01',formula:'f',disclosure:'d',categories:[FX.production_before.bag_dna_driver]};
  const after=P('w5').bag_dna,html=bagDna(after);
- assert.doesNotMatch(html,/>0 <small>yards|50th/);assert.match(html,/ESPN does not publish driver, irons \/ approach, short game \(sand\), putter statistics for the 2026 LPGA Tour/);
- assert.match(html,/Scoring average/);assert.match(html,/Percentile withheld/);assert.match(html,/title="Not published by ESPN for this tour">— <small>not published/);assert.doesNotMatch(html,/ style=/);
+ assert.doesNotMatch(html,/>0 <small>yards|50th/);assert.match(html,/No published driver, irons \/ approach, short game \(sand\), putter statistics for the 2026 LPGA Tour/);
+ assert.match(html,/Scoring average/);assert.match(html,/Percentile withheld/);assert.match(html,/title="Not published for this tour">— <small>not published/);assert.doesNotMatch(html,/ style=/);
  // Even the old (pre-fix) payload shape can no longer hide a missing value behind a bar when its percentile is null.
  assert.doesNotMatch(bagDna({...before,categories:[{...before.categories[0],percentile:null,components:before.categories[0].components.map(c=>({...c,value:null,percentile:null}))}]}),/data-w=/);
 });

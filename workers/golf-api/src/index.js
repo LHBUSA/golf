@@ -7,19 +7,21 @@ const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
 import {noTransform} from './transport.js';
 import {courseMap,openData} from './course-map.js';
-import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition,projectionPublic} from '../../shared/views.js';
+import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition,projectionPublic,publicDoc,PUBLIC_SOURCE,PUBLIC_ATTRIBUTION} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
 const LIVE_CACHE='public, max-age=60, s-maxage=60';
 const json=(body,status=200,cache='no-store')=>Response.json(body,{status,headers:headers(cache)});
 const PUBLIC_CACHE='public, max-age=120, s-maxage=300';
-let memo={at:0,index:null},vmemo={at:0,v:null};
+let memo={at:0,index:null},vmemo={at:0,v:null},pubIx={ix:null,text:null};
+const publicIndexText=ix=>{if(pubIx.ix!==ix)pubIx={ix,text:JSON.stringify(projectionPublic('index.json',ix))};return pubIx.text;};
 async function videoIndex(env){if(vmemo.v&&Date.now()-vmemo.at<300000)return vmemo.v;const o=await env.PUBLIC.get('video/v1/index.json');const v=o?JSON.parse(await o.text()).videos||[]:[];vmemo={at:Date.now(),v};return v;}
 async function doc(env,key){const o=await env.PUBLIC?.get('projection/v2/'+key);return o?JSON.parse(await o.text()):null;}
 async function index(env){if(memo.index&&Date.now()-memo.at<120000)return memo.index;const i=await doc(env,'index.json');if(i)memo={at:Date.now(),index:i};return i;}
 function envelope(ix,data,{availability='available',coverage=null,reason=null,source=null,provenance=null,method=null}={}){
  const age=ix?.as_of?Math.floor((Date.now()-Date.parse(ix.as_of))/1000):null;
- return {data,availability,reason,source:source||ix?.sources?.map(s=>s.name+' ('+s.licence+')').join('; ')||null,as_of:ix?.as_of||null,source_age_seconds:age,stale:age===null||age>2*86400,coverage:coverage||ix?.coverage||null,provenance,method,contract_version:CONTRACT};
+ // Customer contract names PropSports (network source standard); licence-required credits travel in attribution.
+ return {data:publicDoc(data),availability,reason,source:source||PUBLIC_SOURCE,attribution:PUBLIC_ATTRIBUTION,as_of:ix?.as_of||null,source_age_seconds:age,stale:age===null||age>2*86400,coverage:publicDoc(coverage||ix?.coverage||null),provenance,method,contract_version:CONTRACT};
 }
 const unavailable=(ix,reason,extra={})=>envelope(ix,null,{availability:'unavailable',reason,...extra});
 const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost','/admin/news-compare']);
@@ -65,7 +67,7 @@ async function route(request,env){
   if(path==='/news-sitemap.xml')return newsSitemap(env);
   if(path==='/sitemaps/news.xml')return newsUrlset(env);
   if(path==='/render/news'||/^\/render\/news\/[a-z0-9-]+$/.test(path)){if(!ix)return new Response('Service unavailable',{status:503});try{return await renderNews(env,ix,path.replace(/^\/render/,''));}catch(e){console.error(JSON.stringify({worker:'golf-api',ssr_error:e.message}));return new Response('Service unavailable',{status:503,headers:{'retry-after':'60'}});}}
-  if(path==='/health')return json({ok:Boolean(ix),mode:'production_projection',contract:CONTRACT,as_of:ix?.as_of||null,coverage:ix?.coverage||null,live_scoring:'espn-core-observed'},ix?200:503);
+  if(path==='/health')return json({ok:Boolean(ix),mode:'production_projection',contract:CONTRACT,as_of:ix?.as_of||null,coverage:ix?.coverage||null,live_scoring:'observed'},ix?200:503);
   if(!ix)return json(unavailable(null,'projection_unavailable'),503);
   const [col,id,sub]=parts;
   const ok=(data,opts)=>json(envelope(ix,data,opts),200,PUBLIC_CACHE);
@@ -75,16 +77,17 @@ async function route(request,env){
      const key=id&&['players','editions','courses'].includes(id)&&sub?`${id}/${sub}`:id;
      if(!key||!/^(manifest|index|bundle|schedule)\.json$|^(players|editions|courses)\/[a-z0-9-]+\.json$/.test(key))return json({error:'not_found'},404);
      const o=await env.PUBLIC.get('projection/v2/'+key);if(!o)return json({error:'not_found'},404);
-     // Premium values are stripped server-side (views.projectionPublic); index/manifest/schedule carry none.
-     if(/^(players|courses|editions)\/|^bundle\.json$/.test(key))return new Response(JSON.stringify(projectionPublic(key,await o.json())),{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
-     return new Response(o.body,{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
+     // Premium values are stripped server-side (views.projectionPublic), which also applies the customer source
+     // boundary to every key. index.json is serialized once per memoized index.
+     if(key==='index.json'){o.body?.cancel?.();return new Response(publicIndexText(ix),{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});}
+     return new Response(JSON.stringify(projectionPublic(key,await o.json())),{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
     }
-    case 'graph':return ok({as_of:ix.as_of,coverage:ix.coverage,source_state:ix.source_state});
+    case 'graph':return ok({as_of:ix.as_of,coverage:publicDoc(ix.coverage),source_state:ix.source_state});
     case 'newsroom':{if(id!=='health')return json({error:'not_found'},404);const r=env.NEWS?.fetch?await env.NEWS.fetch('https://golf-internal/health').then(r=>r.json()).catch(()=>null):null;return json(r||{error:'unavailable'},r?200:503,'public, max-age=60');}
     case 'source-health':{const r=env.INGEST?.fetch?await env.INGEST.fetch('https://golf-internal/health').then(r=>r.json()).catch(()=>null):null;return json(envelope(ix,r||{source_state:ix.source_state},{availability:r?'available':'partial'}));}
     case 'today':return ok({current:ix.current,upcoming:ix.upcoming,recent:ix.recent},{availability:ix.current.length||ix.upcoming.length?'available':'partial',reason:'Schedule status from tour season schedules; observed scoring for current events is at /v1/live.'});
     case 'live':{
-     // Observed ESPN scoring. State comes from the live contract: never from dates alone.
+     // Observed scoring snapshots. State comes from the live contract: never from dates alone.
      const cur=await env.PUBLIC.get('live/v1/current.json').then(o=>o?o.json():null).catch(()=>null);const now=Date.now();
      if(id){const snap=await env.PUBLIC.get('live/v1/events/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);
       if(sub==='movement'){
@@ -95,19 +98,19 @@ async function route(request,env){
          const by=new Map();for(const r of rows)(by.get(r.snapshot_id)||by.set(r.snapshot_id,[]).get(r.snapshot_id)).push(r);
          points=hs.map(h=>({t:h.captured_at.replace('+00:00','Z'),round:h.round,status:h.status,top:(by.get(h.id)||[]).sort((a,b)=>a.position-b.position).map(r=>({slug:names.get(r.espn_id)?.slug||null,name:names.get(r.espn_id)?.name||r.espn_id,pos:r.position,tied:r.tied,to_par:r.score_to_par,thru:r.thru}))}));history='db';}}catch(e){if(!/PGRST205|42P01/.test(e.message))console.error(JSON.stringify({worker:'golf-api',movement_db_error:e.message.slice(0,160)}));}}
        if(!points){const mv=await env.PUBLIC.get('live/v1/movement/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);points=mv?.points||[];}
-       return json({source:'ESPN Golf core API (observed snapshots)',history,edition:id,points},200,LIVE_CACHE);}
+       return json({source:PUBLIC_SOURCE,history,edition:id,points},200,LIVE_CACHE);}
       if(!snap)return json({availability:'unavailable',edition:id,event:null},200,LIVE_CACHE);
       const ev=publicEvent(snap,now),me=snap.players.filter(p=>p.holes?.length).map(p=>({slug:p.slug,name:p.name,round:p.current_round,holes:p.holes}));
       // Weather join: the forecast hour covering now (NWS), with the forecast point's precision.
       let weather_now=null;try{const w=await env.PUBLIC.get('weather/v1/forecast/'+snap.edition.id+'.json').then(o=>o?o.json():null);if(w?.hours?.length){const h=w.hours.filter(x=>Date.parse(x.t)<=now).at(-1);if(h&&now-Date.parse(h.t)<2*3600000)weather_now={...h,precision:w.precision||'venue',locality:w.locality?.label||null,issued:w.forecast_update_time||w.fetched_at,age_seconds:Math.round((now-Date.parse(w.fetched_at))/1000),source:w.source};}}catch{}
       // Course context: sourced hole par/yardage from the edition layout (never inferred).
       let course_holes=null;try{const d=await doc(env,'editions/'+id+'.json');course_holes=d?.layout?.holes?.length?d.layout.holes.map(h=>({hole:h.hole,par:h.par??null,yards:h.yards??null})):null;}catch{}
-      return json({availability:ev.state==='unavailable'?'unavailable':'available',source:'ESPN Golf core API',as_of:snap.fetched_at,freshness_seconds:ev.age_seconds,event:ev,hole_scores:me,weather_now,course_holes},200,LIVE_CACHE);}
+      return json({availability:ev.state==='unavailable'?'unavailable':'available',source:PUBLIC_SOURCE,as_of:snap.fetched_at,freshness_seconds:ev.age_seconds,event:ev,hole_scores:me,weather_now,course_holes},200,LIVE_CACHE);}
      const who=url.searchParams.get('player');
-     if(who){for(const s of cur?.events||[]){const p=s.players.find(x=>x.slug===who);if(p){const ev=publicEvent(s,now);return json({availability:'available',source:'ESPN Golf core API',event:{...ev,leaderboard:[]},player:ev.leaderboard.find(x=>x.slug===who)},200,LIVE_CACHE);}}return json({availability:'unavailable',player:null},200,LIVE_CACHE);}
+     if(who){for(const s of cur?.events||[]){const p=s.players.find(x=>x.slug===who);if(p){const ev=publicEvent(s,now);return json({availability:'available',source:PUBLIC_SOURCE,event:{...ev,leaderboard:[]},player:ev.leaderboard.find(x=>x.slug===who)},200,LIVE_CACHE);}}return json({availability:'unavailable',player:null},200,LIVE_CACHE);}
      const events=orderEvents((cur?.events||[]).map(s=>publicEvent(s,now))).map(ev=>({...ev,leaderboard:ev.leaderboard.slice(0,Number(url.searchParams.get('top'))||10)}));
      const fresh=events.filter(e=>['live','suspended','round_complete'].includes(e.state));
-     return json({availability:events.some(e=>e.state!=='unavailable')?'available':'unavailable',source:'ESPN Golf core API',as_of:cur?.as_of||null,freshness_seconds:fresh.length?Math.min(...fresh.map(e=>e.age_seconds)):null,contract:{fresh_seconds:FRESH_SECONDS,stale_seconds:STALE_SECONDS,live_requires:'ESPN in-progress status + posted scores + snapshot within fresh_seconds'},events},200,LIVE_CACHE);}
+     return json({availability:events.some(e=>e.state!=='unavailable')?'available':'unavailable',source:PUBLIC_SOURCE,as_of:cur?.as_of||null,freshness_seconds:fresh.length?Math.min(...fresh.map(e=>e.age_seconds)):null,contract:{fresh_seconds:FRESH_SECONDS,stale_seconds:STALE_SECONDS,live_requires:'verified in-progress status + posted scores + snapshot within fresh_seconds'},events},200,LIVE_CACHE);}
     case 'rankings':return json(unavailable(ix,'licensed_ranking_source_not_established',{coverage:{official_rankings:false,pbe_rating:'research only; not published'}}),200,PUBLIC_CACHE);
     case 'news':{
      if(id){const o=await env.PUBLIC.get('news/v2/articles/'+id+'.json');const a=o?JSON.parse(await o.text()):null;if(!a||a.status!=='published')return json({error:'not_found'},404);return ok(a);}

@@ -6,13 +6,14 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "check": "tsc --noEmit && node scripts/check.mjs",
-    "build": "node scripts/export-public.mjs && vite build && node scripts/prerender.mjs",
+    "build": "node scripts/guard-source-brand.mjs && node scripts/export-public.mjs && vite build && node scripts/prerender.mjs",
     "test": "node --test tests/*.test.mjs",
     "qa:browser": "npm run build:local && playwright test",
-    "guard": "node scripts/guard.mjs",
+    "guard": "node scripts/guard.mjs && node scripts/guard-source-brand.mjs",
     "audit:sources": "node scripts/source-audit.mjs",
     "canary:sources": "node scripts/source-canary.mjs",
-    "build:local": "vite build && node scripts/prerender.mjs"
+    "build:local": "vite build && node scripts/prerender.mjs",
+    "guard:source-brand": "node scripts/guard-source-brand.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

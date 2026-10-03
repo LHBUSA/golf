@@ -1,4 +1,4 @@
-// PBEcast Live V3: broadcast command center built only from observed ESPN snapshots.
+// PBEcast Live V3: broadcast command center built only from observed scoring snapshots.
 // Truth levels: OBSERVED = posted positions/scores/hole results/published par+yardage/snapshot times.
 // DERIVED (PBE) = differences between observed snapshots, streaks, within-N counts. RECONSTRUCTED = the
 // generic hole template. Nothing here produces ball locations, shot paths, clubs, lies or player locations.
@@ -181,7 +181,7 @@ export function commandBar(ev,w,{now=Date.now()}={}){
  const off=courseOffset(w);
  return `<span class="cv3-ename">${e(ev.edition?.name?.replace(/^\d{4}\s+/,'')||'')}</span><div class="cv3-state">${badge(ev)}<span class="cv3-age" data-cv3-age data-fetched="${e(ev.fetched_at||'')}">${e(ageText(ev,now))}</span></div><p class="cv3-where">${e(where(ev))}${off!==null?` · <span data-cv3-clock data-off="${off}">${e(courseClock(off,now))}</span> local`:''}</p>${w?`<p class="cv3-wxmini" aria-label="Weather estimate">${e(w.temp_f??'—')}° · ${e(w.wind_dir||'')} ${e(w.wind_mph??'—')}${w.gust_mph!=null?` · gust ${e(w.gust_mph)}`:''}</p>`:''}<button type="button" class="cv3-fs" data-cv3-fs aria-label="Open fullscreen PBEcast" aria-pressed="false"><span aria-hidden="true">⛶</span> <span data-cv3-fs-text>Fullscreen</span></button>`;
 }
-export function ageText(ev,now=Date.now()){const t=Date.parse(ev.fetched_at||'');const s=Number.isFinite(t)?Math.max(0,Math.round((now-t)/1000)):ev.age_seconds;return s==null?'':`${ev.state==='stale'?'Last ESPN update':'ESPN update'} ${ago(s)}`;}
+export function ageText(ev,now=Date.now()){const t=Date.parse(ev.fetched_at||'');const s=Number.isFinite(t)?Math.max(0,Math.round((now-t)/1000)):ev.age_seconds;return s==null?'':`${ev.state==='stale'?'Last update':'Updated'} ${ago(s)}`;}
 export function towerRows(ev,{selected,moves=new Map(),prev=null}={}){
  const rows=(ev.leaderboard||[]).slice(0,200),lead=rows.find(r=>r.status==='active')?.total_to_par;
  return rows.map(r=>{const k=key(r),mv=moves.get(k),p=prev?.get(k),ch=f=>p&&p[f]!==r[f]?' is-changed':'';
@@ -250,8 +250,8 @@ export function castShell(){
 <section class="cv3-tower" aria-labelledby="cv3-tower-h"><h2 class="cv3-sh" id="cv3-tower-h">Live leaderboard</h2>${towerHead()}<ol class="cv3-list" data-cv3-tower></ol></section>
 <section class="cv3-focus" data-cv3-focus aria-label="Selected golfer"></section>
 <section class="cv3-cmap" data-cv3-cmap aria-label="Course view" hidden></section>
-<section class="cv3-pulse" aria-labelledby="cv3-pulse-h"><h2 class="cv3-sh" id="cv3-pulse-h">Scoring pulse</h2><p class="cv3-cap">Changes proven between consecutive ESPN snapshots. Hole results are named only when the posted holes add up to the observed change.</p><ol class="cv3-pl" data-cv3-pulse tabindex="0" aria-label="Scoring pulse events, newest first"></ol></section>
+<section class="cv3-pulse" aria-labelledby="cv3-pulse-h"><h2 class="cv3-sh" id="cv3-pulse-h">Scoring pulse</h2><p class="cv3-cap">Changes proven between consecutive scoring snapshots. Hole results are named only when the posted holes add up to the observed change.</p><ol class="cv3-pl" data-cv3-pulse tabindex="0" aria-label="Scoring pulse events, newest first"></ol></section>
 <section class="cv3-tl" aria-labelledby="cv3-tl-h" data-cv3-tl><div class="cv3-tl-head"><h2 class="cv3-sh" id="cv3-tl-h">Leaders over time</h2><div class="cv3-seg" role="group" aria-label="Players shown"><button type="button" data-cv3-filter="contenders" aria-pressed="false">Contenders</button><button type="button" data-cv3-filter="top5" aria-pressed="false">Top 5</button><button type="button" data-cv3-filter="top10" aria-pressed="false">Top 10</button><button type="button" data-cv3-filter="selected" aria-pressed="false">Selected</button></div></div><div class="cv3-plot" data-cv3-plot tabindex="0" aria-describedby="cv3-tl-cap"></div><div class="cv3-key" data-cv3-key></div><p class="cv3-cap" id="cv3-tl-cap" data-cv3-tlcap></p><div data-cv3-table></div></section>
 <section class="cv3-ctx" aria-label="Tournament context"><div class="cv3-fieldbox" data-cv3-field></div><div class="cv3-wxbox" data-cv3-wx></div></section>
-<p class="gnote cv3-truth">Positions, scores, hole results and course par/yardage are observed as posted by ESPN. Movement, streaks, the scoring pulse and field counts are PBE-derived from those observations. Ball and player positions are not tracked: the Course View highlights the hole being played, never a location on it. Course routing © OpenStreetMap contributors (ODbL) where mapped; otherwise the hole figure is a labelled reconstruction. Times are in your time zone.</p></section>`;
+<p class="gnote cv3-truth">Positions, scores, hole results and course par/yardage are observed as posted. Movement, streaks, the scoring pulse and field counts are PBE-derived from those observations. Ball and player positions are not tracked: the Course View highlights the hole being played, never a location on it. Course routing © OpenStreetMap contributors (ODbL) where mapped; otherwise the hole figure is a labelled reconstruction. Times are in your time zone.</p></section>`;
 }
