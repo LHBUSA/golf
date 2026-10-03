@@ -145,6 +145,8 @@ const CANDS=path.join(CACHE,'_candidates.json');
 function espnLocality(slug){for(const e of (edByCourse.get(slug)||[])){const d=B.editions.find(x=>x.slug===e.slug);const c=d?.espn?.course;if(c?.city)return {city:c.city,state:c.state||null,country:c.country||null};}return null;}
 async function nominatim(q){await sleep(1100);const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(q),{headers:{'user-agent':UA,'accept-language':'en'},signal:AbortSignal.timeout(20000)}).catch(()=>null);
  if(!r||r.status===403||r.status===429)return {barrier:r?String(r.status):'net'};if(!r.ok)return {barrier:String(r.status)};return {rows:await r.json()};}
+async function nominatimMany(q){await sleep(1100);const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q='+encodeURIComponent(q),{headers:{'user-agent':UA,'accept-language':'en'},signal:AbortSignal.timeout(20000)}).catch(()=>null);
+ if(!r||r.status===403||r.status===429)return {barrier:r?String(r.status):'net'};if(!r.ok)return {barrier:String(r.status)};return {rows:await r.json()};}
 const NAME_TAGS=['name','name:en','int_name','official_name','alt_name','operator','short_name'];
 async function candidates(){
  fs.mkdirSync(CACHE,{recursive:true});const out=fs.existsSync(CANDS)?JSON.parse(fs.readFileSync(CANDS,'utf8')):{};
@@ -153,7 +155,13 @@ async function candidates(){
  for(const c of list){if(out[c.slug]&&out[c.slug].status!=='barrier')continue;
   const loc=espnLocality(c.slug)||(c.locality?{city:c.locality,state:null,country:c.country||null}:null);
   if(!loc){out[c.slug]={status:'no_locality'};continue;}
-  const q=[loc.city,loc.state,loc.country].filter(Boolean).join(', ');const g=await nominatim(q);
+  const q=[loc.city,loc.state,loc.country].filter(Boolean).join(', ');
+  // Fast path: the course itself in the geocoder (golf_course results only, single best name match).
+  const direct=await nominatimMany(`${c.name}, ${q}`);
+  if(!direct.barrier){const gc=(direct.rows||[]).filter(r=>r.category==='leisure'&&r.type==='golf_course').map(r=>({id:(r.osm_type==='relation'?'relation':r.osm_type==='way'?'way':'node')+'/'+r.osm_id,center:{lat:+r.lat,lon:+r.lon},names:[r.name].filter(Boolean),score:nameScore(c.name,r.name)})).filter(x=>x.score>=0.5).sort((a,b)=>b.score-a.score);
+   const top=gc.filter(x=>x.score===gc[0]?.score);
+   if(top.length===1){out[c.slug]={query:`${c.name}, ${q}`,via:'nominatim-direct',status:'candidate',candidate:{osm_course:top[0].id,lat:top[0].center.lat,lon:top[0].center.lon,names:top[0].names,score:top[0].score},others:gc.slice(0,5).map(x=>({id:x.id,names:x.names,score:+x.score.toFixed(2)}))};console.log(c.slug,'candidate(direct)',top[0].names[0]);fs.writeFileSync(CANDS,JSON.stringify(out,null,1));continue;}}
+  const g=await nominatim(q);
   if(g.barrier){out[c.slug]={status:'barrier',barrier:g.barrier,query:q};console.log('barrier',c.slug,g.barrier);if(g.barrier==='403')break;continue;}
   const bb=g.rows?.[0]?.boundingbox?.map(Number);if(!bb){out[c.slug]={status:'locality_not_found',query:q};continue;}
   let [s0,n0,w0,e0]=bb;const cy=(s0+n0)/2,cx=(w0+e0)/2;s0=Math.max(s0,cy-0.35);n0=Math.min(n0,cy+0.35);w0=Math.max(w0,cx-0.35);e0=Math.min(e0,cx+0.35);
