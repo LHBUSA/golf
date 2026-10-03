@@ -1,5 +1,6 @@
 // PBEcast V3 controller: one state object per mounted cast, small region diffs on refresh, no timers per render.
 import {fetchCourseMap,mountCourseMap} from './course-map-live.js';
+import {holeStats,cardsFromLive} from './hole-intel.js';
 import {castShell,commandBar,currentHole,towerRows,focusPanel,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
 import {e} from './ui.js';
 
@@ -22,6 +23,8 @@ function mount(host,slug){
   bar:q('[data-cv3-bar]'),cmapEl:q('[data-cv3-cmap]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
+  // Scoring Pulse event with a proven hole -> select that golfer and focus that hole (map + scorecard).
+  if(t.dataset.pulseHole){const h=Number(t.dataset.pulseHole),k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.cmapEl&&!s.cmapEl.hidden?s.cmapEl:s.focus).scrollIntoView?.({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
   if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.map?.setFocus(s.selHole??(narrow()?curHole(s):null));s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
   if(t.dataset.cv3Filter){s.filter=t.dataset.cv3Filter;renderTimeline(s);return;}
   if(t.dataset.cv3Series){const k=t.dataset.cv3Series;if((s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);return;}
@@ -69,14 +72,17 @@ const windOf=w=>w&&Number.isFinite(w.wind_from_deg)?{from_deg:w.wind_from_deg,di
 // PBEcast Course View: the real routing of the course being played (when mapped). Highlights the selected golfer's
 // current hole as a whole route; map and scorecard selections drive each other. No golfer, ball or position marker.
 function syncMap(s,{refocus=false}={}){
- if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));return;}
+ if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));s.map.setContext(mapCtx(s));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));return;}
  const slug=s.ev?.course?.slug;if(!slug||s.mapReq)return;
  s.mapReq=fetchCourseMap(slug).then(M=>{if(!M||!M.geometry||!s.root.isConnected)return;
   s.cmapEl.hidden=false;
   s.map=mountCourseMap(s.cmapEl,M,{mode:'cast',current:curHole(s),wind:windOf(s.weather),focus:s.selHole??(narrow()?curHole(s):null),
    onSelect:h=>{s.selHole=h;renderFocus(s);if(h!=null)s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.classList.add('is-on');}});
-  renderFocus(s);});
+  s.map.setContext(mapCtx(s));renderFocus(s);});
 }
+// Today = the live round's posted hole cards (observed field cards). Live counts come from posted holes only.
+function mapCtx(s){const stats=holeStats(cardsFromLive([...s.holes.values()].map(h=>({holes:h}))));const rows=(s.ev.leaderboard||[]).filter(r=>r.status==='active');
+ return {today:stats.size?{stats,label:`TODAY · ROUND ${s.ev.round}`,note:'live posted holes, current round'}:null,live:n=>({next:rows.filter(r=>currentHole(r)===n).length,cards:stats.get(n)?.sample??null})};}
 function renderFocus(s){const r=row(s);set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole,realRoute:h=>!!s.map?.hasRoute(h)}));}
 function renderPulse(s){
  const ev=pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});

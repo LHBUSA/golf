@@ -1,6 +1,7 @@
 // Championship setup + scoring for a course map. One edition document produces BOTH the setup and the scoring, so a
 // hole card can never mix years: scoring.edition === setup.edition by construction (asserted in buildSetup).
 // Spatial routing (OSM, current) is a separate layer and is never moved or relabelled by a setup.
+import {holeStats,cardsFromEdition} from '../../src/lib/hole-intel.js';
 
 /** Default setup = latest edition that has started (starts_on <= today); future stubs and scheduled/cancelled
  * editions never become the default. Ties on date break by slug for determinism. */
@@ -20,12 +21,11 @@ const r2=v=>Math.round(v*100)/100;
  * player). Null when the edition has no hole cards. */
 export function scoringFrom(ed){
  const rows=(ed?.leaderboard||[]).filter(r=>r.holes?.length);if(!rows.length)return null;
- const acc=new Map();let cards=0;
- for(const r of rows)for(const rd of r.holes){if(!rd.scores?.length)continue;cards++;for(const s of rd.scores){if(!Number.isInteger(s.hole)||!Number.isFinite(s.to_par))continue;const a=acc.get(s.hole)||{n:0,sum:0};a.n++;a.sum+=s.to_par;acc.set(s.hole,a);}}
- if(!acc.size)return null;
+ const cards=rows.reduce((n,r)=>n+r.holes.filter(rd=>rd.scores?.length).length,0);
+ const stats=holeStats(cardsFromEdition(ed));if(!stats.size)return null;
  const players=rows.length,cohort=players<=20?'Contender sample':'Observed field cards';
  return {edition:ed.slug,year:ed.year,cohort,players,cards,basis:`${cards} observed round cards from ${players} players${ed.status==='in_progress'?' (rounds posted so far)':''}`,
-  holes:[...acc].sort((a,b)=>a[0]-b[0]).map(([hole,a])=>({hole,avg_to_par:r2(a.sum/a.n),sample:a.n}))};
+  holes:[...stats.values()].sort((a,b)=>a.hole-b.hole)};
 }
 const sum=(hs,a,b)=>{const xs=(hs||[]).filter(h=>h.hole>=a&&h.hole<=b);return xs.length===b-a+1&&xs.every(h=>Number.isInteger(h.yards))?xs.reduce((s,h)=>s+h.yards,0):null;};
 export function buildSetup(ed){

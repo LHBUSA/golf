@@ -71,7 +71,7 @@ export function pulseEvents(points,{holes=new Map(),round=null,focus=new Set(),t
     const seg=hs&&hs.length>=x.thru?hs.slice(y.thru,x.thru):null;
     const proven=seg&&seg.length===x.thru-y.thru&&seg.every(h=>holeDiff(h)!==null)&&seg.reduce((s,h)=>s+holeDiff(h),0)===d;
     if(proven){const notable=seg.filter(h=>holeDiff(h)!==0);
-     if(notable.length)ev.push({t:b.t,type:'hole',keys:[k],basis:'holes',kind:resultKind(holeDiff(notable.at(-1))),text:`${who} ${notable.map(h=>`${resultLabel(holeDiff(h)).toUpperCase()} ON ${h.hole}`).join(', ')} · ${tp(x.to_par)}`});}
+     if(notable.length)ev.push({t:b.t,type:'hole',keys:[k],hole:notable.at(-1).hole,basis:'holes',kind:resultKind(holeDiff(notable.at(-1))),text:`${who} ${notable.map(h=>`${resultLabel(holeDiff(h)).toUpperCase()} ON ${h.hole}`).join(', ')} · ${tp(x.to_par)}`});}
     else if(d!==0)ev.push({t:b.t,type:'score',keys:[k],basis:'board',text:`${who} ${d<0?'MOVES':'DROPS'} TO ${tp(x.to_par)} · THRU ${x.thru}`});
     if(y.thru<18&&x.thru===18)ev.push({t:b.t,type:'finish',keys:[k],text:`${who} FINISHES ROUND ${b.round} · ${tp(x.to_par)}`});
    }
@@ -205,7 +205,7 @@ export function focusPanel(ev,r,{holes=null,layout=[],selHole=null,realRoute=()=
 }
 export function pulseList(events,{seen=null}={}){
  if(!events.length)return '<li class="cv3-pl-empty">No provable scoring changes between the observed snapshots yet.</li>';
- return events.map(x=>{const id=x.t+'|'+x.text;return `<li class="pl-${x.type}${x.kind?' pl-'+x.kind:''}${seen&&!seen.has(id)?' is-new':''}"><time datetime="${e(x.t)}">${e(clock(x.t))}</time><span>${e(x.text)}</span></li>`;}).join('');
+ return events.map(x=>{const id=x.t+'|'+x.text;const body=Number.isInteger(x.hole)?`<button type="button" class="pl-go" data-pulse-hole="${e(x.hole)}" data-pulse-key="${e(x.keys[0])}" aria-label="${e(x.text)}. Show hole ${e(x.hole)} in the Course View">${e(x.text)}</button>`:`<span>${e(x.text)}</span>`;return `<li class="pl-${x.type}${x.kind?' pl-'+x.kind:''}${seen&&!seen.has(id)?' is-new':''}"><time datetime="${e(x.t)}">${e(clock(x.t))}</time>${body}</li>`;}).join('');
 }
 export function fieldPanel(f){
  if(!f)return '';const s=(k,v,sub='')=>`<div><dt>${e(k)}</dt><dd>${e(v)}${sub?`<small>${e(sub)}</small>`:''}</dd></div>`;

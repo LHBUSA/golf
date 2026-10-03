@@ -659,3 +659,8 @@ body.cv3-lock{overflow:hidden}
 .spark-line{fill:none;stroke:#d8c48f;stroke-width:1.6;stroke-linejoin:round}
 .spark-pt circle{fill:#0b1f19;stroke:#d8c48f;stroke-width:1.5}.spark-pt.pos circle{fill:#d8c48f}
 .spark-pt:focus{outline:none}.spark-pt:focus circle,.spark-pt:hover circle{stroke:#fff;stroke-width:2.5;r:4.5}
+
+/* Scoring Pulse events with a proven hole open that hole in the Course View. */
+.cv3-pl .pl-go{all:unset;cursor:pointer;font:inherit;color:inherit;text-decoration:underline;text-decoration-color:#ffffff40;text-underline-offset:3px}
+.cv3-pl .pl-go:hover{text-decoration-color:var(--c3-gold)}
+.cv3-pl .pl-go:focus-visible{outline:2px solid var(--c3-gold);outline-offset:2px}

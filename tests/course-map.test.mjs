@@ -91,3 +91,10 @@ test('ODbL open data: licence, attribution, per-course downloads and the method 
  const m=await openData(env2,['method']);assert.match(m.text,/ODbL/);assert.match(METHOD,/Prove hole numbers/);
 });
 test('simplify keeps endpoints and drops collinear points',()=>{assert.deepEqual(simplify([[0,0],[1,0.01],[2,0]],1),[[0,0],[2,0]]);});
+test('default setup skips a started edition without a hole table (never a future one)',async()=>{
+ const st={...store,'projection/v2/editions/players-2026.json':{slug:'players-2026',year:2026,name:'2026 The Players',layout:{label:'2026 setup',par:72,yardage:7275,holes:[]},leaderboard:[]},
+  'projection/v2/editions/players-2025.json':{slug:'players-2025',year:2025,name:'2025 The Players',layout:{label:'2025 setup',par:72,yardage:7256,holes:Array.from({length:18},(_,i)=>({hole:i+1,par:4,yards:390}))},leaderboard:[]}};
+ const ix2={...ix,editions:[...ix.editions,{slug:'players-2025',year:2025,name:'2025 The Players',starts_on:'2025-03-13',status:'completed',course:{slug:'tpc-sawgrass-q1'}},{slug:'players-2027',year:2027,name:'2027 The Players',starts_on:'2027-03-11',status:'scheduled',course:{slug:'tpc-sawgrass-q1'}}]};
+ const M=(await courseMap(envOf(st),ix2,'tpc-sawgrass-q1',null,NOW)).body;assert.equal(M.setup.year,2025);assert.equal(M.holes[0].setup.yards,390);
+ const asked=(await courseMap(envOf(st),ix2,'tpc-sawgrass-q1','players-2026',NOW)).body;assert.equal(asked.setup.year,2026,'an explicit choice is honoured');
+});

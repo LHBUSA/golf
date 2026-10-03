@@ -2,6 +2,7 @@
 //                                          same edition's scoring. Geometry never moves with the setup.
 // GET /v1/open-data/course-routing[/:slug.geojson|/method] — the ODbL derivative database and its extraction method.
 import {defaultEdition,setupOptions,buildSetup} from '../../shared/course-setup.js';
+import {HOLE_INTEL_VERSION,holeShape,associateGreens,hazardsFor,targetFor,routeMarkers,polyLength} from '../../../src/lib/hole-intel.js';
 
 const ATTR={text:'© OpenStreetMap contributors',url:'https://www.openstreetmap.org/copyright',licence:'ODbL 1.0',licence_url:'https://opendatacommons.org/licenses/odbl/1-0/'};
 const MAP_CACHE='public, max-age=300, s-maxage=1800';
@@ -14,14 +15,25 @@ export async function courseMap(env,ix,slug,editionParam,now=new Date()){
  const options=setupOptions(eds,now);
  const chosen=editionParam?eds.find(e=>e.slug===editionParam&&options.some(o=>o.edition===e.slug)):defaultEdition(eds,now);
  if(editionParam&&!chosen)return {status:404,body:{error:'edition_not_selectable'}};
- const [geo,ed]=await Promise.all([get(env,'osm-routing/v1/courses/'+slug+'.json'),chosen?get(env,'projection/v2/editions/'+chosen.slug+'.json'):null]);
+ // Default setup = latest STARTED edition that has a published hole table (checks up to 3 recent editions); an
+ // explicit ?edition= is honoured as asked. Future stubs are never candidates (setupOptions excludes them).
+ let ed=null;const geoP=get(env,'osm-routing/v1/courses/'+slug+'.json');
+ if(editionParam)ed=await get(env,'projection/v2/editions/'+chosen.slug+'.json');
+ else{for(const o of options.slice(0,3)){const d=await get(env,'projection/v2/editions/'+o.edition+'.json');if(!ed)ed=d;if(d?.layout?.holes?.length){ed=d;break;}}}
+ const geo=await geoP;
  const {setup,scoring}=buildSetup(ed);
  const sh=new Map((setup?.holes||[]).map(h=>[h.hole,h])),sc=new Map((scoring?.holes||[]).map(h=>[h.hole,h]));
  const gh=new Map((geo?.holes||[]).map(h=>[h.hole,h]));const withheld=new Map((geo?.coverage?.withheld||[]).map(w=>[w.hole,w.reason]));
+ // Hole intelligence from verified routing + mapped features only (no positions). Greens/hazards need an observed route.
+ const routed=(geo?.holes||[]).filter(h=>h.route);const greens=geo?associateGreens(routed,geo.geometry.features.green):new Map();
+ const hz=geo?hazardsFor(routed,geo.geometry.features,greens):new Map();
  const holes=Array.from({length:18},(_,i)=>{const n=i+1,g=gh.get(n),s=sh.get(n),c=sc.get(n);
   return {hole:n,geometry_status:g?.route?'verified':withheld.has(n)?'withheld':geo?'unmapped':'none',withheld_reason:withheld.get(n)||null,route:g?.route||null,bearing_deg:g?.route?g.bearing_deg:null,source_feature_id:g?.source_feature_id||null,
    setup:setup?{edition:setup.edition,par:s?.par??null,yards:s?.yards??null}:null,
-   scoring:scoring&&c?{edition:scoring.edition,avg_to_par:c.avg_to_par,sample:c.sample,cohort:scoring.cohort}:null};});
+   scoring:scoring&&c?{edition:scoring.edition,avg_to_par:c.avg_to_par,sample:c.sample,cohort:scoring.cohort,scoring_average:c.scoring_average,difficulty_rank:c.difficulty_rank,difficulty_tied:c.difficulty_tied,difficulty_of:c.difficulty_of,distribution:c.distribution}:null,
+   geometry_intelligence:g?.route?(()=>{const {algorithm,...sh}=holeShape(g.route,s?.par??null)||{shape:null};return {mapped_route_yards:Math.round(polyLength(g.route)/0.9144),...sh};})():null,
+   hazards:g?.route?(()=>{const x=hz.get(n);if(!x)return null;const {method,...rest}=x;return rest;})():null,
+   distance_reference:g?.route?(()=>{const t=targetFor(g,greens);return {target_type:t.type,target:t.point,route_markers:routeMarkers(g.route)};})():null};});
  const {holes:_h,...setupPublic}=setup||{};
  return {status:200,body:{
   course:{slug:course.slug,name:course.name},
@@ -33,7 +45,12 @@ export async function courseMap(env,ix,slug,editionParam,now=new Date()){
   geometry_metadata_conflicts:geo?.geometry_metadata_conflicts||[],
   attribution:geo?ATTR:null,
   setup:setup?setupPublic:null,scoring:scoring?{edition:scoring.edition,year:scoring.year,cohort:scoring.cohort,basis:scoring.basis,players:scoring.players}:null,
-  setups:options,holes}};
+  setups:options,intelligence_version:HOLE_INTEL_VERSION,
+  intelligence_methods:geo?{mapped_route_yards:'length of the current mapped routing (OSM) — not the championship distance',shape:'route vertex farthest from the tee-green chord; dogleg when turn >= 20 deg and offset >= 20 m; mostly straight when turn < 12 deg; par 3s unclassified',
+   hazards:'bunker centroid within 45 m of the route and 15 m nearer than any other route (else omitted); green-side within 40 m of the mapped green centre; water within 45 m of the route or crossing it',
+   distance_reference:'target = associated mapped green centre (nearest route end within 35 m, exclusive by 15 m) else the verified route end; markers measured back along the verified route from its end',
+   scoring:'observed hole cards of the selected edition only; distribution buckets sum to the sample; difficulty rank among holes with >= 10 cards by average to par, ties share a rank'}:null,
+  holes}};
 }
 export const METHOD=`# PropBetEdge Golf course routing — extraction method (ODbL 1.0 derivative database)
 
