@@ -7,6 +7,10 @@ const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
 import {noTransform} from './transport.js';
 import {courseMap,openData} from './course-map.js';
+import {DUPLICATE_COURSES} from '../../shared/course-identity.js';
+// Merged duplicate courses (reviewed alias): old IDs 308 to the primary instead of serving a stale pre-merge doc.
+const COURSE_ALIAS=new Map(DUPLICATE_COURSES.filter(x=>x.alias).map(x=>[x.slug,x.duplicate_of]));
+const moved=(url,from,to)=>{const u=new URL(url);u.pathname=u.pathname.replace(from,to);return new Response(null,{status:308,headers:{location:u.toString(),'cache-control':'public, max-age=3600','access-control-allow-origin':'*'}});};
 import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition,projectionPublic,publicDoc,PUBLIC_SOURCE,PUBLIC_ATTRIBUTION} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
@@ -75,6 +79,7 @@ async function route(request,env){
    switch(col){
     case 'projection':{
      const key=id&&['players','editions','courses'].includes(id)&&sub?`${id}/${sub}`:id;
+     if(id==='courses'&&sub){const a=COURSE_ALIAS.get(sub.replace(/\.json$/,''));if(a)return moved(request.url,sub,a+'.json');}
      if(!key||!/^(manifest|index|bundle|schedule)\.json$|^(players|editions|courses)\/[a-z0-9-]+\.json$/.test(key))return json({error:'not_found'},404);
      const o=await env.PUBLIC.get('projection/v2/'+key);if(!o)return json({error:'not_found'},404);
      // Premium values are stripped server-side (views.projectionPublic), which also applies the customer source
@@ -145,6 +150,7 @@ async function route(request,env){
     }
     case 'courses':{
      if(!id)return ok(ix.courses);
+     if(COURSE_ALIAS.has(id))return moved(request.url,'/'+id,'/'+COURSE_ALIAS.get(id));
      if(sub==='map'){const r=await courseMap(env,ix,id,url.searchParams.get('edition'));return json(publicDoc(r.body),r.status,r.status===200?'public, max-age=300, s-maxage=1800':'no-store');}
      const d=await doc(env,'courses/'+id+'.json');if(!d)return json(unavailable(ix,'not_found'),404);const c=publicCourse(d);
      if(!sub)return ok(c,{provenance:d.provenance,method:ix.methods.course});
