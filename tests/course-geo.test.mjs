@@ -41,3 +41,12 @@ test('two canonical courses -> one OSM course: both held as duplicate identity',
  assert.deepEqual(rows.map(r=>r.decision),['review_duplicate_canonical_course','review_duplicate_canonical_course','exact']);});
 test('weak identity: inside boundary, different name, no complete hole proof -> review',()=>{const r=matchCourse(canon,[course(1,'Zeta Municipal',20,10)],SH);assert.equal(r.decision,'review_weak_identity');});
 test('name normalisation ignores generic words',()=>{assert.equal(nameScore('Augusta National Golf Club','Augusta National'),1);assert.equal(nameScore('Pebble Beach Golf Links','Spyglass Hill'),0);});
+test('reviewed identity: no coords -> held; evidence clears exactly its element; wrong element or name-only stays held',async()=>{
+ const {matchWithEvidence}=await import('../workers/shared/course-geo.js');
+ const els=[course(1,'Alpha National',20,10),course(2,'Alpha National Annex',20.05,10),...holes18(20,10)];const noCoords={...canon,latitude:null,longitude:null};
+ const held=matchWithEvidence(noCoords,els,SH,null);assert.notEqual(held.decision,'exact');assert.equal(held.state,'REVIEW_OR_NONE');
+ const ok=matchWithEvidence(noCoords,els,SH,{osm_course:'way/1',evidence_id:'e1',clears:['review_no_canonical_coords']});assert.equal(ok.decision,'exact');assert.equal(ok.cleared_by,'e1');assert.equal(ok.state,'VERIFIED ROUTING');
+ const wrong=matchWithEvidence(noCoords,els,SH,{osm_course:'way/2',evidence_id:'e2',clears:['review_no_canonical_coords']});assert.equal(wrong.evidence.proven,0,'holes of way/1 never attach to way/2');assert.notEqual(wrong.state,'VERIFIED ROUTING');
+ const missing=matchWithEvidence(noCoords,els,SH,{osm_course:'way/99',evidence_id:'e3',clears:['review_no_canonical_coords']});assert.notEqual(missing.decision,'exact');
+ const notListed=matchWithEvidence(noCoords,els,SH,{osm_course:'way/1',evidence_id:'e4',clears:['review_multiple_containing']});assert.notEqual(notListed.decision,'exact','only listed decisions may be cleared');
+});

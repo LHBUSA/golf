@@ -12,6 +12,16 @@ export const IDENTITY_EVIDENCE=[
    'PGA TOUR: Bank of Utah Championship played at Black Desert Resort, Ivins, Utah',
    'Only other golf courses inside the 2 km extract are differently named (Snow Canyon Country Club, Entrada at Snow Canyon) — no competing Black Desert identity',
    'Holes are proven inside the matched boundary with unique refs 1–18 (matcher evidence recorded per run)']},
+ {slug:'hoakalei-country-club-ec11161',evidence_id:'hoakalei-2026-10-02',osm_course:'relation/11026026',
+  // No canonical coordinates on our side; locate the extract at the OSM course centre (relation centroid).
+  locate:{lat:21.31477,lon:-158.0346594},clears:['review_no_canonical_coords'],
+  decided:'2026-10-02 (owner directive: evidence-grade review like Black Desert; OSM par stays metadata)',
+  evidence:[
+   'OSM relation/11026026 name "Hoakalei Country Club", golf:course=18_hole, leisure=golf_course (multipolygon, Ewa Beach, Oahu)',
+   'Hoakalei Country Club (first party, hoakaleicountryclub.com): "91-1620 Keoneula Blvd, Ewa Beach, HI 96706"; "proud host of the LOTTE Championship"',
+   'LPGA (lpga.com, 2022): Hoakalei Country Club hosts the LOTTE Championship; our 2026 LOTTE Championship edition names Hoakalei Country Club',
+   'Within 6 km the only other OSM courses are differently named (Coral Creek, Ewa Beach Golf Club, Hawaii Prince, Kapolei, West Loch, Ewa Villages) plus one unnamed polygon (way/221300526) that contains 0 hole ways and does not overlap Hoakalei (0/25 vertices inside)',
+   'Exactly 18 golf=hole ways with unique refs 1-18 lie inside the relation boundary (11 others within 2 km belong to neighbouring courses)']},
 ];
 // Canonical duplicates proven to be the same physical course. The duplicate never takes geometry (and never holds the
 // primary's geometry hostage); the identity merge itself is a database operation prepared in docs/evidence.

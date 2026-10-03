@@ -1,45 +1,45 @@
 {
- "generated_at": "2026-10-03T00:02:25.574Z",
+ "generated_at": "2026-10-03T01:54:48.914Z",
  "counts": {
   "all": {
    "total": 267,
-   "audited": 261,
-   "full": 87,
+   "audited": 267,
+   "full": 92,
    "partial": 19,
-   "held": 121,
-   "no_routing": 34,
-   "unaudited": 6,
-   "exact": 122
+   "held": 123,
+   "no_routing": 33,
+   "unaudited": 0,
+   "exact": 127
   },
   "pga": {
    "total": 144,
-   "audited": 139,
-   "full": 31,
+   "audited": 144,
+   "full": 35,
    "partial": 7,
-   "held": 96,
+   "held": 97,
    "no_routing": 5,
-   "unaudited": 5,
-   "exact": 39
+   "unaudited": 0,
+   "exact": 43
   },
   "lpga": {
    "total": 65,
-   "audited": 64,
-   "full": 18,
+   "audited": 65,
+   "full": 20,
    "partial": 4,
-   "held": 40,
+   "held": 39,
    "no_routing": 2,
-   "unaudited": 1,
-   "exact": 22
+   "unaudited": 0,
+   "exact": 24
   },
   "majors": {
    "total": 149,
    "audited": 149,
-   "full": 70,
+   "full": 71,
    "partial": 17,
    "held": 32,
-   "no_routing": 30,
+   "no_routing": 29,
    "unaudited": 0,
-   "exact": 102
+   "exact": 103
   }
  },
  "courses": [
@@ -52,7 +52,7 @@
    "holes_mapped": 18,
    "osm_course": "way/1180990815",
    "retrieved_at": "2026-10-02T22:02:48.349Z",
-   "cleared_by": null,
+   "cleared_by": "black-desert-2026-10-02",
    "par_conflicts": [
     13
    ],
@@ -67,15 +67,21 @@
   {
    "slug": "hoakalei-country-club-ec11161",
    "name": "Hoakalei Country Club",
-   "status": "held",
-   "decision": "no_canonical_coords",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
-   "cleared_by": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/11026026",
+   "retrieved_at": "2026-10-03T01:53:22.008Z",
+   "cleared_by": "hoakalei-2026-10-02",
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 3,
+    "green": 22,
+    "tee": 69,
+    "bunker": 117,
+    "water": 11
+   }
   },
   {
    "slug": "augusta-national-golf-club-q765780",
@@ -605,15 +611,13 @@
    "slug": "olympic-club-q2416259",
    "name": "Olympic Club",
    "status": "held",
-   "decision": "review_point_outside_boundary",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": "way/1417078425",
+   "osm_course": "relation/3573537",
    "retrieved_at": "2026-10-02T22:18:10.233Z",
    "cleared_by": null,
-   "par_conflicts": [
-    17
-   ],
+   "par_conflicts": [],
    "features": null
   },
   {
@@ -1254,15 +1258,21 @@
   {
    "slug": "kiawah-island-golf-resort-q6403903",
    "name": "Kiawah Island Golf Resort",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/17702344",
    "retrieved_at": "2026-10-02T22:36:07.537Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 21,
+    "tee": 59,
+    "bunker": 68,
+    "water": 14
+   }
   },
   {
    "slug": "la-grange-country-club-q6462891",
@@ -2898,15 +2908,21 @@
   {
    "slug": "tpc-river-highlands-ec33",
    "name": "TPC River Highlands",
-   "status": "unaudited",
-   "decision": "barrier",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/4091841",
+   "retrieved_at": "2026-10-03T00:45:34.447Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 3,
+    "green": 30,
+    "tee": 68,
+    "bunker": 70,
+    "water": 4
+   }
   },
   {
    "slug": "tpc-san-antonio-oaks-course-ec3150",
@@ -2958,12 +2974,12 @@
   {
    "slug": "tpc-twin-cities-ec10885",
    "name": "TPC Twin Cities",
-   "status": "unaudited",
-   "decision": "barrier",
+   "status": "held",
+   "decision": "review_multiple_containing",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-03T00:45:39.657Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2971,12 +2987,12 @@
   {
    "slug": "sawgrass-country-club-q7428632",
    "name": "Sawgrass Country Club",
-   "status": "unaudited",
-   "decision": "barrier",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/1783026",
+   "retrieved_at": "2026-10-03T00:45:44.683Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2997,15 +3013,21 @@
   {
    "slug": "blythefield-country-club-ec10719",
    "name": "Blythefield Country Club",
-   "status": "unaudited",
-   "decision": "barrier",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/290070926",
+   "retrieved_at": "2026-10-03T00:45:56.257Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 24,
+    "tee": 50,
+    "bunker": 87,
+    "water": 0
+   }
   },
   {
    "slug": "columbia-edgewater-country-club-ec10703",
@@ -3765,14 +3787,25 @@
   {
    "slug": "caves-valley-golf-club-ec10718",
    "name": "Caves Valley Golf Club",
-   "status": "unaudited",
-   "decision": "barrier",
+   "status": "held",
+   "decision": "review_routing_differs_from_setup",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/9363443",
+   "retrieved_at": "2026-10-03T00:46:06.741Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    3,
+    4,
+    6,
+    7,
+    8,
+    12,
+    13,
+    15,
+    16,
+    17
+   ],
    "features": null
   },
   {
@@ -3843,15 +3876,21 @@
   {
    "slug": "hamilton-golf-country-club-ec89",
    "name": "Hamilton Golf & Country Club",
-   "status": "unaudited",
-   "decision": "barrier",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/20152024",
+   "retrieved_at": "2026-10-03T00:46:24.380Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 44,
+    "green": 40,
+    "tee": 124,
+    "bunker": 135,
+    "water": 4
+   }
   },
   {
    "slug": "kenwood-cc-ec11157",

@@ -83,3 +83,18 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
 /** Two canonical courses resolving to the same OSM course = duplicate identity on our side: hold every one for review. */
 export function holdSharedTargets(rows){const by=new Map();for(const r of rows){const id=r.osm_course?.id;if(id&&r.decision&&!/^no_/.test(r.decision))by.set(id,[...(by.get(id)||[]),r]);}
  for(const [id,rs] of by)if(rs.length>1)for(const r of rs){r.decision='review_duplicate_canonical_course';r.state='REVIEW_OR_NONE';r.shared_with=rs.filter(x=>x!==r).map(x=>x.slug);}return rows;}
+
+/**
+ * Identity decision with a reviewed evidence record (workers/shared/course-identity.js). Without canonical
+ * coordinates a course is held (name alone never attaches). A reviewed record may clear ONLY its named OSM element,
+ * only from a decision listed in `clears`; a record naming a different element, or no record, leaves the hold.
+ */
+export function matchWithEvidence(canon,elements,setupHoles=new Map(),evidence=null){
+ const noCoords=canon.latitude==null||canon.longitude==null;
+ if(noCoords&&!evidence?.osm_course)return matchCourse({...canon,latitude:null,longitude:null},elements,setupHoles);
+ let m=noCoords?matchCourse({...canon,latitude:null,longitude:null},elements,setupHoles,{namedId:evidence.osm_course}):matchCourse(canon,elements,setupHoles);
+ const id=m.target?m.target.type+'/'+m.target.id:null;
+ if(evidence&&id&&id===evidence.osm_course&&evidence.clears.includes(m.decision)){
+  m={...m,decision:'exact',cleared_by:evidence.evidence_id};m.state=m.evidence.proven===18?'VERIFIED ROUTING':m.evidence.proven>0?'PARTIAL ROUTING':'NO ROUTING';}
+ return m;
+}

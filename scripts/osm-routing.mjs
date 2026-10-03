@@ -7,7 +7,7 @@
 // after 90 s and then recorded as a barrier (never hammered). Every extract is cached; reruns resume deterministically.
 import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';
 import {prepareCourseMap,ATTRIBUTION} from '../src/lib/course-map.js';
-import {matchCourse,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
+import {matchCourse,matchWithEvidence,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
 import {IDENTITY_EVIDENCE,DUPLICATE_COURSES} from '../workers/shared/course-identity.js';
 import {defaultEdition} from '../workers/shared/course-setup.js';
 
@@ -77,10 +77,7 @@ function prepare(){
   if(!fs.existsSync(f)){rows.push({...base,status:c.latitude==null&&!ev.get(c.slug)?.locate?'held':'unaudited',decision:c.latitude==null?'no_canonical_coords':barriers.has(c.slug)?'barrier':'not_collected'});continue;}
   const raw=JSON.parse(fs.readFileSync(f,'utf8')),els=raw.elements||[],setup=setupFor(c.slug),x=ev.get(c.slug);
   const canon={slug:c.slug,name:c.name,locality:c.locality,country_code:c.country_code,latitude:c.latitude??x?.locate?.lat,longitude:c.longitude??x?.locate?.lon};
-  let m=matchCourse(canon,els,setup);
-  // Documented first-party identity evidence (course-identity.js) may clear a hold for exactly the named OSM element.
-  if(x&&m.target&&x.osm_course===m.target.type+'/'+m.target.id&&x.clears.includes(m.decision))m={...m,decision:'exact',cleared_by:x.evidence_id};
-  else if(x&&x.osm_course&&!m.target){const t=els.find(e=>e.type+'/'+e.id===x.osm_course);if(t&&x.clears.includes(m.decision)){m=matchCourse({...canon,latitude:null,longitude:null},els,setup,{namedId:x.osm_course});m={...m,decision:'exact',cleared_by:x.evidence_id};}}
+  const m=matchWithEvidence({...canon,latitude:c.latitude,longitude:c.longitude},els,setup,x||null);
   const r={...base,decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
   r._m=m;r._els=els;r._raw=raw;rows.push(r);
  }

@@ -98,3 +98,8 @@ test('default setup skips a started edition without a hole table (never a future
  const M=(await courseMap(envOf(st),ix2,'tpc-sawgrass-q1',null,NOW)).body;assert.equal(M.setup.year,2025);assert.equal(M.holes[0].setup.yards,390);
  const asked=(await courseMap(envOf(st),ix2,'tpc-sawgrass-q1','players-2026',NOW)).body;assert.equal(asked.setup.year,2026,'an explicit choice is honoured');
 });
+test('missing hole-by-hole scorecards never suppress verified routing',async()=>{
+ const st={...store,'osm-routing/v1/courses/tpc-sawgrass-q1.json':fx('course-map-black-desert.json')};
+ const M=(await courseMap(envOf(st),ix,'tpc-sawgrass-q1',null,NOW)).body;assert.equal(M.scoring,null);assert.equal(M.geometry_status,'VERIFIED ROUTING');
+ const mod=courseMapModule(M,{mode:'cast',current:7});assert.match(mod,/<svg/);assert.match(mod,/CURRENT HOLE<\/span> <b>7<\/b>/);assert.match(holePanel(M,7),/No scoring sample available/);
+});
