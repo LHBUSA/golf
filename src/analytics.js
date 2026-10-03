@@ -7,8 +7,8 @@ export function initAnalytics(win=window,doc=document){
 }
 // Observational product events on the single network GA4 instance. Allowlisted names and parameters;
 // values must be slug/ID-shaped, so names, emails, tokens, query text or locations cannot be sent.
-export const EVENTS=new Set(['golf_page_view','news_article_view','news_internal_link_click','player_view','course_view','tournament_view','matchup_view','pbecast_view','dna_view','bag_dna_view','weather_view','share_click','video_impression','video_play','video_watch_on_youtube','article_player_click','article_course_click','article_tournament_click','article_pbecast_click','article_related_story_click']);
-export const PARAMS=new Set(['surface','page_type','article_type','entity_type','entity_id','video_provider','video_id','video_type','source_channel','internal_destination_type','share_method']);
+export const EVENTS=new Set(['golf_page_view','news_article_view','news_internal_link_click','player_view','course_view','tournament_view','matchup_view','pbecast_view','dna_view','bag_dna_view','weather_view','share_click','video_impression','video_play','video_watch_on_youtube','article_player_click','article_course_click','article_tournament_click','article_pbecast_click','article_related_story_click','pbecast_player_click','pbecast_dna_open','dna_window_change','dna_dimension_focus']);
+export const PARAMS=new Set(['surface','page_type','article_type','entity_type','entity_id','video_provider','video_id','video_type','source_channel','internal_destination_type','share_method','dna_window','dna_dimension']);
 const SAFE=/^[a-z0-9][a-z0-9_.:-]{0,99}$/;
 export function sanitize(params={}){const out={surface:'golf'};for(const [k,v] of Object.entries(params)){if(!PARAMS.has(k))continue;const s=String(v??'').toLowerCase();if(SAFE.test(s))out[k]=s;}return out;}
 export function track(name,params={},win=typeof window!=='undefined'?window:null){

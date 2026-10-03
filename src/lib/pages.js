@@ -3,7 +3,7 @@ import {weatherModule} from './article.js';
 import * as DNA from './dna-ui.js';
 import {castReplayPanel} from './cast-replay.js';
 import {weatherDays} from '../../workers/shared/news/golf-math.js';
-import {e,a,go,kicker,toPar,pos,dates,division,tourLabel,statusLabel,coverageLabel,portrait,courseImage,pill,conf,heading,section,stat,fmtDate} from './ui.js';
+import {playerName,e,a,go,kicker,toPar,pos,dates,division,tourLabel,statusLabel,coverageLabel,portrait,courseImage,pill,conf,heading,section,stat,fmtDate} from './ui.js';
 import {radar,tracks,formChart,roundProfile,finishBars,DIM_NAME,bagDna,withheldReason} from './charts.js';
 import {nowNext,nextCue,eventState,stateLabel,daysBetween} from '../../workers/shared/schedule.js';
 const DIM_LABELS={par3:'Par-3 scoring',par4:'Par-4 scoring',par5:'Par-5 scoring',scoring:'Scoring vs field',consistency:'Consistency',under_par:'Under-par rounds',cuts:'Cuts made',top10:'Top-10 rate',contention:'Contention (top 5)',form:'Recent form',majors:'Major performance'};
@@ -11,7 +11,7 @@ const SERIES=[['masters','Masters Tournament','men'],['pga-championship','PGA Ch
 export const seriesName=k=>SERIES.find(s=>s[0]===k)?.[1]||k;
 const attribution=`<p class="source-note">Results, fields and course setups adapted from Wikipedia articles (CC BY-SA 4.0; the redistributed results dataset is available under the same licence). Identities, championship editions and venues from Wikidata (CC0). Photographs from Wikimedia Commons with per-image credit. ${a('/intelligence#sources','Sources & methodology')}</p>`;
 const freshness=ix=>`<div class="data-source" data-asof="${e(ix.as_of)}"><span>Projection ${e(ix.as_of?.slice(0,16).replace('T',' '))} UTC</span><span>${e(ix.coverage.editions_with_leaderboards)} leaderboards · ${e(ix.coverage.rounds.toLocaleString('en-US'))} rounds · ${e(ix.coverage.players.toLocaleString('en-US'))} players</span><span>Live scoring not connected</span><span data-freshness role="status">Archive + schedule data</span></div>`;
-const playerLink=(p,cls='player-link')=>p?.slug?`<a class="${cls}" href="/player/${e(p.slug)}">${e(p.name)}</a>`:e(p?.name||'—');
+const playerLink=(p,cls='player-link')=>playerName(p,{cls});
 const edLink=x=>`<a href="/tournament/${e(x.slug)}">${e(x.name)}</a>`;
 function eventCard(x,{big=false}={}){
  return `<article class="event-card${big?' event-card-big':''}" data-division="${e(x.division)}" data-major="${x.is_major}" data-year="${e(x.year)}"><div class="event-card-top">${pill(x.is_major?(x.division==='women'?'Women’s major':'Men’s major'):tourLabel(x),x.division==='women'?'pill-women':'pill-men')}${pill(statusLabel(x.status),'pill-'+x.status)}</div><h3>${edLink(x)}</h3><p class="event-meta">${e(dates(x))}${x.course?` · <a href="/course/${e(x.course.slug)}">${e(x.course.name)}</a>`:x.location?` · ${e(x.location)}`:''}</p>${x.winner?`<div class="event-winner">${portrait(x.winner,{size:48,cls:'mini-portrait'})}<div><span class="micro-label">CHAMPION</span>${playerLink(x.winner)}${x.winner_to_par!==null&&x.winner_to_par!==undefined?` <b>${toPar(x.winner_to_par)}</b>`:''}</div></div>`:''}<span class="coverage-tag">${e(coverageLabel(x.coverage))}</span></article>`;
@@ -206,9 +206,10 @@ export function player(d,ix){
  const model=DNA.dnaModel(fp);
  const ctas=`<div class="hero-ctas dna-ctas"><a class="button button-gold" href="/matchups?a=${e(d.slug)}">View matchups <span aria-hidden="true">↗</span></a>${nextEv?`<a class="button button-quiet" href="/tournament/${e(nextEv.slug)}">View tournament <span aria-hidden="true">↗</span></a><a class="button button-quiet" href="/pbecast?tournament=${e(nextEv.slug)}">Open PBEcast <span aria-hidden="true">↗</span></a>`:''}</div>`;
  const hist=DNA.historyTimeline(d);
- return hero+`<div class="page-body data-body">${ctas}<div data-live-player data-player="${e(d.slug)}"></div>`+next
-  +section('','',DNA.dnaHero(d,model,{asOf:ix.as_of}),{cls:'dna-hero-sec'})
-  +(model?.metrics.length?section('DNA DIMENSIONS','Every dimension, with its sample',DNA.metricBars(model)+premiumLock('Raw values behind each percentile','Strokes vs field, rates and both time windows for every dimension.','player-dna'),{id:'dna'}):'')
+ return hero+`<div class="page-body data-body">${ctas}`+next
+  +section('','',DNA.dnaHero(d,model,{asOf:ix.as_of}),{cls:'dna-hero-sec',id:'dna'})
+  +`<div data-live-player data-player="${e(d.slug)}" data-traits="${e(JSON.stringify(model?.ranked?.length?{window:model.window,top:model.ranked.slice().sort((x,y)=>y.percentile-x.percentile||x.key.localeCompare(y.key)).slice(0,2).map(m=>({label:m.label,p:m.percentile}))}:null))}"></div>`
+  +(model?.metrics.length?section('DNA DIMENSIONS','Every dimension, with its sample',`<div data-dna-bars>${DNA.metricBars(model)}</div>`+premiumLock('Raw values behind each percentile','Strokes vs field, rates and both time windows for every dimension.','player-dna'),{id:'dna-dimensions'}):'')
   +(DNA.recentForm(d)?section('RECENT FORM','How the last starts went',DNA.recentForm(d)):'')
   +(DNA.finishDistribution(v.finish_distribution?.all)?section('FINISH DISTRIBUTION','Floor and ceiling',DNA.finishDistribution(v.finish_distribution?.all)):'')
   +(DNA.roundProfileBlock(d,model)?section('ROUND PROFILE','Round by round vs field',DNA.roundProfileBlock(d,model)):'')

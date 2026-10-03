@@ -1,6 +1,10 @@
 // Shared presentation helpers (prerender + browser). No data fetching here.
 export const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const arrow='<span aria-hidden="true">↗</span>';
+// One player-link rule for every surface: a canonical slug supplied by our data -> /player/<slug>; anything else
+// (unresolved ESPN athlete, missing slug) -> plain escaped text. Never derive a slug from a name.
+export const SLUG_RE=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const playerName=(p,{cls='player-link',hash='',label=null}={})=>{const n=label??p?.name??'—';return p?.slug&&SLUG_RE.test(p.slug)?`<a class="${cls}" href="/player/${e(p.slug)}${hash}" data-player-slug="${e(p.slug)}">${e(n)}</a>`:e(n);};
 export const a=(href,text,cls='text-link')=>`<a class="${cls}" href="${e(href)}">${e(text)}</a>`;
 export const go=(href,text,cls='arrow-link')=>`<a class="${cls}" href="${e(href)}">${e(text)} ${arrow}</a>`;
 export const kicker=t=>`<p class="eyebrow">${e(t)}</p>`;

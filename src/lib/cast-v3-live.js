@@ -1,7 +1,7 @@
 // PBEcast V3 controller: one state object per mounted cast, small region diffs on refresh, no timers per render.
 import {fetchCourseMap,mountCourseMap} from './course-map-live.js';
 import {holeStats,cardsFromLive} from './hole-intel.js';
-import {castShell,commandBar,currentHole,towerRows,focusPanel,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
+import {castShell,commandBar,currentHole,towerRows,focusPanel,compactDna,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
 import {e} from './ui.js';
 
 const STATE=new WeakMap();
@@ -24,12 +24,12 @@ function mount(host,slug){
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
   // Scoring Pulse event with a proven hole -> select that golfer and focus that hole (map + scorecard).
-  if(t.dataset.pulseHole){const h=Number(t.dataset.pulseHole),k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.cmapEl&&!s.cmapEl.hidden?s.cmapEl:s.focus).scrollIntoView?.({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
+  if(t.dataset.pulseKey){const h=t.dataset.pulseHole?Number(t.dataset.pulseHole):null,k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);if(h==null){return;}s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.cmapEl&&!s.cmapEl.hidden?s.cmapEl:s.focus).scrollIntoView?.({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
   if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.map?.setFocus(s.selHole??(narrow()?curHole(s):null));s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
   if(t.dataset.cv3Filter){s.filter=t.dataset.cv3Filter;renderTimeline(s);return;}
   if(t.dataset.cv3Series){const k=t.dataset.cv3Series;if((s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);return;}
   if(t.hasAttribute('data-cv3-fs'))toggleFullscreen(s);});
- s.tower.addEventListener('keydown',ev=>{const b=[...s.tower.querySelectorAll('button')],i=b.indexOf(document.activeElement);if(i<0)return;
+ s.tower.addEventListener('keydown',ev=>{const b=[...s.tower.querySelectorAll('.cv3-hit')],i=b.indexOf(document.activeElement);if(i<0)return;
   const j=ev.key==='ArrowDown'?i+1:ev.key==='ArrowUp'?i-1:ev.key==='Home'?0:ev.key==='End'?b.length-1:null;if(j===null)return;ev.preventDefault();b[Math.max(0,Math.min(b.length-1,j))].focus();});
  // Legend hover/focus highlights a series without changing the selection.
  const hl=(ev,on)=>{const t=ev.target.closest?.('[data-cv3-series]');if(!t)return;s.focusKey=on?t.dataset.cv3Series:null;drawPlot(s);};
@@ -51,8 +51,8 @@ function teardown(s){clearInterval(s.tick);s.ro?.disconnect();document.removeEve
 function tickClock(s){const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)a.textContent=ageText(s.ev);const c=s.root.querySelector('[data-cv3-clock]');if(c)c.textContent=courseClock(Number(c.getAttribute('data-off')));}
 
 function select(s,k){s.selected=k;s.selHole=null;s.cursor=null;
- for(const b of s.tower.querySelectorAll('[data-cv3-pick]')){const on=b.dataset.cv3Pick===k;b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));}
- s.tower.__html=null;renderFocus(s);renderPulse(s);renderTimeline(s);syncMap(s,{refocus:true});
+ for(const b of s.tower.querySelectorAll('[data-cv3-pick]')){const on=b.dataset.cv3Pick===k;b.closest('li')?.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));}
+ s.tower.__html=null;renderPulse(s);renderFocus(s);renderTimeline(s);syncMap(s,{refocus:true});
  if(narrow())s.focus.scrollIntoView?.({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
 
 function render(s){
@@ -61,8 +61,8 @@ function render(s){
  // Tower: rebuilt only when a row changed; scroll position and the focused golfer survive the update.
  const focusedPick=active?.closest?.('[data-cv3-pick]')?.dataset.cv3Pick,top=s.tower.scrollTop;
  if(set(s.tower,towerRows(s.ev,{selected:s.selected,moves:boardMoves(s.points,s.ev.leaderboard),prev:s.first?null:s.prevRows}))){s.tower.scrollTop=top;if(focusedPick)s.tower.querySelector(`[data-cv3-pick="${CSS.escape(focusedPick)}"]`)?.focus();}
- if(s.first){s.tower.scrollTop=0;const on=s.tower.querySelector('.is-on');if(on){const y=on.getBoundingClientRect().top-s.tower.getBoundingClientRect().top;if(y>s.tower.clientHeight-40)s.tower.scrollTop=y-s.tower.clientHeight/3;}}
- renderFocus(s);renderPulse(s);renderTimeline(s);
+ if(s.first){s.tower.scrollTop=0;const on=s.tower.querySelector('li.is-on');if(on){const y=on.getBoundingClientRect().top-s.tower.getBoundingClientRect().top;if(y>s.tower.clientHeight-40)s.tower.scrollTop=y-s.tower.clientHeight/3;}}
+ renderPulse(s);renderFocus(s);renderTimeline(s);
  set(s.field,fieldPanel(fieldSnapshot(s.ev,s.points)));set(s.wx,weatherTile(s.weather));
  s.first=false;
 }
@@ -83,9 +83,21 @@ function syncMap(s,{refocus=false}={}){
 // Today = the live round's posted hole cards (observed field cards). Live counts come from posted holes only.
 function mapCtx(s){const stats=holeStats(cardsFromLive([...s.holes.values()].map(h=>({holes:h}))));const rows=(s.ev.leaderboard||[]).filter(r=>r.status==='active');
  return {today:stats.size?{stats,label:`TODAY · ROUND ${s.ev.round}`,note:'live posted holes, current round'}:null,live:n=>({next:rows.filter(r=>currentHole(r)===n).length,cards:stats.get(n)?.sample??null})};}
-function renderFocus(s){const r=row(s);set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole,realRoute:h=>!!s.map?.hasRoute(h)}));}
+// Golfer intelligence: portrait from the published index (approved photos only), DNA from the public player
+// projection (/api/v1/players/:slug -> dna_public), both by canonical slug only and cached per page.
+const IDX={p:null},PL=new Map();
+function playerIndex(){return IDX.p||(IDX.p=fetch('/index-snapshot.json').then(r=>r.ok?r.json():null).then(ix=>new Map((ix?.players||[]).map(p=>[p.slug,p]))).catch(()=>new Map()));}
+function playerDoc(slug){if(!PL.has(slug))PL.set(slug,fetch('/api/v1/players/'+encodeURIComponent(slug),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).then(j=>j?.data||null).catch(()=>null));return PL.get(slug);}
+function renderFocus(s){const r=row(s),slug=r?.slug||null;
+ // The golfer's own observed events (not capped by the pulse list's display limit).
+ const evs=s.selected?pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected]),limit:2000}).filter(x=>x.keys?.includes(s.selected)):[];const mv=boardMoves(s.points,s.ev.leaderboard).get(s.selected)||null;
+ const cached=slug&&s.dnaHtml?.get(slug);
+ set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole,realRoute:h=>!!s.map?.hasRoute(h),player:slug?(s.photos?.get(slug)||{slug,name:r.name}):null,mv,events:evs,dnaBlock:cached??(slug?'<p class="gnote">Loading Player DNA…</p>':'')}));
+ if(slug&&cached==null){s.dnaHtml=s.dnaHtml||new Map();playerDoc(slug).then(p=>{s.dnaHtml.set(slug,p?compactDna(p):'');if(row(s)?.slug===slug){const el=s.focus.querySelector('[data-cv3-dna]');if(el)el.innerHTML=s.dnaHtml.get(slug);s.focus.__html=null;}});}
+ if(!s.photos){s.photos=new Map();playerIndex().then(m=>{s.photos=m;s.focus.__html=null;renderFocus(s);});}
+}
 function renderPulse(s){
- const ev=pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});
+ const ev=pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});s.lastPulse=ev;
  set(s.pulse,pulseList(ev,{seen:s.seen}));s.seen=new Set(ev.map(x=>x.t+'|'+x.text));
 }
 function renderTimeline(s){

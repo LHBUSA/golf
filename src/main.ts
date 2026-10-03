@@ -21,7 +21,7 @@ const {courseMapSvg}=courseMapLib as any;
 // @ts-ignore
 import {videoTile,TYPE_LABEL} from './lib/video.js';
 // @ts-ignore
-import {fillRaw} from './lib/dna-ui.js';
+import {fillRaw,dnaModel,dnaBody,dnaContext,metricBars,windowFingerprint} from './lib/dna-ui.js';
 // @ts-ignore
 import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
 // @ts-ignore
@@ -77,10 +77,28 @@ async function premium(){
  for(const l of locks){const mod=l.dataset.premium;let path='';
   if(mod==='player-dna'&&parts[0]==='player')path='player-dna/'+parts[1];else if(mod==='course-fit'&&parts[0]==='course')path='course-dna/'+parts[1];else if(mod==='field'&&parts[0]==='tournament')path='field/'+parts[1];else if(mod==='matchups'&&parts[0]==='matchups')path='matchups/'+parts[1]+'/'+parts[2];
   if(!path)continue;const r=await api('intelligence/'+path).then(r=>r.ok?r.json():null).catch(()=>null);if(!r?.data){const s=$('.premium-status',l);if(s)s.textContent='All Access verified. Not enough comparable sample for this module.';continue;}
-  if(mod==='player-dna')fillRaw(document,r.data.dna,'data-raw');if(mod==='matchups'){fillRaw(document,r.data.a?.dna,'data-raw-a');fillRaw(document,r.data.b?.dna,'data-raw-b');}
+  if(mod==='player-dna'){fillRaw(document,r.data.dna,'data-raw');mountDnaWindows(r.data.dna);}if(mod==='matchups'){fillRaw(document,r.data.a?.dna,'data-raw-a');fillRaw(document,r.data.b?.dna,'data-raw-b');}
   l.classList.add('unlocked');l.innerHTML=mod==='player-dna'?premiumDna(r.data):mod==='course-fit'?premiumFit(r.data):mod==='field'?premiumField(r.data):premiumMatchup(r.data);}
 }
 premium();
+// All Access: both DNA windows exist only after server-side verification, so the toggle appears only then. Switching
+// re-renders the radar, cards, dimension rows, cohort context and raw values for that window (never mixed).
+function mountDnaWindows(dna:any){
+ const host=$('[data-dna-windows]');if(!host||!dna?.l24m||!dna?.all)return;const slug=location.pathname.split('/')[2]||'';
+ let cur=Object.values(dna.l24m.metrics||{}).some((m:any)=>m?.percentile!==null&&m?.percentile!==undefined)?'l24m':'all',doc:any=null;
+ const draw=()=>{host.innerHTML=`<div class="dna-wtoggle" role="group" aria-label="Player DNA window">${[['l24m',dna.l24m.window?.label||'Last 24 months'],['all',dna.all.window?.label||'All observed']].map(([k,l])=>`<button type="button" data-dna-win="${k}" aria-pressed="${k===cur}">${e(l)}</button>`).join('')}</div>`;};
+ draw();
+ host.addEventListener('click',async ev=>{const b=(ev.target as HTMLElement).closest('[data-dna-win]') as HTMLElement|null;if(!b)return;const k=b.dataset.dnaWin||'';if(k===cur||!dna[k])return;cur=k;draw();
+  doc=doc||await api('players/'+encodeURIComponent(slug)).then(r=>r.ok?r.json():null).then((j:any)=>j?.data||null).catch(()=>null);
+  const model=dnaModel(windowFingerprint(dna[k]));const body=$('[data-dna-body]'),bars=$('[data-dna-bars]'),lab=$('[data-dna-window-label]'),ctx=$('[data-dna-context]');
+  if(body&&doc)body.innerHTML=dnaBody(doc,model);if(bars&&model)bars.innerHTML=metricBars(model);if(lab)lab.textContent=model?.window||'';if(ctx&&model)ctx.innerHTML=dnaContext(model);
+  fillRaw(document,{l24m:dna[k]},'data-raw');track('dna_window_change',{entity_type:'player',entity_id:slug,dna_window:k});(host.querySelector(`[data-dna-win="${k}"]`) as HTMLElement|null)?.focus();});
+}
+// PBEcast / DNA analytics: canonical slugs only (no names).
+document.addEventListener('click',ev=>{const t=ev.target as HTMLElement;
+ const pl=t.closest?.('[data-cv3] a[data-player-slug]') as HTMLElement|null;if(pl)track('pbecast_player_click',{entity_type:'player',entity_id:pl.dataset.playerSlug||''});
+ const dn=t.closest?.('a[data-dna-open]') as HTMLElement|null;if(dn)track('pbecast_dna_open',{entity_type:'player',entity_id:dn.dataset.dnaOpen||''});});
+{const seenDim=new Set<string>();document.addEventListener('focusin',ev=>{const g=(ev.target as HTMLElement).closest?.('[data-dna-dim]') as HTMLElement|null;if(!g)return;const k=g.dataset.dnaDim||'';if(seenDim.has(k))return;seenDim.add(k);track('dna_dimension_focus',{entity_type:'player',entity_id:location.pathname.split('/')[2]||'',dna_dimension:k});});}
 if(location.pathname==='/all-access'){
  const badge=$('.entitlement-status .state');
  api('membership').then(r=>r.ok?r.json():null).then(b=>{if(!b?.membership)throw Error('membership_unavailable');if(badge)badge.innerHTML='<i aria-hidden="true"></i>'+(b.membership.entitled?'ALL ACCESS VERIFIED':'FREE READER');}).catch(()=>{if(badge)badge.innerHTML='<i aria-hidden="true"></i>VERIFICATION UNAVAILABLE';});
@@ -108,7 +126,7 @@ async function hydrateLive(){
   }}
  if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement')]):[null,null];
   if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}${movementChart(mv?.points||[],{title:'Leaderboard movement'})}`;}if(cast)castV3(cast,r,mv);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
- if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final')pl.innerHTML=playerLive(r.event,r.player);}
+ if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final'){let traits:any=null;try{traits=JSON.parse(pl.getAttribute('data-traits')||'null');}catch{}pl.innerHTML=playerLive(r.event,r.player,{traits});}}
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
 hydrateLive();

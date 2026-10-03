@@ -35,12 +35,20 @@ test('SEO: canonical, robots, sitemap and JSON-LD on qualified pages',async({req
 for(const width of [390,1440])test(`PBEcast V3 live ${width}: selection sync, labels, no overflow, axe`,async({page,request})=>{
  const live=await (await request.get('/api/v1/live?top=1')).json().catch(()=>null);const ev=(live?.events||[]).find(x=>['live','stale','suspended','round_complete'].includes(x.state));test.skip(!ev,'no tournament in play');
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
- await page.setViewportSize({width,height:900});await page.goto('/pbecast?tournament='+ev.edition.slug,{waitUntil:'networkidle'});await page.locator('[data-cv3-tower] button').first().waitFor();
- const pick=page.locator('[data-cv3-tower] button').nth(1);const nm=(await pick.locator('.cv3-n').innerText()).trim();await pick.click();await expect(page.locator('.cv3-pname')).toHaveText(nm);
+ await page.setViewportSize({width,height:900});await page.goto('/pbecast?tournament='+ev.edition.slug,{waitUntil:'networkidle'});await page.locator('[data-cv3-tower] .cv3-hit').first().waitFor();
+ const row=page.locator('[data-cv3-tower] .cv3-row').nth(1);const nm=(await row.locator('.cv3-n').innerText()).trim();await row.locator('.cv3-h').click({force:true});await expect(page.locator('.cv3-pname')).toHaveText(nm);
  await expect(page.locator('[data-cv3-tower] button[aria-pressed=true]')).toHaveCount(1);
  const ov=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth,clipped:[...document.querySelectorAll('.tl-lab text')].filter(t=>{const r=t.getBoundingClientRect(),s=t.closest('svg').getBoundingClientRect();return r.right>s.right+0.5||r.left<s.left-0.5;}).length}));
  expect(ov.scroll).toBeLessThanOrEqual(ov.width);expect(ov.clipped).toBe(0);expect(await page.locator('[style]').count()).toBe(0);
  expect(await page.locator('.cv3').innerText()).not.toMatch(/ShotLink|strokes gained|proximity|course weather/i);
  const axe=await new AxeBuilder({page}).include('.cv3').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
  expect(errors).toEqual([]);
+});
+
+// Canonical golfer names in PBEcast are real links to Player DNA; the row-select handler must not swallow them.
+test('PBEcast golfer name opens the player profile; row elsewhere selects',async({page,request})=>{
+ const live=await (await request.get('/api/v1/live?top=1')).json().catch(()=>null);const ev=(live?.events||[]).find(x=>['live','stale','suspended','round_complete'].includes(x.state));test.skip(!ev,'no tournament in play');
+ await page.goto('/pbecast?tournament='+ev.edition.slug,{waitUntil:'networkidle'});await page.locator('[data-cv3-tower] .cv3-hit').first().waitFor();
+ const link=page.locator('[data-cv3-tower] .cv3-row a.cv3-plink-row').nth(2);const href=await link.getAttribute('href');expect(href).toMatch(/^\/player\/[a-z0-9-]+$/);
+ await link.focus();await expect(link).toBeFocused();await link.click();await expect(page).toHaveURL(new RegExp(href+'$'));await expect(page.locator('#dna')).toHaveCount(1);
 });

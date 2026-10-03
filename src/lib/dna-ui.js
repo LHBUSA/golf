@@ -33,17 +33,68 @@ const pct=v=>v===null||v===undefined?'—':ord(v);
 const bar=(v,cls='')=>`<span class="mb-track" aria-hidden="true">${v===null||v===undefined?'':`<i data-w="${Math.round(v)}" class="${cls} ${v>=75?'hi':v<=25?'lo':''}"></i>`}</span>`;
 export function metricBars(model,{rawSlots=true}={}){
  if(!model?.metrics.length)return '';
- return `<div class="mbars" role="list">${model.metrics.map(m=>`<div class="mbar" role="listitem"><div class="mbar-head"><span class="mbar-label">${e(m.label)}</span><b class="mbar-pct">${m.percentile===null?'—':m.percentile}</b></div>${bar(m.percentile)}<div class="mbar-foot">${rawSlots&&!m.missing?`<span class="mbar-raw" data-raw="${e(m.key)}"><span class="lock">All Access value</span></span>`:''}${m.withheld?`<span class="mbar-why" title="${e(m.withheld.detail)}"><b>${e(m.withheld.short)}</b> · ${e(m.withheld.detail)}</span>`:`<span class="mbar-n">${m.sample_n!==null?`n=${e(m.sample_n)} ${e(m.basis||'')}`:''}${m.confidence?` · ${e(m.confidence.toLowerCase())}`:''}</span>`}</div><p class="mbar-desc">${e(m.description)}</p></div>`).join('')}</div>`;
+ const cohortTxt=m=>`Compared with ${model.division==='women'?'the women’s':'the men’s'} division cohort${Number.isFinite(m.cohort_size)?` (${m.cohort_size} qualifying players)`:''}`;
+ return `<div class="mbars" role="list">${model.metrics.map(m=>`<div class="mbar" role="listitem" id="dna-${e(m.key)}"><div class="mbar-head"><span class="mbar-label">${e(m.label)}</span><b class="mbar-pct">${m.percentile===null?'—':m.percentile}</b></div>${bar(m.percentile)}<div class="mbar-foot">${rawSlots&&!m.missing?`<span class="mbar-raw" data-raw="${e(m.key)}"><span class="lock">All Access value</span></span>`:''}${m.withheld?`<span class="mbar-why" title="${e(m.withheld.detail)}"><b>${e(m.withheld.short)}</b> · ${e(m.withheld.detail)}</span>`:`<span class="mbar-n">${m.sample_n!==null?`n=${e(m.sample_n)} ${e(m.basis||'')}`:''}${m.confidence?` · ${e(m.confidence.toLowerCase())}`:''}</span>`}</div><details class="mbar-more"><summary>Why this score</summary><dl><div><dt>Percentile</dt><dd>${m.percentile===null?'Not published':e(ord(m.percentile))}</dd></div><div><dt>Observed value</dt><dd>${rawSlots&&!m.missing?`<span data-raw="${e(m.key)}"><span class="lock">All Access value</span></span>`:'—'}</dd></div><div><dt>Sample</dt><dd>${m.sample_n!==null&&m.sample_n!==undefined?`${e(m.sample_n)} qualifying ${e(m.basis||'')}`:'—'}</dd></div><div><dt>Confidence</dt><dd>${m.confidence?e(m.confidence[0]+m.confidence.slice(1).toLowerCase()):'—'}</dd></div><div><dt>Cohort</dt><dd>${e(cohortTxt(m))}</dd></div><div><dt>Definition</dt><dd>${e(m.description)}</dd></div></dl></details></div>`).join('')}</div>`;
 }
-// ---------------------------------------------------------------- player
+
+// ---------------------------------------------------------------- player DNA hero (V4)
+// Individual dimensions only: there is no composite score. Missing / withheld dimensions keep their axis (dashed, "—")
+// and break the profile line; the line never passes through, and never drops to zero for, a missing value.
+const CONF_LABEL={HIGH:'High',MEDIUM:'Medium',LIMITED:'Limited'};
+export function dnaRadar(model,{title='Player DNA'}={}){
+ // Not-comparable rows (par holes with no full-field hole data: missing) stay off the radar per methodology; sample-gated
+ // dimensions keep a dashed axis with "—" and break the line.
+ const ms=(model?.metrics||[]).filter(m=>!m.missing);if(ms.filter(m=>m.percentile!==null).length<3)return '';
+ const N=ms.length,R=132,CX=250,CY=210,pt=(i,r)=>{const a=-Math.PI/2+2*Math.PI*i/N;return [CX+r*Math.cos(a),CY+r*Math.sin(a)];},f=p=>p[0].toFixed(1)+','+p[1].toFixed(1);
+ const top=new Set(model.ranked.slice().sort((x,y)=>y.percentile-x.percentile||x.key.localeCompare(y.key)).slice(0,3).map(m=>m.key));
+ const rings=[25,50,75,100].map(v=>`<polygon class="dr-ring${v===50?' is-mid':''}" points="${ms.map((_,i)=>f(pt(i,R*v/100))).join(' ')}"/>`).join('');
+ const ringLab=[25,50,75,100].map(v=>{const [x,y]=pt(0,R*v/100);return `<text class="dr-rl" x="${(x+4).toFixed(1)}" y="${(y+3).toFixed(1)}">${v}</text>`;}).join('');
+ const axes=ms.map((m,i)=>{const [x,y]=pt(i,R);return `<line class="dr-axis${m.percentile===null?' is-na':''}" x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;}).join('');
+ // Profile: segments only between ADJACENT axes that both have a published percentile; filled only when complete.
+ const P=ms.map((m,i)=>m.percentile===null?null:pt(i,R*m.percentile/100));
+ const complete=P.every(Boolean);
+ const segs=complete?`<polygon class="dr-shape" points="${P.map(f).join(' ')}"/>`:P.map((p,i)=>{const q=P[(i+1)%N];return p&&q?`<line class="dr-seg" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`:'';}).join('');
+ const pts=ms.map((m,i)=>{if(m.percentile===null)return '';const p=P[i],lab=`${m.label}: ${ord(m.percentile)} percentile, n=${m.sample_n??'—'} ${m.basis||''}${m.confidence?', '+CONF_LABEL[m.confidence]+' confidence':''}`;
+  return `<g class="dr-pt${top.has(m.key)?' is-top':''}" tabindex="0" role="img" aria-label="${e(lab)}" data-dna-dim="${e(m.key)}"><title>${e(lab)}</title><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${top.has(m.key)?6:4.5}"/></g>`;}).join('');
+ const labels=ms.map((m,i)=>{const [x,y]=pt(i,R+26),dx=x-CX,anc=Math.abs(dx)<14?'middle':dx>0?'start':'end';const v=m.percentile===null?'—':String(m.percentile);
+  return `<text class="dr-lab${m.percentile===null?' is-na':''}${top.has(m.key)?' is-top':''}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anc}" dominant-baseline="middle"><tspan class="dr-name">${e(SHORT[m.key]||m.label)}</tspan><tspan class="dr-val" dx="6">${v}</tspan></text>`;}).join('');
+ const summary=ms.map(m=>`${m.label} ${m.percentile===null?'not published':ord(m.percentile)+' percentile'}`).join('; ');
+ return `<figure class="dradar"><svg viewBox="0 0 500 420" role="group" aria-label="${e(title)}. ${e(summary)}"><g>${rings}${axes}</g>${segs}${pts}${ringLab}${labels}<circle class="dr-centre" cx="${CX}" cy="${CY}" r="2.5"/></svg><figcaption>Percentile within the player’s own division cohort (centre 0, outer ring 100). Each axis stands alone: no composite score. A dashed axis with “—” has no published percentile, and the profile line is broken there rather than drawn through it.</figcaption></figure>`;
+}
+const SHORT={par3:'Par 3',par4:'Par 4',par5:'Par 5',scoring:'Scoring',consistency:'Consistency',under_par:'Under par',cuts:'Cuts',top10:'Top 10',contention:'Top 5',form:'Form',majors:'Majors'};
 export function dnaHero(d,model,{asOf=null}={}){
- if(!model)return `<p class="empty-note">Not enough full-field rounds in our record to publish Player DNA yet.</p>`;
- const r=model.ranked,best=r.slice().sort((x,y)=>y.percentile-x.percentile)[0],reliable=r.slice().sort((x,y)=>(RELIABLE[y.confidence]||0)-(RELIABLE[x.confidence]||0)||(y.sample_n||0)-(x.sample_n||0)||y.percentile-x.percentile)[0];
- const form=r.find(m=>m.key==='form'),major=r.find(m=>m.key==='majors')||r.find(m=>m.key==='contention'),tr=trend(d.visuals?.form);
- const cards=[best&&['Best DNA edge',best.label,pct(best.percentile)+' percentile'],reliable&&reliable!==best&&['Most reliable',reliable.label,`${pct(reliable.percentile)} · n=${reliable.sample_n??'—'}`],form&&['Recent form',pct(form.percentile)+' percentile',tr?`Last three starts vs the three before: ${tr.toLowerCase()}`:'Strokes vs field across recent starts',sparkline(d.visuals?.form,{label:d.name+' recent form'})],major&&(major.key==='majors'?['Major performance',`${d.summary?.major_wins||0} major win${d.summary?.major_wins===1?'':'s'} · ${d.summary?.major_appearances_observed||0} starts`,pct(major.percentile)+' percentile']:['Contention profile',major.label,pct(major.percentile)+' percentile'])].filter(Boolean).slice(0,4);
- const rad=r.length>=3?radar(model.metrics.filter(m=>!m.missing).map(m=>({code:m.key,percentile:m.percentile})),{title:d.name+' Golf DNA'}):'';
- return `<div class="dna-hero"><div class="dna-hero-head"><div><p class="eyebrow">GOLF DNA</p><h2>${e(d.name)}</h2><p class="dna-sub">${e(model.window)} · ${e(model.cohort)}${asOf?` · Updated ${e(fmtDate(String(asOf).slice(0,10)))}`:''}</p></div></div><div class="dna-hero-grid">${rad?`<div class="dna-hero-radar">${rad}</div>`:''}<div class="dna-cards">${cards.map(([k,t,v,x])=>`<article class="dna-card"><span class="micro-label">${e(k)}</span><b>${e(t)}</b><span>${e(v)}</span>${x||''}</article>`).join('')}</div></div></div>`;
+ if(!model||!model.ranked.length)return `<div class="dna-hero is-empty"><p class="eyebrow">PLAYER DNA</p><h2>${e(d.name)}</h2><p class="dna-sub">Player DNA does not yet have enough comparable sample. Dimensions publish once full-field rounds in our record clear each dimension’s qualification rule.</p></div>`;
+ return dnaHeroShell(d,model,{asOf});
 }
+/** Radar + intelligence cards for one window (re-rendered in place by the All Access window toggle). */
+export function dnaBody(d,model){
+ if(!model||!model.ranked.length)return `<p class="dna-sub">Player DNA does not yet have enough comparable sample in this window.</p>`;
+ const r=model.ranked,best=r.slice().sort((x,y)=>y.percentile-x.percentile||x.key.localeCompare(y.key))[0];
+ const reliable=r.slice().sort((x,y)=>(RELIABLE[y.confidence]||0)-(RELIABLE[x.confidence]||0)||(y.sample_n||0)-(x.sample_n||0)||y.percentile-x.percentile)[0];
+ const form=r.find(m=>m.key==='form'),t5=r.find(m=>m.key==='contention'),t10=r.find(m=>m.key==='top10'),tr=trend(d.visuals?.form);
+ const nForm=(d.visuals?.form||[]).filter(x=>Number.isFinite(x.vs_field)).length;
+ const nb=m=>`n=${m.sample_n??'—'} ${m.basis||''}`.trim();
+ const card=(k,title,value,sub,extra='',cls='')=>`<article class="dna-card ${cls}"><span class="micro-label">${e(k)}</span><b>${e(title)}</b><span class="dna-card-v">${e(value)}</span>${sub?`<span class="dna-card-s">${e(sub)}</span>`:''}${extra}</article>`;
+ const cards=[
+  best&&card('Best DNA edge',best.label,ord(best.percentile)+' percentile',`${nb(best)}${best.confidence?' · '+CONF_LABEL[best.confidence]+' confidence':''}`,'','is-best'),
+  reliable&&card('Most reliable',reliable.label,ord(reliable.percentile)+' percentile',`${nb(reliable)} · ${CONF_LABEL[reliable.confidence]||'—'} confidence`,'<span class="dna-card-s">Largest sample at the highest confidence, not the highest score.</span>'),
+  form&&card('Recent form',ord(form.percentile)+' percentile',tr?`Last three starts vs the three before: ${tr.toLowerCase()}`:'Direction not published (needs six observed starts)',`Strokes per round vs field · last ${Math.min(10,nForm)} of ${nForm} observed full-field events`,sparkline(d.visuals?.form,{label:d.name+' recent form'})),
+  (t5||t10)&&`<article class="dna-card"><span class="micro-label">Contention profile</span><dl class="dna-cdl">${t5?`<div><dt>Top 5 (contention)</dt><dd>${e(ord(t5.percentile))} <small>${e(nb(t5))}</small></dd></div>`:''}${t10?`<div><dt>Top 10</dt><dd>${e(ord(t10.percentile))} <small>${e(nb(t10))}</small></dd></div>`:''}${d.summary?.wins_observed!=null?`<div><dt>Wins observed</dt><dd>${e(d.summary.wins_observed)}</dd></div>`:''}</dl></article>`
+ ].filter(Boolean);
+ return `<div class="dna-hero-radar">${dnaRadar(model,{title:d.name+' Player DNA'})}</div><div class="dna-cards">${cards.join('')}</div>`;
+}
+export function dnaContext(model){
+ const conf=['HIGH','MEDIUM','LIMITED'].map(c=>[c,model.metrics.filter(m=>m.confidence===c&&m.percentile!==null).length]).filter(([,n])=>n);
+ const withheld=model.metrics.filter(m=>m.percentile===null).length;
+ const sizes=model.metrics.map(m=>m.cohort_size).filter(Number.isFinite),cohortN=sizes.length?(Math.min(...sizes)===Math.max(...sizes)?String(Math.max(...sizes)):`${Math.min(...sizes)}–${Math.max(...sizes)}`):null;
+ return `<p class="dna-ctx">Compared with ${e(model.cohort)}${cohortN?` · ${e(cohortN)} qualifying players per dimension`:''}${model.editions?` · ${e(model.editions)} editions`:''}</p><p class="dna-ctx">${conf.map(([c,n])=>`${n} ${CONF_LABEL[c].toLowerCase()}`).join(' · ')}-confidence dimensions${withheld?` · ${withheld} withheld`:''} · no composite score</p>`;
+}
+function dnaHeroShell(d,model,{asOf=null}={}){
+ return `<div class="dna-hero" data-dna-hero><div class="dna-hero-head">${portrait(d,{size:120,cls:'dna-portrait'})}<div class="dna-id"><p class="eyebrow">PLAYER DNA</p><h2>${e(d.name)}</h2><p class="dna-sub">${e(division(model.division))} · <span data-dna-window-label>${e(model.window)}</span>${asOf?` · As of ${e(fmtDate(String(asOf).slice(0,10)))}`:''}</p><div data-dna-context>${dnaContext(model)}</div><div class="dna-windows" data-dna-windows></div></div></div><div class="dna-hero-grid" data-dna-body>${dnaBody(d,model)}</div></div>`;
+}
+/** A premium DNA window (raw metrics map) as the public fingerprint shape, for the All Access window toggle. */
+export function windowFingerprint(w){return w?{window:w.window?.label||w.window,division:w.division,cohort:w.cohort,editions:w.editions,dimensions:Object.entries(w.metrics||{}).map(([code,m])=>({code,percentile:m.percentile??null,confidence:m.confidence||null,sample:m.sample??null,basis:m.basis||null,cohort_size:m.cohort_size??null}))}:null;}
+
 export function recentForm(d){
  const f=d.visuals?.form||[];if(f.filter(x=>Number.isFinite(x.vs_field)).length<2)return '';
  const res=(d.results||[]).filter(r=>r.edition?.coverage!=='winner_only');const last5=res.slice(0,5).map(r=>pos(r)).join(' · ');

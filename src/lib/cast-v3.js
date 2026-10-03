@@ -2,9 +2,10 @@
 // Truth levels: OBSERVED = posted positions/scores/hole results/published par+yardage/snapshot times.
 // DERIVED (PBE) = differences between observed snapshots, streaks, within-N counts. RECONSTRUCTED = the
 // generic hole template. Nothing here produces ball locations, shot paths, clubs, lies or player locations.
-import {e,a,toPar} from './ui.js';
+import {e,a,toPar,playerName,portrait} from './ui.js';
 import {badge} from './live-ui.js';
 import {holeSvg} from './cast-replay.js';
+import {dnaModel} from './dna-ui.js';
 
 export const key=x=>x?.slug||x?.name||'';
 const tp=v=>v===null||v===undefined?'—':toPar(v);
@@ -51,6 +52,8 @@ export function boardMoves(points,rows){
 
 // Scoring pulse: events provable from consecutive comparable observations. A hole result is named only when
 // the holes played between the two observations are posted and their total equals the observed change.
+const whoOf=x=>({slug:x.slug||null,name:x.name,label:lastName(x.name).toUpperCase()});
+const posTxt=o=>Number.isInteger(o?.pos)?`${o.tied?'T':''}${o.pos}`:null;
 export function pulseEvents(points,{holes=new Map(),round=null,focus=new Set(),top=10,limit=60}={}){
  const pts=(points||[]).filter(p=>p.top?.length),ev=[];
  for(let i=1;i<pts.length;i++){
@@ -58,26 +61,26 @@ export function pulseEvents(points,{holes=new Map(),round=null,focus=new Set(),t
   const La=a.top.filter(x=>x.pos===1),Lb=b.top.filter(x=>x.pos===1);
   const ka=La.map(key).sort().join('|'),kb=Lb.map(key).sort().join('|');
   if(sameRound&&Lb.length&&ka!==kb){
-   if(Lb.length===1)ev.push({t:b.t,type:'lead',keys:[key(Lb[0])],text:`${lastName(Lb[0].name).toUpperCase()} → SOLO LEAD · ${tp(Lb[0].to_par)}`});
-   else ev.push({t:b.t,type:'lead',keys:Lb.map(key),text:`TIE FOR LEAD · ${tp(Lb[0].to_par)} · ${Lb.map(x=>lastName(x.name)).join(', ').toUpperCase()}`});
+   if(Lb.length===1)ev.push({t:b.t,type:'lead',keys:[key(Lb[0])],who:[whoOf(Lb[0])],rest:`→ SOLO LEAD · ${tp(Lb[0].to_par)}`,text:`${lastName(Lb[0].name).toUpperCase()} → SOLO LEAD · ${tp(Lb[0].to_par)}`});
+   else ev.push({t:b.t,type:'lead',keys:Lb.map(key),who:Lb.map(whoOf),prefix:`TIE FOR LEAD · ${tp(Lb[0].to_par)} ·`,text:`TIE FOR LEAD · ${tp(Lb[0].to_par)} · ${Lb.map(x=>lastName(x.name)).join(', ').toUpperCase()}`});
   }
   if(!sameRound)continue;
   for(const x of b.top){
    const k=key(x),y=prev.get(k);if(!y)continue;
    const watched=focus.has(k)||(Number.isInteger(x.pos)&&x.pos<=top);if(!watched)continue;
-   const who=lastName(x.name).toUpperCase();
+   const who=lastName(x.name).toUpperCase(),W=[whoOf(x)],mv=Number.isInteger(x.pos)&&Number.isInteger(y.pos)&&x.pos!==y.pos?{from:posTxt(y),to:posTxt(x),delta:y.pos-x.pos}:null;
    if(Number.isInteger(x.thru)&&Number.isInteger(y.thru)&&x.thru>y.thru&&x.to_par!=null&&y.to_par!=null){
     const d=x.to_par-y.to_par,hs=b.round===round?holes.get(k):null;
     const seg=hs&&hs.length>=x.thru?hs.slice(y.thru,x.thru):null;
     const proven=seg&&seg.length===x.thru-y.thru&&seg.every(h=>holeDiff(h)!==null)&&seg.reduce((s,h)=>s+holeDiff(h),0)===d;
     if(proven){const notable=seg.filter(h=>holeDiff(h)!==0);
-     if(notable.length)ev.push({t:b.t,type:'hole',keys:[k],hole:notable.at(-1).hole,basis:'holes',kind:resultKind(holeDiff(notable.at(-1))),text:`${who} ${notable.map(h=>`${resultLabel(holeDiff(h)).toUpperCase()} ON ${h.hole}`).join(', ')} · ${tp(x.to_par)}`});}
-    else if(d!==0)ev.push({t:b.t,type:'score',keys:[k],basis:'board',text:`${who} ${d<0?'MOVES':'DROPS'} TO ${tp(x.to_par)} · THRU ${x.thru}`});
-    if(y.thru<18&&x.thru===18)ev.push({t:b.t,type:'finish',keys:[k],text:`${who} FINISHES ROUND ${b.round} · ${tp(x.to_par)}`});
+     if(notable.length){const rest=`${notable.map(h=>`${resultLabel(holeDiff(h)).toUpperCase()} ON ${h.hole}`).join(', ')} · ${tp(x.to_par)}`;ev.push({t:b.t,type:'hole',keys:[k],who:W,rest,move:mv,hole:notable.at(-1).hole,strokes:notable.at(-1).strokes,basis:'holes',kind:resultKind(holeDiff(notable.at(-1))),text:`${who} ${rest}`});}}
+    else if(d!==0)ev.push({t:b.t,type:'score',keys:[k],who:W,move:mv,rest:`${d<0?'MOVES':'DROPS'} TO ${tp(x.to_par)} · THRU ${x.thru}`,basis:'board',text:`${who} ${d<0?'MOVES':'DROPS'} TO ${tp(x.to_par)} · THRU ${x.thru}`});
+    if(y.thru<18&&x.thru===18)ev.push({t:b.t,type:'finish',keys:[k],who:W,rest:`FINISHES ROUND ${b.round} · ${tp(x.to_par)}`,text:`${who} FINISHES ROUND ${b.round} · ${tp(x.to_par)}`});
    }
    if(Number.isInteger(x.pos)&&Number.isInteger(y.pos)&&x.pos!==1){
     const into=[5,10].find(n=>x.pos<=n&&y.pos>n);
-    if(into)ev.push({t:b.t,type:'position',keys:[k],text:`${who} INTO ${x.tied?'T':''}${x.pos} · TOP ${into}`});
+    if(into)ev.push({t:b.t,type:'position',keys:[k],who:W,move:mv,rest:`INTO ${x.tied?'T':''}${x.pos} · TOP ${into}`,text:`${who} INTO ${x.tied?'T':''}${x.pos} · TOP ${into}`});
    }
   }
  }
@@ -177,7 +180,9 @@ export function towerRows(ev,{selected,moves=new Map(),prev=null}={}){
   const mvTxt=mv>0?`▲${mv}`:mv<0?`▼${-mv}`:mv===0?'–':'';const mvLab=mv>0?`up ${mv}`:mv<0?`down ${-mv}`:mv===0?'no change':'';
   const lab=`${r.name}, ${r.status!=='active'?OUT[r.status]||'':`position ${r.position||'unknown'}`}, total ${tp(r.total_to_par)}, today ${tp(r.today_to_par)}, ${r.thru===18?'finished':r.thru>0?`thru ${r.thru}`:'not started'}${mvLab?`, ${mvLab} since previous observation`:''}`;
   const cls=[k===selected?'is-on':'',r.status==='active'&&r.total_to_par===lead?'is-leader':'',r.tied?'is-tied':'',r.status!=='active'?'is-out':'',mv?'is-moved':''].filter(Boolean).join(' ');
-  return `<li><button type="button" class="${cls}" data-cv3-pick="${e(k)}" aria-pressed="${k===selected}" aria-label="${e(lab)}"><span class="cv3-p${ch('position')}">${e(r.status!=='active'?OUT[r.status]||'—':r.position||'—')}</span><span class="cv3-mv ${mv>0?'up':mv<0?'down':''}" aria-hidden="true">${e(mvTxt)}</span><span class="cv3-n">${e(r.name)}</span><span class="cv3-t${ch('total_to_par')}">${e(tp(r.total_to_par))}</span><span class="cv3-d${ch('today_to_par')}">${e(tp(r.today_to_par))}</span><span class="cv3-h${ch('thru')}">${e(thruText(r))}</span></button></li>`;}).join('');
+  // Row = a full-row select button underneath + a real link on the canonical name above it (name click navigates;
+  // anywhere else selects). Unresolved players have no link.
+  return `<li class="cv3-row ${cls}" data-row="${e(k)}"><button type="button" class="cv3-hit" data-cv3-pick="${e(k)}" aria-pressed="${k===selected}" aria-label="Select ${e(lab)}"></button><span class="cv3-p${ch('position')}">${e(r.status!=='active'?OUT[r.status]||'—':r.position||'—')}</span><span class="cv3-mv ${mv>0?'up':mv<0?'down':''}" aria-hidden="true">${e(mvTxt)}</span><span class="cv3-n">${playerName(r,{cls:'cv3-plink-row'})}</span><span class="cv3-t${ch('total_to_par')}">${e(tp(r.total_to_par))}</span><span class="cv3-d${ch('today_to_par')}">${e(tp(r.today_to_par))}</span><span class="cv3-h${ch('thru')}">${e(thruText(r))}</span></li>`;}).join('');
 }
 export function towerHead(){return `<div class="cv3-thead" aria-hidden="true"><span>POS</span><span></span><span>PLAYER</span><span>TOT</span><span>TODAY</span><span>THRU</span></div>`;}
 function stripCell(h,layout,sel){
@@ -191,7 +196,16 @@ export function holeDetail(h,layout,{realRoute=false}={}){
  if(!h)return '';const L=layout.get(h.hole),d=holeDiff(h);
  return `<div class="cv3-hd-text"><p class="micro-label">HOLE ${e(h.hole)} · OBSERVED</p><p class="cv3-hd-res">${e(resultLabel(d)||'Result not posted')}</p><dl class="cv3-dl"><div><dt>Strokes</dt><dd>${e(h.strokes)}</dd></div><div><dt>Par</dt><dd>${e(h.par??L?.par??'—')}</dd></div>${L?.yards?`<div><dt>Yards</dt><dd>${e(L.yards)}</dd></div>`:''}</dl>${realRoute?'<p class="gnote">The Course View shows this hole’s mapped routing. Shot locations are not tracked.</p></div>':'<p class="gnote">No shot data is published for this hole. The figure is a generic template, not the hole’s real shape.</p></div><figure class="cv3-hd-fig"><figcaption><span class="truth truth-reconstructed">RECONSTRUCTED</span> Scorecard-based visualization · not shot tracking</figcaption>'+holeSvg({hole:h.hole,par:h.par??L?.par,yards:L?.yards??null,strokes:null})+'</figure>'}`;
 }
-export function focusPanel(ev,r,{holes=null,layout=[],selHole=null,realRoute=()=>false}={}){
+const recentEv=evs=>evs.length?`<div class="cv3-recent"><p class="micro-label">RECENT SCORING · OBSERVED</p><ul>${evs.slice(0,3).map(x=>`<li><time datetime="${e(x.t)}">${e(clock(x.t))}</time> ${e(x.rest??x.text)}</li>`).join('')}</ul></div>`:'';
+/** Compact Player DNA for PBEcast from the SAME public DNA model as the player page (one source of truth): the top
+ * published dimensions only, with sample/confidence. No composite, no zeros, no simplified model. */
+export function compactDna(p,{max=4}={}){
+ if(!p?.slug)return '';const m=dnaModel(p.dna_public),top=(m?.ranked||[]).slice().sort((x,y)=>y.percentile-x.percentile||x.key.localeCompare(y.key)).slice(0,max);
+ const cta=`<a class="cv3-dnacta" href="/player/${e(p.slug)}#dna" data-dna-open="${e(p.slug)}">View full Player DNA <span aria-hidden="true">→</span></a>`;
+ if(!top.length)return `<p class="micro-label">PLAYER DNA</p><p class="gnote">Player DNA does not yet have enough comparable sample.</p>${cta}`;
+ return `<p class="micro-label">PLAYER DNA · ${e(m.window)}</p><dl class="cv3-dnal">${top.map(x=>`<div><dt>${e(x.label)}</dt><dd><b>${e(x.percentile)}</b><small>percentile · n=${e(x.sample_n??'—')} ${e(x.basis||'')}${x.confidence?' · '+e(x.confidence.toLowerCase()):''}</small></dd></div>`).join('')}</dl><p class="gnote">Percentiles within the ${e(p.division==='women'?'women’s':'men’s')} division cohort. Descriptive, not a prediction.</p>${cta}`;
+}
+export function focusPanel(ev,r,{holes=null,layout=[],selHole=null,realRoute=()=>false,player=null,mv=null,events=[],dnaBlock=''}={}){
  if(!r)return '<p class="gnote">Select a golfer from the leaderboard.</p>';
  const lay=new Map((layout||[]).map(h=>[h.hole,h])),hs=holes||[],lastH=hs.at(-1),lh=lastH?lay.get(lastH.hole):null;
  const status=OUT[r.status]?`${OUT[r.status]}`:r.thru===18?`Finished round ${ev.round}`:r.thru>0?`Thru ${r.thru} · round ${ev.round}`:r.tee_time?`Tees off ${clock(r.tee_time)}`:'Not started';
@@ -201,11 +215,18 @@ export function focusPanel(ev,r,{holes=null,layout=[],selHole=null,realRoute=()=
  const card=hs.length?`<div class="cv3-card"><p class="micro-label">ROUND ${e(ev.round)} SCORECARD · ${e(hs.length)} HOLE${hs.length===1?'':'S'} POSTED</p><ol class="cv3-strip" aria-label="Round ${e(ev.round)} hole results in order played">${hs.map(h=>stripCell(h,lay,selHole)).join('')}</ol><p class="cv3-legend" aria-hidden="true"><span class="hc-key hc-eagle">EGL</span>Eagle or better <span class="hc-key hc-birdie">BIR</span>Birdie <span class="hc-key hc-par">PAR</span>Par <span class="hc-key hc-bogey">BOG</span>Bogey <span class="hc-key hc-double">DBL+</span>Double or worse</p></div>`:`<p class="gnote cv3-noholes">${ev.holes_available?(r.thru>0?'Hole results for this round are not posted yet.':'No holes played this round yet.'):'Hole-by-hole scores aren’t published for this tour; round totals are shown.'}</p>`;
  const course=lh||next?`<div class="cv3-course"><p class="micro-label">COURSE NOW</p><dl class="cv3-cdl">${lh?`<div><dt>Last completed</dt><dd>Hole ${e(lastH.hole)} · Par ${e(lh.par??'—')}${lh.yards?` · ${e(lh.yards)} yd`:''}</dd></div>`:''}${next}</dl></div>`:'';
  const det=selHole!=null?hs.find(h=>h.hole===selHole):null;
- return `<div class="cv3-hero"><p class="micro-label">SELECTED GOLFER</p><h2 class="cv3-pname">${r.slug?a('/player/'+r.slug,r.name,'cv3-plink'):e(r.name)}</h2><p class="cv3-big"><span class="cv3-bigpos">${e(posLabel(r))}</span><span class="cv3-bigtot">${e(tp(r.total_to_par))}</span></p><p class="cv3-sub">TODAY ${e(tp(r.today_to_par))} · THRU ${e(thruText(r))} · ROUND ${e(ev.round??'—')}</p></div>${moment}${card}${course}<div class="cv3-hd" data-cv3-hd${det?'':' hidden'} aria-live="polite">${det?holeDetail(det,lay,{realRoute:realRoute(det.hole)}):''}</div>`;
+ return `<div class="cv3-hero${player?' has-photo':''}">${player?`<div class="cv3-photo">${portrait(player,{size:96,cls:'cv3-portrait'})}</div>`:''}<div class="cv3-hero-txt"><p class="micro-label">SELECTED GOLFER</p><h2 class="cv3-pname">${playerName(r,{cls:'cv3-plink'})}</h2><p class="cv3-big"><span class="cv3-bigpos">${e(posLabel(r))}</span><span class="cv3-bigtot">${e(tp(r.total_to_par))}</span></p><p class="cv3-sub">TODAY ${e(tp(r.today_to_par))} · THRU ${e(thruText(r))} · ROUND ${e(ev.round??'—')}${mv?` · ${mv>0?'▲':'▼'}${Math.abs(mv)} since previous snapshot`:''}</p></div></div>${recentEv(events)}${moment}<div class="cv3-dna" data-cv3-dna>${dnaBlock}</div>${card}${course}<div class="cv3-hd" data-cv3-hd${det?'':' hidden'} aria-live="polite">${det?holeDetail(det,lay,{realRoute:realRoute(det.hole)}):''}</div>`;
 }
 export function pulseList(events,{seen=null}={}){
  if(!events.length)return '<li class="cv3-pl-empty">No provable scoring changes between the observed snapshots yet.</li>';
- return events.map(x=>{const id=x.t+'|'+x.text;const body=Number.isInteger(x.hole)?`<button type="button" class="pl-go" data-pulse-hole="${e(x.hole)}" data-pulse-key="${e(x.keys[0])}" aria-label="${e(x.text)}. Show hole ${e(x.hole)} in the Course View">${e(x.text)}</button>`:`<span>${e(x.text)}</span>`;return `<li class="pl-${x.type}${x.kind?' pl-'+x.kind:''}${seen&&!seen.has(id)?' is-new':''}"><time datetime="${e(x.t)}">${e(clock(x.t))}</time>${body}</li>`;}).join('');
+ // Name = link to the canonical player profile (plain text when unresolved). Body = button that focuses the golfer
+ // (and the proven hole) inside PBEcast. Observed scoring only: no commentary.
+ return events.map(x=>{const id=x.t+'|'+x.text;const who=x.who||[];
+  const names=who.map(w=>playerName({slug:w.slug,name:w.name},{cls:'pl-name',label:w.label})).join(', ');
+  const mv=x.move?`<span class="pl-mv ${x.move.delta>0?'up':'down'}" aria-label="${x.move.delta>0?'up':'down'} ${Math.abs(x.move.delta)}, ${e(x.move.from)} to ${e(x.move.to)}">${x.move.delta>0?'▲':'▼'}${Math.abs(x.move.delta)} <small>${e(x.move.from)}→${e(x.move.to)}</small></span>`:'';
+  const bodyTxt=x.prefix?'':e(x.rest??x.text);
+  const body=x.prefix?`<button type="button" class="pl-go" data-pulse-key="${e(x.keys[0])}" aria-label="${e(x.text)}. Focus in PBEcast">${e(x.prefix)}</button> ${names}`:`${names?names+' ':''}<button type="button" class="pl-go" data-pulse-key="${e(x.keys[0])}"${Number.isInteger(x.hole)?` data-pulse-hole="${e(x.hole)}"`:''} aria-label="${e(x.text)}. ${Number.isInteger(x.hole)?`Show hole ${e(x.hole)} in the Course View`:'Focus in PBEcast'}">${bodyTxt}</button>`;
+  return `<li class="pl-${x.type}${x.kind?' pl-'+x.kind:''}${seen&&!seen.has(id)?' is-new':''}"><time datetime="${e(x.t)}">${e(clock(x.t))}</time><span class="pl-body">${body}${mv}</span></li>`;}).join('');
 }
 export function fieldPanel(f){
  if(!f)return '';const s=(k,v,sub='')=>`<div><dt>${e(k)}</dt><dd>${e(v)}${sub?`<small>${e(sub)}</small>`:''}</dd></div>`;
