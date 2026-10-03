@@ -15,6 +15,7 @@ export function routingReason(row){
  if(!row)return {code:'not_audited',text:'Not yet audited for mapped routing'};
  const d=row.decision||'';
  if(row.status==='full')return {code:'verified',text:'Verified routing for all 18 holes'};
+ if(row.status==='reviewed')return {code:'human_reviewed',text:'Routing for all 18 holes, identity human-reviewed; yardage not validated (no published hole table)'};
  if(row.status==='partial')return {code:'partial',text:`Verified routing for ${row.holes_mapped} of 18 holes; the rest await verification`};
  if(d==='no_canonical_coords')return {code:'awaiting_location',text:'Awaiting course location verification before routing can be attached'};
  // Automatic identity attempts (auto-identity-v1) that did not pass: say what is actually missing.
@@ -62,6 +63,7 @@ export async function courseMap(env,ix,slug,editionParam,now=new Date()){
  return {status:200,body:{
   course:{slug:course.slug,name:course.name},
   geometry_status:geo?geo.geometry_status:'NO MAPPED ROUTING',
+  layout_evidence:geo?.source?.identity?{tier:geo.source.identity.tier||null,layout_identity:geo.source.identity.layout_identity||'verified',hole_count:geo.source.identity.hole_count??null,yardage_validation:geo.source.identity.yardage_validation||null}:null,
   geometry_basis:geo?'Current mapped routing (OpenStreetMap). Not a historical setup.':null,
   geometry_as_of:geo?.source?.retrieved_at||null,source_version:geo?.version||null,source:geo?.source||null,
   bounds:geo?.geometry?.bounds||null,geometry:geo?{units:geo.geometry.units,outline:geo.geometry.outline,features:geo.geometry.features}:null,

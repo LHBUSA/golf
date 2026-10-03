@@ -39,6 +39,11 @@
       "source": "/course/st-andrews-links-old-course-ec37",
       "destination": "/course/old-course-at-st-andrews-q167245",
       "permanent": true
+    },
+    {
+      "source": "/course/tpc-sawgrass-the-players-stadium-course-ec19",
+      "destination": "/course/tpc-sawgrass-q4586108",
+      "permanent": true
     }
   ],
   "rewrites": [

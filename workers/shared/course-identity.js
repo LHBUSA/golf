@@ -35,4 +35,17 @@ export const DUPLICATE_COURSES=[
    '2027 stub hole yardages match the 2022 Open setup on Q167245 within renovation tolerance (e.g. 376/375, 453/452, 618/614)',
    'Coordinates 1.0 km apart: ec37 is a town-centre point (56.343,-2.803); Q167245 is the course (56.3515,-2.8161)',
    'Not merged on name similarity: Siam Country Club (Pattaya Old Course) is a different course and stays separate']},
+ {slug:'tpc-sawgrass-the-players-stadium-course-ec19',duplicate_of:'tpc-sawgrass-q4586108',evidence_id:'tpc-sawgrass-2026-10-03',merge:'docs/evidence/course-review-tpc-sawgrass.json',
+  // 2026-10-03 owner decision: alias the ESPN Stadium Course record into the 42-edition Players history record.
+  alias:true,
+  evidence:[
+   'Every Players Championship 1982-2023 on tpc-sawgrass-q4586108 was played on the THE PLAYERS Stadium Course; ec19 holds 2024-2027 Players editions at the same course',
+   'ec19 setups (par 72, 7,256-7,352 yd) continue the Stadium Course setups on Q4586108 (par 72, 7,093-7,215 yd in 2002-2007; later lengthened)',
+   'NOT merged: tpc-sawgrass-dye-s-valley-course-ec11094 (Dye\'s Valley, par 70, Q-School) and sawgrass-country-club-q7428632 (different club, 1977-81 venue)']},
 ];
+
+// Human-reviewed layouts (owner lane, 2026-10-03). A person reviewed the course identity and the mapped routing; the
+// championship setup publishes no hole-by-hole table, so YARDAGE IS NOT VALIDATED. This tier is never equivalent to
+// auto-identity-v1 (which requires >=15 setup-length agreements) and is labelled so on every surface.
+// Each entry: {slug, osm_course, evidence_id, reviewer, decided, checks:{...}, evidence:[...]} -- added only on approval.
+export const HUMAN_REVIEWED_LAYOUTS=[];

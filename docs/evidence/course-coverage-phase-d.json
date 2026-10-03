@@ -465,10 +465,11 @@
   },
   {
    "slug": "tiburon-golf-club-black-course-ec10709",
-   "status": "barrier",
-   "barrier": "504",
+   "status": "no_name_match",
+   "barrier": null,
    "unresolved": null,
-   "options": []
+   "options": [],
+   "single_retry": "2026-10-03: completed without timeout; 11 courses in the locality box, none match the name (not retried again)"
   },
   {
    "slug": "tpc-sawgrass-the-players-stadium-course-ec19",
@@ -517,10 +518,11 @@
   },
   {
    "slug": "taiheiyo-club-minori-course-ec10795",
-   "status": "barrier",
-   "barrier": "504",
+   "status": "no_name_match",
+   "barrier": null,
    "unresolved": null,
-   "options": []
+   "options": [],
+   "single_retry": "2026-10-03: completed without timeout; 8 courses in the locality box, none match the name (not retried again)"
   },
   {
    "slug": "whirlwind-golf-club-at-wild-horse-pass-ec11325",
@@ -568,5 +570,18 @@
    "unresolved": null,
    "options": []
   }
- ]
+ ],
+ "counts_after_split": {
+  "total": 267,
+  "audited": 267,
+  "full": 99,
+  "partial": 20,
+  "held": 115,
+  "no_routing": 33,
+  "reviewed": 0,
+  "scorecard_only": 7,
+  "no_layout": 26,
+  "unaudited": 0,
+  "exact": 135
+ }
 }

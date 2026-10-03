@@ -8,8 +8,8 @@
 import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';
 import {prepareCourseMap,ATTRIBUTION} from '../src/lib/course-map.js';
 import {matchCourse,matchWithEvidence,autoIdentityOk,nameScore,subCourseTokens,norm,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
-import {IDENTITY_EVIDENCE,DUPLICATE_COURSES} from '../workers/shared/course-identity.js';
-import {defaultEdition} from '../workers/shared/course-setup.js';
+import {IDENTITY_EVIDENCE,DUPLICATE_COURSES,HUMAN_REVIEWED_LAYOUTS} from '../workers/shared/course-identity.js';
+import {defaultEdition,setupOptions} from '../workers/shared/course-setup.js';
 
 const ROOT=path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1')),'..');
 const CACHE=path.join(ROOT,'data/osm-cache'),OUT=path.join(ROOT,'data/osm-routing/v1');
@@ -59,6 +59,9 @@ async function collect(){
 }
 
 // Championship setup for matching evidence only: the default (latest started) setup at this course.
+// Accounting only: does the course page show a full scorecard? Mirrors golf-api (latest started edition with a published
+// hole table, up to 3 recent editions). Matching evidence still uses setupFor (the default edition) unchanged.
+function shownScorecard(slug){for(const o of setupOptions(edByCourse.get(slug)||[]).slice(0,3)){const hs=B.editions.find(x=>x.slug===o.edition)?.layout?.holes||[];if(hs.length)return hs.length===18&&hs.every(h=>Number.isInteger(h.par)&&Number.isInteger(h.yards));}return false;}
 function setupFor(slug){const e=defaultEdition(edByCourse.get(slug));const d=e&&B.editions.find(x=>x.slug===e.slug);const hs=d?.layout?.holes||[];return new Map(hs.filter(h=>Number.isInteger(h.hole)).map(h=>[h.hole,{par:h.par??null,yards:h.yards??null}]));}
 // Only what belongs to the matched course: holes the matcher proved inside its boundary, and features whose
 // centre lies inside it. Neighbouring courses inside the extract radius are never drawn or attached.
@@ -86,7 +89,11 @@ function prepare(){
   const cd=!x&&c.latitude==null?CANDIDATES[c.slug]:null;
   if(cd?.status==='candidate'){const t=matchWithEvidence({...canon,latitude:null,longitude:null},els,setup,{osm_course:cd.candidate.osm_course,evidence_id:'auto-identity-v1',clears:['review_no_canonical_coords']});
    const ok=autoIdentityOk(t,setup,c.name);m=ok.pass?{...t,auto:ok}:{...m,decision:'review_auto_identity_insufficient',auto:ok,target:t.target};}
-  const r={...base,auto:m.auto||null,decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
+  // Human-reviewed lane: only the reviewed OSM element, only with exactly 18 proven holes; never clears anything else.
+  const hr=HUMAN_REVIEWED_LAYOUTS.find(y=>y.slug===c.slug);
+  if(hr&&m.decision!=='exact'){const t=matchWithEvidence({...canon,latitude:null,longitude:null},els,setup,{osm_course:hr.osm_course,evidence_id:hr.evidence_id,clears:['review_no_canonical_coords']});
+   m=t.decision==='exact'&&t.evidence.proven===18?{...t,human:hr,cleared_by:hr.evidence_id}:{...m,decision:'review_human_record_mismatch',human:null};}
+  const r={...base,auto:m.auto||null,human:m.human?{evidence_id:m.human.evidence_id,reviewer:m.human.reviewer,decided:m.human.decided}:null,setup_table:shownScorecard(c.slug),decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
   r._m=m;r._els=els;r._raw=raw;rows.push(r);
  }
  holdSharedTargets(rows.filter(r=>r._m));
@@ -99,10 +106,10 @@ function prepare(){
   let prep,web_simplification={tolerance_m:2,min_bunker_m2:0};
   for(const tol of [2,4,8]){prep=prepareCourseMap(osm,{slug:r.slug,name:r.name},{parConflicts:r.par_conflicts,tol});web_simplification={tolerance_m:tol,min_bunker_m2:0};if(JSON.stringify(prep).length<=60000)break;}
   for(const minA of [25,60,120,250]){if(JSON.stringify(prep).length<=60000||!prep.geometry)break;prep.geometry.features.bunker=prep.geometry.features.bunker.filter(b=>area(b)>=minA);web_simplification.min_bunker_m2=minA;}
-  const mapped=prep.coverage?.holes_mapped||0;r.status=mapped===18?'full':mapped>0?'partial':'no-routing';r.holes_mapped=mapped;
+  const mapped=prep.coverage?.holes_mapped||0;r.status=r.human?(mapped===18?'reviewed':'held'):mapped===18?'full':mapped>0?'partial':'no-routing';r.holes_mapped=mapped;if(r.status==='held'){r.decision='review_human_record_mismatch';continue;}
   const feats=prep.geometry?.features||{};r.features=Object.fromEntries(Object.entries(feats).map(([k,v])=>[k,v.length]));
-  if(mapped){const web={version:'osm-routing/v1',course:{slug:r.slug,name:r.name},source:{name:'OpenStreetMap',course_element:r.osm_course.id,retrieved_at:r.retrieved_at,osm_base:r._raw.osm3s?.timestamp_osm_base||null,identity:{decision:'exact',cleared_by:r.cleared_by}},
-    attribution:ATTRIBUTION,geometry_status:mapped===18?'VERIFIED ROUTING':'PARTIAL ROUTING',geometry:{...prep.geometry,web_simplification},
+  if(mapped){const web={version:'osm-routing/v1',course:{slug:r.slug,name:r.name},source:{name:'OpenStreetMap',course_element:r.osm_course.id,retrieved_at:r.retrieved_at,osm_base:r._raw.osm3s?.timestamp_osm_base||null,identity:{decision:'exact',cleared_by:r.cleared_by,...(r.human?{tier:'human_reviewed',layout_identity:'reviewed',hole_count:mapped,yardage_validation:'unavailable',reviewer:r.human.reviewer,decided:r.human.decided}:{})}},
+    attribution:ATTRIBUTION,geometry_status:r.human?'REVIEWED ROUTING':mapped===18?'VERIFIED ROUTING':'PARTIAL ROUTING',geometry:{...prep.geometry,web_simplification},
     holes:prep.holes.map(h=>({hole:h.hole,route:h.route,bearing_deg:h.bearing_deg,routing_observed:h.routing_observed,source_feature_id:h.source_feature_id,proof:h.proof,osm_par:h.routing_observed?(osm.holes.find(o=>o.id===h.source_feature_id)?.par??null):null})),
     coverage:{holes_mapped:mapped,holes_total:18,withheld:[...new Map([...r._m.evidence.rejected,...prep.coverage.rejected].filter(x=>Number.isInteger(Number(x.ref))&&Number(x.ref)>=1&&Number(x.ref)<=18&&!prep.holes.find(h=>h.hole===Number(x.ref))?.route).map(x=>[Number(x.ref),{hole:Number(x.ref),reason:x.reason}])).values()].sort((a,b)=>a.hole-b.hole)},
     geometry_metadata_conflicts:[...r.par_conflicts.map(h=>({hole:h,field:'par',note:'OSM tag differs from the championship setup; setup facts come from tournament sources'})),...(r._m.evidence.length_conflicts||[]).map(c=>({hole:c.hole,field:'length',mapped_yards:c.mapped_yards,setup_yards:c.setup_yards,note:'Mapped route length differs from the setup yardage (route may be drawn from another tee)'}))].sort((a,b)=>a.hole-b.hole)};
@@ -115,10 +122,10 @@ function prepare(){
    fs.writeFileSync(path.join(OUT,'dataset',r.slug+'.geojson'),JSON.stringify(gj));r.dataset_bytes=Buffer.byteLength(JSON.stringify(gj));}
  }
  const pub=rows.map(({_m,_els,_raw,...r})=>r);
- const count=(f)=>({total:pub.filter(f).length,audited:pub.filter(r=>f(r)&&!['unaudited'].includes(r.status)).length,full:pub.filter(r=>f(r)&&r.status==='full').length,partial:pub.filter(r=>f(r)&&r.status==='partial').length,held:pub.filter(r=>f(r)&&r.status==='held').length,no_routing:pub.filter(r=>f(r)&&r.status==='no-routing').length,unaudited:pub.filter(r=>f(r)&&r.status==='unaudited').length,exact:pub.filter(r=>f(r)&&r.decision==='exact').length});
+ const count=(f)=>({total:pub.filter(f).length,audited:pub.filter(r=>f(r)&&!['unaudited'].includes(r.status)).length,full:pub.filter(r=>f(r)&&r.status==='full').length,partial:pub.filter(r=>f(r)&&r.status==='partial').length,held:pub.filter(r=>f(r)&&r.status==='held').length,no_routing:pub.filter(r=>f(r)&&r.status==='no-routing').length,reviewed:pub.filter(r=>f(r)&&r.status==='reviewed').length,scorecard_only:pub.filter(r=>f(r)&&r.status==='no-routing'&&r.setup_table).length,no_layout:pub.filter(r=>f(r)&&r.status==='no-routing'&&!r.setup_table).length,unaudited:pub.filter(r=>f(r)&&r.status==='unaudited').length,exact:pub.filter(r=>f(r)&&r.decision==='exact').length});
  const index={version:'osm-routing/v1',generated_at:new Date().toISOString(),licence:'ODbL-1.0',attribution:ATTRIBUTION,method:'/v1/open-data/course-routing/method',
   counts:{all:count(()=>true),pga:count(r=>r.tours.some(t=>/PGA TOUR/i.test(t))),lpga:count(r=>r.tours.some(t=>/LPGA/i.test(t))),majors:count(r=>r.major)},
-  courses:pub.map(r=>({slug:r.slug,name:r.name,status:r.status,decision:r.decision,duplicate_of:r.duplicate_of||null,auto_identity:r.auto||null,candidate:CANDIDATES[r.slug]?.candidate?.osm_course||null,holes_mapped:r.holes_mapped??0,osm_course:r.osm_course?.id||null,retrieved_at:r.retrieved_at||null,cleared_by:r.cleared_by||null,par_conflicts:r.par_conflicts||[],features:r.features||null,web_bytes:r.web_bytes||null,dataset_bytes:r.dataset_bytes||null}))};
+  courses:pub.map(r=>({slug:r.slug,name:r.name,status:r.status,decision:r.decision,duplicate_of:r.duplicate_of||null,auto_identity:r.auto||null,human_review:r.human||null,setup_table:Boolean(r.setup_table),candidate:CANDIDATES[r.slug]?.candidate?.osm_course||null,holes_mapped:r.holes_mapped??0,osm_course:r.osm_course?.id||null,retrieved_at:r.retrieved_at||null,cleared_by:r.cleared_by||null,par_conflicts:r.par_conflicts||[],features:r.features||null,web_bytes:r.web_bytes||null,dataset_bytes:r.dataset_bytes||null}))};
  fs.writeFileSync(path.join(OUT,'index.json'),JSON.stringify(index,null,1));
  fs.writeFileSync(path.join(ROOT,'docs/evidence/course-geo-coverage.json'),JSON.stringify({generated_at:index.generated_at,counts:index.counts,courses:index.courses.map(({web_bytes,dataset_bytes,...x})=>x)},null,1));
  console.log(JSON.stringify(index.counts,null,1));
@@ -152,8 +159,11 @@ const NAME_TAGS=['name','name:en','int_name','official_name','alt_name','operato
 async function candidates(){
  fs.mkdirSync(CACHE,{recursive:true});const out=fs.existsSync(CANDS)?JSON.parse(fs.readFileSync(CANDS,'utf8')):{};
  const reviewed=new Set([...IDENTITY_EVIDENCE.map(x=>x.slug),...DUPLICATE_COURSES.map(x=>x.slug)]);
- const list=courses.filter(c=>c.latitude==null&&!reviewed.has(c.slug)).sort((a,b)=>cmp(priority(a),priority(b)));
- for(const c of list){if(out[c.slug]&&out[c.slug].status!=='barrier')continue;
+ // ONLY=slug,slug limits a run; FINAL_RETRY=1 marks it as the single permitted retry: a second timeout is recorded as
+ // held_source_timeout and never retried again (no guessed match from a network failure).
+ const ONLY=process.env.ONLY?new Set(process.env.ONLY.split(',')):null,FINAL=process.env.FINAL_RETRY==='1';
+ const list=courses.filter(c=>c.latitude==null&&!reviewed.has(c.slug)&&(!ONLY||ONLY.has(c.slug))).sort((a,b)=>cmp(priority(a),priority(b)));
+ for(const c of list){if(out[c.slug]&&out[c.slug].status!=='barrier')continue;const prior=out[c.slug]||null;
   const loc=espnLocality(c.slug)||(c.locality?{city:c.locality,state:null,country:c.country||null}:null);
   if(!loc){out[c.slug]={status:'no_locality'};continue;}
   const q=[loc.city,loc.state,loc.country].filter(Boolean).join(', ');
@@ -163,11 +173,11 @@ async function candidates(){
    const top=gc.filter(x=>x.score===gc[0]?.score);
    if(top.length===1){out[c.slug]={query:`${c.name}, ${q}`,via:'nominatim-direct',status:'candidate',candidate:{osm_course:top[0].id,lat:top[0].center.lat,lon:top[0].center.lon,names:top[0].names,score:top[0].score},others:gc.slice(0,5).map(x=>({id:x.id,names:x.names,score:+x.score.toFixed(2)}))};console.log(c.slug,'candidate(direct)',top[0].names[0]);fs.writeFileSync(CANDS,JSON.stringify(out,null,1));continue;}}
   const g=await nominatim(q);
-  if(g.barrier){out[c.slug]={status:'barrier',barrier:g.barrier,query:q};console.log('barrier',c.slug,g.barrier);if(g.barrier==='403')break;continue;}
+  if(g.barrier){out[c.slug]={status:FINAL?'held_source_timeout':'barrier',barrier:g.barrier,query:q,first_failure:prior?.barrier||null};console.log('barrier',c.slug,g.barrier);if(g.barrier==='403')break;continue;}
   const bb=g.rows?.[0]?.boundingbox?.map(Number);if(!bb){out[c.slug]={status:'locality_not_found',query:q};continue;}
   let [s0,n0,w0,e0]=bb;const cy=(s0+n0)/2,cx=(w0+e0)/2;s0=Math.max(s0,cy-0.35);n0=Math.min(n0,cy+0.35);w0=Math.max(w0,cx-0.35);e0=Math.min(e0,cx+0.35);
   const j=await overpass(`[out:json][timeout:120];nwr[leisure=golf_course](${s0},${w0},${n0},${e0});out tags center;`);
-  if(j.barrier){out[c.slug]={status:'barrier',barrier:j.barrier,query:q};continue;}
+  if(j.barrier){out[c.slug]={status:FINAL?'held_source_timeout':'barrier',barrier:j.barrier,query:q,first_failure:prior?.barrier||null,retried_at:FINAL?new Date().toISOString():null};console.log(c.slug,out[c.slug].status,j.barrier);fs.writeFileSync(CANDS,JSON.stringify(out,null,1));continue;}
   const scored=(j.elements||[]).map(e=>({id:e.type+'/'+e.id,center:e.center||(e.lat?{lat:e.lat,lon:e.lon}:null),names:NAME_TAGS.map(t=>e.tags?.[t]).filter(Boolean),score:Math.max(0,...NAME_TAGS.map(t=>e.tags?.[t]).filter(Boolean).map(n=>nameScore(c.name,n)))})).filter(x=>x.score>=0.5&&x.center).sort((a,b)=>b.score-a.score);
   const top=scored.filter(x=>x.score===scored[0]?.score);
   out[c.slug]={query:q,box:[s0,w0,n0,e0],courses_in_box:(j.elements||[]).length,status:!scored.length?'no_name_match':top.length>1?'ambiguous':'candidate',

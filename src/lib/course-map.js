@@ -83,7 +83,7 @@ export function relativeWind(bearingDeg,windFromDeg){
 const path=c=>c.map((p,i)=>`${i?'L':'M'}${p[0]},${p[1]}`).join('');
 const poly=c=>path(c)+'Z';
 const tp=v=>v==null?'—':v===0?'E':v>0?'+'+v:'−'+Math.abs(v);
-export const tierOf=M=>M?.geometry_status==='VERIFIED ROUTING'?'A':M?.geometry_status==='PARTIAL ROUTING'?'B':'C';
+export const tierOf=M=>M?.geometry_status==='VERIFIED ROUTING'||M?.geometry_status==='REVIEWED ROUTING'?'A':M?.geometry_status==='PARTIAL ROUTING'?'B':'C';
 export const spatialState=M=>({A:'VERIFIED ROUTING',B:'PARTIAL ROUTING',C:'SCORECARD LAYOUT'})[tierOf(M)];
 const mappedCount=M=>(M?.holes||[]).filter(h=>h.route).length;
 export function difficultyScale(M){
@@ -179,7 +179,8 @@ export function approachBox(M,focus,ar=1.25){
 
 export function basisLabel(M){
  if(tierOf(M)==='C')return 'SCORECARD LAYOUT · NO MAPPED ROUTING';
- const n=mappedCount(M);return `${spatialState(M)} · ${n} OF 18 HOLE ROUTES VERIFIED · CURRENT MAPPED ROUTING${M.geometry_as_of?` · OPENSTREETMAP AS OF ${M.geometry_as_of.slice(0,10)}`:''}`;
+ const n=mappedCount(M);if(M.geometry_status==='REVIEWED ROUTING')return `REVIEWED ROUTING · ${n} OF 18 HOLES MAPPED · IDENTITY HUMAN-REVIEWED · YARDAGE NOT VALIDATED (NO PUBLISHED HOLE TABLE)${M.geometry_as_of?` · OPENSTREETMAP AS OF ${M.geometry_as_of.slice(0,10)}`:''}`;
+ return `${spatialState(M)} · ${n} OF 18 HOLE ROUTES VERIFIED · CURRENT MAPPED ROUTING${M.geometry_as_of?` · OPENSTREETMAP AS OF ${M.geometry_as_of.slice(0,10)}`:''}`;
 }
 /** Level C: a real scorecard (front / back; hole, par, yards) only when the setup publishes all 18 holes. */
 export function scorecardTable(M){

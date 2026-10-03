@@ -1,0 +1,639 @@
+{
+ "generated": "2026-10-03T15:33:55.319Z",
+ "lane": "HUMAN_REVIEWED_LAYOUT",
+ "note": "Evidence for a person to approve or reject. Nothing here is approved. Approval adds an entry to HUMAN_REVIEWED_LAYOUTS in workers/shared/course-identity.js.",
+ "packets": [
+  {
+   "slug": "memorial-park-golf-course-ec11109",
+   "name": "Memorial Park Golf Course",
+   "next_or_last_event": {
+    "name": "Texas Children's Houston Open",
+    "starts_on": "2027-03-25"
+   },
+   "candidate": {
+    "osm_course": "relation/13729803",
+    "name": "Memorial Park Golf Course",
+    "operator": null,
+    "website": "https://www.memorialparkgolf.com/memorial-park-golf-course",
+    "address": "E Memorial Loop Dr, Houston, TX, 77007",
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Houston, TX, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 70
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "OSM par total 72 vs championship par 70"
+   ],
+   "neighbours_info": [
+    "River Oaks Country Club (14 holes)"
+   ],
+   "ready_for_review": false
+  },
+  {
+   "slug": "pelican-golf-club-ec10955",
+   "name": "Pelican Golf Club",
+   "next_or_last_event": {
+    "name": "2026 The Annika",
+    "starts_on": "2026-11-12"
+   },
+   "candidate": {
+    "osm_course": "way/204620016",
+    "name": "Pelican Club",
+    "operator": null,
+    "website": "https://www.pelicangolfclub.com/",
+    "address": "Indian Rocks Rd, Belleair, FL, 33756",
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Belleair, FL, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 70,
+    "setup_par": 70
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [
+    "Belleair Country Club (31 holes)"
+   ],
+   "ready_for_review": true
+  },
+  {
+   "slug": "midland-cc-mi-ec10921",
+   "name": "Midland CC (MI)",
+   "next_or_last_event": {
+    "name": "Dow Championship",
+    "starts_on": "2026-06-11"
+   },
+   "candidate": {
+    "osm_course": "way/93415738",
+    "name": "Midland Country Club",
+    "operator": null,
+    "website": "https://www.midlandcc.net/",
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Midland, MI, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 70,
+    "setup_par": 70
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [],
+   "ready_for_review": true
+  },
+  {
+   "slug": "bradenton-country-club-ec11294",
+   "name": "Bradenton Country Club",
+   "next_or_last_event": {
+    "name": "2025 Founders Cup",
+    "starts_on": "2025-02-06"
+   },
+   "candidate": {
+    "osm_course": "way/35168696",
+    "name": "Bradenton Country Club",
+    "operator": "Bradenton Country Club",
+    "website": null,
+    "address": "9th Avenue West, Bradenton, FL, 34209",
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Bradenton Country Club, Bradenton, FL, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 71,
+    "setup_par": 71
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [],
+   "ready_for_review": true
+  },
+  {
+   "slug": "el-caballero-country-club-ec11204",
+   "name": "El Caballero Country Club",
+   "next_or_last_event": {
+    "name": "2026 JM Eagle LA Championship",
+    "starts_on": "2026-04-16"
+   },
+   "candidate": {
+    "osm_course": "way/326190902",
+    "name": "El Caballero Country Club",
+    "operator": null,
+    "website": "https://elcaballerocc.com/",
+    "address": "Tarzana Drive, Tarzana, CA, 91356",
+    "golf_course_tag": "18_hole",
+    "found_via": "nominatim-direct",
+    "locality_query": "El Caballero Country Club, Tarzana, CA, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 71,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "OSM par total 71 vs championship par 72"
+   ],
+   "neighbours_info": [
+    "Braemar Country Club (42 holes)"
+   ],
+   "ready_for_review": false
+  },
+  {
+   "slug": "keene-trace-golf-club-champions-course-ec10882",
+   "name": "Keene Trace Golf Club (Champions Course)",
+   "next_or_last_event": {
+    "name": "2024 ISCO Championship",
+    "starts_on": "2024-07-11"
+   },
+   "candidate": {
+    "osm_course": "relation/3959257",
+    "name": "Keene Run Golf Course",
+    "operator": null,
+    "website": "https://www.keenetracegolf.com/",
+    "address": "Harrodsburg Road, Nicholasville, 40356",
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Nicholasville, KY, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "candidate name \"Keene Run Golf Course\" does not match \"Keene Trace Golf Club (Champions Course)\" (score 0.50): possibly a different course at the same club"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  },
+  {
+   "slug": "tpc-summerlin-ec51",
+   "name": "TPC Summerlin",
+   "next_or_last_event": {
+    "name": "2024 Shriners Children's Open",
+    "starts_on": "2024-10-17"
+   },
+   "candidate": {
+    "osm_course": "relation/2816630",
+    "name": "TPC Summerlin",
+    "operator": null,
+    "website": "https://tpc.com/summerlin",
+    "address": "Village Center Circle, Las Vegas, NV, 89134",
+    "golf_course_tag": "18_hole",
+    "found_via": "nominatim-direct",
+    "locality_query": "TPC Summerlin, Las Vegas, NV, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 71
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "OSM par total 72 vs championship par 71",
+    "similarly named course(s) in extract: TPC Las Vegas (10 holes, name 0.5)"
+   ],
+   "neighbours_info": [
+    "Angel Park Golf Club (18 holes)",
+    "Angel Park Golf Club - Palm (10 holes)",
+    "(unnamed) (14 holes)"
+   ],
+   "ready_for_review": false
+  },
+  {
+   "slug": "castle-pines-golf-club-ec11274",
+   "name": "Castle Pines Golf Club",
+   "next_or_last_event": {
+    "name": "BMW Championship",
+    "starts_on": "2024-08-22"
+   },
+   "candidate": {
+    "osm_course": "way/1562088206",
+    "name": "Castle Pines Golf Club",
+    "operator": null,
+    "website": null,
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Castle Rock, CO, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "similarly named course(s) in extract: The Country Club at Castle Pines (13 holes, name 1)"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  },
+  {
+   "slug": "earl-grey-golf-club-ec11295",
+   "name": "Earl Grey Golf Club",
+   "next_or_last_event": {
+    "name": "2024 CPKC Women's Open",
+    "starts_on": "2024-07-25"
+   },
+   "candidate": {
+    "osm_course": "way/10554354",
+    "name": "Earl Grey Golf Club",
+    "operator": null,
+    "website": "https://www.earlgreygolfclub.com/",
+    "address": "20 Street SW, T3E 5L2",
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Earl Grey Golf Club, Calgary, AB, Canada"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [
+    "Lakeview Golf Course (9 holes)"
+   ],
+   "ready_for_review": true
+  },
+  {
+   "slug": "fields-ranch-east-at-pga-frisco-ec11183",
+   "name": "Fields Ranch East at PGA Frisco",
+   "next_or_last_event": {
+    "name": "KPMG Women's PGA Championship",
+    "starts_on": "2025-06-19"
+   },
+   "candidate": {
+    "osm_course": "way/910555574",
+    "name": "Fields Ranch - East Course",
+    "operator": null,
+    "website": "https://fieldsranch.com",
+    "address": "PGA Pkwy, Frisco, TX, 75033",
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Frisco, TX, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "similarly named course(s) in extract: Fields Ranch - West Course (18 holes, name 0.67)"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  },
+  {
+   "slug": "galgorm-castle-golf-club-ec11104",
+   "name": "Galgorm Castle Golf Club",
+   "next_or_last_event": {
+    "name": "ISPS Handa World Invitational",
+    "starts_on": "2023-08-17"
+   },
+   "candidate": {
+    "osm_course": "way/1062734778",
+    "name": "Galgorm Castle Golf Club",
+    "operator": null,
+    "website": null,
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Galgorm Castle Golf Club, Ballymena, Northern Ireland"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 70,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "OSM par total 70 vs championship par 72"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  },
+  {
+   "slug": "maketewah-country-club-ec11351",
+   "name": "Maketewah Country Club",
+   "next_or_last_event": {
+    "name": "2026 Kroger Queen City Championship",
+    "starts_on": "2026-05-14"
+   },
+   "candidate": {
+    "osm_course": "way/30431659",
+    "name": "Maketewah Country Club",
+    "operator": null,
+    "website": null,
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Maketewah Country Club, Cincinnati, OH, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": null,
+    "setup_par": 70
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [],
+   "ready_for_review": true
+  },
+  {
+   "slug": "mississaugua-golf-country-club-ec11327",
+   "name": "Mississaugua Golf & Country Club ",
+   "next_or_last_event": {
+    "name": "2025 CPKC Women's Open",
+    "starts_on": "2025-08-21"
+   },
+   "candidate": {
+    "osm_course": "way/488031921",
+    "name": "Mississaugua Golf & Country Club",
+    "operator": null,
+    "website": "https://www.mississauguagolf.com/",
+    "address": "Mississauga Road, Mississauga, L5H 2K4",
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Mississaugua Golf & Country Club , Mississauga, ON, Canada"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 71,
+    "setup_par": 71
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [],
+   "ready_for_review": true
+  },
+  {
+   "slug": "mountain-ridge-c-c-ec11118",
+   "name": "Mountain Ridge C.C.",
+   "next_or_last_event": {
+    "name": "2026 Mizuho Americas Open",
+    "starts_on": "2026-05-07"
+   },
+   "candidate": {
+    "osm_course": "way/39831264",
+    "name": "Mountain Ridge Country Club",
+    "operator": null,
+    "website": null,
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "West Caldwell, NJ, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 71,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "OSM par total 71 vs championship par 72"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  },
+  {
+   "slug": "old-american-golf-course-ec10845",
+   "name": "Old American Golf Course",
+   "next_or_last_event": {
+    "name": "The Ascendant LPGA",
+    "starts_on": "2023-10-05"
+   },
+   "candidate": {
+    "osm_course": "way/297401053",
+    "name": "Old American Golf Club",
+    "operator": null,
+    "website": null,
+    "address": "Lebanon Road, The Colony, TX, 75056",
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Old American Golf Course, The Colony, TX, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 71,
+    "setup_par": 71
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [
+    "The Tribute at The Colony Golf Club (18 holes)",
+    "Stewart Peninsula Golf Course (9 holes)"
+   ],
+   "ready_for_review": true
+  },
+  {
+   "slug": "omni-barton-creek-resort-spa-fazio-canyons-course-ec11357",
+   "name": "Omni Barton Creek Resort & Spa (Fazio Canyons Course)",
+   "next_or_last_event": {
+    "name": "Austin Championship",
+    "starts_on": "2026-11-12"
+   },
+   "candidate": {
+    "osm_course": "relation/3778021",
+    "name": "Barton Creek Fazio Canyons",
+    "operator": null,
+    "website": null,
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "sub-course:fazio canyons",
+    "locality_query": "Austin, TX, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": null
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "similarly named course(s) in extract: Barton Creek Golf Academy (0 holes, name 0.67); Barton Creek Fazio Foothills (2 holes, name 0.75)"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  },
+  {
+   "slug": "robert-trent-jones-golf-club-ec785",
+   "name": "Robert Trent Jones Golf Club",
+   "next_or_last_event": {
+    "name": "Solheim Cup",
+    "starts_on": "2024-09-13"
+   },
+   "candidate": {
+    "osm_course": "relation/3971085",
+    "name": "Robert Trent Jones Golf Club",
+    "operator": null,
+    "website": "https://www.rtjgc.com/",
+    "address": "Turtle Point Drive, Gainesville, VA, 20155",
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Robert Trent Jones Golf Club, Gainesville, VA, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [
+    "Stonewall Golf Club (17 holes)"
+   ],
+   "ready_for_review": true
+  },
+  {
+   "slug": "royal-liverpool-gc-ec261",
+   "name": "Royal Liverpool GC",
+   "next_or_last_event": {
+    "name": "The Open",
+    "starts_on": "2023-07-20"
+   },
+   "candidate": {
+    "osm_course": "way/155010530",
+    "name": "Royal Liverpool Golf Course",
+    "operator": null,
+    "website": "https://www.royal-liverpool-golf.com/",
+    "address": "Meols Drive, Wirral, CH47 4AL",
+    "golf_course_tag": "18_hole",
+    "found_via": "locality search",
+    "locality_query": "Hoylake"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 71,
+    "setup_par": 71
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "Hoylake: OSM hole refs follow MEMBER numbering, which differs from the Open championship routing; approving would show member order, not the championship order"
+   ],
+   "neighbours_info": [
+    "Hoylake Golf Club (18 holes)"
+   ],
+   "ready_for_review": false
+  },
+  {
+   "slug": "royal-mayfair-golf-country-club-ec10687",
+   "name": "Royal Mayfair Golf & Country Club",
+   "next_or_last_event": {
+    "name": "2026 CPKC Women's Open",
+    "starts_on": "2026-08-20"
+   },
+   "candidate": {
+    "osm_course": "way/1131311112",
+    "name": "Royal Mayfair Golf Club",
+    "operator": null,
+    "website": null,
+    "address": null,
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Edmonton, AB, Canada"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 70,
+    "setup_par": 70
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [
+    "Victoria Golf Course (18 holes)"
+   ],
+   "ready_for_review": true
+  },
+  {
+   "slug": "sharon-heights-golf-and-country-club-ec11350",
+   "name": "Sharon Heights Golf and Country Club",
+   "next_or_last_event": {
+    "name": "2026 Fortinet Founders Cup",
+    "starts_on": "2026-03-19"
+   },
+   "candidate": {
+    "osm_course": "relation/2222742",
+    "name": "Sharon Heights Golf Course",
+    "operator": null,
+    "website": "https://www.sharonheightsgcc.com/",
+    "address": "Sand Hill Rd, Menlo Park, CA, 94025",
+    "golf_course_tag": null,
+    "found_via": "locality search",
+    "locality_query": "Menlo Park, CA, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [],
+   "neighbours_info": [],
+   "ready_for_review": true
+  },
+  {
+   "slug": "torrey-pines-north-course-ec12",
+   "name": "Torrey Pines (North Course)",
+   "next_or_last_event": {
+    "name": "Farmers Insurance Open",
+    "starts_on": "2023-01-25"
+   },
+   "candidate": {
+    "osm_course": "way/35679009",
+    "name": "Torrey Pines North Course",
+    "operator": null,
+    "website": "https://www.torreypines.com/torrey-pines-north-course/",
+    "address": "N Torrey Pines Rd, La Jolla, CA, 92037",
+    "golf_course_tag": null,
+    "found_via": "nominatim-direct",
+    "locality_query": "Torrey Pines (North Course), La Jolla, CA, USA"
+   },
+   "holes": {
+    "proven": 18,
+    "refs": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+    "osm_par_total": 72,
+    "setup_par": 72
+   },
+   "yardage_validation": "unavailable (no published hole-by-hole setup)",
+   "flags": [
+    "similarly named course(s) in extract: Torrey Pines South Course (18 holes, name 0.67)"
+   ],
+   "neighbours_info": [],
+   "ready_for_review": false
+  }
+ ]
+}

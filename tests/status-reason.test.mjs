@@ -44,3 +44,16 @@ test('an automatic identity never displaces a coordinate-matched course on the s
  const rows=[{slug:'club',decision:'exact',osm_course:{id:'way/9'}},{slug:'club-no-3',decision:'exact',auto:{pass:true},osm_course:{id:'way/9'}},{slug:'x',decision:'exact',auto:{pass:true},osm_course:{id:'way/7'}},{slug:'y',decision:'exact',auto:{pass:true},osm_course:{id:'way/7'}}];
  holdSharedTargets(rows);assert.deepEqual(rows.map(r=>r.decision),['exact','review_auto_target_owned','review_duplicate_canonical_course','review_duplicate_canonical_course']);
 });
+test('name gate 0.75: one shared word ("Marsh Valley" vs "Dye\'s Valley") is not a name match',async()=>{
+ const {nameScore,AUTO_NAME_MIN}=await import('../workers/shared/course-geo.js');assert.equal(AUTO_NAME_MIN,0.75);
+ assert.ok(nameScore("TPC Sawgrass (Dye's Valley Course)",'Marsh Valley Country Club')<AUTO_NAME_MIN);
+ const dye={...canon,name:"TPC Sawgrass (Dye's Valley Course)"};const m=matchWithEvidence(dye,[course(1,'Marsh Valley Country Club',20,10),...H(20,10)],setup,ev2);
+ const r=autoIdentityOk(m,setup,dye.name);assert.equal(r.checks.name,false);assert.equal(r.pass,false,'geometry alone never clears a wrong name');
+});
+test('human-reviewed tier: rendered as reviewed with yardage NOT validated; never as verified',async()=>{
+ const {basisLabel,tierOf}=await import('../src/lib/course-map.js');
+ const {routingReason}=await import('../workers/golf-api/src/course-map.js');
+ assert.equal(tierOf({geometry_status:'REVIEWED ROUTING'}),'A');const lab=basisLabel({geometry_status:'REVIEWED ROUTING',holes:Array.from({length:18},(_,i)=>({hole:i+1,geometry_status:'verified',route:[[0,0],[0,1]]}))});
+ assert.match(lab,/^REVIEWED ROUTING · 18 OF 18 HOLES MAPPED · IDENTITY HUMAN-REVIEWED · YARDAGE NOT VALIDATED/);assert.doesNotMatch(lab,/VERIFIED/);
+ assert.match(routingReason({status:'reviewed'}).text,/human-reviewed; yardage not validated/);
+});
