@@ -18,4 +18,10 @@ for(const [label,rows,future] of [
  assert.match(t,/Total not final/);});
 test('round grid: final shows real totals and to-par, no placeholders',()=>{const rows=[row(1,[66,65,70,69],{status:'finished',strokes:270,to_par:-18})];const t=cells(pbecast(ix,ed(rows,'completed')));
  assert.doesNotMatch(t,/not yet played|not final/);assert.match(t,/>270</);assert.match(t,/−18/);});
-test('consumer copy: no implementation phrasing on PBEcast',()=>{const h=pbecast(ix,ed([row(1,[66])]));assert.doesNotMatch(h,/need a full-field|validated hole-by-hole|feed posts/);assert.match(h,/Round-by-round analysis becomes available when complete field data is available/);});
+test('consumer copy: no implementation phrasing on PBEcast',()=>{const h=pbecast(ix,ed([row(1,[66])]));assert.doesNotMatch(h,/need a full-field|validated hole-by-hole|feed posts/);});
+// No data = no module: an empty Round by round / scorecard card never reserves layout space.
+test('cast grid: no round data -> no Round by round card, leaderboard spans the full width',()=>{const h=pbecast(ix,ed([row(1,[66]),row(2,[68])]));
+ assert.doesNotMatch(h,/<h2>Round by round<\/h2>/);assert.doesNotMatch(h,/becomes available|empty-note/);
+ assert.match(h,/<section class="cast-panel cast-wide"><h2>Leaderboard<\/h2>/);assert.doesNotMatch(h,/Final-round scorecards/);});
+test('cast grid: real round-by-round timeline renders the module beside the leaderboard',()=>{const h=pbecast(ix,{...ed([row(1,[66,65])]),timeline:[{after_round:1,leaders:[P(1)],total:66,to_par:-6,field_average:71.2},{after_round:2,leaders:[P(1)],total:131,to_par:-13,field_average:70.8}]});
+ assert.match(h,/<h2>Round by round<\/h2>/);assert.match(h,/field avg 71\.2/);assert.match(h,/<section class="cast-panel"><h2>Leaderboard<\/h2>/);});
