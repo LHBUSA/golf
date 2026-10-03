@@ -11,7 +11,7 @@ Code: `src/lib/cast-v3.js` (pure derivations and renderers, unit-tested) and `sr
 | Observed (ESPN) | position, tie flag, total, today, thru, tee time, start hole, hole strokes, hole par, snapshot timestamps |
 | Observed (published layout) | course hole par and yardage |
 | Observed (NWS / MET Norway) | hourly forecast. Town-level is labelled "Town-level estimate" and is never called course weather |
-| PBE-derived | tower movement arrows, run facts, scoring pulse, field snapshot, "next hole in order" |
+| PBE-derived | tower movement arrows, run facts, live scoring tape, field snapshot, "next hole in order" |
 | Reconstructed | the generic hole figure in the hole detail. Labelled `RECONSTRUCTED · Scorecard-based visualization · not shot tracking`. No ball, trail, landing zone or path is drawn |
 
 Never produced: ball location, shot path, club, lie, carry, proximity, strokes gained, player walking location.
@@ -20,7 +20,9 @@ Never produced: ball location, shot path, club, lie, carry, proximity, strokes g
 
 - **Tower movement (▲/▼)**: the latest movement observation minus the previous one. Shown only when the latest observation's position still equals the board row. One snapshot means no arrows.
 - **Run facts**: counted from posted holes in play order. They are: trailing birdie streak of 2 or more ("Three straight birdies", or "straight holes under par" if an eagle is in it); 3 or more birdies-or-better in the last five; 2 or more over par in the last five; bogey-free through N when N is 9 or more and covers the whole round.
-- **Scoring pulse**: built from consecutive observations in the same round only.
+- **Live scoring (2026-10-03)**: the tape comes from the server (`GET /api/v1/live/<edition>/tape`, `workers/shared/tape.js`), derived from consecutive ~1-minute observations across the whole field (not only the top 40). Display: every non-par event; pars only for the top ten and the selected golfer; newest first; new rows flash once. A head line always says what the tape is and how fresh it is ("LIVE SCORING · HOLE-BY-HOLE · Last scoring observation 2 min ago", plus "Waiting for the next posted hole result" when nothing new has arrived since the page opened); stale / suspended / pre-round each have their own wording, never a blank module. The client polls every 30 s while the event is live (2 min otherwise). The original client pulse below is kept only as a fallback when the tape endpoint is unavailable.
+- **Selected golfer**: position, total, today, thru, round, tee time / start hole, current hole (or first hole + tee time before starting), the current-round hole strip, latest scoring event and recent events from the tape, movement since the previous snapshot. Tours without hole cards say so explicitly ("round totals are shown").
+- **Scoring pulse (fallback)**: built from consecutive observations in the same round only.
   - Lead change, or a tie for the lead, when the set of P1 players changes.
   - A hole result ("BIRDIE ON 15") only when thru increased, the posted holes `holes[prevThru..thru)` exist for the current round, and their total vs par equals the observed to-par change. Otherwise the pulse shows only the observed board move ("MOVES TO −16 · THRU 15").
   - Finished round when thru goes from under 18 to 18.

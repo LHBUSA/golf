@@ -904,3 +904,11 @@ body.cv3-lock{overflow:hidden}
 .cv3-keys .c5 i{background:#b9a2f0;height:4px}
 .cv3-keys .c6 i{background:#4fc1c1;height:4px}
 .cv3-keys .c7 i{background:#f2a7c8;height:4px}
+/* Live scoring head (PBEcast): what the tape is and how fresh it is; reserved height so updates never shift layout. */
+.cv3-thead2{min-height:22px;margin:0 0 6px}
+.cv3-th{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin:0;font-size:12px;line-height:1.4}
+.cv3-th-l{font:800 11px/1.3 var(--sans);letter-spacing:.9px;text-transform:uppercase}
+.cv3-th-live{color:var(--c3-up)}.cv3-th-suspended,.cv3-th-stale{color:var(--c3-down)}
+.cv3-th-o,.cv3-th-w{color:var(--c3-mute)}
+.cv3-latest{margin:2px 0 6px;font-size:13px;line-height:1.35}.cv3-latest time{color:var(--c3-mute);margin-right:6px;font-weight:600}
+.cv3-tee{margin-top:2px}

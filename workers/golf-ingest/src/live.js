@@ -2,7 +2,8 @@
 // Every snapshot is archived (provenance) and published as observed state with its fetch time. Nothing is
 // inferred: positions, thru, holes and tee times are exactly what ESPN reports; missing stays null.
 import {CORE,LEAGUES,getJSON,pool,idOf,archive,UpstreamBusy} from './espn.js';
-import {toParNum,LIVE_VERSION,liveState,isEventFinal} from '../../shared/live.js';
+import {toParNum,LIVE_VERSION,liveState,isEventFinal,firstTee} from '../../shared/live.js';
+import {deriveTape,appendTape} from '../../shared/tape.js';
 import {stableId} from '../../shared/store.js';
 import {digest} from '../../shared/http.js';
 export const LIVE_PARSER='espn-golf-live/1.0.0';
@@ -11,10 +12,12 @@ const putJSON=(b,k,v,cache)=>b.put(k,JSON.stringify(v),{httpMetadata:{contentTyp
 const getJ=async(b,k)=>{const o=await b.get(k);return o?JSON.parse(await o.text()):null;};
 const STATUS={STATUS_CUT:'cut',STATUS_WITHDRAWN:'withdrawn',STATUS_WD:'withdrawn',STATUS_DISQUALIFIED:'disqualified',STATUS_DQ:'disqualified',STATUS_DNS:'dns',STATUS_DID_NOT_START:'dns'};
 // Pure normalization of one competitor (status + linescores). Exported for tests.
-export function normalizeCompetitor(id,st,ls,{name=null,slug=null,player_id=null}={}){
+export function normalizeCompetitor(id,st,ls,{name=null,slug=null,player_id=null}={},{observed_at=null,order=null}={}){
  const period=Number(st?.period)||null,thru=Number.isInteger(st?.thru)?st.thru:null;
  const rounds=(ls?.items||[]).map(r=>{const holes=(r.linescores||[]).filter(h=>Number.isFinite(h.value)).map(h=>({hole:Number(h.period),strokes:Math.round(h.value),par:Number.isFinite(h.par)?h.par:null,type:h.scoreType?.name||null}));
-  const has=Number.isFinite(r.value);const rn=Number(r.period);
+  // A round ESPN has opened but the golfer has not started reports value 0 with displayValue "-" and no holes: that
+  // is "not started", never a score (it used to null the golfer's whole total, blanking the leaders before tee).
+  const has=Number.isFinite(r.value)&&!(r.value===0&&!holes.length);const rn=Number(r.period);
   const complete=has&&(holes.length>=18||(period!==null&&rn<period)||(rn===period&&thru===18));
   return {round:rn,strokes:has?Math.round(r.value):null,to_par:has?toParNum(r.displayValue):null,complete,tee_time:r.teeTime||null,start_tee:Number(r.startTee)||null,holes_posted:holes.length,holes:rn===period?holes:undefined};}).sort((a,b)=>a.round-b.round);
  const played=rounds.filter(r=>r.strokes!==null);
@@ -26,8 +29,27 @@ export function normalizeCompetitor(id,st,ls,{name=null,slug=null,player_id=null
   position_display:pos?.displayName||null,position_num:Number(pos?.id)||null,tied:pos?typeof pos.isTie==='boolean'?pos.isTie:null:null,
   total_to_par:total,today_to_par:started&&cur?cur.to_par:null,today_strokes:started&&cur?cur.strokes:null,
   current_round:period,thru,hole:Number.isInteger(st?.hole)?st.hole:null,start_hole:Number(st?.startHole)||null,tee_time:st?.teeTime||cur?.tee_time||null,playoff:st?.playoff??null,
-  rounds:rounds.map(({holes,...r})=>r),holes:cur?.holes?.length?cur.holes:null};
+  rounds:rounds.map(({holes,...r})=>r),holes:cur?.holes?.length?cur.holes:null,order,observed_at};
 }
+// Fast tick: a competitor whose status was re-read but whose card did not need re-reading (thru/round/status
+// unchanged) keeps its observed card and totals; only status-level fields move.
+export function refreshStatus(prev,st,{observed_at,order=null}={}){
+ const pos=st?.position;
+ return {...prev,status:STATUS[st?.type?.name]||'active',status_name:st?.type?.name||prev.status_name,
+  position_display:pos?.displayName||null,position_num:Number(pos?.id)||null,tied:pos?typeof pos.isTie==='boolean'?pos.isTie:null:null,
+  hole:Number.isInteger(st?.hole)?st.hole:prev.hole,start_hole:Number(st?.startHole)||prev.start_hole,tee_time:st?.teeTime||prev.tee_time,playoff:st?.playoff??prev.playoff,
+  order:order??prev.order??null,observed_at};
+}
+// Which competitors a fast tick re-reads: anyone whose state can be changing now (on course, about to tee off),
+// plus the top ten (their positions move as the field scores). Everyone else is re-read on the full refresh.
+export function isHot(p,now){
+ if(!p||p.status!=='active')return false;
+ if(Number.isInteger(p.thru)&&p.thru>0&&p.thru<18)return true;
+ if(!(p.thru>0)&&p.tee_time&&Date.parse(p.tee_time)-now<=10*60000)return true;
+ return Number.isInteger(p.position_num)&&p.position_num<=10;
+}
+// The card (linescores) is re-read only when something on it can have changed.
+export const cardChanged=(p,st)=>!p||(Number.isInteger(st?.thru)?st.thru:null)!==p.thru||(Number(st?.period)||null)!==p.current_round||(st?.type?.name||null)!==p.status_name||(p.thru>0&&!p.holes);
 async function names(env,league,ids,db){
  const out=new Map();if(!ids.length)return out;
  for(let i=0;i<ids.length;i+=100){const rows=await db('golf_player_identities',`select=provider_id,player_id,golf_players(slug,full_name)&source_id=eq.espn&provider_id=in.(${ids.slice(i,i+100).join(',')})`);for(const r of rows)if(r.golf_players)out.set(String(r.provider_id),{slug:r.golf_players.slug,name:r.golf_players.full_name,player_id:r.player_id});}
@@ -38,45 +60,95 @@ async function names(env,league,ids,db){
  for(const id of ids)if(!out.has(id)&&cache[id])out.set(id,{slug:null,name:cache[id]});
  return out;
 }
-export async function snapshotEvent(env,db,ed,{now=new Date()}={}){
+// mode 'full': every competitor's status + card (the 10-minute refresh, and any round change / first snapshot).
+// mode 'fast': the cheap competitor list (ESPN order for the whole field), statuses only for golfers whose state can
+// be changing (isHot), cards only where the status shows a change (cardChanged); everyone else carries their last
+// observation, stamped with its own observed_at. Request accounting is returned in snap.requests.
+export async function snapshotEvent(env,db,ed,{now=new Date(),prev=null,mode='full'}={}){
  const league=ed.espn.league,eventId=ed.espn.event_id,base=`${CORE}/leagues/${league}/events/${eventId}/competitions/${eventId}`;
- const cs=await getJSON(`${base}/status`);
+ let requests=0;const get=u=>{requests++;return getJSON(u);};
+ const soft=e=>{if(e instanceof UpstreamBusy)throw e;return null;};
+ const cs=await get(`${base}/status`);
  const state=cs?.type?.state||null;
- const list=await getJSON(`${base}/competitors?limit=400`);const ids=(list.items||[]).map(i=>idOf(i.$ref)).filter(Boolean);
- const rows=await pool(3,ids,async id=>{const [st,ls]=await Promise.all([getJSON(`${base}/competitors/${id}/status`).catch(e=>{if(e instanceof UpstreamBusy)throw e;return null;}),state==='pre'?Promise.resolve(null):getJSON(`${base}/competitors/${id}/linescores`).catch(e=>{if(e instanceof UpstreamBusy)throw e;return null;})]);return {id,st,ls};});
- const nm=await names(env,league,ids,db);
- const players=rows.map(r=>normalizeCompetitor(r.id,r.st,r.ls,nm.get(String(r.id))||{}));
+ const list=await get(`${base}/competitors?limit=400`);const items=(list.items||[]).map(i=>({id:String(i.id||idOf(i.$ref)),order:Number.isInteger(i.order)?i.order:null})).filter(i=>i.id&&i.id!=='null');
+ const ids=items.map(i=>i.id),orderOf=new Map(items.map(i=>[i.id,i.order]));
+ const fast=mode==='fast'&&prev&&prev.parser===LIVE_PARSER&&(Number(cs?.period)||null)===prev.event_status?.period&&prev.players?.length;
+ const t=now.getTime(),obs=new Date().toISOString();
+ let players,rows,refreshed=0,cards=0;
+ if(!fast){
+  rows=await pool(3,ids,async id=>{const [st,ls]=await Promise.all([get(`${base}/competitors/${id}/status`).catch(soft),state==='pre'?Promise.resolve(null):get(`${base}/competitors/${id}/linescores`).catch(soft)]);return {id,st,ls};});
+  const nm=await names(env,league,ids,db);refreshed=rows.length;cards=rows.filter(r=>r.ls).length;
+  players=rows.map(r=>normalizeCompetitor(r.id,r.st,r.ls,nm.get(String(r.id))||{},{observed_at:obs,order:orderOf.get(r.id)??null}));
+ }else{
+  const before=new Map(prev.players.map(p=>[String(p.espn_id),p]));
+  const pick=ids.filter(id=>!before.has(id)||isHot(before.get(id),t));
+  rows=await pool(3,pick,async id=>{const p=before.get(id),st=await get(`${base}/competitors/${id}/status`).catch(soft);if(!st)return {id,st:null,ls:null};
+   const ls=state!=='pre'&&cardChanged(p,st)?await get(`${base}/competitors/${id}/linescores`).catch(soft):null;return {id,st,ls};});
+  const fresh=ids.filter(id=>!before.has(id));const nm=fresh.length?await names(env,league,fresh,db):new Map();
+  const got=new Map(rows.map(r=>[r.id,r]));refreshed=rows.filter(r=>r.st).length;cards=rows.filter(r=>r.ls).length;
+  players=ids.map(id=>{const p=before.get(id),r=got.get(id),ident=p?{name:p.name,slug:p.slug,player_id:p.player_id}:(nm.get(id)||{}),order=orderOf.get(id)??null;
+   if(r?.st&&(r.ls||!p))return normalizeCompetitor(id,r.st,r.ls,ident,{observed_at:obs,order});
+   if(r?.st)return refreshStatus(p,r.st,{observed_at:obs,order});
+   return p?{...p,order}:normalizeCompetitor(id,null,null,ident,{observed_at:null,order});});
+ }
  const fetched_at=new Date().toISOString();
  const snap={version:LIVE_VERSION,parser:LIVE_PARSER,source:'ESPN Golf core API',league,tour:LEAGUES[league]?.label||league,espn_event_id:String(eventId),
   edition:{id:ed.id,slug:ed.slug,name:ed.name,starts_on:ed.starts_on,ends_on:ed.ends_on,division:ed.division,is_major:Boolean(ed.is_major)},
   course:ed.course?{slug:ed.course.slug,name:ed.course.name,city:ed.espn.course?.city||null,state:ed.espn.course?.state||null,country:ed.espn.course?.country||null}:null,
   event_status:{name:cs?.type?.name||null,state,completed:isEventFinal(cs?.type),detail:cs?.type?.detail||null,short_detail:cs?.type?.shortDetail||null,description:cs?.type?.description||null,period:Number(cs?.period)||null},
   // ESPN core exposes no update timestamp for golf scoring; freshness is measured from our fetch.
-  source_updated_at:null,fetched_at,holes_available:players.some(p=>p.holes?.length),players};
- const cap=await archive(env,db,`${base}/competitors?limit=400#live`,{fetched_at,status:cs,competitors:rows});
- snap.capture_id=cap.id;
+  source_updated_at:null,fetched_at,holes_available:players.some(p=>p.holes?.length),players,
+  mode:fast?'fast':'full',requests:{total:requests,statuses:refreshed,cards}};
+ // Provenance: every published change is archived (the raw responses fetched this tick). A fast tick that
+ // changed nothing reuses the previous capture instead of writing an identical-looking archive row.
+ if(!fast||boardSig(snap)!==boardSig(prev)){const cap=await archive(env,db,`${base}/competitors?limit=400#live${fast?'-fast':''}`,{fetched_at,mode:snap.mode,status:cs,order:items,competitors:rows});snap.capture_id=cap.id;}
+ else snap.capture_id=prev.capture_id||null;
  return snap;
+}
+// What a customer can see change: status, position, totals, thru, posted holes.
+export const boardSig=s=>s?JSON.stringify([s.event_status?.name,s.event_status?.period,(s.players||[]).map(p=>[p.espn_id,p.status,p.position_display,p.total_to_par,p.today_to_par,p.thru,(p.holes||[]).length])]):'';
+// Fast ticks run only for events where play can be changing: in progress (not a whole-field round-complete), or
+// within 15 minutes of the round's first tee. Suspended play is re-checked every 5 minutes.
+export function fastEligible(prev,t){
+ if(!prev||prev.event_status?.completed)return false;
+ const st=prev.event_status||{},name=st.name||'';
+ if(STOPPED.has(name))return new Date(t).getUTCMinutes()%5===0;
+ if(name==='STATUS_PLAY_COMPLETE'||name==='STATUS_END_PERIOD')return (prev.players||[]).some(p=>p.status==='active'&&Number.isInteger(p.thru)&&p.thru>0&&p.thru<18);
+ if(st.state==='in')return true;
+ const ft=firstTee(prev,st.period||1);return Boolean(ft&&Date.parse(ft)-t<=15*60000&&Date.parse(ft)-t>-6*3600000);
 }
 // Compact leaderboard fingerprint for movement history (top 40 by position).
 export function movementPoint(s){return {t:s.fetched_at,round:s.event_status.period,status:s.event_status.name,top:s.players.filter(p=>p.position_num&&p.status==='active').sort((a,b)=>a.position_num-b.position_num).slice(0,40).map(p=>({slug:p.slug,name:p.name,pos:p.position_num,tied:p.tied,to_par:p.total_to_par,thru:p.thru}))};}
 const STOPPED=new Set(['STATUS_SUSPENDED','STATUS_PLAY_SUSPENDED','STATUS_DELAYED','STATUS_RAIN_DELAY','STATUS_POSTPONED']);
-export async function runLive(env,db,{now=new Date(),force=false}={}){
+// mode 'full' (every 10 minutes, all window editions) or 'fast' (every other minute, only fastEligible editions).
+export async function runLive(env,db,{now=new Date(),force=false,mode='full'}={}){
+ const t=now.getTime();
+ const cur=mode==='fast'?await getJ(env.PUBLIC,'live/v1/current.json'):null;
+ if(mode==='fast'){
+  // Cheap gate: nothing to do unless a current snapshot can be changing now.
+  const hot=(cur?.events||[]).filter(s=>fastEligible(s,t));if(!hot.length)return {lane:'live',mode,status:'idle',snapshots:0};
+ }
  const ix=await getJ(env.PUBLIC,'projection/v2/index.json');if(!ix)return {lane:'live',status:'projection_unavailable'};
- const today=now.toISOString().slice(0,10),t=now.getTime();
  const win=ix.editions.filter(e=>e.starts_on&&e.ends_on&&Date.parse(e.starts_on)<=t+DAY&&Date.parse(e.ends_on)+2*DAY>=t&&e.status!=='cancelled');
- const out={lane:'live',window:win.length,snapshots:0,skipped:[],events:[]};
+ const out={lane:'live',mode,window:win.length,snapshots:0,requests:0,skipped:[],events:[]};
  const current=[];
  for(const e of win){
+  const key='live/v1/events/'+e.slug+'.json',prev=await getJ(env.PUBLIC,key);
+  if(mode==='fast'&&!fastEligible(prev,t)){if(prev)current.push(prev);out.skipped.push({edition:e.slug,reason:'not_in_play'});continue;}
   const ed=await getJ(env.PUBLIC,'projection/v2/editions/'+e.slug+'.json');if(!ed?.espn?.event_id||!ed.espn.league){out.skipped.push({edition:e.slug,reason:'no_espn_event'});continue;}
-  const key='live/v1/events/'+ed.slug+'.json',prev=await getJ(env.PUBLIC,key);
-  // Finished events keep their final snapshot; pre-round events refresh hourly (tee times only).
+  // Finished events keep their final snapshot; pre-round events refresh hourly (tee times only) unless the first
+  // tee is within 15 minutes (then the fast lane picks them up).
   if(prev&&!force){const ps=liveState(prev,t);if(ps.state==='final'&&prev.event_status?.completed){current.push(prev);out.skipped.push({edition:ed.slug,reason:'final_kept'});continue;}
-   if(prev.event_status?.state==='pre'&&t-Date.parse(prev.fetched_at)<55*60000){current.push(prev);out.skipped.push({edition:ed.slug,reason:'pre_recent'});continue;}}
-  const snap=await snapshotEvent(env,db,{...ed,slug:ed.slug},{now});
+   if(prev.event_status?.state==='pre'&&t-Date.parse(prev.fetched_at)<55*60000&&!fastEligible(prev,t)){current.push(prev);out.skipped.push({edition:ed.slug,reason:'pre_recent'});continue;}}
+  const snap=await snapshotEvent(env,db,{...ed,slug:ed.slug},{now,prev,mode});out.requests+=snap.requests.total;
   // Stoppages: when this status was first observed (carried across snapshots). Reason / restart wording comes only
   // from the approved core-API status text (site.api.espn.com is HOLD in docs/SOURCE_MATRIX.md: not used).
   if(STOPPED.has(snap.event_status?.name))snap.status_since=prev?.event_status?.name===snap.event_status.name&&prev?.event_status?.period===snap.event_status.period&&prev.status_since?prev.status_since:snap.fetched_at;
   await putJSON(env.PUBLIC,key,snap);out.snapshots++;current.push(snap);
+  // Scoring tape: provable deltas against the previous snapshot, appended to a bounded per-edition tape.
+  const tk='live/v1/tape/'+ed.slug+'.json',tape=await getJ(env.PUBLIC,tk);const fresh=deriveTape(prev,snap);
+  const tdoc=appendTape(tape,fresh,{edition:ed.slug,now:snap.fetched_at});tdoc.last_observation_at=snap.fetched_at;tdoc.round=snap.event_status.period;
+  tdoc.cadence={mode:snap.mode,requests:snap.requests};await putJSON(env.PUBLIC,tk,tdoc);
   // History: bounded movement series; full snapshots only when the board changes.
   const mk='live/v1/movement/'+ed.slug+'.json',mv=await getJ(env.PUBLIC,mk)||{edition:ed.slug,points:[]};const pt=movementPoint(snap);
   const sig=JSON.stringify(pt.top.map(x=>[x.slug||x.name,x.pos,x.to_par,x.thru]));
@@ -84,7 +156,7 @@ export async function runLive(env,db,{now=new Date(),force=false}={}){
   if(JSON.stringify((mv.points.at(-1)?.top||[]).map(x=>[x.slug||x.name,x.pos,x.to_par,x.thru]))!==sig){mv.points.push(pt);mv.points=mv.points.slice(-400);await putJSON(env.PUBLIC,mk,mv);await putJSON(env.PRIVATE||env.RAW,`golf/live/${ed.slug}/${snap.fetched_at}.json`,snap);}
   // When ESPN reports the event final, hand the event to the ingest lane immediately.
   if(snap.event_status.completed){const items=JSON.parse(await env.STATE.get('espn:items:v1')||'{}');const k=`${snap.league}:${snap.espn_event_id}`;if(items[k]){items[k].next_at=0;await env.STATE.put('espn:items:v1',JSON.stringify(items));}}
-  out.events.push({edition:ed.slug,status:snap.event_status.name,period:snap.event_status.period,players:snap.players.length,holes:snap.holes_available,state:liveState(snap,Date.now()).state});
+  out.events.push({edition:ed.slug,mode:snap.mode,requests:snap.requests,tape_events:fresh.length,status:snap.event_status.name,period:snap.event_status.period,players:snap.players.length,holes:snap.holes_available,state:liveState(snap,Date.now()).state});
  }
  await putJSON(env.PUBLIC,'live/v1/current.json',{version:LIVE_VERSION,as_of:new Date().toISOString(),events:current});
  return out;

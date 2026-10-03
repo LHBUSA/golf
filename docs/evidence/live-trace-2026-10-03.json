@@ -1,0 +1,108 @@
+{
+ "captured_at": "2026-10-03T17:47:28Z",
+ "edition": "bank-of-utah-championship-q130604671-2026",
+ "round": 3,
+ "layers": {
+  "espn_core": {
+   "status": "STATUS_IN_PROGRESS",
+   "competitors": 120,
+   "note": "competition status in progress; per-competitor status + linescores readable; list exposes leaderboard order"
+  },
+  "ingest_live_lane": {
+   "cadence_minutes": 10,
+   "FIRST_FAILING_LAYER": true,
+   "defect": "normalizeCompetitor: R3 linescore item value 0 / displayValue \"-\" for golfers not yet started -> to_par null -> whole total_to_par null",
+   "active_with_null_total": 34,
+   "example": {
+    "name": "Austin Smotherman",
+    "position": "1",
+    "total_to_par": null,
+    "thru": 0,
+    "rounds": [
+     {
+      "round": 1,
+      "strokes": 63,
+      "to_par": -8,
+      "complete": true
+     },
+     {
+      "round": 2,
+      "strokes": 62,
+      "to_par": -9,
+      "complete": true
+     },
+     {
+      "round": 3,
+      "strokes": 0,
+      "to_par": null,
+      "complete": false
+     },
+     {
+      "round": 4,
+      "strokes": null,
+      "to_par": null,
+      "complete": false
+     }
+    ]
+   }
+  },
+  "r2_movement": {
+   "points_total": 108,
+   "last_points": [
+    "2026-10-03T17:03:54.825Z",
+    "2026-10-03T17:13:54.360Z",
+    "2026-10-03T17:22:47.212Z",
+    "2026-10-03T17:32:45.518Z",
+    "2026-10-03T17:42:44.387Z"
+   ],
+   "top_cap": 40,
+   "top40_null_to_par": 18,
+   "note": "10-minute spacing; leaders (thru 0) carry to_par null so pulseEvents cannot compare them"
+  },
+  "golf_api_live": {
+   "state": "live",
+   "freshness_seconds": 283,
+   "hole_scores": 84,
+   "on_course": 36,
+   "thru_distribution": {
+    "0": 34,
+    "1": 12,
+    "2": 6,
+    "3": 8,
+    "4": 7,
+    "5": 3,
+    "null": 50
+   }
+  },
+  "pbecast_client": {
+   "poll_seconds": 120,
+   "pulse_input": "top-40 movement points only, top 10 + selected watched; leaders unscored before tee"
+  }
+ },
+ "after_fix_local_simulation": {
+  "full": {
+   "requests": {
+    "total": 242,
+    "statuses": 120,
+    "cards": 120
+   },
+   "players": 120,
+   "active_null_totals": 0
+  },
+  "fast": {
+   "requests": {
+    "total": 77,
+    "statuses": 66,
+    "cards": 9
+   },
+   "fetched_at": "2026-10-03T18:03:59.766Z"
+  },
+  "leader_after_fix": [
+   {
+    "name": "Austin Smotherman",
+    "total_to_par": -17,
+    "thru": 0
+   }
+  ]
+ }
+}

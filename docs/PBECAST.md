@@ -1,6 +1,6 @@
 # PBEcast — Phase 2 (2026-10-01)
 
-Archive mode is live for every edition with a leaderboard: top of the final leaderboard with round scores, leader after each round (full-field editions; field averages per round), validated final-round hole-by-hole scorecards for leaders (birdie/bogey/eagle strip), and course setup context. Switching editions is client-side via `/api/v1/tournaments/:slug`. Live mode stays off: no approved real-time feed. No shot coordinates exist and none are drawn.
+Archive mode is live for every edition with a leaderboard: top of the final leaderboard with round scores, leader after each round (full-field editions; field averages per round), validated final-round hole-by-hole scorecards for leaders (birdie/bogey/eagle strip), and course setup context. Switching editions is client-side via `/api/v1/tournaments/:slug`. Live mode is on (2026-10-03): PBEcast V3 is a hole-by-hole LIVE SCORING cast fed by the approved ESPN core live lane — about one observation a minute while play is in progress, a full-field scoring tape, live leaderboard and selected-golfer panel (see docs/LIVE_SCORING.md and docs/PBECAST_V3.md). The source exposes positions, thru, scores and current-round hole cards, not shots: no shot coordinates, clubs, lies or shot paths exist and none are drawn.
 
 ---
 

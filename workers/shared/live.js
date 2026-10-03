@@ -1,8 +1,10 @@
 // Live tournament state contract. LIVE is earned by ESPN status + posted scores + a fresh snapshot.
 // A date window alone never makes anything live. Missing values stay null (never zero).
 export const LIVE_VERSION='golf-live/1.0.0';
-// Snapshots are taken every 10 minutes by the ingest cron; one missed cycle is still fresh.
-export const FRESH_SECONDS=20*60,STALE_SECONDS=60*60;
+// Every event in the window is refreshed every 10 minutes; while play is in progress the fast lane observes it
+// about every minute (docs/LIVE_SCORING.md). An in-progress round is LIVE only while its last observation is at
+// most LIVE_FRESH_SECONDS old; past that it is visibly stale. Other states keep the 10-minute contract.
+export const FRESH_SECONDS=20*60,STALE_SECONDS=60*60,LIVE_FRESH_SECONDS=5*60;
 const SUSPENDED=new Set(['STATUS_SUSPENDED','STATUS_PLAY_SUSPENDED','STATUS_DELAYED','STATUS_RAIN_DELAY','STATUS_POSTPONED']);
 const FINAL=new Set(['STATUS_FINAL','STATUS_FINAL_PLAYOFF','STATUS_COMPLETED']);
 // ESPN marks the end of every ROUND with completed:true/state 'post' (STATUS_PLAY_COMPLETE). Only an explicit final
@@ -28,8 +30,8 @@ export function liveState(snapshot,now=Date.now()){
  if(st.state==='pre'||name==='STATUS_SCHEDULED')return {state:'pre',label:round&&round>1?`ROUND ${round} STARTS SOON`:'SCORING BEGINS WHEN PLAY STARTS',round,first_tee:firstTee(snapshot,round||1),...f};
  if(name==='STATUS_PLAY_COMPLETE'||name==='STATUS_END_PERIOD')return {state:f.freshness==='fresh'?'round_complete':'stale',label:f.freshness==='fresh'?`ROUND ${round} COMPLETE`:'SCORING UPDATE DELAYED',round,...f};
  if(st.state==='in'&&scoring(snapshot)){
-  if(f.freshness==='fresh')return {state:'live',label:`LIVE · ROUND ${round}`,round,...f};
-  return {state:'stale',label:'SCORING UPDATE DELAYED',round,...f};
+  if(f.age_seconds<=LIVE_FRESH_SECONDS)return {state:'live',label:`LIVE SCORING · ROUND ${round}`,round,...f};
+  return {state:'stale',label:'SCORING UPDATE DELAYED',round,...f,freshness:'stale'};
  }
  if(st.state==='in')return {state:'pre',label:'SCORING BEGINS WHEN PLAY STARTS',round,first_tee:firstTee(snapshot,round||1),...f};
  return {state:'unavailable',label:null,round,...f};

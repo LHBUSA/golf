@@ -1,6 +1,6 @@
 import {store} from '../../shared/store.js';
 import {golfAccess} from '../../shared/access.js';
-import {publicEvent,orderEvents,FRESH_SECONDS,STALE_SECONDS} from '../../shared/live.js';
+import {publicEvent,orderEvents,FRESH_SECONDS,STALE_SECONDS,LIVE_FRESH_SECONDS} from '../../shared/live.js';
 import {renderNews,feed,newsSitemap,newsUrlset,newsIndex} from './news-ssr.js';
 // The card renderer (wasm + fonts) loads only for /og requests.
 const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
@@ -14,7 +14,8 @@ const moved=(url,from,to)=>{const u=new URL(url);u.pathname=u.pathname.replace(f
 import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition,projectionPublic,publicDoc,PUBLIC_SOURCE,PUBLIC_ATTRIBUTION} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
-const LIVE_CACHE='public, max-age=60, s-maxage=60';
+// Live observations arrive about every minute during play (fast lane); a 20 s edge cache keeps polls cheap.
+const LIVE_CACHE='public, max-age=15, s-maxage=20';
 const json=(body,status=200,cache='no-store')=>Response.json(body,{status,headers:headers(cache)});
 const PUBLIC_CACHE='public, max-age=120, s-maxage=300';
 let memo={at:0,index:null},vmemo={at:0,v:null},pubIx={ix:null,text:null};
@@ -95,6 +96,10 @@ async function route(request,env){
      // Observed scoring snapshots. State comes from the live contract: never from dates alone.
      const cur=await env.PUBLIC.get('live/v1/current.json').then(o=>o?o.json():null).catch(()=>null);const now=Date.now();
      if(id){const snap=await env.PUBLIC.get('live/v1/events/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);
+      // Scoring tape: observed scoring changes across the live field (workers/shared/tape.js), newest last.
+      if(sub==='tape'){const tp=await env.PUBLIC.get('live/v1/tape/'+id+'.json').then(o=>o?o.json():null).catch(()=>null);
+       const since=url.searchParams.get('since');let evs=tp?.events||[];if(since)evs=evs.filter(x=>x.t>since);
+       return json({source:PUBLIC_SOURCE,edition:id,round:tp?.round??null,updated_at:tp?.updated_at||null,last_observation_at:tp?.last_observation_at||null,total_events:tp?.events?.length||0,events:evs.slice(-400)},200,LIVE_CACHE);}
       if(sub==='movement'){
        // Durable history first (golf_live_snapshots); the R2 change log is the fallback and the archive of record.
        const db=store(env);let points=null,history='r2';
@@ -115,7 +120,7 @@ async function route(request,env){
      if(who){for(const s of cur?.events||[]){const p=s.players.find(x=>x.slug===who);if(p){const ev=publicEvent(s,now);return json({availability:'available',source:PUBLIC_SOURCE,event:{...ev,leaderboard:[]},player:ev.leaderboard.find(x=>x.slug===who)},200,LIVE_CACHE);}}return json({availability:'unavailable',player:null},200,LIVE_CACHE);}
      const events=orderEvents((cur?.events||[]).map(s=>publicEvent(s,now))).map(ev=>({...ev,leaderboard:ev.leaderboard.slice(0,Number(url.searchParams.get('top'))||10)}));
      const fresh=events.filter(e=>['live','suspended','round_complete'].includes(e.state));
-     return json({availability:events.some(e=>e.state!=='unavailable')?'available':'unavailable',source:PUBLIC_SOURCE,as_of:cur?.as_of||null,freshness_seconds:fresh.length?Math.min(...fresh.map(e=>e.age_seconds)):null,contract:{fresh_seconds:FRESH_SECONDS,stale_seconds:STALE_SECONDS,live_requires:'verified in-progress status + posted scores + snapshot within fresh_seconds'},events},200,LIVE_CACHE);}
+     return json({availability:events.some(e=>e.state!=='unavailable')?'available':'unavailable',source:PUBLIC_SOURCE,as_of:cur?.as_of||null,freshness_seconds:fresh.length?Math.min(...fresh.map(e=>e.age_seconds)):null,contract:{fresh_seconds:FRESH_SECONDS,live_fresh_seconds:LIVE_FRESH_SECONDS,stale_seconds:STALE_SECONDS,live_requires:'verified in-progress status + posted scores + snapshot within fresh_seconds'},events},200,LIVE_CACHE);}
     case 'rankings':return json(unavailable(ix,'licensed_ranking_source_not_established',{coverage:{official_rankings:false,pbe_rating:'research only; not published'}}),200,PUBLIC_CACHE);
     case 'news':{
      if(id){const o=await env.PUBLIC.get('news/v2/articles/'+id+'.json');const a=o?JSON.parse(await o.text()):null;if(!a||a.status!=='published')return json({error:'not_found'},404);return ok(a);}

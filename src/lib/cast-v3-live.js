@@ -2,17 +2,17 @@
 import {fetchCourseMap,mountCourseMap} from './course-map-live.js';
 import {holeStats,cardsFromLive} from './hole-intel.js';
 import {statusModule} from './live-ui.js';
-import {castShell,commandBar,currentHole,towerRows,focusPanel,compactDna,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
+import {castShell,commandBar,currentHole,towerRows,focusPanel,compactDna,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key,tapeView,golferTape,tapeHead,tapeEmpty,ago} from './cast-v3.js';
 import {e} from './ui.js';
 
 const STATE=new WeakMap();
 const set=(el,html)=>{if(el&&el.__html!==html){el.innerHTML=html;el.__html=html;return true;}return false;};
 const narrow=()=>matchMedia('(max-width: 767px)').matches;
 
-export function castV3(host,r,mv){
+export function castV3(host,r,mv,tape=null){
  const slug=host.getAttribute('data-edition')||'';let s=STATE.get(host);
  if(!s||s.slug!==slug||!s.root.isConnected){if(s)teardown(s);if(!host.querySelector('[data-cv3]'))host.innerHTML=castShell();s=mount(host,slug);STATE.set(host,s);}
- s.ev=r.event;s.weather=r.weather_now||null;s.layout=r.course_holes||[];s.points=(mv?.points||[]).filter(p=>p.top?.length);
+ s.ev=r.event;s.tape=tape&&Array.isArray(tape.events)?tape:null;s.weather=r.weather_now||null;s.layout=r.course_holes||[];s.points=(mv?.points||[]).filter(p=>p.top?.length);
  s.holes=new Map((r.hole_scores||[]).filter(h=>h.round==null||h.round===r.event.round).map(h=>[h.slug||h.name,h.holes||[]]));
  const rows=s.ev.leaderboard||[];if(!s.selected||!rows.some(x=>key(x)===s.selected))s.selected=key(rows.find(x=>x.status==='active')||rows[0]);
  render(s);syncMap(s);s.prevRows=new Map(rows.map(x=>[key(x),{position:x.position,total_to_par:x.total_to_par,today_to_par:x.today_to_par,thru:x.thru}]));
@@ -21,7 +21,7 @@ export function castV3(host,r,mv){
 function mount(host,slug){
  const root=host.querySelector('[data-cv3]');const q=sel=>root.querySelector(sel);
  const s={host,root,slug,selected:null,filter:narrow()?'selected':'contenders',focusKey:null,cursor:null,selHole:null,seen:null,prevRows:null,first:true,
-  bar:q('[data-cv3-bar]'),statusEl:q('[data-cv3-status]'),cmapEl:q('[data-cv3-cmap]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
+  tapehead:q('[data-cv3-tapehead]'),bar:q('[data-cv3-bar]'),statusEl:q('[data-cv3-status]'),cmapEl:q('[data-cv3-cmap]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
   // Scoring Pulse event with a proven hole -> select that golfer and focus that hole (map + scorecard).
@@ -49,7 +49,7 @@ function mount(host,slug){
  return s;
 }
 function teardown(s){clearInterval(s.tick);s.ro?.disconnect();document.removeEventListener('fullscreenchange',s.onFs);document.removeEventListener('keydown',s.onKey);document.body.classList.remove('cv3-lock');}
-function tickClock(s){const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)a.textContent=ageText(s.ev);const c=s.root.querySelector('[data-cv3-clock]');if(c)c.textContent=courseClock(Number(c.getAttribute('data-off')));}
+function tickClock(s){const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)a.textContent=ageText(s.ev);const o=s.root.querySelector('[data-cv3-obs]');if(o){const t=Date.parse(o.getAttribute('data-at')||'');if(Number.isFinite(t))o.textContent=`Last scoring observation ${ago(Math.max(0,Math.round((Date.now()-t)/1000)))}`;}const c=s.root.querySelector('[data-cv3-clock]');if(c)c.textContent=courseClock(Number(c.getAttribute('data-off')));}
 
 function select(s,k){s.selected=k;s.selHole=null;s.cursor=null;
  for(const b of s.tower.querySelectorAll('[data-cv3-pick]')){const on=b.dataset.cv3Pick===k;b.closest('li')?.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));}
@@ -91,15 +91,20 @@ function playerIndex(){return IDX.p||(IDX.p=fetch('/index-snapshot.json').then(r
 function playerDoc(slug){if(!PL.has(slug))PL.set(slug,fetch('/api/v1/players/'+encodeURIComponent(slug),{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null).then(j=>j?.data||null).catch(()=>null));return PL.get(slug);}
 function renderFocus(s){const r=row(s),slug=r?.slug||null;
  // The golfer's own observed events (not capped by the pulse list's display limit).
- const evs=s.selected?pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected]),limit:2000}).filter(x=>x.keys?.includes(s.selected)):[];const mv=boardMoves(s.points,s.ev.leaderboard).get(s.selected)||null;
+ const evs=!s.selected?[]:s.tape?golferTape(s.tape,s.selected,s.ev.round):pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected]),limit:2000}).filter(x=>x.keys?.includes(s.selected));const mv=boardMoves(s.points,s.ev.leaderboard).get(s.selected)||null;
  const cached=slug&&s.dnaHtml?.get(slug);
  set(s.focus,focusPanel(s.ev,r,{holes:s.holes.get(s.selected)||null,layout:s.layout,selHole:s.selHole,realRoute:h=>!!s.map?.hasRoute(h),player:slug?(s.photos?.get(slug)||{slug,name:r.name}):null,mv,events:evs,dnaBlock:cached??(slug?'<p class="gnote">Loading Player DNA…</p>':'')}));
  if(slug&&cached==null){s.dnaHtml=s.dnaHtml||new Map();playerDoc(slug).then(p=>{s.dnaHtml.set(slug,p?compactDna(p):'');if(row(s)?.slug===slug){const el=s.focus.querySelector('[data-cv3-dna]');if(el)el.innerHTML=s.dnaHtml.get(slug);s.focus.__html=null;}});}
  if(!s.photos){s.photos=new Map();playerIndex().then(m=>{s.photos=m;s.focus.__html=null;renderFocus(s);});}
 }
+// Live scoring: the server tape (full field) when available; the older client pulse over the top-40 movement
+// history only as a fallback. "New since mount" drives the truthful waiting line.
 function renderPulse(s){
- const ev=pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});s.lastPulse=ev;
- set(s.pulse,pulseList(ev,{seen:s.seen}));s.seen=new Set(ev.map(x=>x.t+'|'+x.text));
+ const ev=s.tape?tapeView(s.tape,s.ev,{selected:s.selected}):pulseEvents(s.points,{holes:s.holes,round:s.ev.round,focus:new Set([s.selected])});s.lastPulse=ev;
+ const ids=ev.map(x=>x.t+'|'+x.text);if(!s.mountIds)s.mountIds=new Set(ids);
+ const newSinceMount=ids.some(i=>!s.mountIds.has(i));
+ if(s.tapehead)set(s.tapehead,tapeHead(s.ev,s.tape,{newSinceMount}));
+ set(s.pulse,pulseList(ev,{seen:s.seen,empty:tapeEmpty(s.ev)}));s.seen=new Set(ids);
 }
 function renderTimeline(s){
  for(const b of s.tl.querySelectorAll('[data-cv3-filter]'))b.setAttribute('aria-pressed',String(b.dataset.cv3Filter===s.filter));

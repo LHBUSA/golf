@@ -204,7 +204,7 @@ export function holeDetail(h,layout,{realRoute=false}={}){
  if(!h)return '';const L=layout.get(h.hole),d=holeDiff(h);
  return `<div class="cv3-hd-text"><p class="micro-label">HOLE ${e(h.hole)} · OBSERVED</p><p class="cv3-hd-res">${e(resultLabel(d)||'Result not posted')}</p><dl class="cv3-dl"><div><dt>Strokes</dt><dd>${e(h.strokes)}</dd></div><div><dt>Par</dt><dd>${e(h.par??L?.par??'—')}</dd></div>${L?.yards?`<div><dt>Yards</dt><dd>${e(L.yards)}</dd></div>`:''}</dl>${realRoute?'<p class="gnote">The Course View shows this hole’s mapped routing. Shot locations are not tracked.</p></div>':'<p class="gnote">No shot data is published for this hole. The figure is a generic template, not the hole’s real shape.</p></div><figure class="cv3-hd-fig"><figcaption><span class="truth truth-reconstructed">RECONSTRUCTED</span> Scorecard-based visualization · not shot tracking</figcaption>'+holeSvg({hole:h.hole,par:h.par??L?.par,yards:L?.yards??null,strokes:null})+'</figure>'}`;
 }
-const recentEv=evs=>evs.length?`<div class="cv3-recent"><p class="micro-label">RECENT SCORING · OBSERVED</p><ul>${evs.slice(0,3).map(x=>`<li><time datetime="${e(x.t)}">${e(clock(x.t))}</time> ${e(x.rest??x.text)}</li>`).join('')}</ul></div>`:'';
+const recentEv=evs=>evs.length?`<div class="cv3-recent"><p class="micro-label">LATEST SCORING · OBSERVED</p><p class="cv3-latest"><time datetime="${e(evs[0].t)}">${e(clock(evs[0].t))}</time> <b>${e(evs[0].rest??evs[0].text)}</b></p>${evs.length>1?`<p class="micro-label">RECENT</p><ul>${evs.slice(1,7).map(x=>`<li><time datetime="${e(x.t)}">${e(clock(x.t))}</time> ${e(x.rest??x.text)}</li>`).join('')}</ul>`:''}</div>`:'';
 /** Compact Player DNA for PBEcast from the SAME public DNA model as the player page (one source of truth): the top
  * published dimensions only, with sample/confidence. No composite, no zeros, no simplified model. */
 export function compactDna(p,{max=4}={}){
@@ -218,15 +218,16 @@ export function focusPanel(ev,r,{holes=null,layout=[],selHole=null,realRoute=()=
  const lay=new Map((layout||[]).map(h=>[h.hole,h])),hs=holes||[],lastH=hs.at(-1),lh=lastH?lay.get(lastH.hole):null;
  const status=OUT[r.status]?`${OUT[r.status]}`:r.thru===18?`Finished round ${ev.round}`:r.thru>0?`Thru ${r.thru} · round ${ev.round}`:r.tee_time?`Tees off ${clock(r.tee_time)}`:'Not started';
  const facts=runFacts(hs);
- let next='';const cn=currentHole(r);if(cn&&lay.size){const N=lay.get(cn);if(N)next=`<div><dt>Current hole</dt><dd>Hole ${e(cn)} · Par ${e(N.par??'—')}${N.yards?` · ${e(N.yards)} yd`:''}</dd></div>`;}
+ let next='';const cn=currentHole(r);if(cn){const N=lay.get(cn);next=`<div><dt>Current hole</dt><dd>Hole ${e(cn)}${N?` · Par ${e(N.par??'—')}${N.yards?` · ${e(N.yards)} yd`:''}`:''}</dd></div>`;}
+ else if(r.status==='active'&&!(r.thru>0)&&Number.isInteger(r.start_hole))next=`<div><dt>First hole</dt><dd>Hole ${e(r.start_hole)}${r.tee_time?` · tees off ${e(clock(r.tee_time))}`:''}</dd></div>`;
  const moment=`<div class="cv3-moment"><p class="cv3-kick"><span class="truth truth-observed">CURRENT MOMENT</span></p><ul class="cv3-mlist"><li><b>${e(status)}</b>${r.today_to_par!=null&&r.thru>0?` · ${e(tp(r.today_to_par))} today`:''}</li>${lastH&&holeDiff(lastH)!==null?`<li><b>${e(resultLabel(holeDiff(lastH)))} on ${e(lastH.hole)}</b> · ${e(lastH.strokes)} on par ${e(lastH.par)}${lh?.yards?` · ${e(lh.yards)} yards`:''}</li>`:''}${facts.map(f=>`<li class="is-derived">${e(f)} <span class="cv3-chip">PBE-DERIVED</span></li>`).join('')}</ul></div>`;
  const card=hs.length?`<div class="cv3-card"><p class="micro-label">ROUND ${e(ev.round)} SCORECARD · ${e(hs.length)} HOLE${hs.length===1?'':'S'} POSTED</p><ol class="cv3-strip" aria-label="Round ${e(ev.round)} hole results in order played">${hs.map(h=>stripCell(h,lay,selHole)).join('')}</ol><p class="cv3-legend" aria-hidden="true"><span class="hc-key hc-eagle">EGL</span>Eagle or better <span class="hc-key hc-birdie">BIR</span>Birdie <span class="hc-key hc-par">PAR</span>Par <span class="hc-key hc-bogey">BOG</span>Bogey <span class="hc-key hc-double">DBL+</span>Double or worse</p></div>`:`<p class="gnote cv3-noholes">${ev.holes_available?(r.thru>0?'Hole results for this round are not posted yet.':'No holes played this round yet.'):'Hole-by-hole scores aren’t published for this tour; round totals are shown.'}</p>`;
  const course=lh||next?`<div class="cv3-course"><p class="micro-label">COURSE NOW</p><dl class="cv3-cdl">${lh?`<div><dt>Last completed</dt><dd>Hole ${e(lastH.hole)} · Par ${e(lh.par??'—')}${lh.yards?` · ${e(lh.yards)} yd`:''}</dd></div>`:''}${next}</dl></div>`:'';
  const det=selHole!=null?hs.find(h=>h.hole===selHole):null;
- return `<div class="cv3-hero${player?' has-photo':''}">${player?`<div class="cv3-photo">${portrait(player,{size:96,cls:'cv3-portrait'})}</div>`:''}<div class="cv3-hero-txt"><p class="micro-label">SELECTED GOLFER</p><h2 class="cv3-pname">${playerName(r,{cls:'cv3-plink'})}</h2><p class="cv3-big"><span class="cv3-bigpos">${e(posLabel(r))}</span><span class="cv3-bigtot">${e(tp(r.total_to_par))}</span></p><p class="cv3-sub">TODAY ${e(tp(r.today_to_par))} · THRU ${e(thruText(r))} · ROUND ${e(ev.round??'—')}${mv?` · ${mv>0?'▲':'▼'}${Math.abs(mv)} since previous snapshot`:''}</p></div></div>${recentEv(events)}${moment}<div class="cv3-dna" data-cv3-dna>${dnaBlock}</div>${card}${course}<div class="cv3-hd" data-cv3-hd${det?'':' hidden'} aria-live="polite">${det?holeDetail(det,lay,{realRoute:realRoute(det.hole)}):''}</div>`;
+ return `<div class="cv3-hero${player?' has-photo':''}">${player?`<div class="cv3-photo">${portrait(player,{size:96,cls:'cv3-portrait'})}</div>`:''}<div class="cv3-hero-txt"><p class="micro-label">SELECTED GOLFER</p><h2 class="cv3-pname">${playerName(r,{cls:'cv3-plink'})}</h2><p class="cv3-big"><span class="cv3-bigpos">${e(posLabel(r))}</span><span class="cv3-bigtot">${e(tp(r.total_to_par))}</span></p><p class="cv3-sub">TODAY ${e(tp(r.today_to_par))} · THRU ${e(thruText(r))} · ROUND ${e(ev.round??'—')}${mv?` · ${mv>0?'▲':'▼'}${Math.abs(mv)} since previous snapshot`:''}</p>${r.tee_time||Number.isInteger(r.start_hole)?`<p class="cv3-sub cv3-tee">${r.tee_time?`TEE TIME ${e(clock(r.tee_time))}`:''}${r.tee_time&&Number.isInteger(r.start_hole)?' · ':''}${Number.isInteger(r.start_hole)?`START HOLE ${e(r.start_hole)}`:''}</p>`:''}</div></div>${recentEv(events)}${moment}<div class="cv3-dna" data-cv3-dna>${dnaBlock}</div>${card}${course}<div class="cv3-hd" data-cv3-hd${det?'':' hidden'} aria-live="polite">${det?holeDetail(det,lay,{realRoute:realRoute(det.hole)}):''}</div>`;
 }
-export function pulseList(events,{seen=null}={}){
- if(!events.length)return '<li class="cv3-pl-empty">No provable scoring changes between the observed snapshots yet.</li>';
+export function pulseList(events,{seen=null,empty='No provable scoring changes between the observed snapshots yet.'}={}){
+ if(!events.length)return `<li class="cv3-pl-empty">${e(empty)}</li>`;
  // Name = link to the canonical player profile (plain text when unresolved). Body = button that focuses the golfer
  // (and the proven hole) inside PBEcast. Observed scoring only: no commentary.
  return events.map(x=>{const id=x.t+'|'+x.text;const who=x.who||[];
@@ -250,8 +251,41 @@ export function castShell(){
 <section class="cv3-tower" aria-labelledby="cv3-tower-h"><h2 class="cv3-sh" id="cv3-tower-h">Live leaderboard</h2>${towerHead()}<ol class="cv3-list" data-cv3-tower></ol></section>
 <section class="cv3-focus" data-cv3-focus aria-label="Selected golfer"></section>
 <section class="cv3-cmap" data-cv3-cmap aria-label="Course view" hidden></section>
-<section class="cv3-pulse" aria-labelledby="cv3-pulse-h"><h2 class="cv3-sh" id="cv3-pulse-h">Scoring pulse</h2><p class="cv3-cap">Changes proven between consecutive scoring snapshots. Hole results are named only when the posted holes add up to the observed change.</p><ol class="cv3-pl" data-cv3-pulse tabindex="0" aria-label="Scoring pulse events, newest first"></ol></section>
+<section class="cv3-pulse" aria-labelledby="cv3-pulse-h"><h2 class="cv3-sh" id="cv3-pulse-h">Live scoring</h2><div class="cv3-thead2" data-cv3-tapehead aria-live="polite"></div><p class="cv3-cap">Hole-by-hole live: each line is a posted hole result or board change observed between consecutive scoring observations (about every minute while play is on), across the whole field. Hole results are named only from posted hole cards. Shots are not tracked.</p><ol class="cv3-pl" data-cv3-pulse tabindex="0" aria-label="Live scoring events, newest first"></ol></section>
 <section class="cv3-tl" aria-labelledby="cv3-tl-h" data-cv3-tl><div class="cv3-tl-head"><h2 class="cv3-sh" id="cv3-tl-h">Leaders over time</h2><div class="cv3-seg" role="group" aria-label="Players shown"><button type="button" data-cv3-filter="contenders" aria-pressed="false">Contenders</button><button type="button" data-cv3-filter="top5" aria-pressed="false">Top 5</button><button type="button" data-cv3-filter="top10" aria-pressed="false">Top 10</button><button type="button" data-cv3-filter="selected" aria-pressed="false">Selected</button></div></div><div class="cv3-plot" data-cv3-plot tabindex="0" aria-describedby="cv3-tl-cap"></div><div class="cv3-key" data-cv3-key></div><p class="cv3-cap" id="cv3-tl-cap" data-cv3-tlcap></p><div data-cv3-table></div></section>
 <section class="cv3-ctx" aria-label="Tournament context"><div class="cv3-fieldbox" data-cv3-field></div><div class="cv3-wxbox" data-cv3-wx></div></section>
-<p class="gnote cv3-truth">Positions, scores, hole results and course par/yardage are observed as posted. Movement, streaks, the scoring pulse and field counts are PBE-derived from those observations. Ball and player positions are not tracked: the Course View highlights the hole being played, never a location on it. Course routing © OpenStreetMap contributors (ODbL) where mapped; otherwise the hole figure is a labelled reconstruction. Times are in your time zone.</p></section>`;
+<p class="gnote cv3-truth">Positions, scores, hole results and course par/yardage are observed as posted. Movement, streaks, the live scoring tape and field counts are PBE-derived from those observations. Ball and player positions are not tracked: the Course View highlights the hole being played, never a location on it. Course routing © OpenStreetMap contributors (ODbL) where mapped; otherwise the hole figure is a labelled reconstruction. Times are in your time zone.</p></section>`;
+}
+
+// ---- Live scoring tape (server-derived, full field: workers/shared/tape.js via /api/v1/live/:edition/tape).
+// Display rule: every non-par event; pars only for the top ten and the selected golfer (pars across a 70-player
+// field would bury the scoring). Newest first. Each line is an observation, never a narrated sequence.
+export function tapeView(tape,ev,{selected=null,limit=60}={}){
+ const top=new Set((ev?.leaderboard||[]).filter(r=>r.status==='active'&&posNum(r)!==null&&posNum(r)<=10).map(key));
+ const out=[];
+ for(const x of [...(tape?.events||[])].reverse()){
+  if(x.round!=null&&ev?.round!=null&&x.round!==ev.round)continue;
+  if(x.type==='hole'&&x.kind==='par'&&!x.keys?.some(k=>k===selected||top.has(k)))continue;
+  out.push(x);if(out.length>=limit)break;
+ }
+ return out;
+}
+export const golferTape=(tape,k,round)=>[...(tape?.events||[])].reverse().filter(x=>x.keys?.includes(k)&&(round==null||x.round==null||x.round===round));
+// The live-scoring head: what the tape is and how fresh its last observation is. Never a blank module.
+export function tapeHead(ev,tape,{now=Date.now(),newSinceMount=true}={}){
+ const lo=Date.parse(tape?.last_observation_at||ev?.fetched_at||''),age=Number.isFinite(lo)?Math.max(0,Math.round((now-lo)/1000)):null;
+ const obs=age===null?'':`Last scoring observation ${ago(age)}`;
+ const st=ev?.state;
+ const lead=st==='live'?'LIVE SCORING · HOLE-BY-HOLE':st==='suspended'?'PLAY SUSPENDED':st==='stale'?'SCORING UPDATE DELAYED':st==='round_complete'?`ROUND ${ev.round} COMPLETE`:st==='final'?'FINAL':'LIVE SCORING';
+ const wait=st==='live'&&!newSinceMount?' · Waiting for the next posted hole result':'';
+ return `<p class="cv3-th"><b class="cv3-th-l cv3-th-${e(st||'na')}">${e(lead)}</b><span class="cv3-th-o" data-cv3-obs data-at="${e(tape?.last_observation_at||ev?.fetched_at||'')}">${e(obs)}</span><span class="cv3-th-w">${e(wait)}</span></p>`;
+}
+// Empty tape: say exactly why there is nothing yet.
+export function tapeEmpty(ev){
+ const st=ev?.state;
+ if(st==='live')return 'LIVE SCORING · Waiting for the next posted hole result.';
+ if(st==='suspended')return 'Play is suspended. The tape resumes with the first hole posted after play restarts.';
+ if(st==='stale')return 'Scoring updates are delayed. Scores below are from the last observation and may have changed.';
+ if(st==='pre')return `The scoring tape starts with the first posted hole${ev.first_tee?` (first tee ${clock(ev.first_tee)})`:''}.`;
+ return 'No scoring changes were observed in this round.';
 }

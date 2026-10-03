@@ -116,7 +116,7 @@ if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal
 
 // ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
 const LIVE_SHOWN=new Set(['live','stale','suspended','round_complete','pre','final']);
-let liveBusy=false,liveAgain=false;
+let liveBusy=false,liveAgain=false,liveHot=false;
 async function hydrateLive(){
  if(liveBusy){liveAgain=true;return;}liveBusy=true;
  try{
@@ -128,8 +128,8 @@ async function hydrateLive(){
    for(const rail of rails)rail.innerHTML=liveRail(events);
    if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${statusModule(ev,{compact:true})}${liveBoard(ev,{limit:40})}</section>`).join('');
   }}
- if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement')]):[null,null];
-  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${statusModule(r.event)}${weatherNow(r.weather_now)}${liveBoard(r.event)}<div data-mvx-host></div>`;mountMovement($('[data-mvx-host]',board),mv?.points||[],{title:'Who moved, and when'});}if(cast)castV3(cast,r,mv);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
+ if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv,tape]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement'),cast?get('/'+encodeURIComponent(slug)+'/tape'):null]):[null,null,null];liveHot=['live','suspended'].includes(r?.event?.state);
+  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${statusModule(r.event)}${weatherNow(r.weather_now)}${liveBoard(r.event)}<div data-mvx-host></div>`;mountMovement($('[data-mvx-host]',board),mv?.points||[],{title:'Who moved, and when'});}if(cast)castV3(cast,r,mv,tape);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
  if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final'){let traits:any=null;try{traits=JSON.parse(pl.getAttribute('data-traits')||'null');}catch{}pl.innerHTML=playerLive(r.event,r.player,{traits});}}
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }
@@ -144,12 +144,13 @@ hydrateKalshi(document,{after:liveFirstPass});
 {const host=$('[data-course-map-host]');if(host){const slug=host.getAttribute('data-course')||'';
  fetchCourseMap(slug).then((M:any)=>{if(!M||(!M.setup&&!M.geometry)){host.remove();return;}
   const ctl:any=mountCourseMap(host,M,{mode:'page',onSetup:(ed:string)=>fetchCourseMap(slug,ed).then((M2:any)=>{if(M2)ctl.update(M2,{focus:null});})});});}}
-// Keep live views current while visible. Cadence audit: ESPN snapshots are ingested every ~10 min (cron */10),
-// the API is edge-cached for 60 s, so a 2-minute poll sees each new snapshot within ~3 min without extra load.
+// Keep live views current while visible. Cadence: while play is in progress the ingest fast lane observes the
+// event about every minute and the API is edge-cached for 20 s, so a live board/PBEcast polls every 30 s (each new
+// observation shows within ~50 s). Anything not in play polls every 2 minutes.
 const LIVE_SEL='[data-live-hero],[data-live-rail],[data-live-board],[data-live-player],[data-live-cast],[data-live-page]';
 let lastLive=Date.now();
-setInterval(()=>{if(document.visibilityState==='visible'&&$(LIVE_SEL)){lastLive=Date.now();hydrateLive();}},120000);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastLive>120000&&$(LIVE_SEL)){lastLive=Date.now();hydrateLive();}});
+setInterval(()=>{if(document.visibilityState!=='visible'||!$(LIVE_SEL))return;const every=liveHot&&$('[data-live-board],[data-live-cast]')?30000:120000;if(Date.now()-lastLive>=every-1000){lastLive=Date.now();hydrateLive();}},30000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastLive>(liveHot?30000:120000)&&$(LIVE_SEL)){lastLive=Date.now();hydrateLive();}});
 
 // ---- Official video (keyless lane). Posters only; the iframe loads after a click and never autoplays on load.
 const VIDEO_GROUPS:Record<string,[string,(v:any)=>boolean][]>={

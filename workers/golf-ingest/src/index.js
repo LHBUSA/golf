@@ -7,7 +7,7 @@ import {runMedia} from './media.js';
 import {runEspn,discover as espnDiscover} from './espn-lane.js';
 import {runEspnStats} from './espn-stats.js';
 import {runWeather} from './weather.js';
-import {runLive,backfillSnapshots,reconcileSnapshots} from './live.js';
+import {runLive,backfillSnapshots,reconcileSnapshots,fastEligible} from './live.js';
 import {runVideo} from './video.js';
 import {runHeadshots} from './headshots.js';
 import {writePlan} from './writer.js';
@@ -27,7 +27,10 @@ export async function runLane(lane,env,db,opts={}){
  const cfg=['espn-discover','espn-stats'].includes(lane)?LANES.espn:['live-backfill','live-reconcile'].includes(lane)?LANES.live:LANES[lane];if(!cfg)throw Error('unknown_lane');
  const src=(await db('golf_sources','id=eq.'+cfg.source))[0];
  if(src?.verdict!=='APPROVED'||src.automated_access!==true)return {lane,status:'source_disabled'};
- if(!await db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:cfg.source})}))return {lane,status:'source_blocked_or_busy'};
+ const claim=()=>db('rpc/golf_claim_source','',{method:'POST',body:JSON.stringify({p_source:cfg.source})});
+ // The claim refuses a second attempt inside 60 s; minute-spaced fast live ticks can land a little early, so they
+ // retry once after a short pause instead of losing the minute.
+ if(!await claim()&&!(lane==='live'&&opts.mode==='fast'&&await new Promise(r=>setTimeout(r,2500)).then(claim)))return {lane,status:'source_blocked_or_busy'};
  const started=new Date().toISOString();
  try{
   let result;
@@ -41,7 +44,7 @@ export async function runLane(lane,env,db,opts={}){
   else if(lane==='video')result=await runVideo(env,db);
   else if(lane==='live-reconcile')result=await reconcileSnapshots(env,db,{limit:opts.limit||400});
   else if(lane==='live-backfill')result=await backfillSnapshots(env,db,{limit:opts.limit||200});
-  else if(lane==='live')result=await runLive(env,db,{force:Boolean(opts.force)});
+  else if(lane==='live')result=await runLive(env,db,{force:Boolean(opts.force),mode:opts.mode==='fast'?'fast':'full'});
   else if(lane==='espn-stats')result=await runEspnStats(env,db,{league:opts.leagues?.[0]||'pga',season:opts.seasons?.[0]||new Date().getUTCFullYear(),limit:opts.limit||250});
   else {const {rows,out}=await runMedia(env,db,await mediaSubjects(db),{limit:opts.limit||40});const c=rows.length?await writePlan(db,rows):{inserted:0,updated:0,unchanged:0};result={...out,...c};}
   const ls=await laneState(env);ls[lane]={last_ok:Date.now(),started,result};await env.STATE.put(LANE_KEY,JSON.stringify(ls));
@@ -61,6 +64,15 @@ export async function project(env,db){
  const started=new Date().toISOString(),token=crypto.randomUUID();await env.STATE.put('projection:lease',JSON.stringify({token,started,until:Date.now()+20*60000}),{expirationTtl:1200});
  try{const p=await buildProjection(db,env);await env.STATE.put('projection:last',started);await env.STATE.delete('projection:dirty');return p.summary;}
  finally{const c=JSON.parse(await env.STATE.get('projection:lease')||'null');if(c?.token===token)await env.STATE.delete('projection:lease');}
+}
+// Cron runs every minute. Minutes divisible by 10 run the full tick (every lane, full live refresh) exactly as the
+// former */10 cron did; every other minute runs only the fast live lane, and only while an event can be changing
+// (fastEligible on the published current snapshots: a single R2 read when nothing is in play).
+async function fastTick(env){
+ const db=store(env);if(!db||!env.RAW||!env.STATE||!env.PUBLIC)return {status:'unconfigured'};
+ const cur=await env.PUBLIC.get('live/v1/current.json').then(o=>o?o.json():null).catch(()=>null),t=Date.now();
+ if(!(cur?.events||[]).some(s=>fastEligible(s,t)))return {mode:'fast',status:'idle'};
+ return {mode:'fast',live:await runLane('live',env,db,{mode:'fast'}).catch(e=>({status:'error',error:e.message}))};
 }
 async function tick(env){
  const db=store(env);if(!db||!env.RAW||!env.STATE||!env.PUBLIC)return {status:'unconfigured'};
@@ -108,5 +120,5 @@ export default {
   }
   return json({error:'not_found'},404);
  },
- async scheduled(event,env,ctx){ctx.waitUntil(tick(env).then(r=>console.log(JSON.stringify({worker:'golf-ingest',cron:event.cron,...r}))).catch(e=>console.error(JSON.stringify({worker:'golf-ingest',error:e.message}))));}
+ async scheduled(event,env,ctx){const m=new Date(event.scheduledTime||Date.now()).getUTCMinutes();ctx.waitUntil((m%10===0?tick(env):fastTick(env)).then(r=>console.log(JSON.stringify({worker:'golf-ingest',cron:event.cron,...r}))).catch(e=>console.error(JSON.stringify({worker:'golf-ingest',error:e.message}))));}
 };
