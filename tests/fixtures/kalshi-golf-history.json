@@ -1,0 +1,1839 @@
+{
+ "_note": "TEST FIXTURE ONLY. Real market-history/1 JSON from GET /v1/market-intelligence/event/tennis/00a0f4e8-67cb-593c-a77b-65b62d709937 (fetched 2026-10-03), reshaped to a golf tournament-winner FIELD: prices, timestamps, lifecycle and settlement values unchanged; sport/ids/names/tickers/url replaced with placeholders. Never shipped.",
+ "source_event": "tennis/00a0f4e8-67cb-593c-a77b-65b62d709937",
+ "settled": {
+  "contract": "market-intel/1",
+  "sport": "golf",
+  "enabled": true,
+  "generated_at": "2026-10-03T15:51:08.456Z",
+  "event": {
+   "event": {
+    "sport": "golf",
+    "competition": "pga",
+    "canonical_event_id": "11111111-2222-5333-8444-555555555555",
+    "start_at": null,
+    "state": "post"
+   },
+   "kalshi": null,
+   "market": {
+    "venue": "kalshi",
+    "lifecycle": "SETTLED",
+    "market_url": "https://kalshi.com/markets/kxpgatour/pga-tour/kxpgatour-fixture26",
+    "proposition": "player_wins_tournament",
+    "close": {
+     "lifecycle": "SETTLED",
+     "shape": "field",
+     "outcomes": [
+      {
+       "role": "p:golfer-one",
+       "abbr": "Golfer One",
+       "first_bp": 9450,
+       "first_label": "first_observed",
+       "last_tradable_bp": 100,
+       "before_start_bp": null,
+       "before_start_at": null,
+       "final_trade_bp": 100,
+       "result": "no"
+      },
+      {
+       "role": "p:golfer-two",
+       "abbr": "Golfer Two",
+       "first_bp": 550,
+       "first_label": "first_observed",
+       "last_tradable_bp": 9900,
+       "before_start_bp": null,
+       "before_start_at": null,
+       "final_trade_bp": 9900,
+       "result": "yes"
+      }
+     ]
+    }
+   },
+   "market_history": {
+    "version": "market-history/1",
+    "label": "Market history",
+    "venue": "kalshi",
+    "venue_label": "Kalshi",
+    "market_type": "prediction_market",
+    "lifecycle": "SETTLED",
+    "status_label": "Market settled",
+    "proposition": "player_wins_tournament",
+    "market_url": "https://kalshi.com/markets/kxpgatour/pga-tour/kxpgatour-fixture26",
+    "event_ticker": "KXPGATOUR-FIXTURE26",
+    "shape": "field",
+    "outcomes": [
+     {
+      "role": "p:golfer-two",
+      "team_id": "golfer-two",
+      "abbr": "Golfer Two",
+      "kalshi_name": "Golfer Two",
+      "contract": "Fixture Championship: Golfer Two wins",
+      "market_ticker": "KXPGATOUR-FIXTURE26-B",
+      "state": "settled",
+      "first_observed": {
+       "t": "2026-10-03T13:48:56.893Z",
+       "state": "open",
+       "bid_bp": 500,
+       "ask_bp": 600,
+       "mid_bp": 550,
+       "last_bp": 600,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": null,
+      "at_start": null,
+      "last_tradable": {
+       "t": "2026-10-03T14:51:56.882Z",
+       "state": "open",
+       "bid_bp": 9900,
+       "ask_bp": 10000,
+       "mid_bp": null,
+       "last_bp": 9900
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T14:56:56.878+00:00",
+       "final_trade_bp": 9900
+      },
+      "settlement": {
+       "result": "yes",
+       "at": "2026-10-03T14:56:56.878+00:00",
+       "at_basis": "first_observed_settled",
+       "value_bp": null,
+       "expiration_value": null
+      },
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T13:48:56.893+00:00",
+        "mid_bp": 550,
+        "last_bp": 600
+       },
+       {
+        "t": "2026-10-03T13:50:56.909+00:00",
+        "mid_bp": 450,
+        "last_bp": 500
+       },
+       {
+        "t": "2026-10-03T13:52:56.894+00:00",
+        "mid_bp": 750,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T13:54:56.877+00:00",
+        "mid_bp": 750,
+        "last_bp": 800
+       },
+       {
+        "t": "2026-10-03T13:56:56.878+00:00",
+        "mid_bp": 550,
+        "last_bp": 500
+       },
+       {
+        "t": "2026-10-03T13:57:56.879+00:00",
+        "mid_bp": 650,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T13:59:56.877+00:00",
+        "mid_bp": 600,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T14:00:56.882+00:00",
+        "mid_bp": 550,
+        "last_bp": 600
+       },
+       {
+        "t": "2026-10-03T14:02:56.877+00:00",
+        "mid_bp": 850,
+        "last_bp": 900
+       },
+       {
+        "t": "2026-10-03T14:04:56.875+00:00",
+        "mid_bp": 950,
+        "last_bp": 1000
+       },
+       {
+        "t": "2026-10-03T14:05:56.879+00:00",
+        "mid_bp": 1250,
+        "last_bp": 1300
+       },
+       {
+        "t": "2026-10-03T14:07:56.878+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T14:08:56.881+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2100
+       },
+       {
+        "t": "2026-10-03T14:10:56.876+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T14:13:56.876+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2100
+       },
+       {
+        "t": "2026-10-03T14:14:56.877+00:00",
+        "mid_bp": 2450,
+        "last_bp": 2400
+       },
+       {
+        "t": "2026-10-03T14:16:56.895+00:00",
+        "mid_bp": 2950,
+        "last_bp": 2900
+       },
+       {
+        "t": "2026-10-03T14:18:56.879+00:00",
+        "mid_bp": 3150,
+        "last_bp": 3100
+       },
+       {
+        "t": "2026-10-03T14:19:56.879+00:00",
+        "mid_bp": 3250,
+        "last_bp": 3300
+       },
+       {
+        "t": "2026-10-03T14:20:56.88+00:00",
+        "mid_bp": 2550,
+        "last_bp": 2600
+       },
+       {
+        "t": "2026-10-03T14:22:56.876+00:00",
+        "mid_bp": 2650,
+        "last_bp": 2700
+       },
+       {
+        "t": "2026-10-03T14:23:56.877+00:00",
+        "mid_bp": 2950,
+        "last_bp": 3000
+       },
+       {
+        "t": "2026-10-03T14:25:56.874+00:00",
+        "mid_bp": 3350,
+        "last_bp": 3400
+       },
+       {
+        "t": "2026-10-03T14:26:56.877+00:00",
+        "mid_bp": 3050,
+        "last_bp": 3000
+       },
+       {
+        "t": "2026-10-03T14:27:56.878+00:00",
+        "mid_bp": 3050,
+        "last_bp": 3100
+       },
+       {
+        "t": "2026-10-03T14:29:56.875+00:00",
+        "mid_bp": 3550,
+        "last_bp": 3600
+       },
+       {
+        "t": "2026-10-03T14:30:56.881+00:00",
+        "mid_bp": 2750,
+        "last_bp": 2800
+       },
+       {
+        "t": "2026-10-03T14:32:56.872+00:00",
+        "mid_bp": 3750,
+        "last_bp": 3700
+       },
+       {
+        "t": "2026-10-03T14:33:56.876+00:00",
+        "mid_bp": 3650,
+        "last_bp": 3700
+       },
+       {
+        "t": "2026-10-03T14:34:56.877+00:00",
+        "mid_bp": 3750,
+        "last_bp": 3800
+       },
+       {
+        "t": "2026-10-03T14:35:56.877+00:00",
+        "mid_bp": 3750,
+        "last_bp": 3700
+       },
+       {
+        "t": "2026-10-03T14:36:56.88+00:00",
+        "mid_bp": 4350,
+        "last_bp": 4400
+       },
+       {
+        "t": "2026-10-03T14:38:56.876+00:00",
+        "mid_bp": 5650,
+        "last_bp": 5700
+       },
+       {
+        "t": "2026-10-03T14:39:56.876+00:00",
+        "mid_bp": 6750,
+        "last_bp": 6800
+       },
+       {
+        "t": "2026-10-03T14:40:56.877+00:00",
+        "mid_bp": 7250,
+        "last_bp": 7300
+       },
+       {
+        "t": "2026-10-03T14:41:56.91+00:00",
+        "mid_bp": 8450,
+        "last_bp": 8500
+       },
+       {
+        "t": "2026-10-03T14:43:56.874+00:00",
+        "mid_bp": 8750,
+        "last_bp": 8700
+       },
+       {
+        "t": "2026-10-03T14:44:56.877+00:00",
+        "mid_bp": 8850,
+        "last_bp": 8900
+       },
+       {
+        "t": "2026-10-03T14:45:56.882+00:00",
+        "mid_bp": 8450,
+        "last_bp": 8500
+       },
+       {
+        "t": "2026-10-03T14:47:56.874+00:00",
+        "mid_bp": 7850,
+        "last_bp": 8000
+       },
+       {
+        "t": "2026-10-03T14:49:56.879+00:00",
+        "mid_bp": 9500,
+        "last_bp": 9600
+       },
+       {
+        "t": "2026-10-03T14:50:56.879+00:00",
+        "mid_bp": 9150,
+        "last_bp": 9200
+       },
+       {
+        "t": "2026-10-03T14:51:56.882+00:00",
+        "mid_bp": null,
+        "last_bp": 9900
+       }
+      ]
+     },
+     {
+      "role": "p:golfer-one",
+      "team_id": "golfer-one",
+      "abbr": "Golfer One",
+      "kalshi_name": "Golfer One",
+      "contract": "Fixture Championship: Golfer One wins",
+      "market_ticker": "KXPGATOUR-FIXTURE26-A",
+      "state": "settled",
+      "first_observed": {
+       "t": "2026-10-03T13:48:56.893Z",
+       "state": "open",
+       "bid_bp": 9400,
+       "ask_bp": 9500,
+       "mid_bp": 9450,
+       "last_bp": 9500,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": null,
+      "at_start": null,
+      "last_tradable": {
+       "t": "2026-10-03T14:51:56.882Z",
+       "state": "open",
+       "bid_bp": 0,
+       "ask_bp": 100,
+       "mid_bp": null,
+       "last_bp": 100
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T14:56:56.878+00:00",
+       "final_trade_bp": 100
+      },
+      "settlement": {
+       "result": "no",
+       "at": "2026-10-03T14:56:56.878+00:00",
+       "at_basis": "first_observed_settled",
+       "value_bp": null,
+       "expiration_value": null
+      },
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T13:48:56.893+00:00",
+        "mid_bp": 9450,
+        "last_bp": 9500
+       },
+       {
+        "t": "2026-10-03T13:50:56.909+00:00",
+        "mid_bp": 9550,
+        "last_bp": 9600
+       },
+       {
+        "t": "2026-10-03T13:52:56.894+00:00",
+        "mid_bp": 9250,
+        "last_bp": 9300
+       },
+       {
+        "t": "2026-10-03T13:55:56.876+00:00",
+        "mid_bp": 9450,
+        "last_bp": 9500
+       },
+       {
+        "t": "2026-10-03T13:57:56.879+00:00",
+        "mid_bp": 9350,
+        "last_bp": 9400
+       },
+       {
+        "t": "2026-10-03T13:59:56.877+00:00",
+        "mid_bp": 9450,
+        "last_bp": 9600
+       },
+       {
+        "t": "2026-10-03T14:00:56.882+00:00",
+        "mid_bp": 9450,
+        "last_bp": 9500
+       },
+       {
+        "t": "2026-10-03T14:02:56.877+00:00",
+        "mid_bp": 9150,
+        "last_bp": 9200
+       },
+       {
+        "t": "2026-10-03T14:04:56.875+00:00",
+        "mid_bp": 9050,
+        "last_bp": 9000
+       },
+       {
+        "t": "2026-10-03T14:05:56.879+00:00",
+        "mid_bp": 8750,
+        "last_bp": 8800
+       },
+       {
+        "t": "2026-10-03T14:07:56.878+00:00",
+        "mid_bp": 7850,
+        "last_bp": 7900
+       },
+       {
+        "t": "2026-10-03T14:14:56.877+00:00",
+        "mid_bp": 7550,
+        "last_bp": 7600
+       },
+       {
+        "t": "2026-10-03T14:16:56.895+00:00",
+        "mid_bp": 7050,
+        "last_bp": 7100
+       },
+       {
+        "t": "2026-10-03T14:18:56.879+00:00",
+        "mid_bp": 6850,
+        "last_bp": 6900
+       },
+       {
+        "t": "2026-10-03T14:20:56.88+00:00",
+        "mid_bp": 7450,
+        "last_bp": 7500
+       },
+       {
+        "t": "2026-10-03T14:22:56.876+00:00",
+        "mid_bp": 7250,
+        "last_bp": 7300
+       },
+       {
+        "t": "2026-10-03T14:23:56.877+00:00",
+        "mid_bp": 7050,
+        "last_bp": 7000
+       },
+       {
+        "t": "2026-10-03T14:25:56.874+00:00",
+        "mid_bp": 6650,
+        "last_bp": 6700
+       },
+       {
+        "t": "2026-10-03T14:26:56.877+00:00",
+        "mid_bp": 6950,
+        "last_bp": 7000
+       },
+       {
+        "t": "2026-10-03T14:28:56.873+00:00",
+        "mid_bp": 5550,
+        "last_bp": 5600
+       },
+       {
+        "t": "2026-10-03T14:29:56.875+00:00",
+        "mid_bp": 6450,
+        "last_bp": 6500
+       },
+       {
+        "t": "2026-10-03T14:30:56.881+00:00",
+        "mid_bp": 7250,
+        "last_bp": 7300
+       },
+       {
+        "t": "2026-10-03T14:32:56.872+00:00",
+        "mid_bp": 6250,
+        "last_bp": 6300
+       },
+       {
+        "t": "2026-10-03T14:33:56.876+00:00",
+        "mid_bp": 6350,
+        "last_bp": 6400
+       },
+       {
+        "t": "2026-10-03T14:34:56.877+00:00",
+        "mid_bp": 6250,
+        "last_bp": 6300
+       },
+       {
+        "t": "2026-10-03T14:36:56.88+00:00",
+        "mid_bp": 5650,
+        "last_bp": 5700
+       },
+       {
+        "t": "2026-10-03T14:38:56.876+00:00",
+        "mid_bp": 4350,
+        "last_bp": 4400
+       },
+       {
+        "t": "2026-10-03T14:39:56.876+00:00",
+        "mid_bp": 3150,
+        "last_bp": 3200
+       },
+       {
+        "t": "2026-10-03T14:40:56.877+00:00",
+        "mid_bp": 2850,
+        "last_bp": 2800
+       },
+       {
+        "t": "2026-10-03T14:41:56.91+00:00",
+        "mid_bp": 1550,
+        "last_bp": 1500
+       },
+       {
+        "t": "2026-10-03T14:43:56.874+00:00",
+        "mid_bp": 1250,
+        "last_bp": 1300
+       },
+       {
+        "t": "2026-10-03T14:44:56.877+00:00",
+        "mid_bp": 1150,
+        "last_bp": 1200
+       },
+       {
+        "t": "2026-10-03T14:45:56.882+00:00",
+        "mid_bp": 1550,
+        "last_bp": 1600
+       },
+       {
+        "t": "2026-10-03T14:47:56.874+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T14:49:56.879+00:00",
+        "mid_bp": 450,
+        "last_bp": 500
+       },
+       {
+        "t": "2026-10-03T14:50:56.879+00:00",
+        "mid_bp": 850,
+        "last_bp": 900
+       },
+       {
+        "t": "2026-10-03T14:51:56.882+00:00",
+        "mid_bp": null,
+        "last_bp": 100
+       }
+      ]
+     }
+    ],
+    "more_outcomes": 0,
+    "markers": {
+     "event_start": null,
+     "market_close": null,
+     "settlement": "2026-10-03T14:56:56.878+00:00"
+    },
+    "history": "partial",
+    "note": "Observed prices only. \"First observed\" is when we first recorded the market, not its opening price, unless marked as observed before the first trade. Settlement is the venue's, not our result."
+   },
+   "sportsbooks": null,
+   "pbe": null,
+   "comparisons": []
+  }
+ },
+ "field_closed": {
+  "contract": "market-intel/1",
+  "sport": "golf",
+  "enabled": true,
+  "event": {
+   "event": {
+    "sport": "golf",
+    "competition": "pga",
+    "canonical_event_id": "22222222-2222-5333-8444-555555555555",
+    "start_at": "2026-10-03T16:23:00+00:00",
+    "state": "post"
+   },
+   "kalshi": null,
+   "market": {
+    "venue": "kalshi",
+    "lifecycle": "CLOSED",
+    "market_url": "https://kalshi.com/markets/kxpgatour/pga-tour/kxpgatour-baouc26",
+    "proposition": "player_wins_tournament",
+    "close": {
+     "lifecycle": "CLOSED",
+     "shape": "field",
+     "outcomes": [
+      {
+       "role": "p:austin-smotherman-q106782591",
+       "abbr": "Austin Smotherman",
+       "first_bp": 2200,
+       "first_label": "first_observed",
+       "last_tradable_bp": 2100,
+       "before_start_bp": 2100,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 2200,
+       "result": null
+      },
+      {
+       "role": "p:doug-ghim-q51548031",
+       "abbr": "Doug Ghim",
+       "first_bp": 1850,
+       "first_label": "first_observed",
+       "last_tradable_bp": 1850,
+       "before_start_bp": 1850,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 1900,
+       "result": null
+      },
+      {
+       "role": "p:kevin-roy-e4408320",
+       "abbr": "Kevin Roy",
+       "first_bp": 1650,
+       "first_label": "first_observed",
+       "last_tradable_bp": 1650,
+       "before_start_bp": 1650,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 1700,
+       "result": null
+      },
+      {
+       "role": "p:stephan-jaeger-e6937",
+       "abbr": "Stephan Jaeger",
+       "first_bp": 670,
+       "first_label": "first_observed",
+       "last_tradable_bp": 665,
+       "before_start_bp": 665,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 690,
+       "result": null
+      },
+      {
+       "role": "p:michael-brennan-q136746853",
+       "abbr": "Michael Brennan",
+       "first_bp": 590,
+       "first_label": "first_observed",
+       "last_tradable_bp": 585,
+       "before_start_bp": 585,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 550,
+       "result": null
+      },
+      {
+       "role": "p:kevin-streelman-q2674557",
+       "abbr": "Kevin Streelman",
+       "first_bp": 530,
+       "first_label": "first_observed",
+       "last_tradable_bp": 545,
+       "before_start_bp": 545,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 570,
+       "result": null
+      },
+      {
+       "role": "p:steven-fisk-q136442908",
+       "abbr": "Steven Fisk",
+       "first_bp": 375,
+       "first_label": "first_observed",
+       "last_tradable_bp": 375,
+       "before_start_bp": 375,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 400,
+       "result": null
+      },
+      {
+       "role": "p:ben-james-q140407945",
+       "abbr": "Ben James",
+       "first_bp": 310,
+       "first_label": "first_observed",
+       "last_tradable_bp": 310,
+       "before_start_bp": 310,
+       "before_start_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 330,
+       "result": null
+      }
+     ]
+    }
+   },
+   "market_history": {
+    "version": "market-history/1",
+    "label": "Market history",
+    "venue": "kalshi",
+    "venue_label": "Kalshi",
+    "market_type": "prediction_market",
+    "lifecycle": "CLOSED",
+    "status_label": "Market closed · awaiting settlement",
+    "proposition": "player_wins_tournament",
+    "market_url": "https://kalshi.com/markets/kxpgatour/pga-tour/kxpgatour-baouc26",
+    "event_ticker": "KXPGATOUR-BAOUC26",
+    "shape": "field",
+    "outcomes": [
+     {
+      "role": "p:austin-smotherman-q106782591",
+      "team_id": "austin-smotherman-q106782591",
+      "abbr": "Austin Smotherman",
+      "kalshi_name": "Austin Smotherman",
+      "contract": "Bank of Utah Championship: Austin Smotherman wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-ASMO",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 2100,
+       "ask_bp": 2300,
+       "mid_bp": 2200,
+       "last_bp": 2300,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 2000,
+       "ask_bp": 2200,
+       "mid_bp": 2100,
+       "last_bp": 2200
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 2000,
+       "ask_bp": 2200,
+       "mid_bp": 2100,
+       "last_bp": 2200
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 2200
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 2200,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T14:58:56.875+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2000
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T15:00:56.876+00:00",
+        "mid_bp": 2200,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T15:03:56.876+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T15:04:56.876+00:00",
+        "mid_bp": 2200,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T15:10:56.877+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T15:12:56.88+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2000
+       },
+       {
+        "t": "2026-10-03T15:15:56.882+00:00",
+        "mid_bp": 2150,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T15:17:56.882+00:00",
+        "mid_bp": 2200,
+        "last_bp": 2300
+       },
+       {
+        "t": "2026-10-03T15:19:56.878+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T15:21:56.874+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2000
+       },
+       {
+        "t": "2026-10-03T15:23:56.875+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T15:26:56.874+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2000
+       },
+       {
+        "t": "2026-10-03T15:28:56.968+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T15:34:56.876+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2000
+       },
+       {
+        "t": "2026-10-03T15:36:56.876+00:00",
+        "mid_bp": 2100,
+        "last_bp": 2200
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 2100,
+        "last_bp": 2200
+       }
+      ]
+     },
+     {
+      "role": "p:doug-ghim-q51548031",
+      "team_id": "doug-ghim-q51548031",
+      "abbr": "Doug Ghim",
+      "kalshi_name": "Doug Ghim",
+      "contract": "Bank of Utah Championship: Doug Ghim wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-DGHI",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 1800,
+       "ask_bp": 1900,
+       "mid_bp": 1850,
+       "last_bp": 1900,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 1800,
+       "ask_bp": 1900,
+       "mid_bp": 1850,
+       "last_bp": 1900
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 1800,
+       "ask_bp": 1900,
+       "mid_bp": 1850,
+       "last_bp": 1900
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 1900
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1900
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1800
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1900
+       },
+       {
+        "t": "2026-10-03T15:11:56.874+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1800
+       },
+       {
+        "t": "2026-10-03T15:15:56.882+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1900
+       },
+       {
+        "t": "2026-10-03T15:17:56.882+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1800
+       },
+       {
+        "t": "2026-10-03T15:23:56.875+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1900
+       },
+       {
+        "t": "2026-10-03T15:28:56.968+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1800
+       },
+       {
+        "t": "2026-10-03T15:42:56.878+00:00",
+        "mid_bp": 1850,
+        "last_bp": 1900
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 1850,
+        "last_bp": 1900
+       }
+      ]
+     },
+     {
+      "role": "p:kevin-roy-e4408320",
+      "team_id": "kevin-roy-e4408320",
+      "abbr": "Kevin Roy",
+      "kalshi_name": "Kevin Roy",
+      "contract": "Bank of Utah Championship: Kevin Roy wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-KROY",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 1600,
+       "ask_bp": 1700,
+       "mid_bp": 1650,
+       "last_bp": 1700,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 1600,
+       "ask_bp": 1700,
+       "mid_bp": 1650,
+       "last_bp": 1700
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 1600,
+       "ask_bp": 1700,
+       "mid_bp": 1650,
+       "last_bp": 1700
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 1700
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1700
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1600
+       },
+       {
+        "t": "2026-10-03T15:00:56.876+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1700
+       },
+       {
+        "t": "2026-10-03T15:02:56.873+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1600
+       },
+       {
+        "t": "2026-10-03T15:05:56.876+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1700
+       },
+       {
+        "t": "2026-10-03T15:14:56.882+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1600
+       },
+       {
+        "t": "2026-10-03T15:19:56.878+00:00",
+        "mid_bp": 1650,
+        "last_bp": 1700
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 1650,
+        "last_bp": 1700
+       }
+      ]
+     },
+     {
+      "role": "p:stephan-jaeger-e6937",
+      "team_id": "stephan-jaeger-e6937",
+      "abbr": "Stephan Jaeger",
+      "kalshi_name": "Stephan Jaeger",
+      "contract": "Bank of Utah Championship: Stephan Jaeger wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-SJAE",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 640,
+       "ask_bp": 700,
+       "mid_bp": 670,
+       "last_bp": 700,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 640,
+       "ask_bp": 690,
+       "mid_bp": 665,
+       "last_bp": 690
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 640,
+       "ask_bp": 690,
+       "mid_bp": 665,
+       "last_bp": 690
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 690
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 670,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T15:21:56.874+00:00",
+        "mid_bp": 675,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T15:24:56.898+00:00",
+        "mid_bp": 670,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T15:36:56.876+00:00",
+        "mid_bp": 665,
+        "last_bp": 700
+       },
+       {
+        "t": "2026-10-03T15:44:56.877+00:00",
+        "mid_bp": 665,
+        "last_bp": 690
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 665,
+        "last_bp": 690
+       }
+      ]
+     },
+     {
+      "role": "p:michael-brennan-q136746853",
+      "team_id": "michael-brennan-q136746853",
+      "abbr": "Michael Brennan",
+      "kalshi_name": "Michael Brennan",
+      "contract": "Bank of Utah Championship: Michael Brennan wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-MBRE",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 550,
+       "ask_bp": 630,
+       "mid_bp": 590,
+       "last_bp": 550,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 550,
+       "ask_bp": 620,
+       "mid_bp": 585,
+       "last_bp": 550
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 550,
+       "ask_bp": 620,
+       "mid_bp": 585,
+       "last_bp": 550
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 550
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 590,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "mid_bp": 595,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "mid_bp": 595,
+        "last_bp": 630
+       },
+       {
+        "t": "2026-10-03T14:58:56.875+00:00",
+        "mid_bp": 595,
+        "last_bp": 560
+       },
+       {
+        "t": "2026-10-03T15:01:56.877+00:00",
+        "mid_bp": 590,
+        "last_bp": 560
+       },
+       {
+        "t": "2026-10-03T15:05:56.876+00:00",
+        "mid_bp": 595,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:21:56.874+00:00",
+        "mid_bp": 600,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:22:56.875+00:00",
+        "mid_bp": 595,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:23:56.875+00:00",
+        "mid_bp": 600,
+        "last_bp": 560
+       },
+       {
+        "t": "2026-10-03T15:34:56.876+00:00",
+        "mid_bp": 595,
+        "last_bp": 560
+       },
+       {
+        "t": "2026-10-03T15:36:56.876+00:00",
+        "mid_bp": 590,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:38:56.878+00:00",
+        "mid_bp": 585,
+        "last_bp": 630
+       },
+       {
+        "t": "2026-10-03T15:40:56.88+00:00",
+        "mid_bp": 590,
+        "last_bp": 630
+       },
+       {
+        "t": "2026-10-03T15:45:56.875+00:00",
+        "mid_bp": 590,
+        "last_bp": 620
+       },
+       {
+        "t": "2026-10-03T15:48:56.879+00:00",
+        "mid_bp": 585,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 585,
+        "last_bp": 550
+       }
+      ]
+     },
+     {
+      "role": "p:kevin-streelman-q2674557",
+      "team_id": "kevin-streelman-q2674557",
+      "abbr": "Kevin Streelman",
+      "kalshi_name": "Kevin Streelman",
+      "contract": "Bank of Utah Championship: Kevin Streelman wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-KSTR",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 520,
+       "ask_bp": 540,
+       "mid_bp": 530,
+       "last_bp": 540,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 520,
+       "ask_bp": 570,
+       "mid_bp": 545,
+       "last_bp": 570
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 520,
+       "ask_bp": 570,
+       "mid_bp": 545,
+       "last_bp": 570
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 570
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 530,
+        "last_bp": 540
+       },
+       {
+        "t": "2026-10-03T15:10:56.877+00:00",
+        "mid_bp": 535,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:45:56.875+00:00",
+        "mid_bp": 545,
+        "last_bp": 550
+       },
+       {
+        "t": "2026-10-03T15:48:56.879+00:00",
+        "mid_bp": 545,
+        "last_bp": 570
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 545,
+        "last_bp": 570
+       }
+      ]
+     },
+     {
+      "role": "p:steven-fisk-q136442908",
+      "team_id": "steven-fisk-q136442908",
+      "abbr": "Steven Fisk",
+      "kalshi_name": "Steven Fisk",
+      "contract": "Bank of Utah Championship: Steven Fisk wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-SFIS",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 350,
+       "ask_bp": 400,
+       "mid_bp": 375,
+       "last_bp": 350,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 350,
+       "ask_bp": 400,
+       "mid_bp": 375,
+       "last_bp": 400
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 350,
+       "ask_bp": 400,
+       "mid_bp": 375,
+       "last_bp": 400
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 400
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 375,
+        "last_bp": 350
+       },
+       {
+        "t": "2026-10-03T15:01:56.877+00:00",
+        "mid_bp": 375,
+        "last_bp": 400
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 375,
+        "last_bp": 400
+       }
+      ]
+     },
+     {
+      "role": "p:ben-james-q140407945",
+      "team_id": "ben-james-q140407945",
+      "abbr": "Ben James",
+      "kalshi_name": "Benjamin James",
+      "contract": "Bank of Utah Championship: Benjamin James wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-BJAM",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 280,
+       "ask_bp": 340,
+       "mid_bp": 310,
+       "last_bp": 340,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 290,
+       "ask_bp": 330,
+       "mid_bp": 310,
+       "last_bp": 330
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 290,
+       "ask_bp": 330,
+       "mid_bp": 310,
+       "last_bp": 330
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 330
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "mid_bp": 310,
+        "last_bp": 280
+       },
+       {
+        "t": "2026-10-03T15:10:56.877+00:00",
+        "mid_bp": 315,
+        "last_bp": 280
+       },
+       {
+        "t": "2026-10-03T15:28:56.968+00:00",
+        "mid_bp": 310,
+        "last_bp": 280
+       },
+       {
+        "t": "2026-10-03T15:38:56.878+00:00",
+        "mid_bp": 310,
+        "last_bp": 330
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 310,
+        "last_bp": 330
+       }
+      ]
+     },
+     {
+      "role": "p:neal-shipley-q126680414",
+      "team_id": "neal-shipley-q126680414",
+      "abbr": "Neal Shipley",
+      "kalshi_name": "Neal Shipley",
+      "contract": "Bank of Utah Championship: Neal Shipley wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-NSHI",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 270,
+       "ask_bp": 310,
+       "mid_bp": 290,
+       "last_bp": 310,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 290,
+       "ask_bp": 330,
+       "mid_bp": 310,
+       "last_bp": 340
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 290,
+       "ask_bp": 330,
+       "mid_bp": 310,
+       "last_bp": 340
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 340
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 290,
+        "last_bp": 310
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "mid_bp": 290,
+        "last_bp": 330
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "mid_bp": 320,
+        "last_bp": 310
+       },
+       {
+        "t": "2026-10-03T14:58:56.875+00:00",
+        "mid_bp": 305,
+        "last_bp": 310
+       },
+       {
+        "t": "2026-10-03T14:59:56.876+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:00:56.876+00:00",
+        "mid_bp": 310,
+        "last_bp": 330
+       },
+       {
+        "t": "2026-10-03T15:01:56.877+00:00",
+        "mid_bp": 300,
+        "last_bp": 330
+       },
+       {
+        "t": "2026-10-03T15:03:56.876+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:04:56.876+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:05:56.876+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:06:56.877+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:09:56.878+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:11:56.874+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:13:56.877+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:14:56.882+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:15:56.882+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:18:56.879+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:21:56.874+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:22:56.875+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:23:56.875+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:26:56.874+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:30:56.883+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:38:56.878+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:40:56.88+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:44:56.877+00:00",
+        "mid_bp": 315,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:46:56.881+00:00",
+        "mid_bp": 305,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:50:56.887+00:00",
+        "mid_bp": 310,
+        "last_bp": 340
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 310,
+        "last_bp": 340
+       }
+      ]
+     },
+     {
+      "role": "p:field-jackson-suber",
+      "team_id": "field-jackson-suber",
+      "abbr": "Jackson Suber",
+      "kalshi_name": "Jackson Suber",
+      "contract": "Bank of Utah Championship: Jackson Suber wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-JSUB",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 190,
+       "ask_bp": 210,
+       "mid_bp": 200,
+       "last_bp": 210,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 200,
+       "ask_bp": 210,
+       "mid_bp": 205,
+       "last_bp": 210
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 200,
+       "ask_bp": 210,
+       "mid_bp": 205,
+       "last_bp": 210
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 210
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 200,
+        "last_bp": 210
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "mid_bp": 200,
+        "last_bp": 190
+       },
+       {
+        "t": "2026-10-03T14:56:56.878+00:00",
+        "mid_bp": 205,
+        "last_bp": 190
+       },
+       {
+        "t": "2026-10-03T15:26:56.874+00:00",
+        "mid_bp": 200,
+        "last_bp": 210
+       },
+       {
+        "t": "2026-10-03T15:45:56.875+00:00",
+        "mid_bp": 205,
+        "last_bp": 210
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 205,
+        "last_bp": 210
+       }
+      ]
+     },
+     {
+      "role": "p:chris-kirk-q3656102",
+      "team_id": "chris-kirk-q3656102",
+      "abbr": "Chris Kirk",
+      "kalshi_name": "Chris Kirk",
+      "contract": "Bank of Utah Championship: Chris Kirk wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-CKIR",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 120,
+       "ask_bp": 150,
+       "mid_bp": 135,
+       "last_bp": 150,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 120,
+       "ask_bp": 160,
+       "mid_bp": 140,
+       "last_bp": 160
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 120,
+       "ask_bp": 160,
+       "mid_bp": 140,
+       "last_bp": 160
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 160
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 135,
+        "last_bp": 150
+       },
+       {
+        "t": "2026-10-03T15:18:56.879+00:00",
+        "mid_bp": 140,
+        "last_bp": 150
+       },
+       {
+        "t": "2026-10-03T15:34:56.876+00:00",
+        "mid_bp": 140,
+        "last_bp": 160
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 140,
+        "last_bp": 160
+       }
+      ]
+     },
+     {
+      "role": "p:zach-bauchou-q140946391",
+      "team_id": "zach-bauchou-q140946391",
+      "abbr": "Zach Bauchou",
+      "kalshi_name": "Zachary Bauchou",
+      "contract": "Bank of Utah Championship: Zachary Bauchou wins",
+      "market_ticker": "KXPGATOUR-BAOUC26-ZBAU",
+      "state": "closed",
+      "first_observed": {
+       "t": "2026-10-03T14:53:56.888Z",
+       "state": "open",
+       "bid_bp": 100,
+       "ask_bp": 140,
+       "mid_bp": 120,
+       "last_bp": 140,
+       "before_first_trade": false,
+       "label": "First observed"
+      },
+      "venue_open_time": "2026-09-28T17:23:00Z",
+      "at_start": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 100,
+       "ask_bp": 140,
+       "mid_bp": 120,
+       "last_bp": 140
+      },
+      "last_tradable": {
+       "t": "2026-10-03T15:50:56.887Z",
+       "state": "open",
+       "bid_bp": 100,
+       "ask_bp": 140,
+       "mid_bp": 120,
+       "last_bp": 140
+      },
+      "close": {
+       "at": null,
+       "at_basis": "first_observed_closed",
+       "observed_at": "2026-10-03T15:50:56.887Z",
+       "final_trade_bp": 140
+      },
+      "settlement": null,
+      "history": "partial",
+      "chart": [
+       {
+        "t": "2026-10-03T14:53:56.888+00:00",
+        "mid_bp": 120,
+        "last_bp": 140
+       },
+       {
+        "t": "2026-10-03T14:55:56.875+00:00",
+        "mid_bp": 120,
+        "last_bp": 100
+       },
+       {
+        "t": "2026-10-03T15:34:56.876+00:00",
+        "mid_bp": 120,
+        "last_bp": 140
+       },
+       {
+        "t": "2026-10-03T15:50:56.887Z",
+        "mid_bp": 120,
+        "last_bp": 140
+       }
+      ]
+     }
+    ],
+    "more_outcomes": 108,
+    "markers": {
+     "event_start": "2026-10-03T16:23:00+00:00",
+     "market_close": null,
+     "settlement": null
+    },
+    "history": "partial",
+    "note": "Observed prices only. \"First observed\" is when we first recorded the market, not its opening price, unless marked as observed before the first trade. Settlement is the venue's, not our result."
+   },
+   "sportsbooks": null,
+   "pbe": null,
+   "comparisons": []
+  }
+ },
+ "_note_field": "field_closed: TEST FIXTURE ONLY. Real market-history/1 FIELD JSON from GET /v1/market-intelligence/event/golf/70c0e316-a890-598c-ae60-17e818586f39 (Bank of Utah, fetched 2026-10-03, 12 shown + more_outcomes), with kalshi null and lifecycle set to CLOSED (no settlement invented; final trade = last observed trade). Prices/timestamps unchanged. Never shipped."
+}

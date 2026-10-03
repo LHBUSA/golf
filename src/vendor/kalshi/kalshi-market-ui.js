@@ -268,3 +268,161 @@ export function wireKalshi(root = typeof document !== 'undefined' ? document : n
 
 /** Test hook. */
 export function __resetKalshiFlashes() { lastShown.clear() }
+
+/* ───────────────────────── Market history (closed / settled) ─────────────────────────
+ * Venue-neutral history from the API's market_history (event endpoint) and market.close (board).
+ * Only stored values: "First observed" is never called an open; the before-start price is our last
+ * pre-start observation; the final trade and settlement are the venue's. Nothing is drawn that we did
+ * not observe. Works for two-way, three-way (soccer) and field (F1, golf) markets. */
+const pick = (p) => (p ? (p.mid_bp ?? p.last_bp ?? null) : null)
+const tms = (iso) => Date.parse(iso || '')
+const HIST_TOP = 8
+
+export function historyChart(h, { width = 320, height = 96 } = {}) {
+  const lines = (h.shape === 'field' ? h.outcomes.slice(0, 3) : h.outcomes)
+    .map((o, i) => ({ i, pts: (o.chart || []).map((p) => ({ t: tms(p.t), v: p.mid_bp ?? p.last_bp })).filter((p) => Number.isFinite(p.t) && p.v != null) }))
+    .filter((l) => l.pts.length >= 2)
+  if (!lines.length) return ''
+  const marks = [['event_start', 'Event start'], ['market_close', 'Market closed'], ['settlement', 'Settled']]
+    .map(([k, label]) => ({ k, label, t: tms(h.markers?.[k]) })).filter((m) => Number.isFinite(m.t))
+  const all = lines.flatMap((l) => l.pts.map((p) => p.t)).concat(marks.map((m) => m.t))
+  const t0 = Math.min(...all)
+  const t1 = Math.max(...all)
+  if (!(t1 > t0)) return ''
+  const pad = 4
+  const x = (t) => (pad + ((t - t0) / (t1 - t0)) * (width - 2 * pad)).toFixed(1)
+  const y = (v) => (pad + (1 - v / 10000) * (height - 2 * pad)).toFixed(1)
+  const paths = lines.map((l) => `<polyline class="kx-h__l kx-h__l${l.i + 1}" points="${l.pts.map((p) => `${x(p.t)},${y(p.v)}`).join(' ')}" fill="none"/>`).join('')
+  const ms = marks.filter((m) => m.t >= t0 && m.t <= t1).map((m) => `<line class="kx-h__m kx-h__m--${m.k}" x1="${x(m.t)}" x2="${x(m.t)}" y1="0" y2="${height}"><title>${esc(m.label)}</title></line>`).join('')
+  const mid = `<line class="kx-h__g" x1="0" x2="${width}" y1="${y(5000)}" y2="${y(5000)}"/>`
+  const legend = marks.length ? `<p class="kx-h__legend">${marks.map((m) => `<span class="kx-h__lg kx-h__lg--${m.k}">${esc(m.label)}</span>`).join('')}</p>` : ''
+  return `<figure class="kx-h__chart"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Observed market prices over time">${mid}${paths}${ms}</svg><figcaption>Observed prices only (Mid-market, else last trade); gaps are periods we did not observe.</figcaption>${legend}</figure>`
+}
+
+function settleText(o) {
+  if (o.settlement?.result === 'yes') return '<span class="kx-h__res kx-h__res--yes">Settled YES</span>'
+  if (o.settlement?.result === 'no') return '<span class="kx-h__res kx-h__res--no">Settled NO</span>'
+  if (o.settlement) return '<span class="kx-h__res">Settled</span>'
+  if (o.close) return '<span class="kx-h__res kx-h__res--wait">Awaiting settlement</span>'
+  return ''
+}
+
+function histRow(o, i, field) {
+  const first = pick(o.first_observed)
+  const pre = pick(o.at_start)
+  const fin = o.close?.final_trade_bp ?? null
+  const cells = [
+    first != null ? `<span><small>${esc(o.first_observed.before_first_trade ? 'Before first trade' : 'First observed')}</small><b class="mono">${esc(centsLabel(first, { fixed: true }))}</b></span>` : '',
+    pre != null ? `<span><small>Before start</small><b class="mono">${esc(centsLabel(pre, { fixed: true }))}</b></span>` : '',
+    fin != null ? `<span><small>Final trade</small><b class="mono">${esc(centsLabel(fin))}</b></span>` : '',
+  ].join('')
+  return `<li class="kx-h__row${o.settlement?.result === 'yes' ? ' is-winner' : ''}">${field ? `<span class="kx__frank mono">${i + 1}</span>` : ''}<span class="kx-h__who"><b>${esc(o.abbr || o.kalshi_name || '')}</b>${o.contract ? `<small>${esc(o.contract)}</small>` : ''}</span><span class="kx-h__px">${cells}</span>${settleText(o)}</li>`
+}
+
+/** "How the market closed" module for a CLOSED or SETTLED event (entry from the event endpoint). */
+export function marketHistoryCard(entry, { placement = 'market-history' } = {}) {
+  const h = entry?.market_history
+  if (!h || (h.lifecycle !== 'CLOSED' && h.lifecycle !== 'SETTLED') || !h.outcomes?.length || !h.market_url) return ''
+  const venue = h.venue_label || 'Kalshi'
+  const k = { market_url: h.market_url, event_ticker: h.event_ticker, age_seconds: null }
+  const field = h.shape === 'field'
+  const shown = field ? h.outcomes.slice(0, HIST_TOP) : h.outcomes
+  const rows = shown.map((o, i) => histRow(o, i, field)).join('')
+  const winner = h.outcomes.find((o) => o.settlement?.result === 'yes')
+  const verdict = h.lifecycle === 'SETTLED' && winner
+    ? `<p class="kx-h__verdict">${esc(venue)} settlement: <b>${esc(winner.abbr || winner.kalshi_name || '')}</b> — YES</p>`
+    : h.lifecycle === 'CLOSED' ? '<p class="kx-h__verdict">Market closed · awaiting settlement</p>' : ''
+  const extra = field ? (h.outcomes.length - shown.length) + (h.more_outcomes || 0) : 0
+  const more = extra > 0 ? `<p class="kx__note">${extra} more contracts on ${esc(venue)}.</p>` : ''
+  const partial = h.history !== 'full' ? '<p class="kx__note">We started recording this market after trading began, so “First observed” is our first record, not the opening price.</p>' : ''
+  return `<section class="ic kx kx-h" data-kx-history data-kx-ticker="${esc(h.event_ticker || '')}" data-kx-placement="${esc(placement)}" aria-label="Market history: how the market closed">
+    <header class="kx__hd"><div class="kx__brand"><span class="kx__name">How the market closed</span><span class="kx__sub">Market history · ${esc(venue)}</span></div><span class="kx__st">${esc(h.status_label || '')}</span></header>
+    <ol class="kx-h__rows${field ? ' kx-h__rows--field' : ''}">${rows}</ol>
+    ${verdict}${more}
+    ${historyChart(h)}
+    ${partial}
+    <p class="kx__note">Prediction-market prices, not sportsbook odds and not a PropBetEdge model. Settlement is the market venue's, not our result.</p>
+    <footer class="kx__ft"><span>${esc(venue)} · Prediction market data</span>${link(k, `View market on ${esc(venue)} ↗`, 'kx__cta', placement, null)}</footer>
+  </section>`
+}
+
+/** Compact line for a completed event's result card (board entry). Empty when nothing was recorded. */
+export function marketCloseLine(entry) {
+  const c = entry?.market?.close
+  if (!c || !c.outcomes?.length) return ''
+  const won = c.outcomes.find((o) => o.result === 'yes')
+  const ranked = c.outcomes.slice().sort((a, b) => (b.before_start_bp ?? b.last_tradable_bp ?? -1) - (a.before_start_bp ?? a.last_tradable_bp ?? -1))
+  const o = won || ranked[0]
+  if (!o) return ''
+  const a = o.first_bp
+  const b = o.before_start_bp
+  const path = a != null && b != null ? `${centsLabel(a)} → ${centsLabel(b)}` : a != null ? `first ${centsLabel(a)}` : b != null ? `${centsLabel(b)} before start` : ''
+  if (!path && !won) return ''
+  const tail = c.lifecycle === 'SETTLED' ? (won ? ' · settled YES' : '') : ' · awaiting settlement'
+  return `<span class="kx-line kx-line--closed mono" title="Market history: first observed → last price observed before the start · prediction market, not sportsbook odds"><span class="kx-line__b">MARKET</span>${esc(o.abbr || '')}${path ? ` ${esc(path)}` : ''}${esc(tail)}</span>`
+}
+
+/** One entry point: the live card while the market trades, the history once it has closed or settled. */
+export function marketModule(entry, opts = {}) {
+  const lc = entry?.market?.lifecycle
+  if ((lc === 'CLOSED' || lc === 'SETTLED') && entry?.market_history) return marketHistoryCard(entry, opts)
+  return kalshiCard(entry, opts)
+}
+
+/* ───────────────────────── ALGO vs MARKET (track records + event pages) ─────────────────────────
+ * Data: GET /v1/algo-vs-market/:sport (algos[].scoreboard / ledger) and /v1/algo-vs-market/event/:sport/:id.
+ * Both opinions frozen at the algorithm lock; agreements never score; only disagreements are contests.
+ * Renders nothing until an algorithm has its first qualifying comparison (no empty scoreboards). */
+const OUTCOME_LABEL = { ALGO_WIN: 'PropBetEdge', MARKET_WIN: 'Market', NEITHER: 'Neither', VOID: 'Void', AGREED_CORRECT: 'Agreed · correct', AGREED_WRONG: 'Agreed · wrong', NOT_SCORED: 'Not scored' }
+const pct = (v) => (v == null ? null : `${v.toFixed(1)}%`)
+const when = (iso) => { const t = Date.parse(iso || ''); return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : '' }
+
+// Display name of an outcome role: the frozen market price label, else the page's resolver, else the stored label.
+const ROLE_WORDS = new Set(['home', 'away', 'draw', 'a', 'b'])
+function avmName(r, role, label, nameOf) {
+  if (!role) return null
+  const priced = r.market?.prices?.[role]?.label
+  if (label && !ROLE_WORDS.has(String(label).toLowerCase())) return label
+  return priced || nameOf?.(r, role) || label || role
+}
+
+function avmRow(r, nameOf) {
+  const algo = avmName(r, r.algo_selection, r.algo_selection_label, nameOf)
+  const mkt = r.market?.selection ? `${avmName(r, r.market.selection, r.market.selection_label, nameOf)} · ${centsLabel(r.market.selection_price_bp, { fixed: true })}` : ''
+  const res = r.result ? (OUTCOME_LABEL[r.result.h2h_outcome] || r.result.h2h_outcome) : r.status === 'LOCKED' ? 'Locked · pending' : 'Pending'
+  return `<tr class="avm__r avm__r--${esc((r.result?.h2h_outcome || r.status || '').toLowerCase())}"><td class="mono">${esc(when(r.algo_lock_at))}</td><td>${esc(r.event_label || r.canonical_event_id)}</td><td>${esc(algo || (r.status === 'LOCKED' ? 'Locked' : '—'))}</td><td class="mono">${esc(mkt || '—')}</td><td>${esc(r.status === 'AGREEMENT' ? 'Agree' : r.status === 'DISAGREEMENT' ? 'Head to head' : r.status === 'LOCKED' ? '—' : r.status.replace(/_/g, ' ').toLowerCase())}</td><td><b>${esc(res)}</b></td></tr>`
+}
+
+/** Track-record module for ONE algorithm (an entry of payload.algos). Empty string until it has a contest. */
+export function algoVsMarketCard(algo, { nameOf = null, recent = 10, ledgerHref = null } = {}) {
+  if (!algo || !algo.scoreboard || !algo.ledger?.length) return ''
+  const s = algo.scoreboard
+  if (!(s.agreements + s.disagreements + s.pending)) return ''
+  const rows = algo.ledger.slice(0, recent).map((r) => avmRow(r, nameOf)).join('')
+  const decided = s.decided || 0
+  return `<section class="ic kx avm" data-avm="${esc(algo.algo_id)}" aria-label="Algo versus market">
+    <header class="kx__hd"><div class="kx__brand"><span class="kx__name">Algo vs Market</span><span class="kx__sub">When the algo and the market disagree, who wins?</span></div></header>
+    <div class="avm__score"><span class="avm__side"><small>PropBetEdge</small><b class="mono">${esc(String(s.algo_wins))}</b></span><span class="avm__dash">—</span><span class="avm__side"><small>Market</small><b class="mono">${esc(String(s.market_wins))}</b></span></div>
+    <p class="avm__line">${esc(String(decided))} decided disagreement${decided === 1 ? '' : 's'}${s.algo_win_rate != null ? ` · algo win rate ${esc(pct(s.algo_win_rate))}` : ''}</p>
+    <dl class="avm__stats"><div><dt>Agreed</dt><dd class="mono">${esc(String(s.agreements))}</dd></div><div><dt>Neither / void</dt><dd class="mono">${esc(String(s.neither + s.void))}</dd></div><div><dt>Pending</dt><dd class="mono">${esc(String(s.pending))}</dd></div></dl>
+    <div class="avm__tw"><table class="avm__t"><thead><tr><th>Lock</th><th>Event</th><th>PBE</th><th>Market at lock</th><th>Type</th><th>Winner</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${ledgerHref ? `<p class="kx__note"><a href="${esc(ledgerHref)}">Full head-to-head ledger</a></p>` : ''}
+    <p class="kx__note">Both opinions are frozen at the algorithm's lock: the market side is the latest market price we recorded at or before that moment (never later). The market's pick is the outcome with the highest Mid-market. Agreements are recorded but never scored; a third outcome winning counts for neither. Market: Kalshi prediction market. Every comparison is permanent.</p>
+  </section>`
+}
+
+/** Event-page layer: PBE pick vs market at PBE lock (+ result). Empty when no qualifying comparison. */
+export function algoVsMarketEvent(payload, { nameOf = null } = {}) {
+  const r = (payload?.comparisons || []).find((x) => ['AGREEMENT', 'DISAGREEMENT', 'LOCKED'].includes(x.status))
+  if (!r) return ''
+  const algo = avmName(r, r.algo_selection, r.algo_selection_label, nameOf)
+  const mkt = r.market?.selection ? avmName(r, r.market.selection, r.market.selection_label, nameOf) : null
+  const head = r.status === 'LOCKED' ? 'Locked — revealed after the result' : r.status === 'AGREEMENT' ? 'Agreement' : 'Head to head'
+  const res = r.result ? `<p class="avm__verdict"><b>${esc(OUTCOME_LABEL[r.result.h2h_outcome] || r.result.h2h_outcome)}</b>${r.result.h2h_outcome === 'ALGO_WIN' || r.result.h2h_outcome === 'MARKET_WIN' ? ' wins' : ''}</p>` : ''
+  return `<section class="ic kx avm avm--event" aria-label="PropBetEdge pick versus market at lock">
+    <header class="kx__hd"><div class="kx__brand"><span class="kx__name">Algo vs Market</span><span class="kx__sub">${esc(head)} · frozen ${esc(when(r.algo_lock_at))}</span></div></header>
+    <div class="avm__vs"><span><small>${esc(r.algo_label || 'PropBetEdge')}</small><b>${esc(algo || '—')}</b>${r.algo_probability != null ? `<em class="mono">${esc((r.algo_probability * 100).toFixed(1))}%</em>` : ''}</span><span class="avm__dash">vs</span><span><small>Market at PBE lock</small><b>${esc(mkt || '—')}</b>${r.market?.selection_price_bp != null ? `<em class="mono">${esc(centsLabel(r.market.selection_price_bp, { fixed: true }))}</em>` : ''}</span></div>
+    ${res}
+    <p class="kx__note">Market price recorded ${r.market?.snapshot_age_s != null ? `${esc(String(Math.round(r.market.snapshot_age_s / 60)))} min` : ''} before the algorithm locked (Kalshi prediction market). Later market moves never change this contest.</p>
+  </section>`
+}
