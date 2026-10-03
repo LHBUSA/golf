@@ -19,12 +19,12 @@ const ED={id:ID,slug:'bank-of-utah-championship-q130604671-2026',name:'2026 Bank
 const DONE={...ED,id:'11111111-2222-5333-8444-555555555555',slug:'x-2025',name:'2025 X',status:'completed',starts_on:'2025-10-23',ends_on:'2025-10-26'};
 const IX={current:[ED],upcoming:[],recent:[DONE],editions:[ED,DONE],players:[],courses:[],featured_matchups:[],coverage:{full_field_editions:1,men_majors:0,women_majors:0,editions_with_leaderboards:1,rounds:1,players:1},as_of:'2026-10-03T00:00:00Z',schedule:{events:[ED,DONE]},methods:{dna:'',course:'',fit:''},dimensions:[],sources:[]};
 
-test('vendored shared Kalshi files are byte-identical to the canonical client (propbetedge-workers 8b73545)',()=>{
+test('vendored shared Kalshi files are byte-identical to the canonical client (propbetedge-workers ad6187a)',()=>{
  const PIN={
   'README.md':'a80e4ac5d8733bde8afc0c13c281242babff8b1acd083974741f677b7af5a480',
-  'kalshi-market-client.js':'211be23bb9a5b2be0a1b4ed1a1c2c1b3b2dfc4ef45a040ae13c07d28a8ae8744',
+  'kalshi-market-client.js':'68f9ed06de627654634e385acc79b1efdee858de4a59801e20b401b5c0bc43dc',
   'kalshi-market-ui.css':'fb046ada2b2e5450207e4301c0e41a193aa599e4661843fdcdb50d45ac7191ae',
-  'kalshi-market-ui.js':'93a8f485e90633a1cd70e93ab4123c1dc2161d08b3a76e41ec3cc4a0279d74f4'};
+  'kalshi-market-ui.js':'03712a0eb48e5265523ec45b145fd2fa880c9435e1adf2c6ca988c78c3fa37a8'};
  assert.deepEqual(fs.readdirSync('src/vendor/kalshi').sort(),Object.keys(PIN).sort());
  for(const [f,sha] of Object.entries(PIN))assert.equal(crypto.createHash('sha256').update(fs.readFileSync('src/vendor/kalshi/'+f)).digest('hex'),sha,f);
  assert.match(fs.readFileSync('.gitattributes','utf8'),/^src\/vendor\/kalshi\/\*\* -text$/m,'vendored bytes are never line-ending converted');
@@ -227,7 +227,7 @@ test('completed MULTI-OUTCOME field with no live quote (kalshi null) survives th
  const F=HX.field_closed,FID=F.event.event.canonical_event_id;
  assert.equal(F.event.kalshi,null);assert.ok(F.event.market_history.outcomes.length>8);
  const entry=await withFetch(async()=>json(F),()=>loadMarket(FID,{force:true}));
- assert.equal(entry?.market?.lifecycle,'CLOSED','8b73545 client keeps it');
+ assert.equal(entry?.market?.lifecycle,'CLOSED','shared client (8b73545+) keeps it');
  const html=cardHtml(entry);
  assert.match(html,/How the market closed/);assert.match(html,/<ol class="kx-h__rows kx-h__rows--field">/);
  assert.equal((html.match(/<li class="kx-h__row/g)||[]).length,8,'top eight ranked');
@@ -279,4 +279,25 @@ test('PBEcast Market Pulse (MLB standard): full card under the scoreboard with a
  assert.ok(main.includes('cast.dataset.liveState=r.event.state'));assert.ok(main.includes('if(cast)placeCastMarket()'));
  const live=fs.readFileSync('src/lib/kalshi-live.js','utf8');
  assert.ok(live.includes("chain(el,el.dataset.kalshiCast||'',entry=>paintCast(el,entry),after)"),'first paint joins the live-scoring pass');
+});
+
+test('shared client ad6187a: a failed read is never cached as "no market" - last good kept, next poll retries',async()=>{
+ const {createKalshiClient}=await import('../src/vendor/kalshi/kalshi-market-client.js');
+ let n=0;/** @type {any[]} */const answers=[{status:200,body:FX.event_detail},{status:503,body:{}},{status:200,body:FX.event_detail}];
+ const c=createKalshiClient({sport:'golf',base:'/api/markets',fetchImpl:async()=>{const a=answers[Math.min(n++,answers.length-1)];return new Response(JSON.stringify(a.body),{status:a.status});}});
+ const first=await c.loadEvent(ID);assert.ok(first?.kalshi,'first read fills');
+ const failed=await c.loadEvent(ID,{force:true});assert.equal(failed,first,'a 503 keeps the last good entry (no empty slot)');
+ const again=await c.loadEvent(ID);assert.equal(n,3,'the failure was not cached: the next (unforced) poll reads again');assert.ok(again?.kalshi);
+ // a failed first board read is not cached as an empty board either
+ let b=0;const cb=createKalshiClient({sport:'golf',base:'/api/markets',fetchImpl:async()=>(b++===0?new Response('x',{status:500}):new Response(JSON.stringify(FX.board),{status:200}))});
+ assert.equal((await cb.loadBoard()).size,0);assert.ok((await cb.loadBoard()).size>0,'board retried at once after a failure');assert.equal(b,2);
+});
+
+test('shared client ad6187a subtitle: "Live prediction market" only for a live-fresh quote; stale says "quote not current"',()=>{
+ __resetKalshiFlashes();
+ assert.equal(EVENT.kalshi.freshness,'live');assert.match(cardHtml(EVENT),/Live prediction market/);
+ const stale=structuredClone(EVENT);stale.kalshi.freshness='stale';
+ const html=cardHtml(stale);assert.match(html,/Prediction market · quote not current/);assert.doesNotMatch(html,/Live prediction market/);
+ assert.match(castHtml(stale,{live:'live'}),/MARKET OPEN · QUOTE NOT CURRENT/);assert.doesNotMatch(castHtml(stale,{live:'live'}),/LIVE MARKET|Live prediction market/);
+ const delayed=structuredClone(EVENT);delayed.kalshi.freshness='delayed';const d=cardHtml(delayed);assert.doesNotMatch(d,/Live prediction market|quote not current/);assert.match(d,/Prediction market/);
 });
