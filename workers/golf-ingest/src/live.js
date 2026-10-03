@@ -42,9 +42,12 @@ export function refreshStatus(prev,st,{observed_at,order=null}={}){
 }
 // Which competitors a fast tick re-reads: anyone whose state can be changing now (on course, about to tee off),
 // plus the top ten (their positions move as the field scores). Everyone else is re-read on the full refresh.
+// A golfer who completed a hole in the last 5 minutes cannot realistically post the next one yet (a hole takes
+// ~10-15 minutes), so on-course golfers are re-read once 5 minutes have passed since their thru last changed.
+export const HOLE_MIN_MS=5*60000;
 export function isHot(p,now){
  if(!p||p.status!=='active')return false;
- if(Number.isInteger(p.thru)&&p.thru>0&&p.thru<18)return true;
+ if(Number.isInteger(p.thru)&&p.thru>0&&p.thru<18)return !p.thru_changed_at||now-Date.parse(p.thru_changed_at)>=HOLE_MIN_MS||(Number.isInteger(p.position_num)&&p.position_num<=10);
  if(!(p.thru>0)&&p.tee_time&&Date.parse(p.tee_time)-now<=10*60000)return true;
  return Number.isInteger(p.position_num)&&p.position_num<=10;
 }
@@ -91,6 +94,9 @@ export async function snapshotEvent(env,db,ed,{now=new Date(),prev=null,mode='fu
    if(r?.st)return refreshStatus(p,r.st,{observed_at:obs,order});
    return p?{...p,order}:normalizeCompetitor(id,null,null,ident,{observed_at:null,order});});
  }
+ // When each golfer's thru last changed (drives the fast lane's re-read schedule).
+ const was=new Map((prev?.players||[]).map(p=>[String(p.espn_id),p]));
+ players=players.map(p=>{const q=was.get(String(p.espn_id));return {...p,thru_changed_at:q&&q.thru===p.thru&&q.current_round===p.current_round?(q.thru_changed_at||null):(p.observed_at||obs)};});
  const fetched_at=new Date().toISOString();
  const snap={version:LIVE_VERSION,parser:LIVE_PARSER,source:'ESPN Golf core API',league,tour:LEAGUES[league]?.label||league,espn_event_id:String(eventId),
   edition:{id:ed.id,slug:ed.slug,name:ed.name,starts_on:ed.starts_on,ends_on:ed.ends_on,division:ed.division,is_major:Boolean(ed.is_major)},

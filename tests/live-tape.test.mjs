@@ -69,6 +69,9 @@ test('fast lane: who is re-read, when a card is re-read, which events are eligib
  assert.equal(isHot({status:'active',thru:0,tee_time:'2026-10-03T19:30Z',position_num:40},now),false,'tees off later, outside the top ten');
  assert.equal(isHot({status:'active',thru:18,position_num:4},now),true,'top ten: positions move as the field scores');
  assert.equal(isHot({status:'cut',thru:null},now),false);
+ assert.equal(isHot({status:'active',thru:7,position_num:30,thru_changed_at:'2026-10-03T17:57:00Z'},now),false,'completed a hole 3 minutes ago: not re-read yet');
+ assert.equal(isHot({status:'active',thru:7,position_num:30,thru_changed_at:'2026-10-03T17:54:00Z'},now),true,'5+ minutes since the last hole: re-read');
+ assert.equal(isHot({status:'active',thru:7,position_num:3,thru_changed_at:'2026-10-03T17:59:00Z'},now),true,'top ten always re-read');
  const p={thru:5,current_round:3,status_name:'STATUS_IN_PROGRESS',holes:[{}]};
  assert.equal(cardChanged(p,{thru:5,period:3,type:{name:'STATUS_IN_PROGRESS'}}),false);assert.equal(cardChanged(p,{thru:6,period:3,type:{name:'STATUS_IN_PROGRESS'}}),true);
  const r=refreshStatus({...p,total_to_par:-9,holes:[{hole:1}],position_display:'T9',position_num:9},{thru:5,period:3,type:{name:'STATUS_IN_PROGRESS'},position:{id:'7',displayName:'T7',isTie:true}},{observed_at:'x'});
