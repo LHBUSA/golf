@@ -2,7 +2,7 @@
 import {fetchCourseMap,mountCourseMap} from './course-map-live.js';
 import {holeStats,cardsFromLive} from './hole-intel.js';
 import {statusModule} from './live-ui.js';
-import {castShell,commandBar,currentHole,towerRows,focusPanel,compactDna,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key,tapeView,golferTape,tapeHead,tapeEmpty,ago} from './cast-v3.js';
+import {castShell,commandBar,currentHole,towerRows,focusPanel,compactDna,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key,tapeView,golferTape,tapeHead,tapeEmpty,ago,clientState} from './cast-v3.js';
 import {e} from './ui.js';
 
 const STATE=new WeakMap();
@@ -12,7 +12,7 @@ const narrow=()=>matchMedia('(max-width: 767px)').matches;
 export function castV3(host,r,mv,tape=null){
  const slug=host.getAttribute('data-edition')||'';let s=STATE.get(host);
  if(!s||s.slug!==slug||!s.root.isConnected){if(s)teardown(s);if(!host.querySelector('[data-cv3]'))host.innerHTML=castShell();s=mount(host,slug);STATE.set(host,s);}
- s.ev=r.event;s.tape=tape&&Array.isArray(tape.events)?tape:null;s.weather=r.weather_now||null;s.layout=r.course_holes||[];s.points=(mv?.points||[]).filter(p=>p.top?.length);
+ s.server=r.event;s.ev=clientState(r.event);s.tape=tape&&Array.isArray(tape.events)?tape:null;s.weather=r.weather_now||null;s.layout=r.course_holes||[];s.points=(mv?.points||[]).filter(p=>p.top?.length);
  s.holes=new Map((r.hole_scores||[]).filter(h=>h.round==null||h.round===r.event.round).map(h=>[h.slug||h.name,h.holes||[]]));
  const rows=s.ev.leaderboard||[];if(!s.selected||!rows.some(x=>key(x)===s.selected))s.selected=key(rows.find(x=>x.status==='active')||rows[0]);
  render(s);syncMap(s);s.prevRows=new Map(rows.map(x=>[key(x),{position:x.position,total_to_par:x.total_to_par,today_to_par:x.today_to_par,thru:x.thru}]));
@@ -45,11 +45,14 @@ function mount(host,slug){
  s.onFs=()=>{const on=document.fullscreenElement===root;syncFs(s,on);};document.addEventListener('fullscreenchange',s.onFs);
  s.onKey=ev=>{if(ev.key==='Escape'&&root.classList.contains('is-immersive'))exitImmersive(s);};document.addEventListener('keydown',s.onKey);
  // Freshness and course clock tick locally between polls so the age shown is always truthful.
- s.tick=setInterval(()=>{if(!root.isConnected){teardown(s);return;}tickClock(s);},30000);
+ s.tick=setInterval(()=>{if(!root.isConnected){teardown(s);return;}tickClock(s);},15000);
  return s;
 }
 function teardown(s){clearInterval(s.tick);s.ro?.disconnect();document.removeEventListener('fullscreenchange',s.onFs);document.removeEventListener('keydown',s.onKey);document.body.classList.remove('cv3-lock');}
-function tickClock(s){const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)a.textContent=ageText(s.ev);const o=s.root.querySelector('[data-cv3-obs]');if(o){const t=Date.parse(o.getAttribute('data-at')||'');if(Number.isFinite(t))o.textContent=`Last scoring observation ${ago(Math.max(0,Math.round((Date.now()-t)/1000)))}`;}const c=s.root.querySelector('[data-cv3-clock]');if(c)c.textContent=courseClock(Number(c.getAttribute('data-off')));}
+function tickClock(s){
+ // Re-derive the visible state from the last observation every tick (no poll needed to go stale).
+ if(s.server){const d=clientState(s.server);if(d.state!==s.ev?.state){s.ev=d;render(s);}}
+const a=s.root.querySelector('[data-cv3-age]');if(a&&s.ev)a.textContent=ageText(s.ev);const o=s.root.querySelector('[data-cv3-obs]');if(o){const t=Date.parse(o.getAttribute('data-at')||'');if(Number.isFinite(t))o.textContent=`Last scoring observation ${ago(Math.max(0,Math.round((Date.now()-t)/1000)))}`;}const c=s.root.querySelector('[data-cv3-clock]');if(c)c.textContent=courseClock(Number(c.getAttribute('data-off')));}
 
 function select(s,k){s.selected=k;s.selHole=null;s.cursor=null;
  for(const b of s.tower.querySelectorAll('[data-cv3-pick]')){const on=b.dataset.cv3Pick===k;b.closest('li')?.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));}

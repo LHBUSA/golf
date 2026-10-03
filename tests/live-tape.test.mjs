@@ -115,3 +115,18 @@ test('PBEcast tape view: pars only for top ten / selected, truthful waiting + em
  assert.match(html,/LATEST SCORING · OBSERVED/);assert.match(html,/START HOLE/);assert.match(html,/ROUND 3 SCORECARD/);
  assert.match(focusPanel({round:3,holes_available:false},{...row,thru:6},{holes:null}),/Hole-by-hole scores aren’t published for this tour; round totals are shown/);
 });
+
+test('client freshness: LIVE turns SCORING UPDATE DELAYED after 5 min with no poll; never upgrades without fresh data',async()=>{
+ const {clientState,commandBar,tapeHead}=await import('../src/lib/cast-v3.js');
+ const ev={state:'live',label:'LIVE SCORING · ROUND 3',round:3,fetched_at:'2026-10-03T19:00:00Z',edition:{name:'2026 Bank of Utah Championship'},leaderboard:[]};
+ const at=m=>Date.parse('2026-10-03T19:00:00Z')+m*60000;
+ assert.equal(clientState(ev,at(4.9)).state,'live');
+ const late=clientState(ev,at(5.2));assert.equal(late.state,'stale');assert.equal(late.label,'SCORING UPDATE DELAYED');
+ const bar=commandBar(late,null,{now:at(21)});assert.match(bar,/ROUND 3 · SCORING UPDATE DELAYED/);assert.doesNotMatch(bar,/· LIVE/);assert.match(bar,/Last update 21 min ago/);
+ assert.match(tapeHead(late,{last_observation_at:ev.fetched_at},{now:at(21)}),/SCORING UPDATE DELAYED/);
+ // non-live states are never changed (suspended stays suspended; stale never becomes live)
+ assert.equal(clientState({...ev,state:'suspended'},at(30)).state,'suspended');
+ assert.equal(clientState({...ev,state:'stale'},at(0)).state,'stale');
+ // fresh data from a successful poll restores LIVE
+ assert.equal(clientState({...ev,fetched_at:'2026-10-03T19:20:30Z'},at(21)).state,'live');
+});

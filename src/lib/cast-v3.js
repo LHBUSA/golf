@@ -290,3 +290,13 @@ export function tapeEmpty(ev){
  if(st==='pre')return `The scoring tape starts with the first posted hole${ev.first_tee?` (first tee ${clock(ev.first_tee)})`:''}.`;
  return 'No scoring changes were observed in this round.';
 }
+// Client-side freshness: the server decides LIVE at request time, but a page whose polls pause (hidden tab) or fail
+// keeps old data on screen. Re-derived every tick from the last observation: a LIVE event older than the live
+// contract (LIVE_FRESH_SECONDS) shows SCORING UPDATE DELAYED. It never upgrades a state: LIVE returns only with
+// fresh data from a successful poll.
+export const CLIENT_LIVE_FRESH_SECONDS=5*60;
+export function clientState(ev,now=Date.now()){
+ if(!ev||ev.state!=='live')return ev;
+ const t=Date.parse(ev.fetched_at||'');if(!Number.isFinite(t))return ev;
+ return (now-t)/1000>CLIENT_LIVE_FRESH_SECONDS?{...ev,state:'stale',label:'SCORING UPDATE DELAYED',freshness:'stale'}:ev;
+}
