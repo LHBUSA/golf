@@ -17,7 +17,7 @@
 // awaiting settlement"; settlement is Kalshi's, never our result; the first price we recorded is "First observed",
 // never an open. Polling: live 20 s, pregame 45 s, CLOSED every 5 min until SETTLED, SETTLED never.
 import {createKalshiClient} from '../vendor/kalshi/kalshi-market-client.js';
-import {kalshiLine,kalshiStrip,wireKalshi,marketModule,marketCloseLine} from '../vendor/kalshi/kalshi-market-ui.js';
+import {kalshiCard,kalshiLine,wireKalshi,marketModule,marketHistoryCard,marketCloseLine} from '../vendor/kalshi/kalshi-market-ui.js';
 
 export const MARKETS_BASE='/api/markets';
 export const GOLF_PROPOSITION='player_wins_tournament';
@@ -99,13 +99,43 @@ export function cardHtml(entry){
  const card=marketModule(g,{placement:isHistory(g)?'tournament-history':'tournament-page'});
  return card?`<div class="data-section kx-sec">${card}<p class="kx-golf-note">${NOTE}</p></div>`:'';
 }
-/** PBEcast strip (leaders, expands to the compact card) + note; trading only; '' otherwise.
- * @param {any} entry @param {{open?:boolean}} [opts] */
-export function stripHtml(entry,{open=false}={}){
- let strip=kalshiStrip(liveEntry(entry),{placement:'pbecast-strip'});
- if(!strip)return '';
- if(open)strip=strip.replace('<details class="kx-strip"','<details open class="kx-strip"');
- return `${strip}<p class="kx-golf-note">${NOTE}</p>`;
+// ── PBEcast Market Pulse (MLB standard) ──────────────────────────────────────────────────────────────────────
+// One module for the whole tournament lifecycle, directly under the PBEcast scoreboard (the live cast's command bar
+// + status, slot [data-cv3-mkt]); while no live cast is on screen (archive, no live event) it stays in the cast
+// header mount. Trading: the full shared kalshiCard (ranked field, compact). CLOSED / SETTLED: marketHistoryCard in
+// the same place. A lifecycle label says which: MARKET OPEN · PRE-TOURNAMENT / LIVE MARKET / TOURNAMENT FINAL ·
+// MARKET STILL TRADING / MARKET CLOSED · AWAITING SETTLEMENT / MARKET SETTLED. A stale quote is never labelled live.
+/** Live-scoring states in which the tournament is under way (scoring may be paused between rounds). */
+const IN_PLAY=new Set(['live','stale','suspended','round_complete']);
+/** PBEcast entry: a tournament-winner market that trades (also after our final, labelled so) or its history.
+ * @param {any} entry */
+export function castEntry(entry){
+ if(!entry||propOf(entry)!==GOLF_PROPOSITION)return null;
+ if(isHistory(entry))return entry.market_history?entry:null;
+ return entry.kalshi?.state==='open'?entry:null;
+}
+/**
+ * Lifecycle label for the PBEcast module: [phase key, text]; null without an entry.
+ * @param {any} entry castEntry() result
+ * @param {string} [live] our live-scoring state for the edition ('pre' | 'live' | 'final' | …; '' unknown)
+ * @returns {[string,string]|null}
+ */
+export function castPhase(entry,live=''){
+ if(!entry)return null;
+ if(isHistory(entry))return entry.market.lifecycle==='SETTLED'?['settled','MARKET SETTLED']:['closed','MARKET CLOSED · AWAITING SETTLEMENT'];
+ if(live==='final'||entry.event?.state==='post')return ['final-open','TOURNAMENT FINAL · MARKET STILL TRADING'];
+ if(entry.kalshi?.freshness==='stale')return ['stale','MARKET OPEN · QUOTE NOT CURRENT'];
+ if(IN_PLAY.has(live)||entry.market?.lifecycle==='ACTIVE'||entry.event?.state==='in'||entry.event?.state==='live')return ['live','LIVE MARKET'];
+ return ['pre','MARKET OPEN · PRE-TOURNAMENT'];
+}
+/** PBEcast module HTML ('' without a market). @param {any} entry @param {{live?:string}} [opts] */
+export function castHtml(entry,{live=''}={}){
+ const g=castEntry(entry);
+ const phase=castPhase(g,live);
+ if(!g||!phase)return '';
+ const body=isHistory(g)?marketHistoryCard(g,{placement:'pbecast-history'}):kalshiCard(g,{placement:'pbecast',compact:true});
+ if(!body)return '';
+ return `<div class="cast-mkt" data-phase="${phase[0]}"><p class="cast-mkt-phase"><span class="cast-mkt-dot" aria-hidden="true"></span>${phase[1]}</p>${body}<p class="kx-golf-note">${NOTE}</p></div>`;
 }
 /** Restrained card line: leaders' Mid-market while trading, the close summary once CLOSED/SETTLED; '' otherwise.
  * @param {any} entry */
@@ -115,6 +145,8 @@ export const lineHtml=entry=>{const g=golfEntry(entry);return !g?'':isHistory(g)
 const bounds=el=>({from:el.dataset.kalshiFrom||null,to:el.dataset.kalshiTo||null});
 /** @param {Element} el */
 const isDoneMount=el=>el.hasAttribute('data-kalshi-done');
+/** @param {Element} el */
+const isCastMount=el=>el.hasAttribute('data-kalshi-cast');
 /** @param {Element} el @param {any} entry */
 const forMount=(el,entry)=>isDoneMount(el)?historyEntry(entry):entry;
 const shown=new WeakMap(); // element -> last html painted (skip identical repaints)
@@ -141,7 +173,7 @@ function chain(el,id,render,after=null){
   if(!el.isConnected)return stop();
   if(typeof document!=='undefined'&&document.hidden){t=setTimeout(()=>tick(true),5000);return;}
   const ev=await loadMarket(id,{force});
-  const entry=forMount(el,golfEntry(ev));
+  const entry=isCastMount(el)?(isDoneMount(el)?historyEntry(ev):castEntry(ev)):forMount(el,golfEntry(ev));
   if(dead)return;
   if(!el.isConnected)return stop();
   // First paint waits (bounded) for the page's live-scoring pass so both land in the same frame: one
@@ -154,7 +186,7 @@ function chain(el,id,render,after=null){
   t=setTimeout(()=>tick(true),ms);
  };
  chains.set(el,stop);
- const cached=isDoneMount(el)?null:liveEntry(kalshi.forEvent(id));
+ const cached=isDoneMount(el)?null:isCastMount(el)?castEntry(kalshi.forEvent(id)):liveEntry(kalshi.forEvent(id));
  if(cached)render(cached); // board already in hand (client re-render): paint in the same pass
  tick(false);
 }
@@ -184,6 +216,23 @@ function scheduleBoard(){
  if(ms!=null)boardT=setTimeout(boardTick,ms);
 }
 
+// PBEcast placement: the module lives in the live cast's slot (under the scoreboard) when the cast is on screen,
+// otherwise in the cast-header mount. The last entry is kept so a cast (re)build re-places it without a read.
+const castLast=new Map(); // cast mount -> last entry
+const castSlot=()=>/** @type {HTMLElement|null} */(document.querySelector('[data-live-cast] [data-cv3-mkt]'));
+const liveStateOf=()=>/** @type {HTMLElement|null} */(document.querySelector('[data-live-cast]'))?.dataset.liveState||'';
+/** @param {HTMLElement} el @param {any} entry */
+function paintCast(el,entry){
+ castLast.set(el,entry);
+ const html=castHtml(entry,{live:liveStateOf()});
+ const slot=castSlot();
+ if(slot){paint(el,'');paint(slot,html);}else paint(el,html);
+}
+/** Re-place / re-label the PBEcast module after the live cast was built, rebuilt, cleared or changed state. */
+export function placeCastMarket(){
+ for(const [el,entry] of castLast){if(!el.isConnected){castLast.delete(el);continue;}paintCast(el,entry);}
+}
+
 /** Longest a tournament card's first paint waits for the live-scoring pass. */
 export const AFTER_MAX_MS=4000;
 /**
@@ -197,9 +246,9 @@ export function hydrateKalshi(root=document,{after=null}={}){
   if(chains.has(el))continue;
   chain(el,el.dataset.kalshiEdition||'',entry=>paint(el,cardHtml(entry)),after);
  }
- for(const el of /** @type {NodeListOf<HTMLElement>} */(root.querySelectorAll('[data-kalshi-strip]'))){
+ for(const el of /** @type {NodeListOf<HTMLElement>} */(root.querySelectorAll('[data-kalshi-cast]'))){
   if(chains.has(el))continue;
-  chain(el,el.dataset.kalshiStrip||'',entry=>{const open=!!el.querySelector('details[open]');paint(el,stripHtml(entry,{open}));});
+  chain(el,el.dataset.kalshiCast||'',entry=>paintCast(el,entry),after);
  }
  if(root.querySelector('[data-kalshi-line]')){
   paintLines(root); // from the board cache when present (no flash on a re-render)

@@ -5,10 +5,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {kalshi,MARKETS_BASE,NOTE,golfEntry,historyEntry,phaseOf,nextPollMs,CLOSED_POLL_MS,cardHtml,stripHtml,lineHtml,within,loadMarket,boardEntry} from '../src/lib/kalshi-live.js';
-import {editionKalshiMount,editionHistoryMount,castKalshiMount,lineKalshiMount,closeLineMount,marketEligible,historyEligible,MARKET_HISTORY_SINCE} from '../src/lib/kalshi-mounts.js';
+import {kalshi,MARKETS_BASE,NOTE,golfEntry,historyEntry,phaseOf,nextPollMs,CLOSED_POLL_MS,cardHtml,castHtml,castPhase,castEntry,lineHtml,within,loadMarket,boardEntry} from '../src/lib/kalshi-live.js';
+import {editionKalshiMount,editionHistoryMount,castKalshiMount,castHistoryMount,lineKalshiMount,closeLineMount,marketEligible,historyEligible,MARKET_HISTORY_SINCE} from '../src/lib/kalshi-mounts.js';
 import {edition,pbecast,scheduleRail,live,today,home,intelligence} from '../src/lib/pages.js';
 import {__resetKalshiFlashes} from '../src/vendor/kalshi/kalshi-market-ui.js';
+import {castShell} from '../src/lib/cast-v3.js';
 
 const FX=JSON.parse(fs.readFileSync('tests/fixtures/kalshi-golf.json','utf8'));
 const EVENT=FX.event_detail.event;                 // PGA TOUR Bank of Utah Championship, with observed movement
@@ -46,8 +47,8 @@ test('browser code never calls Kalshi or a Worker host; the client reads same-or
  assert.deepEqual(seen,['/api/markets/v1/market-intelligence/sport/golf','/api/markets/v1/market-intelligence/event/golf/'+ID]);
 });
 
-test('no entry renders nothing at every placement (card, PBEcast strip, card line)',async()=>{
- for(const v of [null,undefined,{},{event:{},kalshi:null}]){assert.equal(cardHtml(v),'');assert.equal(stripHtml(v),'');assert.equal(lineHtml(v),'');}
+test('no entry renders nothing at every placement (card, PBEcast module, card line)',async()=>{
+ for(const v of [null,undefined,{},{event:{},kalshi:null}]){assert.equal(cardHtml(v),'');assert.equal(castHtml(v),'');assert.equal(lineHtml(v),'');}
  // API answer with no open market -> client resolves null -> nothing
  const original=globalThis.fetch;globalThis.fetch=async()=>new Response(JSON.stringify({contract:'market-intel/1',sport:'golf',enabled:true,event:null}),{status:200});
  try{const entry=await kalshi.loadEvent('22222222-3333-5444-8555-666666666666',{force:true});assert.equal(entry,null);assert.equal(cardHtml(entry),'');}finally{globalThis.fetch=original;}
@@ -58,7 +59,7 @@ test('no entry renders nothing at every placement (card, PBEcast strip, card lin
  // any other proposition, a settled market or a finished event: nothing (never a misread contract)
  const other=structuredClone(EVENT);other.kalshi.proposition='player_top_10';assert.equal(cardHtml(other),'');assert.equal(golfEntry(other),null);
  const settled=structuredClone(EVENT);settled.kalshi.state='settled';assert.equal(cardHtml(settled),'');
- const post=structuredClone(EVENT);post.event.state='post';assert.equal(stripHtml(post),'');
+ const settledQuote=structuredClone(EVENT);settledQuote.kalshi.state='settled';assert.equal(castHtml(settledQuote),'','settled quote without history -> nothing');
  // the static mounts are empty elements hidden by CSS (no reserved box) and absent for completed editions
  assert.match(fs.readFileSync('src/kalshi.css','utf8'),/\.kx-mount:empty\{display:none\}/);
  for(const fn of [editionKalshiMount,castKalshiMount,lineKalshiMount]){assert.equal(fn(DONE),'');assert.equal(fn({...ED,id:'not-a-uuid'}),'');assert.equal(fn({...ED,status:'cancelled'}),'');assert.match(fn(ED),/^<div class="kx-mount[^"]*" data-kalshi-[a-z]+="70c0e316-[^"]+"[^>]*><\/div>$/);}
@@ -81,12 +82,12 @@ test('golf field market renders ranked golfers with the tournament-winner note',
  assert.match(cardHtml(PGA),/kx__field/);
  const l=cardHtml(LPGA);assert.match(l,/kx__field/);assert.match(l,/Jeeno Thitikul/);assert.match(l,/40¢ \/ 54¢/);
  // compact placements
- const s=stripHtml(EVENT,{open:true});assert.match(s,/^<details open class="kx-strip"/);assert.ok(s.includes(NOTE));
+ const s=castHtml(EVENT,{live:'live'});assert.match(s,/^<div class="cast-mkt" data-phase="live">/);assert.ok(s.includes(NOTE));assert.match(s,/kx__field/);
  const line=lineHtml(PGA);assert.match(line,/KALSHI/);assert.ok(line.includes(EVENT.kalshi.outcomes[0].abbr));
 });
 
 test('every Kalshi price links to the Kalshi market, new tab, rel sponsored',()=>{
- for(const html of [cardHtml(EVENT),stripHtml(EVENT),cardHtml(LPGA)]){
+ for(const html of [cardHtml(EVENT),castHtml(EVENT),cardHtml(LPGA)]){
   const links=html.match(/<a [^>]*>/g)||[];assert.ok(links.length>=6,"one link per golfer plus the market CTA");
   for(const a of links){assert.match(a,/href="https:\/\/kalshi\.com\/markets\//);assert.match(a,/target="_blank"/);assert.match(a,/rel="noopener noreferrer sponsored"/);}
  }
@@ -105,16 +106,17 @@ test('poll lanes: live 20 s while the edition is in progress, pregame 45 s befor
  assert.match(main,/hydrateKalshi\(document,\{after:liveFirstPass\}\)/);assert.match(main,/boardWithin\(\)\]\);const main=\$\('main'\)/,'PBEcast switch waits at most 800 ms for the board');
 });
 
-test('placements: tournament block, PBEcast strip, schedule and live cards; methodology section',()=>{
+test('placements: tournament block, PBEcast Market Pulse, schedule and live cards; methodology section',()=>{
  const ed=edition(ED,IX);
  const mount=ed.indexOf('data-kalshi-edition="'+ID+'"');assert.ok(mount>0);
  assert.ok(ed.indexOf('data-live-board')<mount,'after the live board');
- assert.match(pbecast(IX,ED),new RegExp('<section class="cast-head">.*data-kalshi-strip="'+ID+'".*</section>'));
+ assert.match(pbecast(IX,ED),new RegExp('<section class="cast-head">.*data-kalshi-cast="'+ID+'"(?! data-kalshi-done).*</section>'));
  assert.doesNotMatch(pbecast(IX,DONE),/data-kalshi/);
  assert.match(scheduleRail(IX,'2026-10-03'),new RegExp('data-kalshi-line="'+ID+'"'));
  assert.match(live(IX),new RegExp('data-kalshi-line="'+ID+'"'));
  for(const h of [today(IX),home(IX)])assert.equal((h.match(/data-kalshi-line=/g)||[]).length,1,'one restrained line per current edition');
  const m=intelligence(IX);assert.match(m,/id="kalshi"/);
+ assert.match(m,/Live prediction-market pricing is built into PropBetEdge tournament pages and PBEcast\./);assert.doesNotMatch(m,/part of every|if available|selected events|when a market exists/i);
  for(const p of [/prediction market/,/No sportsbook line is required/,/not sportsbook odds/,/not a PropBetEdge model/,/links to that market on Kalshi/,/Mid-market/,/spread is 10¢ or less/,/snapshots we actually recorded/,/YES pays \$1 if that golfer wins/,/Market history/,/not an opening price/,/awaiting settlement/,/Settlement is Kalshi’s, not our tournament result/])assert.match(m,p);
 });
 
@@ -154,7 +156,8 @@ test('completed editions get a history mount (API decides); older, cancelled and
  const lb=page.indexOf('Final leaderboard');assert.ok(lb>0&&lb<page.indexOf('data-kalshi-done'),'our result first, then how the market closed');
  // live placements stay live-only
  for(const fn of [editionKalshiMount,castKalshiMount,lineKalshiMount])assert.equal(fn(DONE26),'');
- assert.doesNotMatch(pbecast(IX2,DONE26),/data-kalshi/);
+ assert.match(pbecast(IX2,DONE26),new RegExp('data-kalshi-cast="'+HID+'" data-kalshi-done'),'PBEcast archive: how the market closed, same place');
+ assert.equal(castHistoryMount(DONE),'');assert.equal(castHistoryMount(ED),'');
  // completed result cards: one close line each where a history can exist
  assert.match(closeLineMount(DONE26),/data-kalshi-line="[^"]+" data-kalshi-done/);assert.equal(closeLineMount(DONE),'');
  for(const h of [home(IX2),today(IX2)])assert.match(h,new RegExp('data-kalshi-line="'+HID+'" data-kalshi-done'));
@@ -180,7 +183,7 @@ test('SETTLED: "How the market closed" ranked field with venue settlement; first
  assert.match(html,/“First observed” is our first record, not the opening price/,'partial history says so');
  assert.match(html,/<svg viewBox="0 0 320 96"/);assert.doesNotMatch(html,/ style=/,'no inline styles (strict CSP)');
  assert.doesNotMatch(html,/Market Pulse/);assert.ok(html.includes(NOTE));
- assert.equal(stripHtml(entry),'','PBEcast strip is trading-only');
+ const cast=castHtml(entry);assert.match(cast,/data-phase="settled"/);assert.match(cast,/MARKET SETTLED/);assert.match(cast,/How the market closed/);assert.doesNotMatch(cast,/Market Pulse|LIVE MARKET/);
  // board close summary -> result-card line
  const line=lineHtml({event:SETTLED.event,kalshi:null,market:SETTLED.market});
  assert.match(line,/kx-line--closed/);assert.match(line,/MARKET<\/span>Golfer Two/);assert.match(line,/settled YES/);
@@ -235,11 +238,45 @@ test('completed MULTI-OUTCOME field with no live quote (kalshi null) survives th
  // never labelled live: no pulse, no live/trading copy
  assert.doesNotMatch(html,/kx__pulse|Market Pulse|>LIVE<|Live market/i);
  assert.match(html,/href="https:\/\/kalshi\.com\/markets\/kxpgatour\/pga-tour\/kxpgatour-baouc26"/);
- assert.equal(stripHtml(entry),'');
+ assert.match(castHtml(entry),/MARKET CLOSED · AWAITING SETTLEMENT/);assert.doesNotMatch(castHtml(entry),/LIVE MARKET|kx__pulse/);
  // board: closed field keeps the compact result-row line
  const board={contract:'market-intel/1',sport:'golf',enabled:true,events:[{event:F.event.event,kalshi:null,market:F.event.market}]};
  await withFetch(async()=>json(board),()=>kalshi.loadBoard({force:true}));
  const line=lineHtml(boardEntry(FID));assert.match(line,/kx-line--closed/);assert.match(line,/awaiting settlement/);
  // stale/open quote on a finished tournament is never shown as live
- const stale=structuredClone(EVENT);stale.event.state='post';assert.equal(cardHtml(stale),'');assert.equal(lineHtml(stale),'');assert.equal(stripHtml(stale),'');
+ const stale=structuredClone(EVENT);stale.event.state='post';assert.equal(cardHtml(stale),'');assert.equal(lineHtml(stale),'');
+ assert.match(castHtml(stale),/TOURNAMENT FINAL · MARKET STILL TRADING/,'PBEcast labels a still-trading market after the final, never live');assert.doesNotMatch(castHtml(stale),/LIVE MARKET/);
+});
+
+test('PBEcast Market Pulse (MLB standard): full card under the scoreboard with a lifecycle label',()=>{
+ __resetKalshiFlashes();
+ // lifecycle labels
+ assert.equal(castPhase(null),null);
+ const up=structuredClone(EVENT);up.event.state=null;up.market={...(up.market||{}),lifecycle:'UPCOMING'};up.kalshi.freshness='live';
+ assert.deepEqual(castPhase(up,'pre'),['pre','MARKET OPEN · PRE-TOURNAMENT']);
+ assert.deepEqual(castPhase(up,'live'),['live','LIVE MARKET']);
+ assert.deepEqual(castPhase(up,'round_complete'),['live','LIVE MARKET'],'between rounds the tournament is still under way');
+ const act=structuredClone(up);act.market.lifecycle='ACTIVE';assert.deepEqual(castPhase(act,''),['live','LIVE MARKET']);
+ assert.deepEqual(castPhase(up,'final'),['final-open','TOURNAMENT FINAL · MARKET STILL TRADING']);
+ const st=structuredClone(act);st.kalshi.freshness='stale';assert.deepEqual(castPhase(st,'live'),['stale','MARKET OPEN · QUOTE NOT CURRENT'],'a stale quote is never labelled live');
+ assert.deepEqual(castPhase(SETTLED),['settled','MARKET SETTLED']);assert.deepEqual(castPhase(closedOf()),['closed','MARKET CLOSED · AWAITING SETTLEMENT']);
+ // full shared card, not a collapsed strip: Market Pulse header, freshness, ranked field, Kalshi CTA
+ const h=castHtml(act,{live:'live'});
+ assert.doesNotMatch(h,/<details|kx-strip/);
+ assert.match(h,/<section class="ic kx kx--compact"/);assert.match(h,/Market Pulse/);assert.match(h,/View market on Kalshi ↗/);
+ assert.equal((h.match(/<li class="kx__frow">/g)||[]).length,8,'ranked field kept (top eight)');
+ assert.match(h,/data-kx-placement="pbecast"/);assert.doesNotMatch(h,/ style=/,'strict CSP: no inline styles');
+ assert.equal(castEntry({...act,kalshi:{...act.kalshi,proposition:'player_top_10'}}),null);
+ // slot directly under the scoreboard (bar + status), before the leaderboard tower; hidden while empty
+ const shell=castShell();
+ const bar=shell.indexOf('data-cv3-status'),mkt=shell.indexOf('data-cv3-mkt'),tower=shell.indexOf('data-cv3-tower');
+ assert.ok(bar>0&&bar<mkt&&mkt<tower);assert.ok(shell.includes('<section class="cv3-mkt" data-cv3-mkt aria-label="Market Pulse"></section>'));
+ const css=fs.readFileSync('src/kalshi.css','utf8');
+ assert.ok(css.includes('.cv3-mkt:empty{display:none}'));
+ const rows=css.split('\n').filter(l=>l.includes(':has(>.cv3-mkt:not(:empty)){grid-template-areas:')&&l.includes('"mkt'));
+ assert.equal(rows.length,3,'mkt row only while the slot has content (desktop, fullscreen, phone)');
+ const main=fs.readFileSync('src/main.ts','utf8');
+ assert.ok(main.includes('cast.dataset.liveState=r.event.state'));assert.ok(main.includes('if(cast)placeCastMarket()'));
+ const live=fs.readFileSync('src/lib/kalshi-live.js','utf8');
+ assert.ok(live.includes("chain(el,el.dataset.kalshiCast||'',entry=>paintCast(el,entry),after)"),'first paint joins the live-scoring pass');
 });

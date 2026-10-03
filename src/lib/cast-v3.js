@@ -248,6 +248,7 @@ export function weatherTile(w){
 export function castShell(){
  return `<section class="cast-live cv3" aria-label="PBEcast live" data-cv3><header class="cv3-bar" data-cv3-bar></header>
 <div class="cv3-status" data-cv3-status></div>
+<section class="cv3-mkt" data-cv3-mkt aria-label="Market Pulse"></section>
 <section class="cv3-tower" aria-labelledby="cv3-tower-h"><h2 class="cv3-sh" id="cv3-tower-h">Live leaderboard</h2>${towerHead()}<ol class="cv3-list" data-cv3-tower></ol></section>
 <section class="cv3-focus" data-cv3-focus aria-label="Selected golfer"></section>
 <section class="cv3-cmap" data-cv3-cmap aria-label="Course view" hidden></section>

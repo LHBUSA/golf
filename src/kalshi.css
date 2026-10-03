@@ -11,9 +11,33 @@
 .kx-sec .kx{max-width:760px}
 .kx-golf-note{margin:8px 2px 0;font-size:12px;line-height:1.45;color:var(--muted)}
 
-/* PBEcast: strip in the dark cast header, under the tournament selector. */
-.kx-cast{max-width:760px;margin-top:14px}
-.kx-cast .kx-golf-note{color:#c9d4cd;font-size:11.5px}
+/* PBEcast Market Pulse (MLB standard): one module for the whole lifecycle with a lifecycle label. It sits directly
+   under the live cast's scoreboard (command bar + status) in its own grid row, which exists only while the slot has
+   content (:has), so a tournament without a market keeps the cast layout exactly as before. Without a live cast
+   (archive) it stays in the cast header mount. Fixed structure: a price update never changes the layout. */
+.kx-cast{max-width:860px;margin-top:14px}
+.cv3-mkt{grid-area:mkt;min-width:0}
+.cv3-mkt:empty{display:none}
+.cv3:has(>.cv3-mkt:not(:empty)){grid-template-areas:"bar bar bar" "status status status" "mkt mkt mkt" "tower focus focus" "cmap cmap pulse" "tl tl pulse" "ctx ctx ctx" "truth truth truth"}
+@media(min-width:1600px){.cv3.is-fs:has(>.cv3-mkt:not(:empty)){grid-template-areas:"bar bar bar" "status status status" "mkt mkt mkt" "tower focus pulse" "tower cmap cmap" "tower tl tl" "ctx ctx ctx" "truth truth truth"}}
+@media(max-width:899px){.cv3:has(>.cv3-mkt:not(:empty)){grid-template-areas:"bar" "status" "mkt" "focus" "cmap" "tower" "pulse" "tl" "ctx" "truth"}}
+.cast-mkt{min-width:0;container-type:inline-size}
+.cast-mkt .kx{padding:12px 14px}
+.cast-mkt-phase{display:flex;align-items:center;gap:6px;margin:0 0 6px 2px;font:800 10px/1 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.14em;color:#7fb8ff}
+.cast-mkt-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.cast-mkt[data-phase="live"] .cast-mkt-phase{color:#ff8a7a}
+.cast-mkt[data-phase="live"] .cast-mkt-dot{animation:cast-mkt-blink 1.6s ease-in-out infinite}
+.cast-mkt[data-phase="closed"] .cast-mkt-phase,.cast-mkt[data-phase="settled"] .cast-mkt-phase,.cast-mkt[data-phase="final-open"] .cast-mkt-phase,.cast-mkt[data-phase="stale"] .cast-mkt-phase{color:#a9bcb0}
+@keyframes cast-mkt-blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.cast-mkt-dot{animation:none!important}}
+.cast-mkt .kx-golf-note{color:#c9d4cd;font-size:11.5px}
+/* Wide casts: the ranked field reads down two columns (1-4 | 5-8) instead of one stretched list. */
+@container (min-width:720px){
+ .cast-mkt .kx__field{display:block;columns:2;column-gap:28px}
+ .cast-mkt .kx__frow{break-inside:avoid}
+ .cast-mkt .kx-h__rows--field{display:block;columns:2;column-gap:28px}
+ .cast-mkt .kx-h__row{break-inside:avoid}
+}
 
 /* Schedule rail (dark cards) and live-page event cards (light): one restrained line. */
 .kx-cardline{display:block;min-width:0;overflow:hidden;margin:6px 0 4px}

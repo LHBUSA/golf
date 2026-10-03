@@ -29,7 +29,7 @@ import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
 // @ts-ignore
 import {mountMovement} from './lib/movement-live.js';
 // @ts-ignore Kalshi Market Intelligence (prediction market; same-origin /api/markets only)
-import {hydrateKalshi,boardWithin} from './lib/kalshi-live.js';
+import {hydrateKalshi,boardWithin,placeCastMarket} from './lib/kalshi-live.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -129,7 +129,8 @@ async function hydrateLive(){
    if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${statusModule(ev,{compact:true})}${liveBoard(ev,{limit:40})}</section>`).join('');
   }}
  if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv,tape]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement'),cast?get('/'+encodeURIComponent(slug)+'/tape'):null]):[null,null,null];liveHot=['live','suspended'].includes(r?.event?.state);
-  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${statusModule(r.event)}${weatherNow(r.weather_now)}${liveBoard(r.event)}<div data-mvx-host></div>`;mountMovement($('[data-mvx-host]',board),mv?.points||[],{title:'Who moved, and when'});}if(cast)castV3(cast,r,mv,tape);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
+  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${statusModule(r.event)}${weatherNow(r.weather_now)}${liveBoard(r.event)}<div data-mvx-host></div>`;mountMovement($('[data-mvx-host]',board),mv?.points||[],{title:'Who moved, and when'});}if(cast){castV3(cast,r,mv,tape);cast.dataset.liveState=r.event.state;}}else if(cast?.querySelector('[data-cv3]')){cast.innerHTML='';cast.dataset.liveState='';}
+  if(cast)placeCastMarket();}
  if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final'){let traits:any=null;try{traits=JSON.parse(pl.getAttribute('data-traits')||'null');}catch{}pl.innerHTML=playerLive(r.event,r.player,{traits});}}
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }

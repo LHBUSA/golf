@@ -27,8 +27,10 @@ const window_=x=>`${x.starts_on?` data-kalshi-from="${e(x.starts_on)}"`:''}${x.e
 export const editionKalshiMount=d=>marketEligible(d)?`<div class="kx-mount kx-edition" data-kalshi-edition="${e(d.id)}"${window_(d)}></div>`:'';
 /** Tournament page (completed): "How the market closed", after the final leaderboard (our result comes first). */
 export const editionHistoryMount=d=>historyEligible(d)?`<div class="kx-mount kx-edition kx-edition-done" data-kalshi-edition="${e(d.id)}" data-kalshi-done${window_(d)}></div>`:'';
-/** PBEcast: one-line leaders strip that expands to the compact card. */
-export const castKalshiMount=d=>marketEligible(d)?`<div class="kx-mount kx-cast" data-kalshi-strip="${e(d.id)}"${window_(d)}></div>`:'';
+/** PBEcast: Market Pulse (full card, lifecycle label) — placed under the live cast's scoreboard by the browser. */
+export const castKalshiMount=d=>marketEligible(d)?`<div class="kx-mount kx-cast" data-kalshi-cast="${e(d.id)}"${window_(d)}></div>`:'';
+/** PBEcast (completed edition): "How the market closed" in the same place (history only). */
+export const castHistoryMount=d=>historyEligible(d)?`<div class="kx-mount kx-cast" data-kalshi-cast="${e(d.id)}" data-kalshi-done${window_(d)}></div>`:'';
 /** Schedule / event cards: one restrained line (leaders' Mid-market while trading). */
 export const lineKalshiMount=x=>marketEligible(x)?`<div class="kx-mount kx-cardline" data-kalshi-line="${e(x.id)}"${window_(x)}></div>`:'';
 /** Completed result cards: one line on how the market closed (board summary, kept 7 days by the API). */
