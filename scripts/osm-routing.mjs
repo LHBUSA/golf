@@ -7,7 +7,7 @@
 // after 90 s and then recorded as a barrier (never hammered). Every extract is cached; reruns resume deterministically.
 import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';
 import {prepareCourseMap,ATTRIBUTION} from '../src/lib/course-map.js';
-import {matchCourse,matchWithEvidence,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
+import {matchCourse,matchWithEvidence,autoIdentityOk,nameScore,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
 import {IDENTITY_EVIDENCE,DUPLICATE_COURSES} from '../workers/shared/course-identity.js';
 import {defaultEdition} from '../workers/shared/course-setup.js';
 
@@ -43,7 +43,8 @@ async function overpass(ql){for(let attempt=0;attempt<2;attempt++){await slot();
 async function collect(){
  fs.mkdirSync(CACHE,{recursive:true});
  const list=courses.filter(c=>c.latitude!=null&&c.longitude!=null).sort((a,b)=>cmp(priority(a),priority(b)));
- const named=IDENTITY_EVIDENCE.filter(x=>x.locate);
+ const cand=fs.existsSync(path.join(CACHE,'_candidates.json'))?JSON.parse(fs.readFileSync(path.join(CACHE,'_candidates.json'),'utf8')):{};
+ const named=[...IDENTITY_EVIDENCE.filter(x=>x.locate),...Object.entries(cand).filter(([,v])=>v.status==='candidate').map(([slug,v])=>({slug,locate:{lat:v.candidate.lat,lon:v.candidate.lon}}))];
  const log=[];
  for(const x of named){const f=path.join(CACHE,x.slug+'.json');if(fs.existsSync(f))continue;
   const j=await overpass(QL(x.locate.lat,x.locate.lon));if(j.barrier){log.push({slug:x.slug,barrier:j.barrier});continue;}
@@ -65,6 +66,7 @@ const toOsm=(els,target,accepted)=>({course:{id:target.type+'/'+target.id,outer:
  holes:(accepted||[]).map(h=>({id:h.id,ref:String(h.hole),par:h.par,coords:h.coords})),
  features:els.filter(e=>e.type==='way'&&e.geometry&&(e.tags?.golf&&e.tags.golf!=='hole'||e.tags?.natural==='water')&&inside(centre(e.geometry),target)).map(f=>({id:'way/'+f.id,golf:f.tags.golf||null,natural:f.tags.natural||null,coords:f.geometry.map(p=>[p.lon,p.lat]),closed:f.geometry.length>3&&f.geometry[0].lat===f.geometry.at(-1).lat&&f.geometry[0].lon===f.geometry.at(-1).lon}))});
 
+const CANDIDATES=fs.existsSync(path.join(CACHE,'_candidates.json'))?JSON.parse(fs.readFileSync(path.join(CACHE,'_candidates.json'),'utf8')):{};
 function prepare(){
  fs.mkdirSync(path.join(OUT,'courses'),{recursive:true});fs.mkdirSync(path.join(OUT,'dataset'),{recursive:true});
  const ev=new Map(IDENTITY_EVIDENCE.map(x=>[x.slug,x]));const rows=[];
@@ -77,8 +79,13 @@ function prepare(){
   if(!fs.existsSync(f)){rows.push({...base,status:c.latitude==null&&!ev.get(c.slug)?.locate?'held':'unaudited',decision:c.latitude==null?'no_canonical_coords':barriers.has(c.slug)?'barrier':'not_collected'});continue;}
   const raw=JSON.parse(fs.readFileSync(f,'utf8')),els=raw.elements||[],setup=setupFor(c.slug),x=ev.get(c.slug);
   const canon={slug:c.slug,name:c.name,locality:c.locality,country_code:c.country_code,latitude:c.latitude??x?.locate?.lat,longitude:c.longitude??x?.locate?.lon};
-  const m=matchWithEvidence({...canon,latitude:c.latitude,longitude:c.longitude},els,setup,x||null);
-  const r={...base,decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
+  let m=matchWithEvidence({...canon,latitude:c.latitude,longitude:c.longitude},els,setup,x||null);
+  // Automatic identity (no reviewed record): only the single best-named candidate in the ESPN locality, and only with
+  // geometry proof against the championship setup. Otherwise it stays held for manual review with the candidate.
+  const cd=!x&&c.latitude==null?CANDIDATES[c.slug]:null;
+  if(cd?.status==='candidate'){const t=matchWithEvidence({...canon,latitude:null,longitude:null},els,setup,{osm_course:cd.candidate.osm_course,evidence_id:'auto-identity-v1',clears:['review_no_canonical_coords']});
+   const ok=autoIdentityOk(t,setup,c.name);m=ok.pass?{...t,auto:ok}:{...m,decision:'review_auto_identity_insufficient',auto:ok,target:t.target};}
+  const r={...base,auto:m.auto||null,decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
   r._m=m;r._els=els;r._raw=raw;rows.push(r);
  }
  holdSharedTargets(rows.filter(r=>r._m));
@@ -110,7 +117,7 @@ function prepare(){
  const count=(f)=>({total:pub.filter(f).length,audited:pub.filter(r=>f(r)&&!['unaudited'].includes(r.status)).length,full:pub.filter(r=>f(r)&&r.status==='full').length,partial:pub.filter(r=>f(r)&&r.status==='partial').length,held:pub.filter(r=>f(r)&&r.status==='held').length,no_routing:pub.filter(r=>f(r)&&r.status==='no-routing').length,unaudited:pub.filter(r=>f(r)&&r.status==='unaudited').length,exact:pub.filter(r=>f(r)&&r.decision==='exact').length});
  const index={version:'osm-routing/v1',generated_at:new Date().toISOString(),licence:'ODbL-1.0',attribution:ATTRIBUTION,method:'/v1/open-data/course-routing/method',
   counts:{all:count(()=>true),pga:count(r=>r.tours.some(t=>/PGA TOUR/i.test(t))),lpga:count(r=>r.tours.some(t=>/LPGA/i.test(t))),majors:count(r=>r.major)},
-  courses:pub.map(r=>({slug:r.slug,name:r.name,status:r.status,decision:r.decision,duplicate_of:r.duplicate_of||null,holes_mapped:r.holes_mapped??0,osm_course:r.osm_course?.id||null,retrieved_at:r.retrieved_at||null,cleared_by:r.cleared_by||null,par_conflicts:r.par_conflicts||[],features:r.features||null,web_bytes:r.web_bytes||null,dataset_bytes:r.dataset_bytes||null}))};
+  courses:pub.map(r=>({slug:r.slug,name:r.name,status:r.status,decision:r.decision,duplicate_of:r.duplicate_of||null,auto_identity:r.auto||null,candidate:CANDIDATES[r.slug]?.candidate?.osm_course||null,holes_mapped:r.holes_mapped??0,osm_course:r.osm_course?.id||null,retrieved_at:r.retrieved_at||null,cleared_by:r.cleared_by||null,par_conflicts:r.par_conflicts||[],features:r.features||null,web_bytes:r.web_bytes||null,dataset_bytes:r.dataset_bytes||null}))};
  fs.writeFileSync(path.join(OUT,'index.json'),JSON.stringify(index,null,1));
  fs.writeFileSync(path.join(ROOT,'docs/evidence/course-geo-coverage.json'),JSON.stringify({generated_at:index.generated_at,counts:index.counts,courses:index.courses.map(({web_bytes,dataset_bytes,...x})=>x)},null,1));
  console.log(JSON.stringify(index.counts,null,1));
@@ -129,5 +136,35 @@ async function relations(){
   const by=new Map(j.elements.map(e=>[e.id,e]));raw.elements=raw.elements.map(e=>e.type==='relation'&&by.has(e.id)?by.get(e.id):e);raw.relations_refetched_at=new Date().toISOString();
   fs.writeFileSync(p,JSON.stringify(raw));console.log('relations',f,ids.length);await sleep(3000);}
 }
+// Candidate finder for courses without canonical coordinates (automatic, rule-based, never by name alone):
+// 1) geocode the ESPN-published city (OSM Nominatim, <=1 req/s, identified UA) to a bounding box;
+// 2) list every leisure=golf_course in that box (Overpass);
+// 3) keep the single best name match across name / name:en / int_name / official_name / alt_name / operator.
+// The candidate only positions an extract; prepare() then requires geometry proof (autoIdentityOk) before attaching.
+const CANDS=path.join(CACHE,'_candidates.json');
+function espnLocality(slug){for(const e of (edByCourse.get(slug)||[])){const d=B.editions.find(x=>x.slug===e.slug);const c=d?.espn?.course;if(c?.city)return {city:c.city,state:c.state||null,country:c.country||null};}return null;}
+async function nominatim(q){await sleep(1100);const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(q),{headers:{'user-agent':UA,'accept-language':'en'},signal:AbortSignal.timeout(20000)}).catch(()=>null);
+ if(!r||r.status===403||r.status===429)return {barrier:r?String(r.status):'net'};if(!r.ok)return {barrier:String(r.status)};return {rows:await r.json()};}
+const NAME_TAGS=['name','name:en','int_name','official_name','alt_name','operator','short_name'];
+async function candidates(){
+ fs.mkdirSync(CACHE,{recursive:true});const out=fs.existsSync(CANDS)?JSON.parse(fs.readFileSync(CANDS,'utf8')):{};
+ const reviewed=new Set([...IDENTITY_EVIDENCE.map(x=>x.slug),...DUPLICATE_COURSES.map(x=>x.slug)]);
+ const list=courses.filter(c=>c.latitude==null&&!reviewed.has(c.slug)).sort((a,b)=>cmp(priority(a),priority(b)));
+ for(const c of list){if(out[c.slug]&&out[c.slug].status!=='barrier')continue;
+  const loc=espnLocality(c.slug)||(c.locality?{city:c.locality,state:null,country:c.country||null}:null);
+  if(!loc){out[c.slug]={status:'no_locality'};continue;}
+  const q=[loc.city,loc.state,loc.country].filter(Boolean).join(', ');const g=await nominatim(q);
+  if(g.barrier){out[c.slug]={status:'barrier',barrier:g.barrier,query:q};console.log('barrier',c.slug,g.barrier);if(g.barrier==='403')break;continue;}
+  const bb=g.rows?.[0]?.boundingbox?.map(Number);if(!bb){out[c.slug]={status:'locality_not_found',query:q};continue;}
+  let [s0,n0,w0,e0]=bb;const cy=(s0+n0)/2,cx=(w0+e0)/2;s0=Math.max(s0,cy-0.35);n0=Math.min(n0,cy+0.35);w0=Math.max(w0,cx-0.35);e0=Math.min(e0,cx+0.35);
+  const j=await overpass(`[out:json][timeout:120];nwr[leisure=golf_course](${s0},${w0},${n0},${e0});out tags center;`);
+  if(j.barrier){out[c.slug]={status:'barrier',barrier:j.barrier,query:q};continue;}
+  const scored=(j.elements||[]).map(e=>({id:e.type+'/'+e.id,center:e.center||(e.lat?{lat:e.lat,lon:e.lon}:null),names:NAME_TAGS.map(t=>e.tags?.[t]).filter(Boolean),score:Math.max(0,...NAME_TAGS.map(t=>e.tags?.[t]).filter(Boolean).map(n=>nameScore(c.name,n)))})).filter(x=>x.score>=0.5&&x.center).sort((a,b)=>b.score-a.score);
+  const top=scored.filter(x=>x.score===scored[0]?.score);
+  out[c.slug]={query:q,box:[s0,w0,n0,e0],courses_in_box:(j.elements||[]).length,status:!scored.length?'no_name_match':top.length>1?'ambiguous':'candidate',
+   candidate:top.length===1?{osm_course:top[0].id,lat:top[0].center.lat,lon:top[0].center.lon,names:top[0].names,score:top[0].score}:null,others:scored.slice(0,5).map(x=>({id:x.id,names:x.names,score:+x.score.toFixed(2)}))};
+  console.log(c.slug,out[c.slug].status,out[c.slug].candidate?.names?.[0]||'');fs.writeFileSync(CANDS,JSON.stringify(out,null,1));await sleep(2000);}
+ fs.writeFileSync(CANDS,JSON.stringify(out,null,1));
+}
 const cmd=process.argv[2];
-if(cmd==='collect')await collect();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')upload();else if(cmd)console.error('usage: collect|prepare|upload');
+if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')upload();else if(cmd)console.error('usage: collect|prepare|upload');

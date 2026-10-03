@@ -1,6 +1,7 @@
 // Live presentation (browser-rendered from /api/v1/live; static pages carry a truthful neutral fallback).
 // Labels come from the live contract state; nothing here decides whether something is live.
 import {e,a,toPar,playerName} from './ui.js';
+import {statusReport} from './status-reason.js';
 const ago=s=>s===null||s===undefined?'':s<90?'just now':s<3600?`${Math.round(s/60)} min ago`:`${Math.round(s/3600)} hr ago`;
 const time=iso=>{try{return new Date(iso).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZoneName:'short'});}catch{return '';}};
 const tp=v=>v===null||v===undefined?'—':toPar(v);
@@ -36,4 +37,22 @@ export function playerLive(ev,p,{traits=null}={}){
 }
 export function weatherNow(w){
  if(!w)return '';return `<p class="live-wx"><span>${e(w.temp_f??'—')}°F</span><span>Wind ${e(w.wind_dir||'')} ${e(w.wind_mph??'—')} mph</span>${w.gust_mph!=null?`<span>Gust ${e(w.gust_mph)} mph</span>`:''}<small>Forecast for this hour · ${w.precision==='locality'?'town-level estimate':'course point'} · updated ${e(ago(w.age_seconds))}</small></p>`;
+}
+
+// Tournament status module (suspended / delayed / postponed / round complete). Reason and restart appear only when a
+// source text states them (quoted, with source); otherwise we say plainly that none has been published.
+const tclock=iso=>{try{return new Date(iso).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZoneName:'short'});}catch{return '';}};
+export function statusModule(ev,{compact=false}={}){
+ const r=statusReport(ev);if(!r)return '';
+ const cls=r.kind==='round_complete'?'is-done':'is-stop';
+ if(compact)return `<p class="tstat-line ${cls}"><b>${e(r.title)}</b> ${e(r.sentence)}</p>`;
+ const row=(k,v)=>`<div><dt>${e(k)}</dt><dd>${v}</dd></div>`;
+ const src=x=>`<small>${e(x.source)}${x.published?` · ${e(tclock(x.published))}`:''}${x.url?` · <a href="${e(x.url)}" rel="noopener">source</a>`:''}</small>`;
+ const aff=r.affected,affTxt=r.kind==='round_complete'?`Round ${aff.round}: ${aff.finished} finished${aff.unfinished?` · ${aff.unfinished} unfinished`:''}`:`Round ${aff.round}: ${aff.finished} finished · ${aff.unfinished} on course when play stopped${aff.not_started?` · ${aff.not_started} not started`:''}`;
+ return `<section class="tstat ${cls}" aria-label="Tournament status"><p class="tstat-k">TOURNAMENT STATUS</p><p class="tstat-title">${e(r.title)}</p><p class="tstat-sentence">${e(r.sentence)}</p><dl class="tstat-dl">
+${r.kind==='round_complete'?'':row('Reason',r.reason?`${e(r.reason.label[0].toUpperCase()+r.reason.label.slice(1))} ${src(r.reason)}`:'Not published in the observed feed yet')}
+${row('Affected',`${e(affTxt)} <small>${e(r.affected.basis)}</small>`)}
+${r.kind==='round_complete'?'':row('Next',r.restart?`“${e(r.restart.phrase)}” ${src(r.restart)}`:'No restart time published')}
+${row('Official status',`“${e(r.status.text||r.status.name||'—')}” <small>${e(r.status.source)}${r.status.since?` · first observed ${e(tclock(r.status.since))}`:''}${r.status.updated?` · updated ${e(tclock(r.status.updated))}`:''}</small>`)}
+</dl></section>`;
 }

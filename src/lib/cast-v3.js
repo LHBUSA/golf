@@ -3,7 +3,7 @@
 // DERIVED (PBE) = differences between observed snapshots, streaks, within-N counts. RECONSTRUCTED = the
 // generic hole template. Nothing here produces ball locations, shot paths, clubs, lies or player locations.
 import {e,a,toPar,playerName,portrait} from './ui.js';
-import {badge} from './live-ui.js';
+import {badge,statusModule} from './live-ui.js';
 import {holeSvg} from './cast-replay.js';
 import {dnaModel} from './dna-ui.js';
 
@@ -104,9 +104,16 @@ export function fieldSnapshot(ev,points){
 // never scales and labels live in a reserved right gutter. Markers = observations; curves only link them.
 export function timelineSeries(points,{filter='top5',selected=null}={}){
  const pts=(points||[]).filter(p=>p.top?.length);if(pts.length<2)return null;
- const last=pts.at(-1).top,n=filter==='top10'?10:filter==='top5'?5:0;
+ const last=pts.at(-1).top,n=filter==='top20'?20:filter==='top10'?10:filter==='top5'?5:0;
  const leadKeys=last.filter(x=>x.pos===1).map(key);
- const pick=[...new Set([...(n?last.filter(x=>Number.isInteger(x.pos)&&x.pos<=n).map(key):[]),...leadKeys,...(selected?[selected]:[])])];
+ // Contenders: leaders, everyone within 3 shots of the lead at the latest observation, the two biggest position gains
+ // in the latest round (>= 3 places) and the selected golfer; at most 8, ordered by position.
+ let contenders=[];if(filter==='contenders'){const lead=Math.min(...last.map(x=>x.to_par).filter(Number.isFinite));
+  const near=last.filter(x=>Number.isFinite(x.to_par)&&x.to_par-lead<=3).sort((a,b)=>a.pos-b.pos).map(key);
+  const lr=pts.filter(p=>p.round===pts.at(-1).round),first=new Map((lr[0]?.top||[]).map(x=>[key(x),x.pos]));
+  const movers=last.map(x=>({k:key(x),g:first.has(key(x))&&Number.isInteger(x.pos)?first.get(key(x))-x.pos:0})).filter(x=>x.g>=3).sort((a,b)=>b.g-a.g).slice(0,2).map(x=>x.k);
+  contenders=[...new Set([...leadKeys,...near.slice(0,8),...movers])].slice(0,8);}
+ const pick=[...new Set([...(n?last.filter(x=>Number.isInteger(x.pos)&&x.pos<=n).map(key):[]),...contenders,...leadKeys,...(selected?[selected]:[])])];
  const meta=new Map();for(const p of pts)for(const x of p.top)meta.set(key(x),{name:x.name,slug:x.slug});
  const series=pick.filter(k=>meta.has(k)).map(k=>({key:k,...meta.get(k),obs:pts.map(p=>{const x=p.top.find(y=>key(y)===k);return x&&Number.isInteger(x.pos)?{pos:x.pos,tied:!!x.tied,to_par:x.to_par??null,thru:x.thru??null}:null;})}));
  let mover=null;for(const s of series){const o=s.obs.filter(Boolean);if(o.length<2)continue;const g=o[0].pos-o.at(-1).pos;if(g>=3&&(!mover||g>mover.g))mover={k:s.key,g};}
@@ -134,7 +141,7 @@ export function timelineLayout(m,{width=720,height=260}={}){
  const y=p=>T+(p-1)/(worst-1||1)*(height-T-B);
  return {L,R,T,B,G,segs,x,y,worst,width,height,narrow};
 }
-export function timelineSvg(m,{width=720,height=260,selected=null,focus=null,cursor=null}={}){
+export function timelineSvg(m,{width=720,height=260,selected=null,focus=null,cursor=null,palette=false}={}){
  if(!m)return '';const g=timelineLayout(m,{width,height}),{L,R,T,B,x,y,worst}=g;
  const ticks=[1,5,10,15,20,25,30,35,40].filter(v=>v<=worst&&(v===1||worst-v>=4||v===worst));if(!ticks.includes(worst))ticks.push(worst);
  const grid=ticks.map(v=>`<line class="tl-grid" x1="${L}" x2="${width-R+6}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="tl-tick" x="${L-6}" y="${y(v).toFixed(1)}" text-anchor="end" dominant-baseline="middle">${v===1?'P1':v}</text>`).join('');
@@ -142,8 +149,9 @@ export function timelineSvg(m,{width=720,height=260,selected=null,focus=null,cur
   for(let t=Math.ceil(s.t0/3600e3)*3600e3;t<=s.t1;t+=step){const px=s.x0+(s.t1===s.t0?0:(t-s.t0)/(s.t1-s.t0)*s.w);if(px-s.x0<26||s.x0+s.w-px<14)continue;hrs.push(`<line class="tl-hr" x1="${px.toFixed(1)}" x2="${px.toFixed(1)}" y1="${height-B}" y2="${height-B+4}"/><text class="tl-time" x="${px.toFixed(1)}" y="${height-6}" text-anchor="middle">${e(new Date(t).toLocaleTimeString('en-US',{hour:'numeric'}).replace(' ',''))}</text>`);}
   return `<line class="tl-axis" x1="${s.x0.toFixed(1)}" x2="${(s.x0+s.w).toFixed(1)}" y1="${height-B}" y2="${height-B}"/>${lab}${hrs.join('')}`;}).join('');
  const breaks=g.segs.slice(1).map(s=>`<line class="tl-break" x1="${(s.x0-g.G/2).toFixed(1)}" x2="${(s.x0-g.G/2).toFixed(1)}" y1="${T}" y2="${height-B}"/>`).join('');
- const role=s=>s.key===focus?'is-focus':s.key===selected?'is-selected':m.leaders.has(s.key)?'is-leader':s.key===m.mover?'is-mover':'is-muted';
- const order=[...m.series].sort((a,b)=>{const w={'is-muted':0,'is-mover':1,'is-leader':2,'is-selected':3,'is-focus':4};return w[role(a)]-w[role(b)];});
+ const pal=new Map(palette?m.series.map((x,i)=>[x.key,'c'+(i%8)]):[]);
+ const role=s=>s.key===focus?'is-focus':s.key===selected?'is-selected':palette?'is-pal '+pal.get(s.key):m.leaders.has(s.key)?'is-leader':s.key===m.mover?'is-mover':'is-muted';
+ const order=[...m.series].sort((a,b)=>{const w=r=>r.startsWith('is-pal')?1:{'is-muted':0,'is-mover':1,'is-leader':2,'is-selected':3,'is-focus':4}[r];return w(role(a))-w(role(b));});
  const lines=order.map(s=>{const cls=role(s);const segs=[];let cur=[];
   s.obs.forEach((o,i)=>{if(!o||(cur.length&&m.rounds[i]!==m.rounds[cur.at(-1).i])){if(cur.length)segs.push(cur);cur=o?[{i,p:[x(i),y(o.pos)]}]:[];return;}cur.push({i,p:[x(i),y(o.pos)]});});if(cur.length)segs.push(cur);
   const dots=segs.flat().map(q=>`<circle class="tl-pt" cx="${q.p[0].toFixed(1)}" cy="${q.p[1].toFixed(1)}" r="${cls==='is-selected'||cls==='is-focus'?2.6:cls==='is-muted'?1.3:2}"/>`).join('');
@@ -238,11 +246,12 @@ export function weatherTile(w){
 // Static shell: regions are filled and diff-updated by the controller (src/lib/cast-v3-live.js).
 export function castShell(){
  return `<section class="cast-live cv3" aria-label="PBEcast live" data-cv3><header class="cv3-bar" data-cv3-bar></header>
+<div class="cv3-status" data-cv3-status></div>
 <section class="cv3-tower" aria-labelledby="cv3-tower-h"><h2 class="cv3-sh" id="cv3-tower-h">Live leaderboard</h2>${towerHead()}<ol class="cv3-list" data-cv3-tower></ol></section>
 <section class="cv3-focus" data-cv3-focus aria-label="Selected golfer"></section>
 <section class="cv3-cmap" data-cv3-cmap aria-label="Course view" hidden></section>
 <section class="cv3-pulse" aria-labelledby="cv3-pulse-h"><h2 class="cv3-sh" id="cv3-pulse-h">Scoring pulse</h2><p class="cv3-cap">Changes proven between consecutive ESPN snapshots. Hole results are named only when the posted holes add up to the observed change.</p><ol class="cv3-pl" data-cv3-pulse tabindex="0" aria-label="Scoring pulse events, newest first"></ol></section>
-<section class="cv3-tl" aria-labelledby="cv3-tl-h" data-cv3-tl><div class="cv3-tl-head"><h2 class="cv3-sh" id="cv3-tl-h">Leaders over time</h2><div class="cv3-seg" role="group" aria-label="Players shown"><button type="button" data-cv3-filter="top5" aria-pressed="false">Top 5</button><button type="button" data-cv3-filter="top10" aria-pressed="false">Top 10</button><button type="button" data-cv3-filter="selected" aria-pressed="false">Selected</button></div></div><div class="cv3-plot" data-cv3-plot tabindex="0" aria-describedby="cv3-tl-cap"></div><div class="cv3-key" data-cv3-key></div><p class="cv3-cap" id="cv3-tl-cap" data-cv3-tlcap></p><div data-cv3-table></div></section>
+<section class="cv3-tl" aria-labelledby="cv3-tl-h" data-cv3-tl><div class="cv3-tl-head"><h2 class="cv3-sh" id="cv3-tl-h">Leaders over time</h2><div class="cv3-seg" role="group" aria-label="Players shown"><button type="button" data-cv3-filter="contenders" aria-pressed="false">Contenders</button><button type="button" data-cv3-filter="top5" aria-pressed="false">Top 5</button><button type="button" data-cv3-filter="top10" aria-pressed="false">Top 10</button><button type="button" data-cv3-filter="selected" aria-pressed="false">Selected</button></div></div><div class="cv3-plot" data-cv3-plot tabindex="0" aria-describedby="cv3-tl-cap"></div><div class="cv3-key" data-cv3-key></div><p class="cv3-cap" id="cv3-tl-cap" data-cv3-tlcap></p><div data-cv3-table></div></section>
 <section class="cv3-ctx" aria-label="Tournament context"><div class="cv3-fieldbox" data-cv3-field></div><div class="cv3-wxbox" data-cv3-wx></div></section>
 <p class="gnote cv3-truth">Positions, scores, hole results and course par/yardage are observed as posted by ESPN. Movement, streaks, the scoring pulse and field counts are PBE-derived from those observations. Ball and player positions are not tracked: the Course View highlights the hole being played, never a location on it. Course routing © OpenStreetMap contributors (ODbL) where mapped; otherwise the hole figure is a labelled reconstruction. Times are in your time zone.</p></section>`;
 }

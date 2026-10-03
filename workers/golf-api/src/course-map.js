@@ -8,6 +8,21 @@ const ATTR={text:'© OpenStreetMap contributors',url:'https://www.openstreetmap.
 const MAP_CACHE='public, max-age=300, s-maxage=1800';
 const OPEN_CACHE='public, max-age=3600, s-maxage=86400';
 const get=async(env,k)=>{const o=await env.PUBLIC?.get(k);return o?JSON.parse(await o.text()):null;};
+// Why a course has no (or partial) map, from the coverage index (plain language; the raw decision stays alongside).
+let IDX={at:0,v:null};
+async function routingIndex(env){if(IDX.v&&Date.now()-IDX.at<600000)return IDX.v;const v=await get(env,'osm-routing/v1/index.json');IDX={at:Date.now(),v};return v;}
+export function routingReason(row){
+ if(!row)return {code:'not_audited',text:'Not yet audited for mapped routing'};
+ const d=row.decision||'';
+ if(row.status==='full')return {code:'verified',text:'Verified routing for all 18 holes'};
+ if(row.status==='partial')return {code:'partial',text:`Verified routing for ${row.holes_mapped} of 18 holes; the rest await verification`};
+ if(d==='no_canonical_coords')return {code:'awaiting_location',text:'Awaiting course location verification before routing can be attached'};
+ if(/^duplicate|review_duplicate/.test(d))return {code:'identity_review',text:'Course record under identity review'};
+ if(/^review_/.test(d))return {code:'awaiting_routing_verification',text:'Mapped routing found but awaiting identity verification'};
+ if(d==='barrier'||d==='not_collected')return {code:'not_audited',text:'Not yet audited for mapped routing'};
+ if(row.osm_course&&!row.holes_mapped)return {code:'holes_unmapped',text:'Course outline is mapped in open data, but its holes are not yet'};
+ return {code:'no_source_routing',text:'No mapped routing in open map data yet'};
+}
 
 export async function courseMap(env,ix,slug,editionParam,now=new Date()){
  const course=(ix.courses||[]).find(c=>c.slug===slug);if(!course)return {status:404,body:{error:'not_found'}};
@@ -20,7 +35,7 @@ export async function courseMap(env,ix,slug,editionParam,now=new Date()){
  let ed=null;const geoP=get(env,'osm-routing/v1/courses/'+slug+'.json');
  if(editionParam)ed=await get(env,'projection/v2/editions/'+chosen.slug+'.json');
  else{for(const o of options.slice(0,3)){const d=await get(env,'projection/v2/editions/'+o.edition+'.json');if(!ed)ed=d;if(d?.layout?.holes?.length){ed=d;break;}}}
- const geo=await geoP;
+ const geo=await geoP;const ri=await routingIndex(env).catch(()=>null);const row=(ri?.courses||[]).find(c=>c.slug===slug)||null;
  const {setup,scoring}=buildSetup(ed);
  const sh=new Map((setup?.holes||[]).map(h=>[h.hole,h])),sc=new Map((scoring?.holes||[]).map(h=>[h.hole,h]));
  const gh=new Map((geo?.holes||[]).map(h=>[h.hole,h]));const withheld=new Map((geo?.coverage?.withheld||[]).map(w=>[w.hole,w.reason]));
@@ -45,6 +60,7 @@ export async function courseMap(env,ix,slug,editionParam,now=new Date()){
   geometry_metadata_conflicts:geo?.geometry_metadata_conflicts||[],
   attribution:geo?ATTR:null,
   setup:setup?setupPublic:null,scoring:scoring?{edition:scoring.edition,year:scoring.year,cohort:scoring.cohort,basis:scoring.basis,players:scoring.players}:null,
+  routing_status:{...routingReason(row),decision:row?.decision||null},
   setups:options,intelligence_version:HOLE_INTEL_VERSION,
   intelligence_methods:geo?{mapped_route_yards:'length of the current mapped routing (OSM) — not the championship distance',shape:'route vertex farthest from the tee-green chord; dogleg when turn >= 20 deg and offset >= 20 m; mostly straight when turn < 12 deg; par 3s unclassified',
    hazards:'bunker centroid within 45 m of the route and 15 m nearer than any other route (else omitted); green-side within 40 m of the mapped green centre; water within 45 m of the route or crossing it',

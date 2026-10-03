@@ -1,6 +1,7 @@
 // PBEcast V3 controller: one state object per mounted cast, small region diffs on refresh, no timers per render.
 import {fetchCourseMap,mountCourseMap} from './course-map-live.js';
 import {holeStats,cardsFromLive} from './hole-intel.js';
+import {statusModule} from './live-ui.js';
 import {castShell,commandBar,currentHole,towerRows,focusPanel,compactDna,pulseEvents,pulseList,boardMoves,timelineSeries,timelineSvg,timelineLayout,timelineTable,fieldSnapshot,fieldPanel,weatherTile,ageText,courseClock,key} from './cast-v3.js';
 import {e} from './ui.js';
 
@@ -19,8 +20,8 @@ export function castV3(host,r,mv){
 
 function mount(host,slug){
  const root=host.querySelector('[data-cv3]');const q=sel=>root.querySelector(sel);
- const s={host,root,slug,selected:null,filter:narrow()?'selected':'top5',focusKey:null,cursor:null,selHole:null,seen:null,prevRows:null,first:true,
-  bar:q('[data-cv3-bar]'),cmapEl:q('[data-cv3-cmap]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
+ const s={host,root,slug,selected:null,filter:narrow()?'selected':'contenders',focusKey:null,cursor:null,selHole:null,seen:null,prevRows:null,first:true,
+  bar:q('[data-cv3-bar]'),statusEl:q('[data-cv3-status]'),cmapEl:q('[data-cv3-cmap]'),tower:q('[data-cv3-tower]'),focus:q('[data-cv3-focus]'),pulse:q('[data-cv3-pulse]'),tl:q('[data-cv3-tl]'),plot:q('[data-cv3-plot]'),key:q('[data-cv3-key]'),tlcap:q('[data-cv3-tlcap]'),table:q('[data-cv3-table]'),field:q('[data-cv3-field]'),wx:q('[data-cv3-wx]')};
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
   // Scoring Pulse event with a proven hole -> select that golfer and focus that hole (map + scorecard).
@@ -57,7 +58,7 @@ function select(s,k){s.selected=k;s.selHole=null;s.cursor=null;
 
 function render(s){
  const active=document.activeElement,fsFocused=active?.hasAttribute?.('data-cv3-fs');
- set(s.bar,commandBar(s.ev,s.weather));syncFs(s,document.fullscreenElement===s.root||s.root.classList.contains('is-immersive'));if(fsFocused)s.bar.querySelector('[data-cv3-fs]')?.focus();
+ set(s.bar,commandBar(s.ev,s.weather));set(s.statusEl,statusModule(s.ev));syncFs(s,document.fullscreenElement===s.root||s.root.classList.contains('is-immersive'));if(fsFocused)s.bar.querySelector('[data-cv3-fs]')?.focus();
  // Tower: rebuilt only when a row changed; scroll position and the focused golfer survive the update.
  const focusedPick=active?.closest?.('[data-cv3-pick]')?.dataset.cv3Pick,top=s.tower.scrollTop;
  if(set(s.tower,towerRows(s.ev,{selected:s.selected,moves:boardMoves(s.points,s.ev.leaderboard),prev:s.first?null:s.prevRows}))){s.tower.scrollTop=top;if(focusedPick)s.tower.querySelector(`[data-cv3-pick="${CSS.escape(focusedPick)}"]`)?.focus();}
@@ -104,13 +105,13 @@ function renderTimeline(s){
  for(const b of s.tl.querySelectorAll('[data-cv3-filter]'))b.setAttribute('aria-pressed',String(b.dataset.cv3Filter===s.filter));
  s.m=timelineSeries(s.points,{filter:s.filter,selected:s.selected});s.tl.hidden=!s.m;if(!s.m)return;
  const m=s.m,name=new Map((s.ev.leaderboard||[]).map(x=>[key(x),x]));
- set(s.key,`<ul class="cv3-keys" aria-label="Players in the chart">${m.series.map(x=>{const cur=name.get(x.key),o=[...x.obs].reverse().find(Boolean);const role=x.key===s.selected?'is-selected':m.leaders.has(x.key)?'is-leader':x.key===m.mover?'is-mover':'is-muted';return `<li><button type="button" class="${role}" data-cv3-series="${e(x.key)}" aria-label="${e(x.name)}${o?`, last observed ${o.tied?'T':''}${o.pos}`:''}${cur?'. Select golfer':''}"><i aria-hidden="true"></i>${e(x.name)}${o?` <small>${o.tied?'T':''}${o.pos}</small>`:''}</button></li>`;}).join('')}</ul>`);
+ set(s.key,`<ul class="cv3-keys" aria-label="Players in the chart">${m.series.map((x,i)=>{const cur=name.get(x.key),o=[...x.obs].reverse().find(Boolean);const role=x.key===s.selected?'is-selected':s.filter==='contenders'?'c'+(i%8):m.leaders.has(x.key)?'is-leader':x.key===m.mover?'is-mover':'is-muted';return `<li><button type="button" class="${role}" data-cv3-series="${e(x.key)}" aria-label="${e(x.name)}${o?`, last observed ${o.tied?'T':''}${o.pos}`:''}${cur?'. Select golfer':''}"><i aria-hidden="true"></i>${e(x.name)}${o?` <small>${o.tied?'T':''}${o.pos}</small>`:''}</button></li>`;}).join('')}</ul>`);
  const t0=new Date(m.times[0]).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),t1=new Date(m.times.at(-1)).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
  set(s.tlcap,`${m.times.length} observed ESPN snapshots, ${e(t0)}–${e(t1)}. Dots are observations; curves only link consecutive observations and are not positions between them. Positions beyond the observed top 40 are not drawn.${m.selectedMissing?' The selected golfer has not been inside the observed top 40.':''} Use the arrow keys on the chart to step through snapshots.`);
  set(s.table,timelineTable(m));drawPlot(s);
 }
 function drawPlot(s){if(!s.m)return;const w=Math.round(s.plot.clientWidth)||0;if(!w)return;s.w=w;const h=Math.round(s.plot.clientHeight)||260;s.h=h;
- set(s.plot,timelineSvg(s.m,{width:w,height:h,selected:s.selected,focus:s.focusKey,cursor:s.cursor}));}
+ set(s.plot,timelineSvg(s.m,{width:w,height:h,selected:s.selected,focus:s.focusKey,cursor:s.cursor,palette:s.filter==='contenders'}));}
 function pointAt(s,cx,cy){const m=s.m;if(!m||!s.w)return;const r=s.plot.getBoundingClientRect(),px=cx-r.left,py=cy-r.top;const g=timelineLayout(m,{width:s.w,height:s.h||260});
  let best=0,bd=1e9;for(let i=0;i<m.times.length;i++){const d=Math.abs(g.x(i)-px);if(d<bd){bd=d;best=i;}}
  let fk=null,fd=18;for(const x of m.series){const o=x.obs[best];if(!o)continue;const d=Math.abs(g.y(o.pos)-py);if(d<fd){fd=d;fk=x.key;}}

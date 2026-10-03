@@ -50,7 +50,7 @@ export async function snapshotEvent(env,db,ed,{now=new Date()}={}){
  const snap={version:LIVE_VERSION,parser:LIVE_PARSER,source:'ESPN Golf core API',league,tour:LEAGUES[league]?.label||league,espn_event_id:String(eventId),
   edition:{id:ed.id,slug:ed.slug,name:ed.name,starts_on:ed.starts_on,ends_on:ed.ends_on,division:ed.division,is_major:Boolean(ed.is_major)},
   course:ed.course?{slug:ed.course.slug,name:ed.course.name,city:ed.espn.course?.city||null,state:ed.espn.course?.state||null,country:ed.espn.course?.country||null}:null,
-  event_status:{name:cs?.type?.name||null,state,completed:isEventFinal(cs?.type),detail:cs?.type?.detail||null,period:Number(cs?.period)||null},
+  event_status:{name:cs?.type?.name||null,state,completed:isEventFinal(cs?.type),detail:cs?.type?.detail||null,short_detail:cs?.type?.shortDetail||null,description:cs?.type?.description||null,period:Number(cs?.period)||null},
   // ESPN core exposes no update timestamp for golf scoring; freshness is measured from our fetch.
   source_updated_at:null,fetched_at,holes_available:players.some(p=>p.holes?.length),players};
  const cap=await archive(env,db,`${base}/competitors?limit=400#live`,{fetched_at,status:cs,competitors:rows});
@@ -59,6 +59,7 @@ export async function snapshotEvent(env,db,ed,{now=new Date()}={}){
 }
 // Compact leaderboard fingerprint for movement history (top 40 by position).
 export function movementPoint(s){return {t:s.fetched_at,round:s.event_status.period,status:s.event_status.name,top:s.players.filter(p=>p.position_num&&p.status==='active').sort((a,b)=>a.position_num-b.position_num).slice(0,40).map(p=>({slug:p.slug,name:p.name,pos:p.position_num,tied:p.tied,to_par:p.total_to_par,thru:p.thru}))};}
+const STOPPED=new Set(['STATUS_SUSPENDED','STATUS_PLAY_SUSPENDED','STATUS_DELAYED','STATUS_RAIN_DELAY','STATUS_POSTPONED']);
 export async function runLive(env,db,{now=new Date(),force=false}={}){
  const ix=await getJ(env.PUBLIC,'projection/v2/index.json');if(!ix)return {lane:'live',status:'projection_unavailable'};
  const today=now.toISOString().slice(0,10),t=now.getTime();
@@ -72,6 +73,9 @@ export async function runLive(env,db,{now=new Date(),force=false}={}){
   if(prev&&!force){const ps=liveState(prev,t);if(ps.state==='final'&&prev.event_status?.completed){current.push(prev);out.skipped.push({edition:ed.slug,reason:'final_kept'});continue;}
    if(prev.event_status?.state==='pre'&&t-Date.parse(prev.fetched_at)<55*60000){current.push(prev);out.skipped.push({edition:ed.slug,reason:'pre_recent'});continue;}}
   const snap=await snapshotEvent(env,db,{...ed,slug:ed.slug},{now});
+  // Stoppages: when this status was first observed (carried across snapshots). Reason / restart wording comes only
+  // from the approved core-API status text (site.api.espn.com is HOLD in docs/SOURCE_MATRIX.md: not used).
+  if(STOPPED.has(snap.event_status?.name))snap.status_since=prev?.event_status?.name===snap.event_status.name&&prev?.event_status?.period===snap.event_status.period&&prev.status_since?prev.status_since:snap.fetched_at;
   await putJSON(env.PUBLIC,key,snap);out.snapshots++;current.push(snap);
   // History: bounded movement series; full snapshots only when the board changes.
   const mk='live/v1/movement/'+ed.slug+'.json',mv=await getJ(env.PUBLIC,mk)||{edition:ed.slug,points:[]};const pt=movementPoint(snap);

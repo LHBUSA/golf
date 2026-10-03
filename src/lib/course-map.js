@@ -181,6 +181,13 @@ export function basisLabel(M){
  if(tierOf(M)==='C')return 'SCORECARD LAYOUT · NO MAPPED ROUTING';
  const n=mappedCount(M);return `${spatialState(M)} · ${n} OF 18 HOLE ROUTES VERIFIED · CURRENT MAPPED ROUTING${M.geometry_as_of?` · OPENSTREETMAP AS OF ${M.geometry_as_of.slice(0,10)}`:''}`;
 }
+/** Level C: a real scorecard (front / back; hole, par, yards) only when the setup publishes all 18 holes. */
+export function scorecardTable(M){
+ const hs=M.holes||[];if(hs.length!==18||hs.some(h=>h.setup?.par==null||h.setup?.yards==null))return '';
+ const half=(a,b,lab)=>{const xs=hs.slice(a,b),sp=xs.reduce((t,h)=>t+h.setup.par,0),sy=xs.reduce((t,h)=>t+h.setup.yards,0);
+  return `<tr><th scope="row">Hole</th>${xs.map(h=>`<th scope="col">${h.hole}</th>`).join('')}<th scope="col">${lab}</th></tr><tr><th scope="row">Par</th>${xs.map(h=>`<td>${e(h.setup.par)}</td>`).join('')}<td><b>${sp}</b></td></tr><tr><th scope="row">Yards</th>${xs.map(h=>`<td>${e(h.setup.yards)}</td>`).join('')}<td><b>${sy.toLocaleString('en-US')}</b></td></tr>`;};
+ return `<div class="cm-sc-wrap" tabindex="0" role="region" aria-label="Scorecard"><table class="cm-sc"><caption>${e(M.setup?.year??'')} championship setup scorecard</caption><tbody>${half(0,9,'Out')}</tbody><tbody>${half(9,18,'In')}</tbody></table></div>`;
+}
 /** Level C: real par/yardage/order as a yardage-book grid. Never a map, never a shape. */
 export function yardageBook(M){
  return `<div class="cm-book" role="group" aria-label="Hole par and yardage">${M.holes.map(h=>`<button type="button" class="cm-card" data-cm-hole="${h.hole}" aria-label="Hole ${h.hole}, par ${h.setup?.par??'unknown'}, ${h.setup?.yards??'unknown'} yards"><b>${h.hole}</b><span>PAR ${e(h.setup?.par??'—')}</span><small>${e(h.setup?.yards??'—')} YDS</small></button>`).join('')}</div>`;
@@ -202,9 +209,19 @@ export function courseMapModule(M,{focus=null,overlay=null,current=null,wind=nul
  const cur=ch&&tier!=='C'?`<p class="cm-current"><span>CURRENT HOLE</span> <b>${e(ch.hole)}</b>${ch.setup?.par!=null?` · PAR ${e(ch.setup.par)}`:''}${ch.setup?.yards!=null?` · ${e(ch.setup.yards)} YDS`:''}${ch.geometry_status!=='verified'?' · ROUTE NOT MAPPED':''}</p>`:'';
  const legend=overlay==='difficulty'&&canDiff?`<p class="cm-legend"><span class="cm-ramp" aria-hidden="true"></span> Scoring difficulty · easier → harder by average to par · ${e(cohortNote(M))}</p>`:'';
  const keys=tier==='C'?'':`<div class="cm-keys" role="group" aria-label="Select a hole">${M.holes.map(h=>`<button type="button" data-cm-hole="${h.hole}" aria-pressed="${h.hole===focus}" class="${h.geometry_status==='verified'?'':'is-unmapped'}${h.hole===current?' is-current':''}" aria-label="Hole ${h.hole}${h.geometry_status==='verified'?'':h.geometry_status==='withheld'?', routing withheld':', routing not mapped'}${h.hole===current?', current hole':''}">${h.hole}</button>`).join('')}</div>`;
- const body=tier==='C'?yardageBook(M):courseMapSvg(M,{focus,overlay,current,ar,px,view,measure});
+ if(tier==='C')return noLayoutModule(M,{mode});
+ const body=courseMapSvg(M,{focus,overlay,current,ar,px,view,measure});
  const fh=focus!=null?M.holes.find(h=>h.hole===focus&&h.route&&h.distance_reference):null;
  const tools=fh?`<div class="cm-tools" role="group" aria-label="Focused hole view"><button type="button" data-cm-view="overview" aria-pressed="${view!=='approach'}">Overview</button><button type="button" data-cm-view="approach" aria-pressed="${view==='approach'}">Approach</button><button type="button" data-cm-measure aria-pressed="${measuring}">${measuring?'Measuring: tap the map':'Measure'}</button>${measure?'<button type="button" data-cm-clear>Clear measure</button>':''}</div><p class="cm-note cm-layer">Route markers: yards to the ${fh.distance_reference.target_type==='mapped_green_centre'?'mapped green (centre)':'mapped route end'} along the verified route. Map reference marks, not player positions.</p>`:'';
  const noMap=tier==='C'?`<p class="cm-note">No mapped routing for this course yet. Par and yardage come from the ${e(M.setup?.year??'')} championship setup.</p>`:'';
  return `<section class="cm cm-${mode}" data-course-map data-tier="${tier}"><header class="cm-head"><p class="cm-k">${mode==='cast'?'COURSE VIEW':'COURSE MAP'}</p><p class="cm-basis">${e(basisLabel(M))}</p>${setup}<div class="cm-controls">${sel}${modes}</div></header>${cur}<div class="cm-stage${measuring?' is-measuring':''}" data-cm-stage>${body}</div>${tools}${keys}${noMap}${withheldNote(M)}${legend}<div data-cm-panelhost>${focus!=null?holePanel(M,focus,{wind,today,live,measure}):''}</div>${attributionLine(M)}</section>`;
+}
+
+/** No mapped routing: an intentional state (what we know, what is missing, why), plus a real scorecard if one exists. */
+export function noLayoutModule(M,{mode='page'}={}){
+ const S=M.setup,why=M.routing_status?.text||'No mapped routing yet',sc=scorecardTable(M);
+ const known=S?`${e(S.year)} championship setup · Par ${e(S.par??'—')}${S.yardage?` · ${e(S.yardage.toLocaleString('en-US'))} yards`:''}${S.front&&S.back?` · Front ${e(S.front.toLocaleString('en-US'))} · Back ${e(S.back.toLocaleString('en-US'))}`:''}`:'No championship setup is published for this course yet.';
+ return `<section class="cm cm-${mode} cm-nolayout" data-course-map data-tier="C"><header class="cm-head"><p class="cm-k">COURSE LAYOUT</p><h3 class="cm-empty-h">Course layout not yet mapped</h3><p class="cm-chip">${e(why)}</p></header>
+<dl class="cm-known"><div><dt>What we know</dt><dd>${known}</dd></div><div><dt>What is missing</dt><dd>Mapped hole routing (tee-to-green geometry). We draw a course only once its routing is verified; nothing is approximated.</dd></div></dl>
+${sc?`<div class="cm-scbox"><p class="cm-k2">SCORECARD LAYOUT ONLY · NO MAPPED ROUTING YET</p>${sc}</div>`:''}</section>`;
 }

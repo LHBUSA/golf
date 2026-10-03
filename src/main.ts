@@ -7,7 +7,7 @@ import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,t
 // @ts-ignore
 import {portrait,e} from './lib/ui.js';
 // @ts-ignore
-import {heroLive,liveRail,liveBoard,playerLive,weatherNow} from './lib/live-ui.js';
+import {heroLive,liveRail,liveBoard,playerLive,weatherNow,statusModule} from './lib/live-ui.js';
 // @ts-ignore
 import {castV3} from './lib/cast-v3-live.js';
 // @ts-ignore
@@ -25,7 +25,7 @@ import {fillRaw,dnaModel,dnaBody,dnaContext,metricBars,windowFingerprint} from '
 // @ts-ignore
 import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
 // @ts-ignore
-import {movementChart} from './lib/movement.js';
+import {mountMovement} from './lib/movement-live.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -122,10 +122,10 @@ async function hydrateLive(){
   if(events.length){
    if(hero){const pref=hero.getAttribute('data-edition');const ev=events.find((x:any)=>x.state!=='final')||events[0];if(ev&&(ev.state!=='final'||ev.edition.slug===pref))hero.innerHTML=heroLive(ev);}
    for(const rail of rails)rail.innerHTML=liveRail(events);
-   if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${liveBoard(ev,{limit:40})}</section>`).join('');
+   if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${statusModule(ev,{compact:true})}${liveBoard(ev,{limit:40})}</section>`).join('');
   }}
  if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement')]):[null,null];
-  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${weatherNow(r.weather_now)}${liveBoard(r.event)}${movementChart(mv?.points||[],{title:'Leaderboard movement'})}`;}if(cast)castV3(cast,r,mv);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
+  if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${statusModule(r.event)}${weatherNow(r.weather_now)}${liveBoard(r.event)}<div data-mvx-host></div>`;mountMovement($('[data-mvx-host]',board),mv?.points||[],{title:'Who moved, and when'});}if(cast)castV3(cast,r,mv);}else if(cast?.querySelector('[data-cv3]'))cast.innerHTML='';}
  if(pl){const slug=pl.getAttribute('data-player');const r=slug?await get('?player='+encodeURIComponent(slug)):null;if(r?.player&&LIVE_SHOWN.has(r.event?.state)&&r.event.state!=='final'){let traits:any=null;try{traits=JSON.parse(pl.getAttribute('data-traits')||'null');}catch{}pl.innerHTML=playerLive(r.event,r.player,{traits});}}
  }finally{liveBusy=false;if(liveAgain){liveAgain=false;hydrateLive();}}
 }

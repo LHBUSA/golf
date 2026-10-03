@@ -46,7 +46,7 @@ export function leaders(snapshot){const lb=leaderboard(snapshot).filter(p=>!p.st
 // Public view for the API/UI: no internal ids beyond slugs, numbers as given.
 export function publicEvent(snapshot,now=Date.now()){
  const s=liveState(snapshot,now),lb=leaderboard(snapshot),L=leaders(snapshot);
- return {edition:snapshot.edition,tour:snapshot.tour,league:snapshot.league,course:snapshot.course,state:s.state,label:s.label,round:s.round,first_tee:s.first_tee||null,freshness:s.freshness,age_seconds:s.age_seconds,fetched_at:snapshot.fetched_at,status_detail:snapshot.event_status?.detail||null,
+ return {edition:snapshot.edition,tour:snapshot.tour,league:snapshot.league,course:snapshot.course,state:s.state,label:s.label,round:s.round,first_tee:s.first_tee||null,freshness:s.freshness,age_seconds:s.age_seconds,fetched_at:snapshot.fetched_at,status_detail:snapshot.event_status?.detail||null,status_name:snapshot.event_status?.name||null,status_since:snapshot.status_since||null,status_notes:snapshot.status_notes||[],
   leaders:L.leaders.map(p=>({slug:p.slug,name:p.name,total_to_par:p.total_to_par,thru:p.thru})),within_two:L.within2,
   leaderboard:lb.map(p=>({slug:p.slug,name:p.name,position:p.position_display,tied:p.tied,status:p.status,total_to_par:p.total_to_par,today_to_par:p.today_to_par,today_strokes:p.today_strokes,thru:p.thru,start_hole:p.start_hole,tee_time:p.tee_time,rounds:(p.rounds||[]).map(r=>({round:r.round,strokes:r.strokes,to_par:r.to_par,complete:r.complete}))})),
   holes_available:Boolean(snapshot.holes_available),players:lb.length};

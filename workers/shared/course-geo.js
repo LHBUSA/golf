@@ -98,3 +98,17 @@ export function matchWithEvidence(canon,elements,setupHoles=new Map(),evidence=n
   m={...m,decision:'exact',cleared_by:evidence.evidence_id};m.state=m.evidence.proven===18?'VERIFIED ROUTING':m.evidence.proven>0?'PARTIAL ROUTING':'NO ROUTING';}
  return m;
 }
+
+/**
+ * Automatic identity proof for a name-located candidate (no canonical coordinates, no reviewed record). All must hold:
+ * the candidate was cleared to 'exact' through matchWithEvidence; >= 15 holes proven inside its boundary; >= 15 proven
+ * holes within 25% of the championship setup yardage (needs a published hole table); name score >= 0.5; no
+ * shared-name neighbour. Anything less is held for manual review.
+ */
+export function autoIdentityOk(m,setupHoles,canonName){
+ const ev=m?.evidence||{};const proven=ev.proven||0;
+ const lenAgree=(ev.accepted||[]).filter(h=>{const s=setupHoles.get(h.hole);if(!Number.isInteger(s?.yards))return false;const y=routeLengthM(h.coords)/0.9144;return Math.abs(y-s.yards)/s.yards<=0.25;}).length;
+ const nameOk=nameScore(canonName,m?.target?.tags?.name)>=0.5||nameScore(canonName,m?.target?.tags?.['name:en'])>=0.5||nameScore(canonName,m?.target?.tags?.int_name)>=0.5;
+ const checks={exact:m?.decision==='exact',proven,length_agree:lenAgree,setup_table:setupHoles.size>=18,name:nameOk,shared_name:(ev.shared_name_neighbours||[]).length};
+ return {pass:checks.exact&&proven>=15&&lenAgree>=15&&nameOk&&!checks.shared_name,checks,rule:'auto-identity-v1: exact + >=15 proven + >=15 setup-length agreements + name + no shared-name neighbour'};
+}

@@ -54,10 +54,12 @@ test('Black Desert: VERIFIED 18/18; OSM par/length differences kept as metadata;
  assert.equal(BD.geometry_metadata_conflicts.find(c=>c.hole===13).field,'par');
  assert.ok(BD.holes.every(h=>!('par' in h)&&!('yards' in h)));assert.match(BD._license,/ODbL/);
 });
-test('no geometry -> scorecard layout (Level C), never a map, no OSM attribution claim',async()=>{
+test('no geometry -> intentional no-layout state + real scorecard only; never a map, no OSM attribution claim',async()=>{
  const M=await api('tpc-sawgrass-q1');assert.equal(tierOf(M),'C');assert.equal(courseMapSvg(M),'');assert.equal(M.attribution,null);
- const mod=courseMapModule(M);assert.doesNotMatch(mod,/<svg/);assert.doesNotMatch(mod,/OpenStreetMap/);assert.match(mod,/SCORECARD LAYOUT · NO MAPPED ROUTING/);
- assert.equal((yardageBook(M).match(/class="cm-card"/g)||[]).length,18);assert.ok(M.holes.every(h=>h.geometry_status==='none'&&h.route===null));
+ const mod=courseMapModule(M);assert.doesNotMatch(mod,/<svg/);assert.doesNotMatch(mod,/OpenStreetMap/);assert.match(mod,/Course layout not yet mapped/);assert.match(mod,/SCORECARD LAYOUT ONLY · NO MAPPED ROUTING YET/);assert.doesNotMatch(mod,/cm-card/,'no pseudo-layout tiles');
+ assert.match(mod,/<th scope="col">Out<\/th>/);assert.equal(typeof M.routing_status.text,'string');
+ const noTable={...M,holes:M.holes.map(h=>({...h,setup:{...h.setup,par:null,yards:null}}))};assert.doesNotMatch(courseMapModule(noTable),/cm-sc/,'no scorecard without a complete hole table');
+ assert.ok(M.holes.every(h=>h.geometry_status==='none'&&h.route===null));
 });
 test('a setup switch changes par/yards/scoring, never geometry; labels say current routing',async()=>{
  const a=await api(A),b=await api(A,'masters-tournament-q280275-2025');
