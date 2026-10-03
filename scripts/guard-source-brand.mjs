@@ -56,6 +56,25 @@ function files(rel, out = []) {
   return out;
 }
 
+// UPSTREAM_BROWSER_DEPENDENCY (network v2.2): browser-shipped code (src, index.html) must not fetch raw
+// data-provider APIs; Golf's browser reads data only through same-origin /api/v1 (golf-api). Image CDNs and
+// publisher links are not data hosts; a deliberate exception carries `upstream-host:allow (<why>)`.
+const DATA_HOSTS = /(?<![\w-])(?:site\.api\.espn\.com|site\.web\.api\.espn\.com|sports\.core\.api\.espn\.com|core\.api\.espn\.com|now\.core\.api\.espn\.com|cdn\.espn\.com\/core|statsapi\.mlb\.com|baseballsavant\.mlb\.com\/(?:statcast|gf|leaderboard|api)|api-web\.nhle\.com|api\.nhle\.com|statsapi\.web\.nhl\.com|stats\.nba\.com|cdn\.nba\.com\/static\/json|data\.nba\.net|stats\.wnba\.com|api\.the-odds-api\.com|the-odds-api\.com\/v4|api\.openligadb\.de|api\.jolpi\.ca|ergast\.com\/api|api\.openf1\.org|ufcstats\.com|query\.wikidata\.org|www\.wikidata\.org\/w\/api|[a-z]{2,3}\.wikipedia\.org\/(?:api|w\/api)|commons\.wikimedia\.org\/w\/api|api\.met\.no|api\.weather\.gov|api\.open-meteo\.com|archive-api\.open-meteo\.com|kalshi\.com\/trade-api|api\.elections\.kalshi\.com)/i;
+const BROWSER_SCOPE = ['index.html', 'src'];
+function scanBrowser(root) {
+  const out = [];
+  for (const rel of BROWSER_SCOPE.flatMap((s) => files(s))) {
+    const raw = fs.readFileSync(path.join(root, rel), 'utf8').split('\n');
+    const lines = stripComments(raw.join('\n')).split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (raw[i].includes('upstream-host:allow')) continue;
+      const m = lines[i].match(DATA_HOSTS);
+      if (m) out.push(`UPSTREAM_BROWSER_DEPENDENCY ${rel}:${i + 1}: ${m[0]}`);
+    }
+  }
+  return out;
+}
+
 export function scan(root = ROOT) {
   const violations = [];
   for (const rel of SCOPE.flatMap((s) => files(s))) {
@@ -69,7 +88,7 @@ export function scan(root = ROOT) {
       }
     }
   }
-  return [...new Set(violations)];
+  return [...new Set([...violations, ...scanBrowser(root)])];
 }
 
 if (import.meta.url === `file://${process.argv[1]?.replaceAll('\\', '/')}` || process.argv[1]?.endsWith('guard-source-brand.mjs')) {
