@@ -112,6 +112,7 @@ export default {
   }
   if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats','live-backfill','live-reconcile'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number),events:list('events').length?list('events'):undefined}));}
   if(path==='/admin/tick')return json(await tick(env));
+  if(path==='/admin/live-budget'){const day=url.searchParams.get('day')||new Date().toISOString().slice(0,10);return json(JSON.parse(await env.STATE.get('live:budget:'+day)||'null')||{day,ticks:null});}
   // Derivatives are produced offline from the archived original and stored under its content hash.
   if(path==='/admin/media-derivative'){
    const key=url.searchParams.get('key')||'';if(!/^media\/[0-9a-f]{64}\/(160|320|640|960)\.(avif|webp|jpg)$/.test(key))return json({error:'invalid_key'},400);

@@ -69,7 +69,10 @@ async function names(env,league,ids,db){
 // observation, stamped with its own observed_at. Request accounting is returned in snap.requests.
 export async function snapshotEvent(env,db,ed,{now=new Date(),prev=null,mode='full'}={}){
  const league=ed.espn.league,eventId=ed.espn.event_id,base=`${CORE}/leagues/${league}/events/${eventId}/competitions/${eventId}`;
- let requests=0;const get=u=>{requests++;return getJSON(u);};
+ // Request budget instrumentation (measurement only: same requests, errors rethrown unchanged).
+ let requests=0;const kinds={status:0,competitors:0,golfer_status:0,linescores:0},fail={errors:0,http_429:0,busy_5xx:0};
+ const kindOf=u=>/\/linescores$/.test(u)?'linescores':/\/competitors\/[^/]+\/status$/.test(u)?'golfer_status':/\/competitors\?/.test(u)?'competitors':'status';
+ const get=u=>{requests++;kinds[kindOf(u)]++;return getJSON(u).catch(e=>{fail.errors++;if(/source_http_429/.test(e.message))fail.http_429++;if(e instanceof UpstreamBusy)fail.busy_5xx++;throw e;});};
  const soft=e=>{if(e instanceof UpstreamBusy)throw e;return null;};
  const cs=await get(`${base}/status`);
  const state=cs?.type?.state||null;
@@ -97,6 +100,11 @@ export async function snapshotEvent(env,db,ed,{now=new Date(),prev=null,mode='fu
  // When each golfer's thru last changed (drives the fast lane's re-read schedule).
  const was=new Map((prev?.players||[]).map(p=>[String(p.espn_id),p]));
  players=players.map(p=>{const q=was.get(String(p.espn_id));return {...p,thru_changed_at:q&&q.thru===p.thru&&q.current_round===p.current_round?(q.thru_changed_at||null):(p.observed_at||obs)};});
+ // Budget: how many golfer status reads changed something a customer can see, and how many card reads posted holes.
+ const visible=p=>p?JSON.stringify([p.status,p.position_display,p.total_to_par,p.today_to_par,p.thru,p.current_round,(p.holes||[]).length]):'';
+ const now_by=new Map(players.map(p=>[String(p.espn_id),p]));let useful=0,cardsChanged=0;
+ for(const r of rows||[]){if(!r?.st)continue;const a=was.get(String(r.id)),b=now_by.get(String(r.id));if(visible(a)!==visible(b))useful++;if(r.ls&&(a?.holes||[]).length!==(b?.holes||[]).length)cardsChanged++;}
+ const active=players.filter(p=>p.status==='active'&&Number.isInteger(p.thru)&&p.thru>0&&p.thru<18).length;
  const fetched_at=new Date().toISOString();
  const snap={version:LIVE_VERSION,parser:LIVE_PARSER,source:'ESPN Golf core API',league,tour:LEAGUES[league]?.label||league,espn_event_id:String(eventId),
   edition:{id:ed.id,slug:ed.slug,name:ed.name,starts_on:ed.starts_on,ends_on:ed.ends_on,division:ed.division,is_major:Boolean(ed.is_major)},
@@ -104,7 +112,8 @@ export async function snapshotEvent(env,db,ed,{now=new Date(),prev=null,mode='fu
   event_status:{name:cs?.type?.name||null,state,completed:isEventFinal(cs?.type),detail:cs?.type?.detail||null,short_detail:cs?.type?.shortDetail||null,description:cs?.type?.description||null,period:Number(cs?.period)||null},
   // ESPN core exposes no update timestamp for golf scoring; freshness is measured from our fetch.
   source_updated_at:null,fetched_at,holes_available:players.some(p=>p.holes?.length),players,
-  mode:fast?'fast':'full',requests:{total:requests,statuses:refreshed,cards}};
+  mode:fast?'fast':'full',requests:{total:requests,statuses:refreshed,cards},
+  budget:{kinds,...fail,golfers:ids.length,read:(rows||[]).length,skipped:ids.length-(rows||[]).length,useful_reads:useful,no_change_reads:refreshed-useful,cards_changed:cardsChanged,active_on_course:active}};
  // Provenance: every published change is archived (the raw responses fetched this tick). A fast tick that
  // changed nothing reuses the previous capture instead of writing an identical-looking archive row.
  if(!fast||boardSig(snap)!==boardSig(prev)){const cap=await archive(env,db,`${base}/competitors?limit=400#live${fast?'-fast':''}`,{fetched_at,mode:snap.mode,status:cs,order:items,competitors:rows});snap.capture_id=cap.id;}
@@ -162,10 +171,24 @@ export async function runLive(env,db,{now=new Date(),force=false,mode='full'}={}
   if(JSON.stringify((mv.points.at(-1)?.top||[]).map(x=>[x.slug||x.name,x.pos,x.to_par,x.thru]))!==sig){mv.points.push(pt);mv.points=mv.points.slice(-400);await putJSON(env.PUBLIC,mk,mv);await putJSON(env.PRIVATE||env.RAW,`golf/live/${ed.slug}/${snap.fetched_at}.json`,snap);}
   // When ESPN reports the event final, hand the event to the ingest lane immediately.
   if(snap.event_status.completed){const items=JSON.parse(await env.STATE.get('espn:items:v1')||'{}');const k=`${snap.league}:${snap.espn_event_id}`;if(items[k]){items[k].next_at=0;await env.STATE.put('espn:items:v1',JSON.stringify(items));}}
-  out.events.push({edition:ed.slug,mode:snap.mode,requests:snap.requests,tape_events:fresh.length,status:snap.event_status.name,period:snap.event_status.period,players:snap.players.length,holes:snap.holes_available,state:liveState(snap,Date.now()).state});
+  out.events.push({edition:ed.slug,mode:snap.mode,requests:snap.requests,budget:snap.budget,tape_events:fresh.length,status:snap.event_status.name,period:snap.event_status.period,players:snap.players.length,holes:snap.holes_available,state:liveState(snap,Date.now()).state});
  }
  await putJSON(env.PUBLIC,'live/v1/current.json',{version:LIVE_VERSION,as_of:new Date().toISOString(),events:current});
+ if(out.snapshots)try{await recordBudget(env,now,out,Date.now()-t);}catch(e){out.budget_error=String(e.message).slice(0,120);}
  return out;
+}
+// Provider request budget (private KV, one doc per UTC day; measurement only). Read with
+// `wrangler kv key get live:budget:<YYYY-MM-DD> --binding STATE --remote` or GET /admin/live-budget.
+export async function recordBudget(env,now,out,wallMs){
+ const day=now.toISOString().slice(0,10),k='live:budget:'+day,doc=JSON.parse(await env.STATE.get(k)||'null')||{day,ticks:{fast:0,full:0},wall_ms:0,editions:{}};
+ doc.ticks[out.mode==='fast'?'fast':'full']++;doc.wall_ms+=wallMs;
+ for(const e of out.events){
+  const b=e.budget||{},d=doc.editions[e.edition]||(doc.editions[e.edition]={ticks:0,requests:0,kinds:{status:0,competitors:0,golfer_status:0,linescores:0},errors:0,http_429:0,busy_5xx:0,golfer_slots:0,read:0,skipped:0,useful_reads:0,no_change_reads:0,cards_changed:0,active_golfer_ticks:0,tape_events:0,first_at:null,last_at:null});
+  d.ticks++;d.requests+=e.requests?.total||0;for(const k2 of Object.keys(d.kinds))d.kinds[k2]+=b.kinds?.[k2]||0;
+  for(const f of ['errors','http_429','busy_5xx','read','skipped','useful_reads','no_change_reads','cards_changed'])d[f]+=b[f]||0;
+  d.golfer_slots+=b.golfers||0;d.active_golfer_ticks+=b.active_on_course||0;d.tape_events+=e.tape_events||0;d.first_at??=now.toISOString();d.last_at=now.toISOString();
+ }
+ doc.updated_at=new Date().toISOString();await env.STATE.put(k,JSON.stringify(doc),{expirationTtl:90*86400});
 }
 
 // ---------------- durable observations (golf_live_snapshots / _rows): insert-only, change-only, capped.

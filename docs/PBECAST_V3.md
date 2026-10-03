@@ -52,3 +52,35 @@ Never produced: ball location, shot path, club, lie, carry, proximity, strokes g
 - Page: polls every 120 seconds while visible, plus one catch-up when the tab becomes visible again. An in-flight guard stops overlapping polls.
 - The "ESPN update N min ago" label ticks every 30 seconds from `fetched_at`.
 - On a new snapshot, only regions whose HTML changed are replaced. Tower scroll, focus, selection and chart filter persist. Changed cells and new pulse rows flash once (disabled under reduced motion).
+
+## Live scoring v1 — ACCEPTED and FROZEN (owner, 2026-10-03)
+
+Accepted on Bank of Utah Championship R3 (15-minute real-round watch: leaderboard, selected golfer and
+scoring tape updated without refresh). Baseline: frontend `66c40ef`; rollbacks golf-ingest `0d7cb3d6`,
+golf-api `80d8c4e1`, frontend `dpl_52ue4aDi`. Do not refactor the live scoring path unless a real production
+defect appears. Contractual behaviour:
+
+- backend live observations about every minute while play can be changing (pre-round hourly, completed stopped,
+  suspended re-checked every 5 minutes);
+- visible-tab PBEcast polling every 30 s (browsers throttle unfocused/background windows);
+- browser freshness re-evaluated every 15 s;
+- `LIVE` only while the last observation is within the server's 5-minute freshness rule;
+- stale data stays visible and becomes `SCORING UPDATE DELAYED`;
+- a failed poll never wipes the last good cast; the cast clears only when the server says the event is not castable;
+- full-field scoring tape from provable snapshot deltas;
+- leaderboard and selected golfer update without refresh;
+- hole-by-hole only where the source publishes it; round-total-only tours say so explicitly;
+- no shot tracking claims.
+
+Open acceptance follow-up (not a release blocker): capture the first real suspension in production and append
+the evidence here.
+
+### Provider request budget (instrumentation, 2026-10-03)
+
+Measurement only (no behaviour change). Each live tick records, per edition, requests by kind (event status,
+competitor list, golfer status, scorecards), errors, HTTP 429s, 5xx-busy, golfers read vs skipped, status reads
+that changed something visible vs no-change reads, scorecard reads that posted new holes, and active golfers on
+course; aggregated per UTC day in private KV `live:budget:<YYYY-MM-DD>` (90-day TTL), readable via
+`/admin/live-budget?day=` on golf-ingest. Worker executions: the cron fires 1,440×/day; ticks that do work are
+counted (`ticks.fast` / `ticks.full`), the rest are idle gate checks. Optimise ingest (never the 30 s cast
+refresh) only if measured numbers show waste.
