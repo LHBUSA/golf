@@ -1,45 +1,45 @@
 {
- "generated_at": "2026-10-02T22:14:52.748Z",
+ "generated_at": "2026-10-03T00:02:25.574Z",
  "counts": {
   "all": {
    "total": 267,
-   "audited": 108,
-   "full": 13,
-   "partial": 2,
-   "held": 86,
-   "no_routing": 7,
-   "unaudited": 159,
-   "exact": 15
+   "audited": 261,
+   "full": 87,
+   "partial": 19,
+   "held": 121,
+   "no_routing": 34,
+   "unaudited": 6,
+   "exact": 122
   },
   "pga": {
    "total": 144,
-   "audited": 98,
-   "full": 10,
-   "partial": 2,
-   "held": 83,
-   "no_routing": 3,
-   "unaudited": 46,
-   "exact": 12
+   "audited": 139,
+   "full": 31,
+   "partial": 7,
+   "held": 96,
+   "no_routing": 5,
+   "unaudited": 5,
+   "exact": 39
   },
   "lpga": {
    "total": 65,
-   "audited": 45,
-   "full": 5,
-   "partial": 0,
-   "held": 38,
+   "audited": 64,
+   "full": 18,
+   "partial": 4,
+   "held": 40,
    "no_routing": 2,
-   "unaudited": 20,
-   "exact": 5
+   "unaudited": 1,
+   "exact": 22
   },
   "majors": {
    "total": 149,
-   "audited": 26,
-   "full": 12,
-   "partial": 2,
-   "held": 5,
-   "no_routing": 7,
-   "unaudited": 123,
-   "exact": 14
+   "audited": 149,
+   "full": 70,
+   "partial": 17,
+   "held": 32,
+   "no_routing": 30,
+   "unaudited": 0,
+   "exact": 102
   }
  },
  "courses": [
@@ -99,11 +99,11 @@
   {
    "slug": "mission-hills-country-club-q6878606",
    "name": "Mission Hills Country Club",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
+   "osm_course": "relation/4082115",
    "retrieved_at": "2026-10-02T22:04:45.482Z",
    "cleared_by": null,
    "par_conflicts": [],
@@ -131,11 +131,11 @@
   {
    "slug": "prestwick-golf-club-q3046648",
    "name": "Prestwick Golf Club",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
+   "osm_course": "relation/12095589",
    "retrieved_at": "2026-10-02T22:04:55.099Z",
    "cleared_by": null,
    "par_conflicts": [],
@@ -163,15 +163,23 @@
   {
    "slug": "oakmont-country-club-q3347853",
    "name": "Oakmont Country Club",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/6174192",
    "retrieved_at": "2026-10-02T22:05:26.733Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    9
+   ],
+   "features": {
+    "fairway": 26,
+    "green": 22,
+    "tee": 60,
+    "bunker": 181,
+    "water": 0
+   }
   },
   {
    "slug": "royal-lytham-st-annes-golf-club-q1636565",
@@ -214,34 +222,34 @@
   {
    "slug": "pebble-beach-golf-links-q534974",
    "name": "Pebble Beach Golf Links",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
+   "holes_mapped": 17,
+   "osm_course": "relation/3741806",
    "retrieved_at": "2026-10-02T22:06:53.942Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 20,
+    "green": 18,
+    "tee": 70,
+    "bunker": 115,
+    "water": 1
+   }
   },
   {
    "slug": "royal-birkdale-golf-club-q1858953",
    "name": "Royal Birkdale Golf Club",
-   "status": "full",
-   "decision": "exact",
+   "status": "held",
+   "decision": "review_duplicate_canonical_course",
    "duplicate_of": null,
-   "holes_mapped": 18,
+   "holes_mapped": 0,
    "osm_course": "way/25720345",
    "retrieved_at": "2026-10-02T22:07:00.925Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": {
-    "fairway": 0,
-    "green": 27,
-    "tee": 62,
-    "bunker": 128,
-    "water": 24
-   }
+   "features": null
   },
   {
    "slug": "royal-liverpool-golf-club-hoylake-q2180101",
@@ -305,21 +313,15 @@
   {
    "slug": "royal-troon-golf-club-q662996",
    "name": "Royal Troon Golf Club",
-   "status": "partial",
-   "decision": "exact",
+   "status": "held",
+   "decision": "review_duplicate_canonical_course",
    "duplicate_of": null,
-   "holes_mapped": 15,
+   "holes_mapped": 0,
    "osm_course": "way/18080206",
    "retrieved_at": "2026-10-02T22:08:36.938Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": {
-    "fairway": 10,
-    "green": 17,
-    "tee": 46,
-    "bunker": 82,
-    "water": 3
-   }
+   "features": null
   },
   {
    "slug": "carnoustie-golf-links-q1044131",
@@ -348,14 +350,14 @@
    "slug": "oakland-hills-country-club-q7074014",
    "name": "Oakland Hills Country Club",
    "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
+   "osm_course": "relation/14059170",
    "retrieved_at": "2026-10-02T22:09:41.806Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "winged-foot-golf-club-q8025167",
@@ -400,34 +402,34 @@
   {
    "slug": "hazeltine-national-golf-club-q5688114",
    "name": "Hazeltine National Golf Club",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
-   "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": "2026-10-02T22:12:03.896Z",
-   "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
-  },
-  {
-   "slug": "oak-hill-country-club-q7073570",
-   "name": "Oak Hill Country Club",
    "status": "full",
    "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 18,
-   "osm_course": "way/231394152",
-   "retrieved_at": "2026-10-02T22:12:17.343Z",
+   "osm_course": "relation/9892305",
+   "retrieved_at": "2026-10-02T22:12:03.896Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": {
-    "fairway": 22,
-    "green": 32,
-    "tee": 48,
-    "bunker": 80,
-    "water": 1
+    "fairway": 19,
+    "green": 34,
+    "tee": 73,
+    "bunker": 135,
+    "water": 9
    }
+  },
+  {
+   "slug": "oak-hill-country-club-q7073570",
+   "name": "Oak Hill Country Club",
+   "status": "held",
+   "decision": "review_multiple_containing",
+   "duplicate_of": null,
+   "holes_mapped": 0,
+   "osm_course": null,
+   "retrieved_at": "2026-10-02T22:12:17.343Z",
+   "cleared_by": null,
+   "par_conflicts": [],
+   "features": null
   },
   {
    "slug": "quail-hollow-club-q7268497",
@@ -464,15 +466,23 @@
   {
    "slug": "southern-hills-country-club-q7569992",
    "name": "Southern Hills Country Club",
-   "status": "no-routing",
-   "decision": "no_match_point_outside_boundary",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/19140582",
    "retrieved_at": "2026-10-02T22:14:01.080Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    16
+   ],
+   "features": {
+    "fairway": 25,
+    "green": 35,
+    "tee": 50,
+    "bunker": 138,
+    "water": 8
+   }
   },
   {
    "slug": "shinnecock-hills-golf-club-q7497680",
@@ -496,12 +506,12 @@
   {
    "slug": "olympia-fields-country-club-q7088951",
    "name": "Olympia Fields Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/187782527",
+   "retrieved_at": "2026-10-02T22:16:06.855Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -509,12 +519,12 @@
   {
    "slug": "pinehurst-resort-q1771977",
    "name": "Pinehurst Resort",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/1358696570",
+   "retrieved_at": "2026-10-02T22:16:11.631Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -522,51 +532,71 @@
   {
    "slug": "atlanta-athletic-club-q2377861",
    "name": "Atlanta Athletic Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/34768247",
+   "retrieved_at": "2026-10-02T22:16:40.390Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 122,
+    "green": 47,
+    "tee": 66,
+    "bunker": 114,
+    "water": 15
+   }
   },
   {
    "slug": "cherry-hills-country-club-q5092397",
    "name": "Cherry Hills Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/51955172",
+   "retrieved_at": "2026-10-02T22:16:45.711Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    18
+   ],
+   "features": {
+    "fairway": 10,
+    "green": 20,
+    "tee": 68,
+    "bunker": 64,
+    "water": 1
+   }
   },
   {
    "slug": "inverness-club-q14716506",
    "name": "Inverness Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/91905528",
+   "retrieved_at": "2026-10-02T22:17:08.867Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 24,
+    "green": 21,
+    "tee": 72,
+    "bunker": 94,
+    "water": 1
+   }
   },
   {
    "slug": "musselburgh-links-q2678264",
    "name": "Musselburgh Links",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/2858120",
+   "retrieved_at": "2026-10-02T22:17:33.472Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -574,64 +604,81 @@
   {
    "slug": "olympic-club-q2416259",
    "name": "Olympic Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/1417078425",
+   "retrieved_at": "2026-10-02T22:18:10.233Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    17
+   ],
    "features": null
   },
   {
    "slug": "trump-turnberry-q2096062",
    "name": "Trump Turnberry",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/46421398",
+   "retrieved_at": "2026-10-02T22:18:22.346Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "valhalla-golf-club-q7911574",
    "name": "Valhalla Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/59737644",
+   "retrieved_at": "2026-10-02T22:18:57.296Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    2,
+    11
+   ],
+   "features": {
+    "fairway": 90,
+    "green": 21,
+    "tee": 12,
+    "bunker": 66,
+    "water": 14
+   }
   },
   {
    "slug": "bulle-rock-golf-course-q14691891",
    "name": "Bulle Rock Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/70804218",
+   "retrieved_at": "2026-10-02T22:19:15.300Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 20,
+    "green": 20,
+    "tee": 64,
+    "bunker": 130,
+    "water": 6
+   }
   },
   {
    "slug": "congressional-country-club-q2088876",
    "name": "Congressional Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/907803844",
+   "retrieved_at": "2026-10-02T22:20:00.691Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -639,64 +686,91 @@
   {
    "slug": "medinah-country-club-q3495893",
    "name": "Medinah Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 13,
+   "osm_course": "way/143789356",
+   "retrieved_at": "2026-10-02T22:21:53.773Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 25,
+    "green": 55,
+    "tee": 122,
+    "bunker": 115,
+    "water": 5
+   }
   },
   {
    "slug": "merion-golf-club-q3962734",
    "name": "Merion Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/225722010",
+   "retrieved_at": "2026-10-02T22:22:09.909Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 17,
+    "green": 21,
+    "tee": 31,
+    "bunker": 122,
+    "water": 2
+   }
   },
   {
    "slug": "aronimink-golf-club-q4795557",
    "name": "Aronimink Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/9474270",
+   "retrieved_at": "2026-10-02T22:22:35.769Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 11,
+    "green": 30,
+    "tee": 58,
+    "bunker": 180,
+    "water": 8
+   }
   },
   {
    "slug": "bellerive-country-club-q4883807",
    "name": "Bellerive Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/617944761",
+   "retrieved_at": "2026-10-02T22:22:41.074Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    4,
+    10
+   ],
+   "features": {
+    "fairway": 54,
+    "green": 21,
+    "tee": 76,
+    "bunker": 88,
+    "water": 5
+   }
   },
   {
    "slug": "royal-portrush-golf-club-q2440655",
    "name": "Royal Portrush Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:23:09.372Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -704,67 +778,94 @@
   {
    "slug": "locust-hill-country-club-q6666132",
    "name": "Locust Hill Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/130727643",
+   "retrieved_at": "2026-10-02T22:23:38.432Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 6,
+    "green": 17,
+    "tee": 43,
+    "bunker": 46,
+    "water": 4
+   }
   },
   {
    "slug": "myopia-hunt-club-q2465531",
    "name": "Myopia Hunt Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/29689937",
+   "retrieved_at": "2026-10-02T22:23:43.294Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 7,
+    "green": 20,
+    "tee": 54,
+    "bunker": 119,
+    "water": 3
+   }
   },
   {
    "slug": "pine-needles-lodge-and-golf-club-q7195290",
    "name": "Pine Needles Lodge and Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/6385380",
+   "retrieved_at": "2026-10-02T22:23:48.261Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 3,
+    "green": 30,
+    "tee": 59,
+    "bunker": 72,
+    "water": 4
+   }
   },
   {
    "slug": "the-country-club-q2278251",
    "name": "The Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_weak_identity",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/29870415",
+   "retrieved_at": "2026-10-02T22:23:55.812Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    11,
+    12
+   ],
    "features": null
   },
   {
    "slug": "sahalee-country-club-q7399442",
    "name": "Sahalee Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/1002185812",
+   "retrieved_at": "2026-10-02T22:24:00.733Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 27,
+    "green": 38,
+    "tee": 97,
+    "bunker": 89,
+    "water": 8
+   }
   },
   {
    "slug": "the-club-at-carlton-woods-ec11191",
@@ -782,168 +883,228 @@
   {
    "slug": "atlantic-city-country-club-q4816336",
    "name": "Atlantic City Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/40998504",
+   "retrieved_at": "2026-10-02T22:24:15.184Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 2,
+    "green": 18,
+    "tee": 46,
+    "bunker": 87,
+    "water": 3
+   }
   },
   {
    "slug": "baltimore-country-club-q4852836",
    "name": "Baltimore Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/91989932",
+   "retrieved_at": "2026-10-02T22:24:26.932Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "canterbury-golf-club-q5033653",
    "name": "Canterbury Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/137971260",
+   "retrieved_at": "2026-10-02T22:25:17.929Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 3,
+    "green": 20,
+    "tee": 53,
+    "bunker": 105,
+    "water": 2
+   }
   },
   {
    "slug": "chicago-golf-club-q2608144",
    "name": "Chicago Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/281979769",
+   "retrieved_at": "2026-10-02T22:25:31.043Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 18,
+    "green": 20,
+    "tee": 33,
+    "bunker": 121,
+    "water": 1
+   }
   },
   {
    "slug": "firestone-country-club-q2604266",
    "name": "Firestone Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/295376522",
+   "retrieved_at": "2026-10-02T22:26:32.152Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "shoal-creek-golf-and-country-club-q7499733",
    "name": "Shoal Creek Golf and Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/300515849",
+   "retrieved_at": "2026-10-02T22:26:37.998Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 6,
+    "green": 24,
+    "tee": 74,
+    "bunker": 73,
+    "water": 11
+   }
   },
   {
    "slug": "sunningdale-golf-club-q2009612",
    "name": "Sunningdale Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 13,
+   "osm_course": "relation/15410213",
+   "retrieved_at": "2026-10-02T22:26:43.577Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 50,
+    "green": 58,
+    "tee": 95,
+    "bunker": 207,
+    "water": 3
+   }
   },
   {
    "slug": "whistling-straits-q7994077",
    "name": "Whistling Straits",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/205111637",
+   "retrieved_at": "2026-10-02T22:27:04.862Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 28,
+    "green": 39,
+    "tee": 121,
+    "bunker": 185,
+    "water": 7
+   }
   },
   {
    "slug": "erin-hills-q5389163",
    "name": "Erin Hills",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/172725497",
+   "retrieved_at": "2026-10-02T22:27:25.348Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 39,
+    "green": 20,
+    "tee": 64,
+    "bunker": 138,
+    "water": 9
+   }
   },
   {
    "slug": "lancaster-country-club-q6483146",
    "name": "Lancaster Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 13,
+   "osm_course": "relation/3292974",
+   "retrieved_at": "2026-10-02T22:29:54.520Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 40,
+    "green": 39,
+    "tee": 110,
+    "bunker": 108,
+    "water": 4
+   }
   },
   {
    "slug": "los-angeles-country-club-q6682056",
    "name": "Los Angeles Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 12,
+   "osm_course": "way/56135439",
+   "retrieved_at": "2026-10-02T22:29:59.824Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 6,
+    "green": 48,
+    "tee": 68,
+    "bunker": 149,
+    "water": 0
+   }
   },
   {
    "slug": "tpc-harding-park-q3512308",
    "name": "TPC Harding Park",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 9,
+   "osm_course": "way/16753068",
+   "retrieved_at": "2026-10-02T22:30:43.263Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 19,
+    "green": 43,
+    "tee": 101,
+    "bunker": 60,
+    "water": 0
+   }
   },
   {
    "slug": "bethpage-state-park-q4898101",
    "name": "Bethpage State Park",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:32:49.841Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -951,77 +1112,109 @@
   {
    "slug": "blackwolf-run-q4923616",
    "name": "Blackwolf Run",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 7,
+   "osm_course": "relation/12871002",
+   "retrieved_at": "2026-10-02T22:32:55.042Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 44,
+    "green": 50,
+    "tee": 152,
+    "bunker": 178,
+    "water": 14
+   }
   },
   {
    "slug": "champions-golf-club-q5070062",
    "name": "Champions Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/6545606",
+   "retrieved_at": "2026-10-02T22:33:28.173Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "crooked-stick-golf-club-q5187858",
    "name": "Crooked Stick Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/295549584",
+   "retrieved_at": "2026-10-02T22:33:57.258Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 15,
+    "green": 20,
+    "tee": 73,
+    "bunker": 94,
+    "water": 5
+   }
   },
   {
    "slug": "fresh-meadow-country-club-q14706277",
    "name": "Fresh Meadow Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/16341397",
+   "retrieved_at": "2026-10-02T22:34:31.349Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 15,
+    "green": 24,
+    "tee": 59,
+    "bunker": 68,
+    "water": 2
+   }
   },
   {
    "slug": "interlachen-country-club-q6046831",
    "name": "Interlachen Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_routing_differs_from_setup",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/45396323",
+   "retrieved_at": "2026-10-02T22:35:00.749Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    8,
+    9,
+    10,
+    12,
+    13,
+    14,
+    17,
+    18
+   ],
    "features": null
   },
   {
    "slug": "inwood-country-club-q14706544",
    "name": "Inwood Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/87821782",
+   "retrieved_at": "2026-10-02T22:35:35.604Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1029,12 +1222,12 @@
   {
    "slug": "keller-golf-course-q6385677",
    "name": "Keller Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:35:40.503Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1042,25 +1235,31 @@
   {
    "slug": "kemper-lakes-golf-club-q6387075",
    "name": "Kemper Lakes Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/901068767",
+   "retrieved_at": "2026-10-02T22:36:02.121Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 17,
+    "green": 23,
+    "tee": 61,
+    "bunker": 75,
+    "water": 2
+   }
   },
   {
    "slug": "kiawah-island-golf-resort-q6403903",
    "name": "Kiawah Island Golf Resort",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:36:07.537Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1068,38 +1267,53 @@
   {
    "slug": "la-grange-country-club-q6462891",
    "name": "La Grange Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/35567521",
+   "retrieved_at": "2026-10-02T22:36:40.521Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 18,
+    "green": 19,
+    "tee": 63,
+    "bunker": 75,
+    "water": 6
+   }
   },
   {
    "slug": "newport-country-club-q2669978",
    "name": "Newport Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_routing_differs_from_setup",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/13922079",
+   "retrieved_at": "2026-10-02T22:36:57.866Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    1,
+    5,
+    7,
+    8,
+    12,
+    14,
+    16,
+    17
+   ],
    "features": null
   },
   {
    "slug": "pga-national-golf-club-q385816",
    "name": "PGA National Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/1483954804",
+   "retrieved_at": "2026-10-02T22:37:14.013Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1107,12 +1321,12 @@
   {
    "slug": "philadelphia-cricket-club-q3378847",
    "name": "Philadelphia Cricket Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:37:59.517Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1120,51 +1334,69 @@
   {
    "slug": "pumpkin-ridge-golf-club-q7259853",
    "name": "Pumpkin Ridge Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 11,
+   "osm_course": "way/901988733",
+   "retrieved_at": "2026-10-02T22:38:10.226Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 7,
+    "green": 42,
+    "tee": 148,
+    "bunker": 168,
+    "water": 30
+   }
   },
   {
    "slug": "royal-cinque-ports-golf-club-q2635208",
    "name": "Royal Cinque Ports Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 16,
+   "osm_course": "way/24494291",
+   "retrieved_at": "2026-10-02T22:38:15.272Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 71,
+    "green": 15,
+    "tee": 3,
+    "bunker": 73,
+    "water": 4
+   }
   },
   {
    "slug": "scioto-country-club-q7433994",
    "name": "Scioto Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/234844122",
+   "retrieved_at": "2026-10-02T22:38:54.485Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 24,
+    "green": 29,
+    "tee": 73,
+    "bunker": 85,
+    "water": 2
+   }
   },
   {
    "slug": "torrey-pines-golf-course-q7827101",
    "name": "Torrey Pines Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:39:03.183Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1172,64 +1404,90 @@
   {
    "slug": "woburn-golf-and-country-club-q8028973",
    "name": "Woburn Golf and Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/3466510",
+   "retrieved_at": "2026-10-02T22:39:07.763Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "worcester-country-club-q8034170",
    "name": "Worcester Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/87279910",
+   "retrieved_at": "2026-10-02T22:39:15.884Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 17,
+    "green": 21,
+    "tee": 76,
+    "bunker": 73,
+    "water": 4
+   }
   },
   {
    "slug": "royal-porthcawl-golf-club-q737613",
    "name": "Royal Porthcawl Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_duplicate_canonical_course",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/115557910",
+   "retrieved_at": "2026-10-02T22:39:45.129Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    11,
+    12,
+    13,
+    14,
+    15,
+    17,
+    18
+   ],
    "features": null
   },
   {
    "slug": "walton-heath-golf-club-q1920967",
    "name": "Walton Heath Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 8,
+   "osm_course": "way/22084377",
+   "retrieved_at": "2026-10-02T22:39:58.128Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 55,
+    "green": 39,
+    "tee": 155,
+    "bunker": 110,
+    "water": 2
+   }
   },
   {
    "slug": "bala-golf-club-q16837197",
    "name": "Bala Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:40:11.371Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1237,12 +1495,12 @@
   {
    "slug": "bethpage-black-course-q4898096",
    "name": "Bethpage Black Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/29468839",
+   "retrieved_at": "2026-10-02T22:40:41.217Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1250,38 +1508,44 @@
   {
    "slug": "big-spring-country-club-q4906423",
    "name": "Big Spring Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/59542701",
+   "retrieved_at": "2026-10-02T22:40:47.357Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "birmingham-country-club-q4916677",
    "name": "Birmingham Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/294239607",
+   "retrieved_at": "2026-10-02T22:41:44.842Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 21,
+    "green": 19,
+    "tee": 55,
+    "bunker": 84,
+    "water": 2
+   }
   },
   {
    "slug": "blue-hill-country-club-q4929228",
    "name": "Blue Hill Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:41:51.470Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1289,25 +1553,25 @@
   {
    "slug": "blue-mound-golf-country-club-q4929476",
    "name": "Blue Mound Golf & Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/107500346",
+   "retrieved_at": "2026-10-02T22:41:56.547Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "brae-burn-country-club-q14715417",
    "name": "Brae Burn Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/29871734",
+   "retrieved_at": "2026-10-02T22:42:37.583Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1315,12 +1579,12 @@
   {
    "slug": "broadmoor-golf-club-q14684331",
    "name": "Broadmoor Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/233076933",
+   "retrieved_at": "2026-10-02T22:42:42.415Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1328,38 +1592,50 @@
   {
    "slug": "brooklawn-country-club-q24183677",
    "name": "Brooklawn Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/13055706",
+   "retrieved_at": "2026-10-02T22:42:49.719Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 15,
+    "green": 24,
+    "tee": 53,
+    "bunker": 70,
+    "water": 1
+   }
   },
   {
    "slug": "cedar-crest-park-q5056663",
    "name": "Cedar Crest Park",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/39218951",
+   "retrieved_at": "2026-10-02T22:42:54.275Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 3,
+    "green": 22,
+    "tee": 68,
+    "bunker": 34,
+    "water": 1
+   }
   },
   {
    "slug": "chambers-bay-golf-course-q5069630",
    "name": "Chambers Bay Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/26787026",
+   "retrieved_at": "2026-10-02T22:42:59.021Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1367,64 +1643,88 @@
   {
    "slug": "columbia-country-club-q5149670",
    "name": "Columbia Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/10177562",
+   "retrieved_at": "2026-10-02T22:43:15.472Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 4,
+    "green": 20,
+    "tee": 50,
+    "bunker": 68,
+    "water": 2
+   }
   },
   {
    "slug": "columbine-country-club-q5149961",
    "name": "Columbine Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 17,
+   "osm_course": "way/108059870",
+   "retrieved_at": "2026-10-02T22:43:37.534Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 15,
+    "green": 20,
+    "tee": 59,
+    "bunker": 79,
+    "water": 2
+   }
   },
   {
    "slug": "columbus-country-club-q5150031",
    "name": "Columbus Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/431120794",
+   "retrieved_at": "2026-10-02T22:43:44.027Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 43,
+    "green": 29,
+    "tee": 58,
+    "bunker": 85,
+    "water": 0
+   }
   },
   {
    "slug": "cordevalle-golf-club-q5169905",
    "name": "CordeValle Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/27286634",
+   "retrieved_at": "2026-10-02T22:44:10.144Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 24,
+    "green": 20,
+    "tee": 44,
+    "bunker": 60,
+    "water": 3
+   }
   },
   {
    "slug": "country-club-at-woodmore-q5177250",
    "name": "Country Club at Woodmore",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_weak_identity",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/154167784",
+   "retrieved_at": "2026-10-02T22:44:15.863Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1432,51 +1732,63 @@
   {
    "slug": "dallas-athletic-club-q5211268",
    "name": "Dallas Athletic Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/28469868",
+   "retrieved_at": "2026-10-02T22:45:20.328Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "druid-hills-golf-club-q5308982",
    "name": "Druid Hills Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/28912783",
+   "retrieved_at": "2026-10-02T22:45:27.718Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 2,
+    "green": 16,
+    "tee": 82,
+    "bunker": 47,
+    "water": 1
+   }
   },
   {
    "slug": "engineers-country-club-q5377915",
    "name": "Engineers Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/83206441",
+   "retrieved_at": "2026-10-02T22:46:28.525Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 5,
+    "green": 20,
+    "tee": 54,
+    "bunker": 158,
+    "water": 1
+   }
   },
   {
    "slug": "englewood-golf-club-q5378123",
    "name": "Englewood Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:46:37.875Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1484,51 +1796,69 @@
   {
    "slug": "flossmoor-country-club-q5461991",
    "name": "Flossmoor Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 2,
+   "osm_course": "way/140496656",
+   "retrieved_at": "2026-10-02T22:47:32.020Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 2,
+    "tee": 7,
+    "bunker": 5,
+    "water": 1
+   }
   },
   {
    "slug": "garden-city-golf-club-q255354",
    "name": "Garden City Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/60925271",
+   "retrieved_at": "2026-10-02T22:47:45.625Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 54,
+    "green": 22,
+    "tee": 3,
+    "bunker": 198,
+    "water": 1
+   }
   },
   {
    "slug": "glen-view-club-q5568082",
    "name": "Glen View Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 17,
+   "osm_course": "way/24720710",
+   "retrieved_at": "2026-10-02T22:47:51.053Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 14,
+    "green": 18,
+    "tee": 39,
+    "bunker": 91,
+    "water": 2
+   }
   },
   {
    "slug": "grover-cleveland-golf-course-q5611525",
    "name": "Grover Cleveland Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:47:57.419Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1536,116 +1866,146 @@
   {
    "slug": "hermitage-country-club-q5741805",
    "name": "Hermitage Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/4116659",
+   "retrieved_at": "2026-10-02T22:48:10.910Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "hershey-country-club-q5744507",
    "name": "Hershey Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/37574735",
+   "retrieved_at": "2026-10-02T22:48:22.044Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "hillcrest-country-club-q5762787",
    "name": "Hillcrest Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/24655757",
+   "retrieved_at": "2026-10-02T22:48:34.621Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 4,
+    "green": 31,
+    "tee": 8,
+    "bunker": 85,
+    "water": 0
+   }
   },
   {
    "slug": "kingsbarns-q3815499",
    "name": "Kingsbarns",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/636044440",
+   "retrieved_at": "2026-10-02T22:48:39.207Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 0,
+    "green": 20,
+    "tee": 67,
+    "bunker": 80,
+    "water": 7
+   }
   },
   {
    "slug": "laurel-valley-golf-club-q6500040",
    "name": "Laurel Valley Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/544313200",
+   "retrieved_at": "2026-10-02T22:48:44.022Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 17,
+    "green": 19,
+    "tee": 52,
+    "bunker": 123,
+    "water": 12
+   }
   },
   {
    "slug": "llanerch-country-club-q6661309",
    "name": "Llanerch Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 17,
+   "osm_course": "way/78246217",
+   "retrieved_at": "2026-10-02T22:48:56.378Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 24,
+    "green": 18,
+    "tee": 48,
+    "bunker": 77,
+    "water": 2
+   }
   },
   {
    "slug": "manito-golf-and-country-club-q6749943",
    "name": "Manito Golf and Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/39515903",
+   "retrieved_at": "2026-10-02T22:49:02.650Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "meadowbrook-country-club-q14716214",
    "name": "Meadowbrook Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/127700532",
+   "retrieved_at": "2026-10-02T22:49:09.393Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 7,
+    "green": 27,
+    "tee": 82,
+    "bunker": 74,
+    "water": 5
+   }
   },
   {
    "slug": "miami-valley-golf-club-q14716718",
    "name": "Miami Valley Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_osm_course",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:50:55.862Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1653,64 +2013,85 @@
   {
    "slug": "midlothian-country-club-q6842582",
    "name": "Midlothian Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/235301876",
+   "retrieved_at": "2026-10-02T22:51:01.281Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "minneapolis-golf-club-q6867986",
    "name": "Minneapolis Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/14397859",
+   "retrieved_at": "2026-10-02T22:51:21.486Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 18,
+    "green": 25,
+    "tee": 61,
+    "bunker": 83,
+    "water": 2
+   }
   },
   {
    "slug": "monroe-golf-club-q6902202",
    "name": "Monroe Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/134231347",
+   "retrieved_at": "2026-10-02T22:51:35.360Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    3,
+    14
+   ],
+   "features": {
+    "fairway": 8,
+    "green": 25,
+    "tee": 52,
+    "bunker": 118,
+    "water": 0
+   }
   },
   {
    "slug": "moraine-country-club-q6909029",
    "name": "Moraine Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/674843366",
+   "retrieved_at": "2026-10-02T22:51:40.040Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 24,
+    "green": 25,
+    "tee": 61,
+    "bunker": 65,
+    "water": 1
+   }
   },
   {
    "slug": "ncr-country-club-q6953201",
    "name": "NCR Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:51:51.554Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1718,90 +2099,126 @@
   {
    "slug": "north-shore-country-club-q7056674",
    "name": "North Shore Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/24722150",
+   "retrieved_at": "2026-10-02T22:51:57.251Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 17,
+    "green": 20,
+    "tee": 46,
+    "bunker": 87,
+    "water": 3
+   }
   },
   {
    "slug": "northwood-club-q7060463",
    "name": "Northwood Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/27811262",
+   "retrieved_at": "2026-10-02T22:52:02.913Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 2,
+    "green": 27,
+    "tee": 56,
+    "bunker": 79,
+    "water": 4
+   }
   },
   {
    "slug": "norwood-hills-country-club-q14704469",
    "name": "Norwood Hills Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 17,
+   "osm_course": "way/151229184",
+   "retrieved_at": "2026-10-02T22:52:10.982Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 15,
+    "green": 47,
+    "tee": 157,
+    "bunker": 124,
+    "water": 5
+   }
   },
   {
    "slug": "oak-tree-national-q7073741",
    "name": "Oak Tree National",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/3947927",
+   "retrieved_at": "2026-10-02T22:52:28.183Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 13,
+    "green": 23,
+    "tee": 82,
+    "bunker": 87,
+    "water": 6
+   }
   },
   {
    "slug": "old-waverly-golf-club-q22060131",
    "name": "Old Waverly Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/7154990",
+   "retrieved_at": "2026-10-02T22:52:38.005Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 8,
+    "green": 26,
+    "tee": 68,
+    "bunker": 106,
+    "water": 7
+   }
   },
   {
    "slug": "onwentsia-club-q7095129",
    "name": "Onwentsia Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/31824083",
+   "retrieved_at": "2026-10-02T22:52:43.029Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 8,
+    "green": 21,
+    "tee": 58,
+    "bunker": 90,
+    "water": 1
+   }
   },
   {
    "slug": "pecan-valley-golf-club-q14711228",
    "name": "Pecan Valley Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_osm_course",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:52:50.705Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1809,25 +2226,31 @@
   {
    "slug": "pelham-country-club-q7161353",
    "name": "Pelham Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/1278702",
+   "retrieved_at": "2026-10-02T22:52:56.322Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 6,
+    "green": 21,
+    "tee": 42,
+    "bunker": 57,
+    "water": 6
+   }
   },
   {
    "slug": "philadelphia-country-club-q7182660",
    "name": "Philadelphia Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/770036100",
+   "retrieved_at": "2026-10-02T22:53:05.824Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1835,51 +2258,63 @@
   {
    "slug": "pittsburgh-field-club-q7199277",
    "name": "Pittsburgh Field Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/256928920",
+   "retrieved_at": "2026-10-02T22:53:10.947Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "plainfield-country-club-q7200685",
    "name": "Plainfield Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/39847755",
+   "retrieved_at": "2026-10-02T22:53:15.653Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 12,
+    "green": 20,
+    "tee": 52,
+    "bunker": 119,
+    "water": 4
+   }
   },
   {
    "slug": "plum-hollow-country-club-q7205321",
    "name": "Plum Hollow Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/294239618",
+   "retrieved_at": "2026-10-02T22:53:32.790Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 6,
+    "green": 18,
+    "tee": 62,
+    "bunker": 46,
+    "water": 2
+   }
   },
   {
    "slug": "pomonok-country-club-q7227412",
    "name": "Pomonok Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:53:37.646Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1887,38 +2322,50 @@
   {
    "slug": "portland-golf-club-q7231937",
    "name": "Portland Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/155831835",
+   "retrieved_at": "2026-10-02T22:53:51.802Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 25,
+    "tee": 17,
+    "bunker": 67,
+    "water": 1
+   }
   },
   {
    "slug": "prairie-dunes-country-club-q7237860",
    "name": "Prairie Dunes Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/778336759",
+   "retrieved_at": "2026-10-02T22:53:56.464Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 4,
+    "green": 26,
+    "tee": 68,
+    "bunker": 88,
+    "water": 4
+   }
   },
   {
    "slug": "prince-s-golf-club-sandwich-q7243737",
    "name": "Prince's Golf Club, Sandwich",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_weak_identity",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/24494292",
+   "retrieved_at": "2026-10-02T22:54:02.119Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1926,38 +2373,50 @@
   {
    "slug": "rolling-green-golf-club-q22025383",
    "name": "Rolling Green Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/29472936",
+   "retrieved_at": "2026-10-02T22:54:09.294Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 19,
+    "green": 26,
+    "tee": 64,
+    "bunker": 66,
+    "water": 0
+   }
   },
   {
    "slug": "san-diego-country-club-q15699253",
    "name": "San Diego Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/44501596",
+   "retrieved_at": "2026-10-02T22:54:15.651Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 15,
+    "green": 19,
+    "tee": 62,
+    "bunker": 61,
+    "water": 2
+   }
   },
   {
    "slug": "saucon-valley-country-club-q7427027",
    "name": "Saucon Valley Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_multiple_containing",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:56:00.921Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -1965,90 +2424,120 @@
   {
    "slug": "seaview-q7442243",
    "name": "Seaview",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/26697046",
+   "retrieved_at": "2026-10-02T22:56:05.933Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 9,
+    "green": 19,
+    "tee": 47,
+    "bunker": 73,
+    "water": 1
+   }
   },
   {
    "slug": "sebonack-golf-club-q14707283",
    "name": "Sebonack Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_routing_differs_from_setup",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/28452574",
+   "retrieved_at": "2026-10-02T22:56:49.168Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    3,
+    4,
+    7,
+    8,
+    9
+   ],
    "features": null
   },
   {
    "slug": "siwanoy-country-club-q7532535",
    "name": "Siwanoy Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 1,
+   "osm_course": "way/122734959",
+   "retrieved_at": "2026-10-02T22:56:54.185Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 0,
+    "tee": 0,
+    "bunker": 0,
+    "water": 1
+   }
   },
   {
    "slug": "skokie-country-club-q14688086",
    "name": "Skokie Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/31823863",
+   "retrieved_at": "2026-10-02T22:57:00.381Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 19,
+    "green": 18,
+    "tee": 61,
+    "bunker": 98,
+    "water": 5
+   }
   },
   {
    "slug": "st-louis-country-club-q7594025",
    "name": "St Louis Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/149385948",
+   "retrieved_at": "2026-10-02T22:57:13.642Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 3,
+    "green": 19,
+    "tee": 77,
+    "bunker": 111,
+    "water": 6
+   }
   },
   {
    "slug": "the-merit-club-q7751075",
    "name": "The Merit Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/195246183",
+   "retrieved_at": "2026-10-02T22:57:25.474Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "the-minikahda-club-q7751561",
    "name": "The Minikahda Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_multiple_containing",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:57:49.812Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2056,12 +2545,12 @@
   {
    "slug": "the-omni-homestead-resort-q7740098",
    "name": "The Omni Homestead Resort",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T22:57:54.924Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2069,12 +2558,12 @@
   {
    "slug": "the-park-country-club-q7756135",
    "name": "The Park Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/40419838",
+   "retrieved_at": "2026-10-02T22:58:07.040Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2095,38 +2584,52 @@
   {
    "slug": "wannamoisett-country-club-q7968030",
    "name": "Wannamoisett Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/12040815",
+   "retrieved_at": "2026-10-02T22:58:11.615Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 8,
+    "green": 20,
+    "tee": 42,
+    "bunker": 108,
+    "water": 2
+   }
   },
   {
    "slug": "westchester-country-club-q7987233",
    "name": "Westchester Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/1441532032",
+   "retrieved_at": "2026-10-02T22:58:16.629Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    5
+   ],
+   "features": {
+    "fairway": 37,
+    "green": 52,
+    "tee": 124,
+    "bunker": 103,
+    "water": 7
+   }
   },
   {
    "slug": "tpc-sawgrass-q4586108",
    "name": "TPC Sawgrass",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_resort_shared_name",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/1783123",
+   "retrieved_at": "2026-10-02T22:58:22.036Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2147,12 +2650,12 @@
   {
    "slug": "arnold-palmer-s-bay-hill-club-lodge-ec18",
    "name": "Arnold Palmer's Bay Hill Club & Lodge",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "relation/5462405",
+   "retrieved_at": "2026-10-02T22:58:28.657Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2160,28 +2663,40 @@
   {
    "slug": "east-lake-golf-club-ec57",
    "name": "East Lake Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/25587469",
+   "retrieved_at": "2026-10-02T22:58:36.059Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 27,
+    "tee": 65,
+    "bunker": 79,
+    "water": 5
+   }
   },
   {
    "slug": "harbour-town-golf-links-ec22",
    "name": "Harbour Town Golf Links",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/4813858",
+   "retrieved_at": "2026-10-02T22:58:40.928Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 17,
+    "green": 31,
+    "tee": 38,
+    "bunker": 72,
+    "water": 19
+   }
   },
   {
    "slug": "innisbrook-resort-and-golf-club-copperhead-course-ec10884",
@@ -2199,15 +2714,21 @@
   {
    "slug": "muirfield-village-golf-club-ec29",
    "name": "Muirfield Village Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/337418",
+   "retrieved_at": "2026-10-02T22:58:45.778Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 25,
+    "green": 30,
+    "tee": 87,
+    "bunker": 89,
+    "water": 13
+   }
   },
   {
    "slug": "pelican-golf-club-ec10955",
@@ -2264,40 +2785,60 @@
   {
    "slug": "sedgefield-country-club-ec368",
    "name": "Sedgefield Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/12580941",
+   "retrieved_at": "2026-10-02T22:59:02.076Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 5,
+    "green": 22,
+    "tee": 65,
+    "bunker": 54,
+    "water": 7
+   }
   },
   {
    "slug": "shadow-creek-golf-course-ec10887",
    "name": "Shadow Creek Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/98834098",
+   "retrieved_at": "2026-10-02T22:59:16.451Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 20,
+    "green": 30,
+    "tee": 75,
+    "bunker": 89,
+    "water": 9
+   }
   },
   {
    "slug": "the-renaissance-club-ec10906",
    "name": "The Renaissance Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_routing_differs_from_setup",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/161230026",
+   "retrieved_at": "2026-10-02T22:59:21.725Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    1,
+    3,
+    5,
+    6,
+    11,
+    12,
+    13
+   ],
    "features": null
   },
   {
@@ -2316,14 +2857,16 @@
   {
    "slug": "tpc-craig-ranch-ec3077",
    "name": "TPC Craig Ranch",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/448674021",
+   "retrieved_at": "2026-10-02T22:59:54.453Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    18
+   ],
    "features": null
   },
   {
@@ -2356,7 +2899,7 @@
    "slug": "tpc-river-highlands-ec33",
    "name": "TPC River Highlands",
    "status": "unaudited",
-   "decision": "not_collected",
+   "decision": "barrier",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
@@ -2394,21 +2937,29 @@
   {
    "slug": "tpc-southwind-ec32",
    "name": "TPC Southwind",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/4849522",
+   "retrieved_at": "2026-10-02T23:01:57.062Z",
    "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "par_conflicts": [
+    5
+   ],
+   "features": {
+    "fairway": 10,
+    "green": 22,
+    "tee": 78,
+    "bunker": 81,
+    "water": 9
+   }
   },
   {
    "slug": "tpc-twin-cities-ec10885",
    "name": "TPC Twin Cities",
    "status": "unaudited",
-   "decision": "not_collected",
+   "decision": "barrier",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
@@ -2421,7 +2972,7 @@
    "slug": "sawgrass-country-club-q7428632",
    "name": "Sawgrass Country Club",
    "status": "unaudited",
-   "decision": "not_collected",
+   "decision": "barrier",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
@@ -2447,7 +2998,7 @@
    "slug": "blythefield-country-club-ec10719",
    "name": "Blythefield Country Club",
    "status": "unaudited",
-   "decision": "not_collected",
+   "decision": "barrier",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
@@ -2459,41 +3010,59 @@
   {
    "slug": "columbia-edgewater-country-club-ec10703",
    "name": "Columbia Edgewater Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/96855100",
+   "retrieved_at": "2026-10-02T23:07:52.761Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 11,
+    "green": 30,
+    "tee": 60,
+    "bunker": 51,
+    "water": 6
+   }
   },
   {
    "slug": "detroit-golf-club-ec10933",
    "name": "Detroit Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 7,
+   "osm_course": "relation/909401",
+   "retrieved_at": "2026-10-02T23:08:13.881Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 33,
+    "green": 44,
+    "tee": 60,
+    "bunker": 140,
+    "water": 2
+   }
   },
   {
    "slug": "dundonald-links-ec10818",
    "name": "Dundonald Links",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/41275226",
+   "retrieved_at": "2026-10-02T23:08:19.094Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 33,
+    "green": 21,
+    "tee": 65,
+    "bunker": 84,
+    "water": 1
+   }
   },
   {
    "slug": "dunes-golf-beach-club-ec11273",
@@ -2563,12 +3132,12 @@
   {
    "slug": "lake-nona-golf-country-club-ec11120",
    "name": "Lake Nona Golf & Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_osm_course",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T23:08:25.706Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2576,15 +3145,21 @@
   {
    "slug": "liberty-national-golf-club-ec372",
    "name": "Liberty National Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/27459421",
+   "retrieved_at": "2026-10-02T23:09:02.079Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 5,
+    "green": 27,
+    "tee": 88,
+    "bunker": 105,
+    "water": 11
+   }
   },
   {
    "slug": "midland-cc-mi-ec10921",
@@ -2602,12 +3177,12 @@
   {
    "slug": "pinnacle-country-club-ec10683",
    "name": "Pinnacle Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_osm_course",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T23:09:18.829Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2745,12 +3320,12 @@
   {
    "slug": "waialae-country-club-ec2",
    "name": "Waialae Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "no_match_point_outside_boundary",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
-   "retrieved_at": null,
+   "retrieved_at": "2026-10-02T23:11:07.301Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -2797,15 +3372,21 @@
   {
    "slug": "palos-verdes-golf-club-ec11155",
    "name": "Palos Verdes Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/45895011",
+   "retrieved_at": "2026-10-02T23:11:15.119Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 1,
+    "green": 24,
+    "tee": 67,
+    "bunker": 72,
+    "water": 1
+   }
   },
   {
    "slug": "qizhong-garden-golf-club-ec10883",
@@ -2849,15 +3430,21 @@
   {
    "slug": "tpc-boston-ec87",
    "name": "TPC Boston",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/311851822",
+   "retrieved_at": "2026-10-02T23:11:22.086Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 20,
+    "green": 21,
+    "tee": 82,
+    "bunker": 63,
+    "water": 16
+   }
   },
   {
    "slug": "tpc-toronto-at-osprey-valley-north-course-ec11309",
@@ -2992,15 +3579,21 @@
   {
    "slug": "tpc-river-s-bend-ec11305",
    "name": "TPC River's Bend",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/45009763",
+   "retrieved_at": "2026-10-02T23:13:14.809Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 28,
+    "green": 18,
+    "tee": 70,
+    "bunker": 51,
+    "water": 7
+   }
   },
   {
    "slug": "tpc-summerlin-ec51",
@@ -3018,28 +3611,40 @@
   {
    "slug": "trump-national-doral-blue-monster-ec16",
    "name": "Trump National Doral (Blue Monster)",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/112673308",
+   "retrieved_at": "2026-10-02T23:14:59.952Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 4,
+    "green": 19,
+    "tee": 34,
+    "bunker": 101,
+    "water": 12
+   }
   },
   {
    "slug": "upper-montclair-country-club-ec11165",
    "name": "Upper Montclair Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "way/39647672",
+   "retrieved_at": "2026-10-02T23:15:19.756Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 5,
+    "green": 30,
+    "tee": 54,
+    "bunker": 102,
+    "water": 13
+   }
   },
   {
    "slug": "whirlwind-golf-club-at-wild-horse-pass-ec11325",
@@ -3057,15 +3662,21 @@
   {
    "slug": "wilshire-country-club-ec10856",
    "name": "Wilshire Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/3569001",
+   "retrieved_at": "2026-10-02T23:15:34.045Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 5,
+    "green": 23,
+    "tee": 25,
+    "bunker": 149,
+    "water": 3
+   }
   },
   {
    "slug": "yokohama-country-club-ec11328",
@@ -3109,15 +3720,21 @@
   {
    "slug": "bernardus-golf-ec11352",
    "name": "Bernardus Golf",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "full",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 18,
+   "osm_course": "relation/1212430",
+   "retrieved_at": "2026-10-02T23:15:42.370Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 40,
+    "green": 31,
+    "tee": 45,
+    "bunker": 93,
+    "water": 12
+   }
   },
   {
    "slug": "bethpage-state-park-black-course-ec74",
@@ -3149,7 +3766,7 @@
    "slug": "caves-valley-golf-club-ec10718",
    "name": "Caves Valley Golf Club",
    "status": "unaudited",
-   "decision": "not_collected",
+   "decision": "barrier",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
@@ -3227,7 +3844,7 @@
    "slug": "hamilton-golf-country-club-ec89",
    "name": "Hamilton Golf & Country Club",
    "status": "unaudited",
-   "decision": "not_collected",
+   "decision": "barrier",
    "duplicate_of": null,
    "holes_mapped": 0,
    "osm_course": null,
@@ -3408,14 +4025,19 @@
   {
    "slug": "royal-birkdale-gc-ec225",
    "name": "Royal Birkdale GC",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_duplicate_canonical_course",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/25720345",
+   "retrieved_at": "2026-10-02T23:21:36.404Z",
    "cleared_by": null,
-   "par_conflicts": [],
+   "par_conflicts": [
+    6,
+    14,
+    15,
+    18
+   ],
    "features": null
   },
   {
@@ -3447,12 +4069,12 @@
   {
    "slug": "royal-troon-golf-course-ec92",
    "name": "Royal Troon Golf Course",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_duplicate_canonical_course",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/18080206",
+   "retrieved_at": "2026-10-02T23:21:44.233Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -3499,12 +4121,12 @@
   {
    "slug": "sheshan-golf-club-ec3102",
    "name": "Sheshan Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_weak_identity",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/414295341",
+   "retrieved_at": "2026-10-02T23:23:38.373Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
@@ -3564,15 +4186,15 @@
   {
    "slug": "the-royal-montreal-golf-club-ec64",
    "name": "The Royal Montreal Golf Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "no-routing",
+   "decision": "exact",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/80194594",
+   "retrieved_at": "2026-10-02T23:23:55.806Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {}
   },
   {
    "slug": "torrey-pines-north-course-ec12",
@@ -3603,25 +4225,31 @@
   {
    "slug": "inverrary-country-club-q15712014",
    "name": "Inverrary Country Club",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "holes_mapped": 4,
+   "osm_course": "relation/2819869",
+   "retrieved_at": "2026-10-02T23:25:47.878Z",
    "cleared_by": null,
    "par_conflicts": [],
-   "features": null
+   "features": {
+    "fairway": 0,
+    "green": 1,
+    "tee": 3,
+    "bunker": 5,
+    "water": 13
+   }
   },
   {
    "slug": "royal-porthcawl-ec11326",
    "name": "Royal Porthcawl ",
-   "status": "unaudited",
-   "decision": "not_collected",
+   "status": "held",
+   "decision": "review_duplicate_canonical_course",
    "duplicate_of": null,
    "holes_mapped": 0,
-   "osm_course": null,
-   "retrieved_at": null,
+   "osm_course": "way/115557910",
+   "retrieved_at": "2026-10-02T23:25:52.388Z",
    "cleared_by": null,
    "par_conflicts": [],
    "features": null
