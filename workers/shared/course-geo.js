@@ -81,7 +81,13 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
 }
 
 /** Two canonical courses resolving to the same OSM course = duplicate identity on our side: hold every one for review. */
-export function holdSharedTargets(rows){const by=new Map();for(const r of rows){const id=r.osm_course?.id;if(id&&r.decision&&!/^no_/.test(r.decision))by.set(id,[...(by.get(id)||[]),r]);}
+// An automatic (name-located) identity never displaces a course matched from its own canonical coordinates or a
+// reviewed record: when they claim the same OSM course, the automatic one goes to manual review instead.
+export function holdSharedTargets(rows){const own=new Map();for(const r of rows){const id=r.osm_course?.id;if(id&&r.decision==='exact'&&!r.auto?.pass)own.set(id,[...(own.get(id)||[]),r.slug]);}
+ for(const r of rows){const id=r.osm_course?.id;if(r.auto?.pass&&own.has(id)){r.decision='review_auto_target_owned';r.state='REVIEW_OR_NONE';r.shared_with=own.get(id);}}
+ return holdSharedPlain(rows);}
+function holdSharedPlain(rows){const by=new Map();for(const r of rows){const id=r.osm_course?.id;if(r.auto&&r.decision!=='exact')continue; // a failed or displaced automatic attempt holds nothing
+ if(id&&r.decision&&!/^no_/.test(r.decision))by.set(id,[...(by.get(id)||[]),r]);}
  for(const [id,rs] of by)if(rs.length>1)for(const r of rs){r.decision='review_duplicate_canonical_course';r.state='REVIEW_OR_NONE';r.shared_with=rs.filter(x=>x!==r).map(x=>x.slug);}return rows;}
 
 /**
@@ -102,13 +108,17 @@ export function matchWithEvidence(canon,elements,setupHoles=new Map(),evidence=n
 /**
  * Automatic identity proof for a name-located candidate (no canonical coordinates, no reviewed record). All must hold:
  * the candidate was cleared to 'exact' through matchWithEvidence; >= 15 holes proven inside its boundary; >= 15 proven
- * holes within 25% of the championship setup yardage (needs a published hole table); name score >= 0.5; no
+ * holes within 25% of the championship setup yardage (needs a published hole table); name score >= 0.75 (a single
+ * shared word such as "Valley" in a two-word name is not a name match); no
  * shared-name neighbour. Anything less is held for manual review.
  */
+export const AUTO_NAME_MIN=0.75;
+/** Sub-course in a canonical name, e.g. "Omni Barton Creek (Fazio Canyons Course)" -> distinctive tokens [fazio, canyons]. */
+export function subCourseTokens(name){const m=String(name||'').match(/\(([^)]+)\)/);return m?norm(m[1]):[];}
 export function autoIdentityOk(m,setupHoles,canonName){
  const ev=m?.evidence||{};const proven=ev.proven||0;
  const lenAgree=(ev.accepted||[]).filter(h=>{const s=setupHoles.get(h.hole);if(!Number.isInteger(s?.yards))return false;const y=routeLengthM(h.coords)/0.9144;return Math.abs(y-s.yards)/s.yards<=0.25;}).length;
- const nameOk=nameScore(canonName,m?.target?.tags?.name)>=0.5||nameScore(canonName,m?.target?.tags?.['name:en'])>=0.5||nameScore(canonName,m?.target?.tags?.int_name)>=0.5;
+ const nameOk=['name','name:en','int_name','official_name'].some(t=>nameScore(canonName,m?.target?.tags?.[t])>=AUTO_NAME_MIN);
  const checks={exact:m?.decision==='exact',proven,length_agree:lenAgree,setup_table:setupHoles.size>=18,name:nameOk,shared_name:(ev.shared_name_neighbours||[]).length};
  return {pass:checks.exact&&proven>=15&&lenAgree>=15&&nameOk&&!checks.shared_name,checks,rule:'auto-identity-v1: exact + >=15 proven + >=15 setup-length agreements + name + no shared-name neighbour'};
 }

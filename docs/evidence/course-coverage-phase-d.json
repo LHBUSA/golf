@@ -1,0 +1,572 @@
+{
+ "generated": "2026-10-03T14:05:27.267Z",
+ "rule": "auto-identity-v1 (owner-approved 2026-10-03): exact outline + >=15 holes proven + >=15 lengths within 25% of the championship setup + name score >=0.75 + no same-name neighbour; an automatic identity never displaces a coordinate-matched course",
+ "before": {
+  "full": 92,
+  "partial": 19,
+  "held": 123,
+  "no-routing": 33
+ },
+ "after": {
+  "full": 99,
+  "partial": 20,
+  "held": 115,
+  "no-routing": 33
+ },
+ "added": [
+  {
+   "slug": "tpc-scottsdale-stadium-course-ec3",
+   "osm_course": "way/78388948",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 18,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "locality search"
+  },
+  {
+   "slug": "albany-gc-ec10697",
+   "osm_course": "way/222586240",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 18,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "locality search"
+  },
+  {
+   "slug": "dunes-golf-beach-club-ec11273",
+   "osm_course": "way/793663795",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 18,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "locality search"
+  },
+  {
+   "slug": "port-royal-golf-course-ec10935",
+   "osm_course": "way/174882622",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 17,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "locality search"
+  },
+  {
+   "slug": "sea-island-golf-club-seaside-course-ec10586",
+   "osm_course": "way/301551447",
+   "status": "partial",
+   "holes_mapped": 17,
+   "checks": {
+    "exact": true,
+    "proven": 17,
+    "length_agree": 17,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "sub-course:seaside"
+  },
+  {
+   "slug": "kapalua-resort-plantation-course-ec1",
+   "osm_course": "relation/12152889",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 18,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "locality search"
+  },
+  {
+   "slug": "the-country-club-of-jackson-ec786",
+   "osm_course": "way/300114519",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 18,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "nominatim-direct"
+  },
+  {
+   "slug": "tpc-toronto-at-osprey-valley-north-course-ec11309",
+   "osm_course": "relation/17057039",
+   "status": "full",
+   "holes_mapped": 18,
+   "checks": {
+    "exact": true,
+    "proven": 18,
+    "length_agree": 18,
+    "setup_table": true,
+    "name": true,
+    "shared_name": 0
+   },
+   "found_via": "locality search"
+  }
+ ],
+ "manual_review": [
+  {
+   "slug": "memorial-park-golf-course-ec11109",
+   "candidate": "relation/13729803",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "innisbrook-resort-and-golf-club-copperhead-course-ec10884",
+   "candidate": "relation/5462778",
+   "reason": "10 holes proven (<15); 10 hole lengths agree (<15)"
+  },
+  {
+   "slug": "pelican-golf-club-ec10955",
+   "candidate": "way/204620016",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "pete-dye-stadium-course-ec10925",
+   "candidate": "relation/21023773",
+   "reason": "9 holes proven (<15); 9 hole lengths agree (<15); name does not match (score <0.75)"
+  },
+  {
+   "slug": "pga-national-resort-the-champion-course-ec324",
+   "candidate": "way/1483954804",
+   "reason": "11 holes proven (<15); 11 hole lengths agree (<15)"
+  },
+  {
+   "slug": "puntacana-resort-club-corales-golf-course-ec10881",
+   "candidate": "way/234341795",
+   "reason": "no golf=hole ways proven inside the candidate outline; 0 hole lengths agree (<15)"
+  },
+  {
+   "slug": "tpc-deere-run-ec38",
+   "candidate": "relation/12585470",
+   "reason": "12 hole lengths agree (<15)"
+  },
+  {
+   "slug": "tpc-louisiana-ec197",
+   "candidate": "relation/4260277",
+   "reason": "name does not match (score <0.75)"
+  },
+  {
+   "slug": "kuala-lumpur-golf-and-country-club-west-course-ec11198",
+   "candidate": "relation/9519926",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "midland-cc-mi-ec10921",
+   "candidate": "way/93415738",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "sentosa-golf-club-tanjong-course-ec10672",
+   "candidate": "way/32750079",
+   "reason": "no published hole-by-hole setup to compare lengths; same-name course nearby"
+  },
+  {
+   "slug": "silverado-resort-north-course-ec784",
+   "candidate": "way/35828614",
+   "reason": "14 holes proven (<15); 14 hole lengths agree (<15)"
+  },
+  {
+   "slug": "tpc-sawgrass-dye-s-valley-course-ec11094",
+   "candidate": "relation/1784515",
+   "reason": "9 holes proven (<15); 9 hole lengths agree (<15); name does not match (score <0.75)"
+  },
+  {
+   "slug": "hurstbourne-country-club-ec11310",
+   "candidate": "way/220489681",
+   "reason": "no golf=hole ways proven inside the candidate outline; 0 hole lengths agree (<15)"
+  },
+  {
+   "slug": "tahoe-mountain-club-old-greenwood-ec11099",
+   "candidate": "relation/8205542",
+   "reason": "6 holes proven (<15); 6 hole lengths agree (<15)"
+  },
+  {
+   "slug": "accordia-golf-narashino-country-club-ec10934",
+   "candidate": "way/396242774",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths; name does not match (score <0.75)"
+  },
+  {
+   "slug": "bradenton-country-club-ec11294",
+   "candidate": "way/35168696",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "el-caballero-country-club-ec11204",
+   "candidate": "way/326190902",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "keene-trace-golf-club-champions-course-ec10882",
+   "candidate": "relation/3959257",
+   "reason": "no published hole-by-hole setup to compare lengths; name does not match (score <0.75)"
+  },
+  {
+   "slug": "pine-beach-golf-links-ec11335",
+   "candidate": "way/390545752",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "seowon-valley-country-club-ec11199",
+   "candidate": "way/391816707",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths; name does not match (score <0.75)"
+  },
+  {
+   "slug": "tpc-summerlin-ec51",
+   "candidate": "relation/2816630",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "yokohama-country-club-ec11328",
+   "candidate": "way/248384113",
+   "reason": "no golf=hole ways proven inside the candidate outline; 0 hole lengths agree (<15)"
+  },
+  {
+   "slug": "adare-manor-hotel-golf-resort-ec11166",
+   "candidate": "way/266418244",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths; same-name course nearby"
+  },
+  {
+   "slug": "austin-country-club-ec10696",
+   "candidate": "node/2881922828",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "bethpage-state-park-black-course-ec74",
+   "candidate": "way/29468839",
+   "reason": "no golf=hole ways proven inside the candidate outline; 0 hole lengths agree (<15); same-name course nearby"
+  },
+  {
+   "slug": "castle-pines-golf-club-ec11274",
+   "candidate": "way/1562088206",
+   "reason": "no published hole-by-hole setup to compare lengths; same-name course nearby"
+  },
+  {
+   "slug": "congaree-golf-club-ec11122",
+   "candidate": "way/1454066262",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "earl-grey-golf-club-ec11295",
+   "candidate": "way/10554354",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "fields-ranch-east-at-pga-frisco-ec11183",
+   "candidate": "way/910555574",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "galgorm-castle-golf-club-ec11104",
+   "candidate": "way/1062734778",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "kenwood-cc-ec11157",
+   "candidate": "way/30542976",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "maketewah-country-club-ec11351",
+   "candidate": "way/30431659",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "marco-simone-gc-ec11117",
+   "candidate": "relation/13264416",
+   "reason": "9 holes proven (<15); no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "medinah-cc-no-3-ec262",
+   "candidate": "way/143789356",
+   "reason": "8 holes proven (<15); 8 hole lengths agree (<15)"
+  },
+  {
+   "slug": "mississaugua-golf-country-club-ec11327",
+   "candidate": "way/488031921",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "mountain-ridge-c-c-ec11118",
+   "candidate": "way/39831264",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "new-korea-country-club-ec11331",
+   "candidate": "way/389399840",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths; name does not match (score <0.75)"
+  },
+  {
+   "slug": "oakdale-golf-country-club-ec11170",
+   "candidate": "way/32224378",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "old-american-golf-course-ec10845",
+   "candidate": "way/297401053",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "omni-barton-creek-resort-spa-fazio-canyons-course-ec11357",
+   "candidate": "relation/3778021",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "pinehurst-no-2-ec776",
+   "candidate": "way/1358696570",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths; same-name course nearby"
+  },
+  {
+   "slug": "robert-trent-jones-golf-club-ec785",
+   "candidate": "relation/3971085",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "royal-liverpool-gc-ec261",
+   "candidate": "way/155010530",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "royal-mayfair-golf-country-club-ec10687",
+   "candidate": "way/1131311112",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "seville-golf-and-country-club-ec11299",
+   "candidate": "relation/3290312",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "sharon-heights-golf-and-country-club-ec11350",
+   "candidate": "relation/2222742",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "superstition-mountain-golf-club-ec11190",
+   "candidate": "way/264568212",
+   "reason": "no golf=hole ways proven inside the candidate outline; no published hole-by-hole setup to compare lengths"
+  },
+  {
+   "slug": "the-philadelphia-cricket-club-wissahickon-course-ec11308",
+   "candidate": "way/141901145",
+   "reason": "9 holes proven (<15); 9 hole lengths agree (<15)"
+  },
+  {
+   "slug": "torrey-pines-north-course-ec12",
+   "candidate": "way/35679009",
+   "reason": "no published hole-by-hole setup to compare lengths"
+  }
+ ],
+ "not_located": [
+  {
+   "slug": "the-club-at-carlton-woods-ec11191",
+   "status": "ambiguous",
+   "barrier": null,
+   "unresolved": null,
+   "options": [
+    "Tom Fazio Championship Course at Carlton Woods",
+    "Jack Nicklaus Signature Golf Course at Carlton Woods"
+   ]
+  },
+  {
+   "slug": "trump-national-golf-club-q7847773",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "torrey-pines-south-course-ec13",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "tpc-san-antonio-oaks-course-ec3150",
+   "status": "ambiguous",
+   "barrier": null,
+   "unresolved": "2 candidates contain the sub-course name",
+   "options": [
+    "San Antonio Country Club",
+    "TPC San Antonio Oaks Course",
+    "TPC San Antonio AT&T Canyons Course",
+    "Randolph Oaks"
+   ]
+  },
+  {
+   "slug": "el-cardonal-at-diamante-ec11284",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "grand-reserve-golf-club-ec338",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "jian-lake-blue-bay-golf-course-ec10738",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "seaview-hotel-and-golf-club-ec10681",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "siam-country-club-pattaya-old-course-ec10671",
+   "status": "ambiguous",
+   "barrier": null,
+   "unresolved": "no candidate contains the sub-course name",
+   "options": [
+    "สยามคันทรีคลับ โอลด์คอร์ส",
+    "Pattaya Country Club and Resort",
+    "สยามคันทรีคลับ พัทยา แพลนเทชั่น"
+   ]
+  },
+  {
+   "slug": "tiburon-golf-club-black-course-ec10709",
+   "status": "barrier",
+   "barrier": "504",
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "tpc-sawgrass-the-players-stadium-course-ec19",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "vidanta-vallarta-ec11163",
+   "status": "ambiguous",
+   "barrier": null,
+   "unresolved": null,
+   "options": [
+    "Vidanta Greg Norman Golf Course",
+    "Vidanta Lakes Par 3"
+   ]
+  },
+  {
+   "slug": "el-camaleon-golf-course-at-mayakoba-ec322",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "qizhong-garden-golf-club-ec10883",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "highland-meadows-gc-ec10686",
+   "status": "barrier",
+   "barrier": "504",
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "seta-golf-course-ec10848",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "taiheiyo-club-minori-course-ec10795",
+   "status": "barrier",
+   "barrier": "504",
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "whirlwind-golf-club-at-wild-horse-pass-ec11325",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "finca-cortesin-ec11192",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "pga-frisco-ec11362",
+   "status": "ambiguous",
+   "barrier": null,
+   "unresolved": null,
+   "options": [
+    "Golf Envy Frisco",
+    "Trails of Frisco Golf Course",
+    "Frisco Lakes Golf Course"
+   ]
+  },
+  {
+   "slug": "shaughnessy-g-cc-ec201",
+   "status": "barrier",
+   "barrier": "504",
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "the-cliffs-at-walnut-cove-ec3024",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  },
+  {
+   "slug": "wynn-golf-club-ec11135",
+   "status": "no_name_match",
+   "barrier": null,
+   "unresolved": null,
+   "options": []
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {statusReport,reasonIn,restartIn} from '../src/lib/status-reason.js';
 import {statusModule} from '../src/lib/live-ui.js';
-import {autoIdentityOk,matchWithEvidence} from '../workers/shared/course-geo.js';
+import {autoIdentityOk,matchWithEvidence,holdSharedTargets} from '../workers/shared/course-geo.js';
 const row=(thru,status='active')=>({status,thru,position:'1',total_to_par:-5});
 const ev=(o={})=>({state:'suspended',status_name:'STATUS_SUSPENDED',status_detail:'Round 2 - Suspended',round:2,fetched_at:'2026-10-03T11:24:00Z',status_since:'2026-10-03T01:40:00Z',leaderboard:[row(18),row(18),row(14),row(9),row(0),row(18,'cut')],...o});
 
@@ -39,4 +39,8 @@ test('auto identity: passes only with 15+ proven holes agreeing with setup lengt
  const noTable=matchWithEvidence(canon,[course(1,'Kappa Golf Club',20,10),...H(20,10)],new Map(),ev2);assert.equal(autoIdentityOk(noTable,new Map(),canon.name).pass,false,'no setup table -> manual review');
  const twin=matchWithEvidence(canon,[course(1,'Kappa Golf Club',20,10),course(2,'Kappa Golf Club North',20.05,10),...H(20,10)],setup,ev2);assert.equal(autoIdentityOk(twin,setup,canon.name).checks.shared_name>0||!autoIdentityOk(twin,setup,canon.name).pass,true);
  const other=matchWithEvidence(canon,[course(1,'Lambda Links',20,10),...H(20,10)],setup,ev2);assert.equal(autoIdentityOk(other,setup,canon.name).pass,false,'name must match');
+});
+test('an automatic identity never displaces a coordinate-matched course on the same OSM element',()=>{
+ const rows=[{slug:'club',decision:'exact',osm_course:{id:'way/9'}},{slug:'club-no-3',decision:'exact',auto:{pass:true},osm_course:{id:'way/9'}},{slug:'x',decision:'exact',auto:{pass:true},osm_course:{id:'way/7'}},{slug:'y',decision:'exact',auto:{pass:true},osm_course:{id:'way/7'}}];
+ holdSharedTargets(rows);assert.deepEqual(rows.map(r=>r.decision),['exact','review_auto_target_owned','review_duplicate_canonical_course','review_duplicate_canonical_course']);
 });

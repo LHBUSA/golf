@@ -27,6 +27,8 @@ export const IDENTITY_EVIDENCE=[
 // primary's geometry hostage); the identity merge itself is a database operation prepared in docs/evidence.
 export const DUPLICATE_COURSES=[
  {slug:'st-andrews-links-old-course-ec37',duplicate_of:'old-course-at-st-andrews-q167245',evidence_id:'st-andrews-2026-10-02',merge:'docs/evidence/course-merge-st-andrews.json',
+  // 2026-10-03 owner-approved merge (proven same course): applied as a projection alias, DB rows untouched; /course/<ec37> 308s.
+  alias:true,
   evidence:[
    'Both records carry ESPN venue id 37 ("St Andrews Links (Old Course)", St. Andrews, Scotland, par 72)',
    'ec37 was created from the 2027 Open schedule stub (the-open-epga29-2027); the 2024 Women’s Open on Q167245 has the same ESPN venue 37',

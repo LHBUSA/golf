@@ -1,0 +1,11 @@
+{
+ "reviewed": "2026-10-03",
+ "decision": "NOT MERGED (owner: review only, no auto-merge)",
+ "records": [
+  {"slug":"tpc-sawgrass-q4586108","entity":"TPC Sawgrass (club; Wikidata Q4586108)","holds":"1982-2023 Players Championship editions (all played on the Stadium Course) + 24 setup layouts","verdict":"canonical history record; models the club, used as the Stadium Course venue"},
+  {"slug":"tpc-sawgrass-the-players-stadium-course-ec19","entity":"THE PLAYERS Stadium Course (ESPN venue 19)","holds":"2024-2027 Players editions, 4 ESPN setups (par 72, 7,256-7,352 yd)","verdict":"same physical course as the Players history on Q4586108: genuine duplicate of the Players venue; needs a canonical/alias decision (recommend alias ec19 -> Q4586108, the 42-edition history record, same mechanism as St Andrews)"},
+  {"slug":"tpc-sawgrass-dye-s-valley-course-ec11094","entity":"Dye's Valley Course (ESPN venue 11094)","holds":"2023-2026 PGA TOUR Q-School, par 70, 6,850 yd","verdict":"distinct course at the same club; keep separate. Automatic candidate (OSM relation/1784515 'Marsh Valley Country Club') rejected: name score 0.5 < 0.75, 9 holes proven"},
+  {"slug":"sawgrass-country-club-q7428632","entity":"Sawgrass Country Club (Wikidata Q7428632)","holds":"1977-1981 Tournament Players Championship","verdict":"different club; keep separate"}
+ ],
+ "maps": "No TPC Sawgrass record publishes geometry: Q4586108 is held by the shared-name rule (TPC Sawgrass / Sawgrass CC / Dye's Valley share the resort area); ec19 has no canonical coordinates."
+}

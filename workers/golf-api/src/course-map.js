@@ -17,6 +17,12 @@ export function routingReason(row){
  if(row.status==='full')return {code:'verified',text:'Verified routing for all 18 holes'};
  if(row.status==='partial')return {code:'partial',text:`Verified routing for ${row.holes_mapped} of 18 holes; the rest await verification`};
  if(d==='no_canonical_coords')return {code:'awaiting_location',text:'Awaiting course location verification before routing can be attached'};
+ // Automatic identity attempts (auto-identity-v1) that did not pass: say what is actually missing.
+ if(d==='review_auto_identity_insufficient'){const k=row.auto_identity?.checks||{};
+  if(!k.proven)return {code:'no_source_routing',text:'No mapped hole routing in open map data yet'};
+  if(!k.setup_table)return {code:'awaiting_setup',text:'Mapped routing found; awaiting a published hole-by-hole setup to verify it against'};
+  return {code:'awaiting_routing_verification',text:'Mapped routing found but awaiting identity verification'};}
+ if(d==='review_auto_target_owned')return {code:'identity_review',text:'Course record under identity review'};
  if(/^duplicate|review_duplicate/.test(d))return {code:'identity_review',text:'Course record under identity review'};
  if(/^review_/.test(d))return {code:'awaiting_routing_verification',text:'Mapped routing found but awaiting identity verification'};
  if(d==='barrier'||d==='not_collected')return {code:'not_audited',text:'Not yet audited for mapped routing'};
@@ -24,7 +30,10 @@ export function routingReason(row){
  return {code:'no_source_routing',text:'No mapped routing in open map data yet'};
 }
 
+import {DUPLICATE_COURSES} from '../../shared/course-identity.js';
 export async function courseMap(env,ix,slug,editionParam,now=new Date()){
+ // Reviewed alias (merged duplicate course): serve the primary course's map.
+ {const d=DUPLICATE_COURSES.find(x=>x.alias&&x.slug===slug);if(d)slug=d.duplicate_of;}
  const course=(ix.courses||[]).find(c=>c.slug===slug);if(!course)return {status:404,body:{error:'not_found'}};
  const eds=(ix.editions||[]).filter(e=>(e.course?.slug||e.course)===slug);
  const options=setupOptions(eds,now);

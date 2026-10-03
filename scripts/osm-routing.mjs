@@ -7,7 +7,7 @@
 // after 90 s and then recorded as a barrier (never hammered). Every extract is cached; reruns resume deterministically.
 import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';
 import {prepareCourseMap,ATTRIBUTION} from '../src/lib/course-map.js';
-import {matchCourse,matchWithEvidence,autoIdentityOk,nameScore,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
+import {matchCourse,matchWithEvidence,autoIdentityOk,nameScore,subCourseTokens,norm,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
 import {IDENTITY_EVIDENCE,DUPLICATE_COURSES} from '../workers/shared/course-identity.js';
 import {defaultEdition} from '../workers/shared/course-setup.js';
 
@@ -46,9 +46,10 @@ async function collect(){
  const cand=fs.existsSync(path.join(CACHE,'_candidates.json'))?JSON.parse(fs.readFileSync(path.join(CACHE,'_candidates.json'),'utf8')):{};
  const named=[...IDENTITY_EVIDENCE.filter(x=>x.locate),...Object.entries(cand).filter(([,v])=>v.status==='candidate').map(([slug,v])=>({slug,locate:{lat:v.candidate.lat,lon:v.candidate.lon}}))];
  const log=[];
- for(const x of named){const f=path.join(CACHE,x.slug+'.json');if(fs.existsSync(f))continue;
+ const CHUNK=+process.env.CHUNK||Infinity;let done=0;
+ for(const x of named){const f=path.join(CACHE,x.slug+'.json');if(fs.existsSync(f))continue;if(x.locate.lat==null)continue;if(done++>=CHUNK){console.log('chunk limit reached');break;}
   const j=await overpass(QL(x.locate.lat,x.locate.lon));if(j.barrier){log.push({slug:x.slug,barrier:j.barrier});continue;}
-  fs.writeFileSync(f,JSON.stringify({retrieved_at:new Date().toISOString(),query:QL(x.locate.lat,x.locate.lon),osm3s:j.osm3s,elements:j.elements}));await sleep(3000);}
+  fs.writeFileSync(f,JSON.stringify({retrieved_at:new Date().toISOString(),query:QL(x.locate.lat,x.locate.lon),osm3s:j.osm3s,elements:j.elements}));console.log('named',x.slug,j.elements.length);await sleep(3000);}
  let n=0;for(const c of list){const f=path.join(CACHE,c.slug+'.json');if(fs.existsSync(f))continue;
   const j=await overpass(QL(c.latitude,c.longitude));n++;
   if(j.barrier){log.push({slug:c.slug,barrier:j.barrier});console.log('barrier',c.slug,j.barrier);continue;}
@@ -174,5 +175,19 @@ async function candidates(){
   console.log(c.slug,out[c.slug].status,out[c.slug].candidate?.names?.[0]||'');fs.writeFileSync(CANDS,JSON.stringify(out,null,1));await sleep(2000);}
  fs.writeFileSync(CANDS,JSON.stringify(out,null,1));
 }
+// Offline: an ambiguous locality search is resolved only when the canonical name carries a sub-course in parentheses
+// and exactly one tied candidate contains every distinctive token of it. Geometry proof is still required afterwards.
+function resolve(){const out=JSON.parse(fs.readFileSync(CANDS,'utf8'));let n=0;
+ for(const c of courses){const v=out[c.slug];if(v?.status!=='ambiguous')continue;const sub=subCourseTokens(c.name);if(!sub.length)continue;
+  const hit=(v.others||[]).filter(o=>o.names.some(nm=>{const t=new Set(norm(nm));return sub.every(x=>t.has(x));}));
+  if(hit.length===1){const full=hit[0];v.status='candidate';v.resolved_by='sub-course:'+sub.join(' ');v.candidate={osm_course:full.id,names:full.names,score:full.score,lat:null,lon:null,needs_centre:true};n++;console.log('resolved',c.slug,'->',full.names[0]);}
+  else v.unresolved=hit.length?`${hit.length} candidates contain the sub-course name`:'no candidate contains the sub-course name';}
+ fs.writeFileSync(CANDS,JSON.stringify(out,null,1));console.log('resolved',n);}
+// Centres for resolved candidates (one small Overpass call each).
+async function centres(){const out=JSON.parse(fs.readFileSync(CANDS,'utf8'));
+ for(const [slug,v] of Object.entries(out)){if(!v.candidate?.needs_centre)continue;const [t,id]=v.candidate.osm_course.split('/');
+  const j=await overpass(`[out:json][timeout:60];${t}(${id});out center;`);if(j.barrier){console.log('barrier',slug,j.barrier);continue;}
+  const e=j.elements?.[0];const ce=e?.center||(e?.lat?{lat:e.lat,lon:e.lon}:null);if(!ce)continue;v.candidate.lat=ce.lat;v.candidate.lon=ce.lon;delete v.candidate.needs_centre;console.log('centre',slug);await sleep(3000);}
+ fs.writeFileSync(CANDS,JSON.stringify(out,null,1));}
 const cmd=process.argv[2];
-if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')upload();else if(cmd)console.error('usage: collect|prepare|upload');
+if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='resolve')resolve();else if(cmd==='centres')await centres();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')upload();else if(cmd)console.error('usage: collect|prepare|upload');

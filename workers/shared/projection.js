@@ -1,5 +1,6 @@
 import {cleanStat} from './season-stats.js';
 import {tourRef} from './tours.js';
+import {DUPLICATE_COURSES} from './course-identity.js';
 // Public projection: canonical SPORTS rows -> derived, versioned public documents in R2.
 // Every derived number names its method, sample, cohort and coverage. Unknown stays null.
 import {DNA_METHOD,COURSE_METHOD,FIT_METHOD,DIMENSIONS,HELD,playerMetrics,rankCohort,tier,mean,sd,round1,round2,percentileOf} from './dna.js';
@@ -70,6 +71,13 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
  const tournaments=new Map(g.tournaments.map(t=>[t.id,t])),tours=new Map(g.tours.map(t=>[t.id,t])),courses=new Map(g.courses.map(c=>[c.id,c])),layouts=new Map(g.layouts.map(l=>[l.id,l]));
  const holesByLayout=by(g.holes,'layout_id'),ecByEdition=by(g.editionCourses,'edition_id'),toursByEdition=by(g.editionTours,'edition_id');
  const captures=new Map(g.captures.map(c=>[c.id,{id:c.id,source:c.source_id,captured_at:c.captured_at,sha256:c.sha256,parser:c.parser_version,rights:c.rights_version}]));
+ // Reviewed course aliases (course-identity.js DUPLICATE_COURSES with alias:true): the duplicate record is folded into
+ // its primary in the public projection. The database rows, their setup layouts and capture provenance stay untouched.
+ const bySlug=new Map(g.courses.map(c=>[c.slug,c])),aliasOf=new Map(),aliases=new Map();
+ for(const d of DUPLICATE_COURSES){if(!d.alias)continue;const a=bySlug.get(d.slug),p=bySlug.get(d.duplicate_of);if(!a||!p)continue;aliasOf.set(a.id,p);
+  (aliases.get(p.id)||aliases.set(p.id,[]).get(p.id)).push({slug:a.slug,name:a.name,locality:a.locality,evidence_id:d.evidence_id,provenance:captures.get(a.capture_id)||null});}
+ const courseOf=id=>{const c=courses.get(id);return c?aliasOf.get(c.id)||c:null;};
+ g={...g,courses:g.courses.filter(c=>!aliasOf.has(c.id))};
  const media=(kind,id)=>{const m=g.media.find(x=>x[kind+'_id']===id);if(!m)return null;return {sha256:m.sha256,width:m.width,height:m.height,author:m.author,licence:m.licence,licence_url:m.licence_url,attribution:m.attribution,source_url:m.source_url,derivatives:derivatives.has(m.sha256),restrictions:m.identity_proof?.restrictions||null};};
  const thumb=ph=>ph?{sha256:ph.sha256,width:ph.width,height:ph.height,derivatives:ph.derivatives}:null;
  const ident=new Map(g.identities.filter(i=>i.source_id!=='espn').map(i=>[i.player_id,{...i,espn:undefined}]));
@@ -80,7 +88,7 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   const t=tournaments.get(e.tournament_id),r=e.rules||{},ecs=ecByEdition.get(e.id)||[];
   const setup=ecs.map(x=>layouts.get(x.layout_id)).find(l=>l&&!/metadata only/i.test(l.version_label));
   const meta=ecs.map(x=>layouts.get(x.layout_id)).find(l=>l&&/metadata only/i.test(l.version_label));
-  const course=courses.get((setup||meta)?.course_id)||null;
+  const course=courseOf((setup||meta)?.course_id);
   const tourNames=(toursByEdition.get(e.id)||[]).map(x=>tours.get(x.tour_id)?.name).filter(Boolean);
   const division=r.division||t?.major_division||((toursByEdition.get(e.id)||[]).map(x=>tours.get(x.tour_id)?.division)[0])||null;
   const res=r.results||null;
@@ -258,7 +266,7 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
   const pids=new Set();for(const e of eds)for(const x of entriesByEdition.get(e.id)||[])pids.add(x.player_id);
   const leaders=[...pids].map(pid=>({p:playerById.get(pid),h:courseHistory(pid,c.id)})).filter(r=>r.p&&r.h.rounds>=8).sort((a,b)=>b.h.scoring_vs_field-a.h.scoring_vs_field).slice(0,20).map(r=>({slug:r.p.slug,name:r.p.name,photo:thumb(r.p.photo),...r.h,editions:undefined,fit:fit(r.p.id,c.id)}));
   const lastFull=contenderEdition(c);const contender=lastFull?.layout?.holes?.length?(()=>{const out=lastFull.layout.holes.map(h=>({hole:h.hole,par:h.par,yards:h.yards,scores:[]}));for(const x of entriesByEdition.get(lastFull.id)||[])for(const c of x.rounds){const hs=holeMap.get(x.id+':'+c.round);if(hs)for(const h of hs){const o=out[h.hole-1];if(o)o.scores.push(h.to_par);}}return {edition:lastFull.slug,year:lastFull.year,basis:'hole-by-hole scorecards observed for this edition (sources: Wikipedia leaders cards and/or ESPN field cards)',holes:out.map(o=>({hole:o.hole,par:o.par,yards:o.yards,sample:o.scores.length,avg_to_par:round2(mean(o.scores))}))};})():null;
-  return {id:c.id,slug:c.slug,name:c.name,locality:c.locality,country_code:c.country_code,country:meta?.specifications?.country_name||null,latitude:c.latitude,longitude:c.longitude,description:meta?.specifications?.description||null,architects:meta?.specifications?.architects||[],opened_year:meta?.specifications?.opened_year||null,wikidata_id:meta?.specifications?.wikidata_id||null,photo:media('course',c.id),provenance:captures.get(c.capture_id)||null,
+  return {id:c.id,slug:c.slug,name:c.name,locality:c.locality,country_code:c.country_code,country:meta?.specifications?.country_name||null,latitude:c.latitude,longitude:c.longitude,description:meta?.specifications?.description||null,architects:meta?.specifications?.architects||[],opened_year:meta?.specifications?.opened_year||null,wikidata_id:meta?.specifications?.wikidata_id||null,photo:media('course',c.id),provenance:captures.get(c.capture_id)||null,aliases:aliases.get(c.id)||[],
    editions:eds.map(e=>{const w=(entriesByEdition.get(e.id)||[]).find(x=>x.winner);const p=w&&playerById.get(w.player_id);return {slug:e.slug,name:e.name,year:e.year,division:e.division,is_major:e.is_major,coverage:e.coverage,par:e.par,yardage:e.layout?.yardage||null,winner:p?{slug:p.slug,name:p.name}:null,to_par:w?.to_par??null};}),
    dna:courseDna(c.id),player_history:leaders,contender_hole_scoring:contender};}
  const pSummary=d=>({slug:d.slug,name:d.name,tour:d.tours?.[0]?{key:d.tours[0].key,short:d.tours[0].short}:null,country:d.country,country_code:d.country_code,division:d.division,age:d.age,photo:thumb(d.photo),headshot:d.photo?null:d.headshot||null,...d.summary,scoring:d.dna?.l24m?.metrics?.scoring?{value:d.dna.l24m.metrics.scoring.value,percentile:d.dna.l24m.metrics.scoring.percentile,confidence:d.dna.l24m.metrics.scoring.confidence}:null,form:d.dna?.l24m?.metrics?.form?{value:d.dna.l24m.metrics.form.value,percentile:d.dna.l24m.metrics.form.percentile,confidence:d.dna.l24m.metrics.form.confidence}:null});

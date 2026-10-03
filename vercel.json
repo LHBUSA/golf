@@ -34,6 +34,13 @@
     }
   ],
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/course/st-andrews-links-old-course-ec37",
+      "destination": "/course/old-course-at-st-andrews-q167245",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/news",
