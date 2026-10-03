@@ -7,7 +7,7 @@ const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
 import {noTransform} from './transport.js';
 import {courseMap,openData} from './course-map.js';
-import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition} from '../../shared/views.js';
+import {canonicalPair,searchIndex,matchupPublic,matchupPremium,publicPlayer,premiumPlayer,publicCourse,premiumCourse,publicEdition,premiumEdition,projectionPublic} from '../../shared/views.js';
 export const CONTRACT='golf-public/2.0.0';
 const headers=(cache)=>({'cache-control':cache,'x-content-type-options':'nosniff'});
 const LIVE_CACHE='public, max-age=60, s-maxage=60';
@@ -75,6 +75,8 @@ async function route(request,env){
      const key=id&&['players','editions','courses'].includes(id)&&sub?`${id}/${sub}`:id;
      if(!key||!/^(manifest|index|bundle|schedule)\.json$|^(players|editions|courses)\/[a-z0-9-]+\.json$/.test(key))return json({error:'not_found'},404);
      const o=await env.PUBLIC.get('projection/v2/'+key);if(!o)return json({error:'not_found'},404);
+     // Premium values are stripped server-side (views.projectionPublic); index/manifest/schedule carry none.
+     if(/^(players|courses|editions)\/|^bundle\.json$/.test(key))return new Response(JSON.stringify(projectionPublic(key,await o.json())),{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
      return new Response(o.body,{headers:{...headers(PUBLIC_CACHE),'content-type':'application/json'}});
     }
     case 'graph':return ok({as_of:ix.as_of,coverage:ix.coverage,source_state:ix.source_state});
