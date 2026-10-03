@@ -99,7 +99,11 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
  const edById=new Map(editions.map(e=>[e.id,e]));
  // ---- entries/results/rounds
  const resultByEntry=new Map(g.results.map(r=>[r.entry_id,r])),roundNo=new Map(g.rounds.map(r=>[r.id,r.round_number])),cardsByEntry=g.cardsByEntry||new Map([...by(g.scorecards||[],'entry_id')].map(([k,v])=>[k,v.map(c=>({round:roundNo.get(c.round_id),strokes:c.strokes,to_par:c.score_to_par}))]));
- const entries=g.entries.map(en=>{const r=resultByEntry.get(en.id)||{},e=edById.get(en.edition_id);const cards=(cardsByEntry.get(en.id)||[]).slice().sort((a,b)=>a.round-b.round);
+ // A partial round (withdrawal / stoppage mid-round) can arrive without holes_completed and look like a round of
+ // 4, 8 or 23 strokes. No real 18-hole tour round is under 55 (the tour record is 58), so such cards never count as rounds (board, timeline,
+ // field averages, DNA). The capture and DB row are untouched.
+ const fullRound=c=>!(Number.isFinite(c?.strokes)&&c.strokes<55);
+ const entries=g.entries.map(en=>{const r=resultByEntry.get(en.id)||{},e=edById.get(en.edition_id);const cards=(cardsByEntry.get(en.id)||[]).filter(fullRound).slice().sort((a,b)=>a.round-b.round);
   return {id:en.id,edition_id:en.edition_id,player_id:en.player_id,status:r.finish_status||en.status,position:r.position??null,tied:r.tied??null,strokes:r.strokes??null,to_par:r.score_to_par??null,winner:r.winner===true,margin:r.winning_margin??null,rounds:cards,e};}).filter(x=>x.e&&x.player_id);
  const resultsCount=g.results.length;g.entries=null;g.results=null;g.cardsByEntry=null; // release raw rows (Worker memory)
  const entriesByEdition=by(entries,'edition_id'),entriesByPlayer=by(entries,'player_id');
