@@ -41,7 +41,7 @@ function stripComments(text) {
   return text
     .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ''))
     .replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ''))
-    .replace(/^\s*\/\/.*$/gm, '');
+    .replace(/^[ \t]*\/\/.*$/gm, '');
 }
 
 function files(rel, out = []) {
