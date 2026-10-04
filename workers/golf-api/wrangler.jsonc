@@ -31,6 +31,10 @@
     {
       "binding": "AUTH",
       "service": "propbetedge-auth-magic"
+    },
+    {
+      "binding": "MARKETS",
+      "service": "propsports-markets"
     }
   ],
   "r2_buckets": [

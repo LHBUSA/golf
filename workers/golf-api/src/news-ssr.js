@@ -2,8 +2,11 @@
 import {route,shell} from '../../../src/lib/render.js';
 import {documentHtml,SITE} from '../../../src/lib/seo.js';
 import {relatedStories} from '../../../src/lib/article.js';
+import {articleMarketEvent,loadArticleMarket,storedArticleMarket,ARTICLE_MARKET_SSR_MS} from '../../../src/lib/article-market.js';
 // no-transform: the edge must not inject scripts (CSP-clean; GA4 is the only analytics instance).
 const HTML_CACHE='public, max-age=60, s-maxage=300, stale-while-revalidate=600, no-transform';
+// A page carrying a still-moving market module is cached briefly (the browser refreshes the module anyway).
+const MARKET_HTML_CACHE='public, max-age=30, s-maxage=30, stale-while-revalidate=30, no-transform';
 const xmlEsc=s=>String(s??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
 let shellMemo={at:0,html:null};
 // The built page template (hashed asset URLs) from the current frontend deployment.
@@ -18,10 +21,16 @@ export const newsIndex=env=>getJ(env,'news/v2/index.json').then(x=>x||[]);
 export async function renderNews(env,ix,path){
  const [,,slug]=path.split('/');const index=await newsIndex(env);
  let data={index:ix,news:{index},stories:await getJ(env,'news/v1/index.json')||[]},status=200;
- if(slug){const art=await getJ(env,'news/v2/articles/'+slug+'.json');if(!art||art.status!=='published'){status=404;}else data={...data,article:art,related:relatedStories(index,art)};}
+ let marketLive=false;
+ if(slug){const art=await getJ(env,'news/v2/articles/'+slug+'.json');if(!art||art.status!=='published'){status=404;}else{
+  // Article market module (article-market/1): first paint from one bounded read through the MARKETS service
+  // binding (a workers.dev fetch from a Worker is refused); a slow/failed read -> no module (never a placeholder).
+  const market=storedArticleMarket(art)||(articleMarketEvent(art)&&env.MARKETS?.fetch?await loadArticleMarket(art,u=>env.MARKETS.fetch('https://propsports-markets.internal'+u),{base:'',timeoutMs:ARTICLE_MARKET_SSR_MS}):null);
+  marketLive=Boolean(articleMarketEvent(art)&&(!market||market.freeze!=='EMBED_THIS_PACKET'));
+  data={...data,article:art,related:relatedStories(index,art),market};}}
  const r=route(path,data);if(r.title==='Not found')status=404;
  const html=documentHtml(await template(env),path,r,shell(path,r.main,ix));
- return new Response(html,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':status===200?HTML_CACHE:'public, max-age=60, no-transform','x-content-type-options':'nosniff'}});
+ return new Response(html,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':status===200?(marketLive?MARKET_HTML_CACHE:HTML_CACHE):'public, max-age=60, no-transform','x-content-type-options':'nosniff'}});
 }
 export async function feed(env){
  const index=(await newsIndex(env)).slice(0,50);const arts=await Promise.all(index.map(s=>getJ(env,'news/v2/articles/'+s.slug+'.json')));

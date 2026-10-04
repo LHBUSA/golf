@@ -24,7 +24,10 @@ test('vendored shared Kalshi files are byte-identical to the canonical client (p
   'README.md':'a80e4ac5d8733bde8afc0c13c281242babff8b1acd083974741f677b7af5a480',
   'kalshi-market-client.js':'68f9ed06de627654634e385acc79b1efdee858de4a59801e20b401b5c0bc43dc',
   'kalshi-market-ui.css':'fb046ada2b2e5450207e4301c0e41a193aa599e4661843fdcdb50d45ac7191ae',
-  'kalshi-market-ui.js':'03712a0eb48e5265523ec45b145fd2fa880c9435e1adf2c6ca988c78c3fa37a8'};
+  'kalshi-market-ui.js':'03712a0eb48e5265523ec45b145fd2fa880c9435e1adf2c6ca988c78c3fa37a8',
+  // article-market/1 client (field support), propbetedge-workers abaf809
+  'article-market-ui.js':'3be162ac863543deb3c0af98809db409225113c9381532c150b4a6d6954d5895',
+  'article-market-ui.css':'c5d12f5e9573b0b7b25356f8c4350a7f2ac83b32750fca3564a1ee7f215e8f86'};
  assert.deepEqual(fs.readdirSync('src/vendor/kalshi').sort(),Object.keys(PIN).sort());
  for(const [f,sha] of Object.entries(PIN))assert.equal(crypto.createHash('sha256').update(fs.readFileSync('src/vendor/kalshi/'+f)).digest('hex'),sha,f);
  assert.match(fs.readFileSync('.gitattributes','utf8'),/^src\/vendor\/kalshi\/\*\* -text$/m,'vendored bytes are never line-ending converted');
@@ -131,7 +134,9 @@ test('CSP stays same-origin; exact golf market rewrites precede the golf-api cat
  assert.ok(board>=0&&ev>=0&&board<api&&ev<api);
  assert.equal(c.rewrites[board].destination,'https://propsports-markets.sales-fd3.workers.dev/v1/market-intelligence/sport/golf');
  assert.equal(c.rewrites[ev].destination,'https://propsports-markets.sales-fd3.workers.dev/v1/market-intelligence/event/golf/:id');
- assert.equal(c.rewrites.filter(r=>/propsports-markets/.test(r.destination)).length,2,'no wildcard proxy to the markets service');
+ const am=idx('/api/markets/v1/article-market/golf/:id([0-9a-f-]+)');assert.ok(am>=0&&am<api);
+ assert.equal(c.rewrites[am].destination,'https://propsports-markets.sales-fd3.workers.dev/v1/article-market/golf/:id');
+ assert.equal(c.rewrites.filter(r=>/propsports-markets/.test(r.destination)).length,3,'no wildcard proxy to the markets service');
 });
 
 // ---- Market history (CLOSED / SETTLED). Fixture = the real tennis market-history/1 JSON reshaped to a golf field

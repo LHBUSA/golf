@@ -3,6 +3,7 @@ import './product.css';
 import './course-map.css';
 import './vendor/kalshi/kalshi-market-ui.css';
 import './kalshi.css';
+import './vendor/kalshi/article-market-ui.css';
 import {initAnalytics,track,pageType,destination} from './analytics.js';
 // @ts-ignore shared JS modules
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
@@ -30,6 +31,8 @@ import {holeSvg,shotPoints,scoreLabel} from './lib/cast-replay.js';
 import {mountMovement} from './lib/movement-live.js';
 // @ts-ignore Kalshi Market Intelligence (prediction market; same-origin /api/markets only)
 import {hydrateKalshi,boardWithin,placeCastMarket} from './lib/kalshi-live.js';
+// @ts-ignore Article market module (article-market/1): refreshes the server-painted module while visible
+import {mountArticleMarketSlot} from './lib/article-market.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -138,6 +141,8 @@ const liveFirstPass=hydrateLive();
 // Kalshi prediction-market mounts (tournament card, PBEcast strip, card lines). Never blocks any other module;
 // the tournament card's first paint joins the live-scoring pass (bounded) so the page shifts once, not twice.
 hydrateKalshi(document,{after:liveFirstPass});
+// Article market module on news articles (server first paint; nothing rendered -> no slot -> nothing mounted).
+mountArticleMarketSlot(document);
 // Course View in news articles: only when the course has verified/partial routing (never decorative geometry).
 {const host=$('[data-article-course-map]');if(host){const slug=host.getAttribute('data-course')||'';
  fetchCourseMap(slug).then((M:any)=>{if(!M?.geometry||!/VERIFIED|PARTIAL/.test(M.geometry_status||'')){host.remove();return;}host.hidden=false;mountCourseMap(host,M,{mode:'page'});});}}

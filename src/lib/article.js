@@ -6,6 +6,7 @@ import {HIGHLIGHT_FACTS,FINGERPRINT_FACTS} from '../../workers/shared/news/extra
 import {videoTile} from './video.js';
 import {movementChart} from './movement.js';
 import {customerSource,customerSources} from './brand.js';
+import {articleMarketSlot} from './article-market.js';
 const media=(sha,w,f)=>`/api/v1/media/${sha}/${w}.${f}`;
 const segHtml=segs=>(segs||[]).map(s=>s.t==='link'?`<a class="story-link" href="${e(s.href)}" data-entity="${e(s.entity_type)}">${e(s.v)}</a>`:s.t==='fact'?`<span class="story-fact${s.em?' story-em':''}" data-fact="${e(s.fact)}">${e(s.v)}</span>`:e(s.v)).join('');
 const when=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZone:'UTC',timeZoneName:'short'});};
@@ -109,7 +110,7 @@ const PAIR={player_dna:'player_form',winner_dna:'winner_form'};
 // Where official video sits by class (after the first section that introduces this module, else at the end).
 const VIDEO_AFTER={preview:['hole_difficulty','weather'],course_intelligence:['hole_difficulty','course_dna'],final:['leaderboard','progress','round_progress'],round_recap:['leaderboard','movement'],notable_round:['scorecard']};
 const COURSE_MAP_TYPES=new Set(['preview','course_intelligence','course_weather','major_history']);
-export function articlePage(art,{related=[],video=null}={}){
+export function articlePage(art,{related=[],video=null,market=null}={}){
  const updated=art.updated_at&&art.published_at&&Date.parse(art.updated_at)-Date.parse(art.published_at)>=5*60000;
  const byEditor=art.editor?.mode==='openai'?'Written with AI assistance from a frozen fact packet; every number is checked against it.':'Written by the Golf Desk from a frozen fact packet.';
  const charts=new Map(art.charts.map(c=>[c.id,c]));const placed=new Set();
@@ -135,7 +136,7 @@ export function articlePage(art,{related=[],video=null}={}){
  const headed=art.sections.filter(s=>s.heading);let calloutDone=false;
  const body=art.sections.map((s,i)=>{const isCourse=/^(the course|what the week demands|how it plays)/i.test(s.heading||'');
   const call=!calloutDone&&callouts.length&&isCourse?(calloutDone=true,callouts.map(calloutBlock).join('')):'';
-  return `<section class="story-section${s.heading?'':' story-lede'}"${s.heading?` id="${sid(s.heading)}"`:''}>${s.heading?`<h2>${e(s.heading)}</h2>`:''}${s.paragraphs.map(p=>`<p>${segHtml(p)}</p>`).join('')}${call}</section>${moduleAfter(s)}${!placedByProse&&i===0&&lead?chartFig(lead):''}`;}).join('');
+  return `<section class="story-section${s.heading?'':' story-lede'}"${s.heading?` id="${sid(s.heading)}"`:''}>${s.heading?`<h2>${e(s.heading)}</h2>`:''}${s.paragraphs.map(p=>`<p>${segHtml(p)}</p>`).join('')}${call}</section>${moduleAfter(s)}${!placedByProse&&i===0&&lead?chartFig(lead):''}${i===0?articleMarketSlot(art,market):''}`;}).join('');
  const groups=GROUPS.map(([k,t,ids])=>{const cs=ids.map(id=>charts.get(id)).filter(c=>c&&!placed.has(c.id));return cs.length?section(k,t,cs.map(chartFig).join(''),{cls:'story-group'}):'';}).join('');
  const rest=[...charts.values()].filter(c=>!placed.has(c.id)).map(chartFig).join('');
  const seenHref=new Set(),ent=t=>art.entities.filter(x=>x.type===t&&x.href&&!seenHref.has(x.href)&&seenHref.add(x.href));

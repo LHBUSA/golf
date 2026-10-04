@@ -80,6 +80,10 @@
       "destination": "https://propsports-markets.sales-fd3.workers.dev/v1/market-intelligence/event/golf/:id"
     },
     {
+      "source": "/api/markets/v1/article-market/golf/:id([0-9a-f-]+)",
+      "destination": "https://propsports-markets.sales-fd3.workers.dev/v1/article-market/golf/:id"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://golf-api.propbetedge.ai/:path*"
     },

@@ -9,6 +9,26 @@ import {validateDraft,resolveHref,QUALITY_VERSION} from '../../shared/news/valid
 import {editorialPass,EDITOR_VERSION} from '../../shared/news/editor.js';
 import {articleSlug,buildArticle,pickHero,summaryOf,pickVideo} from '../../shared/news/plan.js';
 export {buildStory} from './legacy.js';
+import {articleMarketEvent,loadArticleMarket} from '../../../src/lib/article-market.js';
+// Newsroom contract (article-market/1, rule 3): once the markets API says freeze = EMBED_THIS_PACKET, the sealed
+// post_event_market_result/1 packet + sha256 is stored on the article and the page renders from that copy forever.
+// Only the market_result field is added: prose, published_at and updated_at never change. Recent eligible stories only.
+export async function embedMarketResults(env,index,{limit=6,now=Date.now()}={}){
+ if(!env.MARKETS?.fetch)return {status:'no_binding'};
+ const done=[];let checked=0;
+ for(const s of index){
+  if(checked>=limit)break;
+  if(!s?.slug||now-Date.parse(s.published_at||'')>14*86400000)continue;
+  const key='news/v2/articles/'+s.slug+'.json',art=await getJSON(env.PUBLIC,key);
+  if(!art||art.market_result||!articleMarketEvent(art))continue;
+  checked++;
+  const p=await loadArticleMarket(art,u=>env.MARKETS.fetch('https://propsports-markets.internal'+u),{base:'',timeoutMs:8000});
+  if(!p||p.freeze!=='EMBED_THIS_PACKET'||p.packet?.packet_state!=='FINAL'||p.packet.canonical_event_id!==art.context.edition_id||!p.packet.sha256)continue;
+  art.market_result={contract:p.contract,mode:p.mode,freeze:p.freeze,sha256:p.packet.sha256,packet:p.packet,live:p.live,embedded_at:new Date(now).toISOString()};
+  await putJSON(env.PUBLIC,key,art);done.push({slug:s.slug,sha256:p.packet.sha256});
+ }
+ return {checked,embedded:done};
+}
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
 const DAY=86400000,days=(a,b)=>Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/DAY);
 // Topics whose facts are expected to move (forecasts, fields): changes are updates, not corrections.
@@ -106,6 +126,7 @@ export async function run(env,{mode='shadow',force=false,types=null,editions=[],
    out.stories.push({topic:packet.topic,slug,status:state,editor:editor.mode,materiality:packet.materiality.score,hold,editor_log:editorLog?{status:editorLog.status,reason:editorLog.reason,reasons:editorLog.attempts.map(a=>a.reasons)}:null});
   }
   if(indexDirty){index.sort((a,b)=>String(b.published_at).localeCompare(String(a.published_at)));await putJSON(env.PUBLIC,'news/v2/index.json',index.slice(0,1000));}
+  try{out.market_embeds=await embedMarketResults(env,index);}catch(e){out.market_embed_error=String(e.message).slice(0,200);}
   out.finished=new Date().toISOString();out.editor.usd=Math.round(out.editor.usd*1e6)/1e6;
   await env.STATE.put('news:health',JSON.stringify({...out,stories:out.stories.slice(0,80)}));
   return out;

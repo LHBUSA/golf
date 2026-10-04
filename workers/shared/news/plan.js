@@ -78,6 +78,9 @@ export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior
  const sources=[...new Set(packet.facts.map(f=>f.source).filter(Boolean))];
  if(hero?.photo)sources.push(`Photo: ${hero.photo.attribution||hero.photo.author}`);
  const edition=packet.context.edition;
+ // Canonical edition id (the markets registry's golf canonical_event_id): exact slug -> id from our own projection
+ // index, never a name match. Stored on the article (context) so its market module links to exactly one tournament.
+ const editionId=(ctx?.ix?.editions||[]).find(x=>x.slug===edition)?.id||null;
  const doc={version:ARTICLE_VERSION,slug,type:packet.type,category:TYPES[packet.type]?.category||'GOLF',topic:packet.topic,status,
   headline:seg(draft.headline),dek:seg(draft.dek),headline_text:txt(draft.headline),dek_text:txt(draft.dek),
   seo:{title:seoTitle,description:txt(draft.seo_description||draft.dek).slice(0,170),social:txt(draft.social_headline||draft.headline)},
@@ -89,10 +92,12 @@ export function buildArticle({packet,draft,editor,slug,ctx,hero,video=null,prior
   entities,related:{players:ent('player').slice(0,6),course:ent('course')[0]||null,tournament:ent('tournament')[0]||null,matchups:ent('matchup'),majors:ent('majors')[0]||null},
   pbecast:edition&&packet.context.status!=='scheduled'?{href:'/pbecast?e='+encodeURIComponent(edition)}:null,
   evidence,sources,known_limits:[...new Set([...(packet.limits||[]),...(draft.known_limits||[]).map(txt)])].filter(Boolean),method:METHOD[packet.type]||null,
-  context:{edition,division:packet.context.division,is_major:packet.context.is_major,tour:packet.context.tour,round:packet.context.round||null},
+  context:{edition,...(editionId?{edition_id:editionId}:{}),division:packet.context.division,is_major:packet.context.is_major,tour:packet.context.tour,round:packet.context.round||null},
   editor:{mode:editor.mode,model:editor.model||null,version:editor.version},packet_sha256:packet.hash,
   first_published_at:prior?.first_published_at||now,published_at:prior?.published_at||now,updated_at:now,
-  revisions:[...(prior?.revisions||[])],corrections:[...(prior?.corrections||[])]};
+  revisions:[...(prior?.revisions||[])],corrections:[...(prior?.corrections||[])],
+  // The embedded market record (article-market/1 rule 3) is permanent: a later revision keeps it.
+  ...(prior?.market_result?{market_result:prior.market_result}:{})};
  return doc;
 }
 // Hero: the story's subject photo when rights-cleared, else the course, else branded fallback art.
