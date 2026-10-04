@@ -22,9 +22,9 @@ const IX={current:[ED],upcoming:[],recent:[DONE],editions:[ED,DONE],players:[],c
 test('vendored shared Kalshi files are byte-identical to the canonical client (propbetedge-workers ad6187a)',()=>{
  const PIN={
   'README.md':'a80e4ac5d8733bde8afc0c13c281242babff8b1acd083974741f677b7af5a480',
-  'kalshi-market-client.js':'68f9ed06de627654634e385acc79b1efdee858de4a59801e20b401b5c0bc43dc',
-  'kalshi-market-ui.css':'fb046ada2b2e5450207e4301c0e41a193aa599e4661843fdcdb50d45ac7191ae',
-  'kalshi-market-ui.js':'03712a0eb48e5265523ec45b145fd2fa880c9435e1adf2c6ca988c78c3fa37a8',
+  'kalshi-market-client.js':'bbab54f78382f336a149b18f332bc54abe0b9c471ada3dd8ef0d67e5e5706301',
+  'kalshi-market-ui.css':'df81df5650cc66d0bcea37c2808eaf783522ad9f921449e954f590d4ad9a2c60',
+  'kalshi-market-ui.js':'639f834c27bffed519d37eea4066d3b31e5699f7215d6ea5c07e23c2591ccc48',
   // article-market/1 client (field support), propbetedge-workers abaf809
   'article-market-ui.js':'3be162ac863543deb3c0af98809db409225113c9381532c150b4a6d6954d5895',
   'article-market-ui.css':'c5d12f5e9573b0b7b25356f8c4350a7f2ac83b32750fca3564a1ee7f215e8f86'};
@@ -40,8 +40,9 @@ test('browser code never calls Kalshi or a Worker host; the client reads same-or
   const t=fs.readFileSync(f,'utf8');
   assert.doesNotMatch(t,/(?:trading-api|api\.elections|external-api)\.kalshi\.com|kalshi\.com\/trade-api|api\.kalshi\.co/i,f);
   const hosts=t.match(/propsports-markets\.sales-fd3\.workers\.dev/g)||[];
-  // Only exception: the vendored client's default `base` (unused: golf passes base '/api/markets').
-  if(f.replaceAll('\\','/')==='src/vendor/kalshi/kalshi-market-client.js')assert.equal(hosts.length,1,f);else assert.equal(hosts.length,0,f);
+  // Only exception: the vendored client's default `base` params (createKalshiClient + createTapeClient, 64ca257);
+  // unused: golf passes base '/api/markets' and never builds a tape client.
+  if(f.replaceAll('\\','/')==='src/vendor/kalshi/kalshi-market-client.js')assert.equal(hosts.length,2,f);else assert.equal(hosts.length,0,f);
  }
  assert.equal(MARKETS_BASE,'/api/markets');assert.equal(kalshi.sport,'golf');
  const seen=[];const original=globalThis.fetch;
