@@ -101,10 +101,10 @@ test('vercel: exact same-origin rewrite for the golf article-market route, ahead
  assert.ok(i<rs.findIndex(x=>x.source==='/api/:path*'));
 });
 
-test('vendored article-market client pinned byte-for-byte to propbetedge-workers abaf809 (SHA-256)',()=>{
+test('vendored article-market client pinned byte-for-byte to propbetedge-workers 8d3b73f (SHA-256)',()=>{
  const sha=f=>createHash('sha256').update(readFileSync('src/vendor/kalshi/'+f,'utf8').replace(/\r\n/g,'\n')).digest('hex');
- assert.equal(sha('article-market-ui.js'),'3be162ac863543deb3c0af98809db409225113c9381532c150b4a6d6954d5895');
- assert.equal(sha('article-market-ui.css'),'c5d12f5e9573b0b7b25356f8c4350a7f2ac83b32750fca3564a1ee7f215e8f86');
+ assert.equal(sha('article-market-ui.js'),'2149e2854142657a554ef119533680c77657f0d2b1ea8406fe4de711e4fbe635');
+ assert.equal(sha('article-market-ui.css'),'60c223f6afbe32059ea272aeaff648759c254f3494106c41822afaf328c7aa4e');
 });
 
 test('newsroom embed pass: stores the sealed packet + sha256 only when FINAL/EMBED_THIS_PACKET; prose and timestamps untouched',async()=>{

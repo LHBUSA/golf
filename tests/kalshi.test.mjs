@@ -25,9 +25,9 @@ test('vendored shared Kalshi files are byte-identical to the canonical client (p
   'kalshi-market-client.js':'bbab54f78382f336a149b18f332bc54abe0b9c471ada3dd8ef0d67e5e5706301',
   'kalshi-market-ui.css':'df81df5650cc66d0bcea37c2808eaf783522ad9f921449e954f590d4ad9a2c60',
   'kalshi-market-ui.js':'639f834c27bffed519d37eea4066d3b31e5699f7215d6ea5c07e23c2591ccc48',
-  // article-market/1 client (field support), propbetedge-workers abaf809
-  'article-market-ui.js':'3be162ac863543deb3c0af98809db409225113c9381532c150b4a6d6954d5895',
-  'article-market-ui.css':'c5d12f5e9573b0b7b25356f8c4350a7f2ac83b32750fca3564a1ee7f215e8f86'};
+  // article-market/1 client (field support), propbetedge-workers 8d3b73f
+  'article-market-ui.js':'2149e2854142657a554ef119533680c77657f0d2b1ea8406fe4de711e4fbe635',
+  'article-market-ui.css':'60c223f6afbe32059ea272aeaff648759c254f3494106c41822afaf328c7aa4e'};
  assert.deepEqual(fs.readdirSync('src/vendor/kalshi').sort(),Object.keys(PIN).sort());
  for(const [f,sha] of Object.entries(PIN))assert.equal(crypto.createHash('sha256').update(fs.readFileSync('src/vendor/kalshi/'+f)).digest('hex'),sha,f);
  assert.match(fs.readFileSync('.gitattributes','utf8'),/^src\/vendor\/kalshi\/\*\* -text$/m,'vendored bytes are never line-ending converted');
