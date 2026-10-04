@@ -20,3 +20,9 @@ test('rendered footer: every family link once, Predictions in its own group, no 
  const sports=foot.slice(foot.indexOf('id="footer-sports"'),foot.indexOf('id="footer-intelligence"'));
  assert.ok(!sports.includes('predictions.propbetedge.ai'));
 });
+
+test('footer trust boundary: every Golf route keeps About Terms Legal Support and excludes main-site editorial people',()=>{
+ const html=render('/about');const foot=html.slice(html.indexOf('<footer'),html.indexOf('</footer>'));
+ for(const href of ['https://propbetedge.ai/about','https://propbetedge.ai/terms','https://propbetedge.ai/legal','https://propbetedge.ai/support'])assert.ok(foot.includes(`href="${href}"`),href);
+ for(const forbidden of ['https://propbetedge.ai/media','https://propbetedge.ai/authors','https://propbetedge.ai/editorial-standards','Justin Erickson','Ty Whitney','Erik Schwartz','PropBetEdge Editorial Team'])assert.ok(!foot.includes(forbidden),forbidden);
+});
