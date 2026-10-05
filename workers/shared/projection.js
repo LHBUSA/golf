@@ -247,7 +247,7 @@ export function prepare(g,{asOf=new Date().toISOString(),derivatives=new Set()}=
  function editionDoc(e,holeMap=new Map()){
   const es=(entriesByEdition.get(e.id)||[]).sort((a,b)=>(a.position??999)-(b.position??999)||(a.status==='finished'?0:1)-(b.status==='finished'?0:1)||(a.strokes??999)-(b.strokes??999));
   const start=e.starts_on||(e.year+'-01-01');
-  const board=es.map(x=>{const p=playerById.get(x.player_id);return {player:p?{slug:p.slug,name:p.name,country:p.country,country_code:p.country_code,photo:x.winner?p.photo:thumb(p.photo)}:null,position:x.position,tied:x.tied,status:x.status,to_par:x.to_par,strokes:x.strokes,winner:x.winner,margin:x.margin,rounds:x.rounds.map(c=>({round:c.round,strokes:c.strokes,to_par:c.to_par,vs_field:round2(delta(x,c))})),holes:x.rounds.flatMap(c=>{const hs=holeMap.get(x.id+':'+c.round);return hs?[{round:c.round,scores:hs}]:[];})};});
+  const board=es.map(x=>{const p=playerById.get(x.player_id);return {player:p?{slug:p.slug,name:p.name,country:p.country,country_code:p.country_code,photo:x.winner?p.photo:thumb(p.photo),headshot:x.winner&&!p.photo?p.headshot||null:null}:null,position:x.position,tied:x.tied,status:x.status,to_par:x.to_par,strokes:x.strokes,winner:x.winner,margin:x.margin,rounds:x.rounds.map(c=>({round:c.round,strokes:c.strokes,to_par:c.to_par,vs_field:round2(delta(x,c))})),holes:x.rounds.flatMap(c=>{const hs=holeMap.get(x.id+':'+c.round);return hs?[{round:c.round,scores:hs}]:[];})};});
   // Leader after each round from published round scores (complete only for full-field editions).
   // Round count: the results article's, else the event record's — the latter only once the edition is completed, so
   // no in-progress (partial) round can produce a leader or field average.
