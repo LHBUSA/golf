@@ -13,3 +13,29 @@ export function videoRail(videos,{title='Official video',max=6}={}){
  const vs=(videos||[]).slice(0,max);if(!vs.length)return '';
  return `<div class="yt-rail yt-n${Math.min(vs.length,3)}" role="list" aria-label="${e(title)}">${vs.map(v=>`<div role="listitem">${videoTile(v)}</div>`).join('')}</div><p class="gnote">Official channels only. Videos play from YouTube (privacy-enhanced mode) after you press play.</p>`;
 }
+
+
+/* Tournament pages deliberately keep video subordinate to the intelligence.
+ * One editorially useful recap gets the poster; at most three different
+ * supporting purposes are surfaced as compact links. Everything else is an
+ * explicit archive so the leaderboard remains the primary product. */
+export function selectEditionVideos(videos,{supportMax=3}={}){
+ const vs=(videos||[]).filter(v=>v?.video_id),newest=(a,b)=>String(b.published_at||'').localeCompare(String(a.published_at||''));
+ if(!vs.length)return {featured:null,support:[],archive:[]};
+ const round=v=>Number.isFinite(Number(v.round))?Number(v.round):-1;
+ const latestRound=Math.max(-1,...vs.map(round));
+ const first=f=>vs.filter(f).sort(newest)[0]||null;
+ const featured=
+  first(v=>v.video_type==='tournament_highlights')||
+  first(v=>round(v)===latestRound&&v.video_type==='full_round')||
+  first(v=>round(v)===latestRound&&v.video_type==='round_highlights')||
+  first(v=>v.video_type==='winner_highlights')||
+  [...vs].sort(newest)[0];
+ const used=new Set([featured.video_id]),support=[];
+ const add=f=>{if(support.length>=supportMax)return;const v=vs.filter(x=>!used.has(x.video_id)&&f(x)).sort(newest)[0];if(v){used.add(v.video_id);support.push(v);}};
+ add(v=>v.video_type==='round_highlights'||v.video_type==='full_round'||v.video_type==='tournament_highlights');
+ add(v=>v.video_type==='winner_highlights'||v.video_type==='player_highlights');
+ add(v=>v.video_type==='interview'||v.video_type==='press_conference');
+ for(const v of [...vs].sort(newest)){if(support.length>=supportMax)break;if(!used.has(v.video_id)){used.add(v.video_id);support.push(v);}}
+ return {featured,support,archive:vs.filter(v=>!used.has(v.video_id))};
+}
