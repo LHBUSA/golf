@@ -107,7 +107,7 @@ export function courseMapSvg(M,{focus=null,overlay=null,current=null,ar=1.25,px=
  const layer=(cls,arr)=>arr?.length?`<g class="cm-${cls}">${arr.map(c=>`<path d="${poly(c)}"/>`).join('')}</g>`:'';
  const routes=M.holes.filter(h=>h.route).map(h=>{const d=sc?.of.get(h.hole),cls=['cm-route',h.hole===focus?'is-focus':'',h.hole===current?'is-current':''].filter(Boolean).join(' ');
   const st=h.route[0];return `<g class="${cls}" data-hole="${h.hole}"><path class="cm-line${d?' cm-d'+Math.min(4,Math.floor(d.t*5)):''}" d="${path(h.route)}"/><path class="cm-hit" d="${path(h.route)}"/><g class="cm-num" transform="translate(${st[0]} ${st[1]}) scale(${r1(u*100)/100})"><circle r="11"/><text text-anchor="middle" dy="4">${h.hole}</text></g></g>`;}).join('');
- return `<svg class="cm-svg" viewBox="${vb.join(' ')}" data-full="${full.join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${e(M.course.name)}: current mapped routing, ${mappedCount(M)} of 18 hole routes${focus?`, hole ${focus} focused`:''}${current?`, current hole ${current} highlighted`:''}. North is up."><rect class="cm-bg" x="-100000" y="-100000" width="200000" height="200000"/>${M.geometry.outline?`<path class="cm-outline" d="${poly(M.geometry.outline)}"/>`:''}${layer('fairway',G.fairway)}${layer('water',G.water)}${layer('tee',G.tee)}${layer('green',G.green)}${layer('bunker',G.bunker)}${routes}${focus!=null?focusOverlay(M,focus,{u,measure}):''}</svg>`;
+ return `<svg class="cm-svg" viewBox="${vb.join(' ')}" data-full="${full.join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${e(M.course.name)}: current mapped routing, ${mappedCount(M)} of 18 hole routes${focus?`, hole ${focus} focused`:''}${current?`, current hole ${current} highlighted`:''}. North is up."><rect class="cm-bg" x="-100000" y="-100000" width="200000" height="200000"/>${M.geometry.outline?`<path class="cm-outline" d="${poly(M.geometry.outline)}"/>`:''}${layer('fairway',G.fairway)}${layer('water',G.water)}${layer('tee',G.tee)}${layer('green',G.green)}${layer('bunker',G.bunker)}${routes}${focus!=null?focusOverlay(M,focus,{u,measure,vb}):''}</svg>`;
 }
 const cohortNote=M=>M.scoring?`${M.scoring.cohort} · ${M.scoring.year} edition · ${M.scoring.basis}.${M.scoring.cohort==='Contender sample'?' Not the full field.':''}`:'';
 const ord=n=>{const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
@@ -162,13 +162,24 @@ export function holePanel(M,hole,{wind=null,today=null,live=null,measure=null,na
 }
 /** Focused-hole overlays: route markers (yards to the target along the route), the target label, and a user measure.
  * None of these is a player or ball position. */
-export function focusOverlay(M,focus,{u=1,measure=null}={}){
+export function focusOverlay(M,focus,{u=1,measure=null,vb=null}={}){
  const h=M.holes.find(x=>x.hole===focus&&x.route);const dr=h?.distance_reference;if(!dr)return '';
  const fs=r1(10.5*u),mk=(dr.route_markers||[]).map(m=>`<g class="cm-mk" transform="translate(${m.point[0]} ${m.point[1]})"><circle r="${r1(3.2*u)}"/><text x="${r1(6*u)}" y="${r1(3.5*u)}" font-size="${fs}">${m.yards}</text></g>`).join('');
  const t=dr.target,lab=dr.target_type==='mapped_green_centre'?'MAPPED GREEN':'ROUTE END';
- const tg=`<g class="cm-tg" transform="translate(${t[0]} ${t[1]})"><circle r="${r1(4.5*u)}"/><circle r="${r1(1.6*u)}" class="cm-tgc"/><text x="${r1(8*u)}" y="${r1(-6*u)}" font-size="${r1(9.5*u)}">${lab}</text></g>`;
+ const tg=`<g class="cm-tg" transform="translate(${t[0]} ${t[1]})"><circle r="${r1(4.5*u)}"/><circle r="${r1(1.6*u)}" class="cm-tgc"/>${targetChip(lab,t,u,vb)}</g>`;
  const ms=measure?`<g class="cm-ms"><path d="M${measure.point[0]},${measure.point[1]}L${t[0]},${t[1]}"/><circle cx="${measure.point[0]}" cy="${measure.point[1]}" r="${r1(4*u)}"/><text x="${r1(measure.point[0]+7*u)}" y="${r1(measure.point[1]-7*u)}" font-size="${r1(12*u)}">~${measure.yards} YDS</text></g>`:'';
  return `<g class="cm-overlay" aria-hidden="true">${mk}${tg}${ms}</g>`;
+}
+/** Target label on a dark chip sized in on-screen units (u), so it reads over green geometry at any zoom. Placed up-right of
+ * the target; moved above/left/below when that would leave the viewBox `vb` ([x,y,w,h]), so it never clips at narrow widths. */
+function targetChip(lab,t,u,vb){
+ const fs=9.5*u,px=4*u,w=lab.length*fs*0.74+2*px,h=fs*1.5,gap=7*u,m=3*u;
+ let x=gap,y=-gap-h;
+ if(vb){const L=vb[0]+m,R=vb[0]+vb[2]-m,fits=x0=>t[0]+x0>=L&&t[0]+x0+w<=R;
+  // right of the target; else above it, pushed as far right as the view allows (off the incoming route and its markers)
+  if(!fits(x)){x=Math.max(-w,Math.min(-w/2,R-w-t[0]));if(!fits(x))x=Math.min(Math.max(x,L-t[0]),R-w-t[0]);y-=4*u;}
+  if(t[1]+y<vb[1]+m)y=gap;if(t[1]+y+h>vb[1]+vb[3]-m)y=-h/2;}
+ return `<rect class="cm-tgl" x="${r1(x)}" y="${r1(y)}" width="${r1(w)}" height="${r1(h)}" rx="${r1(2*u)}"/><text x="${r1(x+px)}" y="${r1(y+h*0.7)}" font-size="${r1(fs)}">${lab}</text>`;
 }
 /** Approach view: the last ~230 yards of the verified route plus the target, padded. */
 export function approachBox(M,focus,ar=1.25){

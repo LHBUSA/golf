@@ -105,3 +105,16 @@ test('missing hole-by-hole scorecards never suppress verified routing',async()=>
  const M=(await courseMap(envOf(st),ix,'tpc-sawgrass-q1',null,NOW)).body;assert.equal(M.scoring,null);assert.equal(M.geometry_status,'VERIFIED ROUTING');
  const mod=courseMapModule(M,{mode:'cast',current:7});assert.match(mod,/<svg/);assert.match(mod,/CURRENT HOLE<\/span> <b>7<\/b>/);assert.match(holePanel(M,7),/No scoring sample available/);
 });
+test('target label: dark chip in on-screen units, kept inside the viewBox, meaning unchanged',()=>{
+ const M={...BD,course:{slug:'bd',name:'Black Desert'},bounds:BD.geometry.bounds,holes:BD.holes.map(h=>({...h,geometry_status:'verified',setup:{edition:'e',par:4,yards:500},scoring:null}))};
+ for(const n of M.holes.filter(h=>h.distance_reference).map(h=>h.hole))for(const [ar,px] of [[1,358],[0.7,358],[1.6,900]]){
+  const svg=courseMapSvg(M,{focus:n,ar,px}),vb=svg.match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);
+  const g=svg.match(/<g class="cm-tg" transform="translate\(([-\d.]+) ([-\d.]+)\)">.*?<rect class="cm-tgl" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"[^>]*\/><text[^>]*>(MAPPED GREEN|ROUTE END)<\/text>/);
+  assert.ok(g,`hole ${n}: label chip present`);const [tx,ty,x,y,w,h]=g.slice(1,7).map(Number);
+  const tol=vb[2]*0.002;
+  assert.ok(tx+x>=vb[0]-tol&&tx+x+w<=vb[0]+vb[2]+tol&&ty+y>=vb[1]-tol&&ty+y+h<=vb[1]+vb[3]+tol,`hole ${n} ar ${ar}: label inside viewBox`);
+  const u=vb[2]/Math.max(280,px);assert.ok(Math.abs(h-9.5*u*1.5)<0.2,'chip scales with on-screen units');
+  assert.equal(g[7],M.holes.find(x=>x.hole===n).distance_reference.target_type==='mapped_green_centre'?'MAPPED GREEN':'ROUTE END');
+ }
+ assert.doesNotMatch(fs.readFileSync(new URL('../src/course-map.css',import.meta.url),'utf8').match(/\.cm-tg text\{[^}]*\}/)[0],/stroke-width/,'no fixed-unit halo on the label');
+});

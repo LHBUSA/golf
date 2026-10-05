@@ -108,7 +108,7 @@
 .cm-layer{margin:4px 0 0}
 .cm-stage.is-measuring .cm-svg{cursor:crosshair}
 .cm-mk circle{fill:#0b1f19;stroke:#eef2ec;stroke-width:1.2;vector-effect:non-scaling-stroke}.cm-mk text{fill:#eef2ec;font-family:var(--sans,system-ui);font-weight:700;paint-order:stroke;stroke:#0b1f19;stroke-width:3px;stroke-linejoin:round}
-.cm-tg circle{fill:none;stroke:var(--cm-gold);stroke-width:1.5;vector-effect:non-scaling-stroke}.cm-tg .cm-tgc{fill:var(--cm-gold)}.cm-tg text{fill:var(--cm-gold);font-family:var(--sans,system-ui);font-weight:700;letter-spacing:.06em;paint-order:stroke;stroke:#0b1f19;stroke-width:3px}
+.cm-tg circle{fill:none;stroke:var(--cm-gold);stroke-width:1.5;vector-effect:non-scaling-stroke}.cm-tg .cm-tgc{fill:var(--cm-gold)}.cm-tg text{fill:#f1dca4;font-family:var(--sans,system-ui);font-weight:700;letter-spacing:.06em}.cm-tgl{fill:#0b1f19;fill-opacity:.9;stroke:var(--cm-gold);stroke-opacity:.7;stroke-width:1;vector-effect:non-scaling-stroke}
 .cm-ms path{stroke:#9fd8ff;stroke-width:2;stroke-dasharray:6 5;fill:none;vector-effect:non-scaling-stroke}.cm-ms circle{fill:#9fd8ff;stroke:#0b1f19;stroke-width:1.5;vector-effect:non-scaling-stroke}.cm-ms text{fill:#9fd8ff;font-family:var(--sans,system-ui);font-weight:700;paint-order:stroke;stroke:#0b1f19;stroke-width:3px}
 @media(max-width:600px){.cm-panel{position:static;border:1px solid #e0c27a55;border-left-width:3px;border-radius:6px;padding:12px;box-shadow:none}.cm-tools button{flex:1 1 30%}}
 
