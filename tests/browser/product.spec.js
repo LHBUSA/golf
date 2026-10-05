@@ -7,7 +7,7 @@ const fm=ix.featured_matchups?.[0];
 const PAGES=['/','/today','/live','/tournaments','/players','/courses','/majors','/matchups','/pbecast','/news','/intelligence','/search','/all-access','/majors/masters','/majors/evian',
  full('men')&&'/tournament/'+full('men').slug,full('women')&&'/tournament/'+full('women').slug,'/player/'+topPlayer('men').slug,'/player/'+topPlayer('women').slug,'/course/'+ix.courses[0].slug,fm&&`/matchups/${fm.a.slug}/${fm.b.slug}`].filter(Boolean);
 export {PAGES};
-const WIDTHS=(process.env.QA_WIDTHS||'320,360,390,430,768,1024,1440').split(',').map(Number);
+const WIDTHS=(process.env.QA_WIDTHS||'320,360,390,430,768,1024,1440,1600,1920').split(',').map(Number);
 for(const width of WIDTHS)for(const path of PAGES)test(`${width} ${path}`,async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/status of 403/.test(m.text()))errors.push(m.text());});
  await page.setViewportSize({width,height:900});const res=await page.goto(path,{waitUntil:'networkidle'});expect(res.status()).toBe(200);
@@ -18,7 +18,7 @@ for(const width of WIDTHS)for(const path of PAGES)test(`${width} ${path}`,async(
  expect(broken).toEqual([]);expect(errors).toEqual([]);
  expect(await page.locator('body').innerText()).not.toMatch(/\bwill appear\b|\bwhen connected\b|coming soon|lorem ipsum/i);
  const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
- if([390,1440].includes(width)&&process.env.QA_SHOTS)await page.screenshot({path:`docs/evidence/screenshots/${(path.replace(/[^a-z0-9]+/gi,'-')||'home').slice(0,60)}-${width}.png`,fullPage:false});
+ if([390,1440,1920].includes(width)&&process.env.QA_SHOTS)await page.screenshot({path:`docs/evidence/screenshots/${(path.replace(/[^a-z0-9]+/gi,'-')||'home').slice(0,60)}-${width}.png`,fullPage:false});
 });
 test('mobile menu opens, closes with Escape and restores focus',async({page})=>{await page.setViewportSize({width:390,height:850});await page.goto('/');const menu=page.getByRole('button',{name:'Menu'});await menu.click();await expect(menu).toHaveAttribute('aria-expanded','true');await expect(page.locator('#primary-navigation')).toBeVisible();await page.keyboard.press('Escape');await expect(menu).toHaveAttribute('aria-expanded','false');await expect(menu).toBeFocused();});
 test('tournament filters change visible rows',async({page})=>{await page.goto('/tournaments');await page.locator('[data-filter="division"]').selectOption('women');await page.locator('[data-filter="major"]').selectOption('true');expect(await page.locator('tbody tr[data-division="men"]:visible').count()).toBe(0);expect(await page.locator('tbody tr[data-division="women"]:visible').count()).toBeGreaterThan(20);});
