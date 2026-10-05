@@ -7,7 +7,7 @@ const base=process.argv[2]||'https://golf.propbetedge.ai';
 assert.equal(new URL(base).hostname,'golf.propbetedge.ai');
 const graph=JSON.parse(await fs.readFile('data/public/graph.json','utf8'));
 const entities=[...graph.players.map(x=>({path:'/player/'+x.slug,name:x.full_name})),...graph.courses.map(x=>({path:'/course/'+x.slug,name:x.name})),...graph.tournaments.map(x=>({path:'/tournament/'+x.slug,name:x.name}))];
-const widths=[320,360,390,430,768,1024,1440];
+const widths=[320,360,390,430,768,1024,1440,1600,1920];
 const routes=['/','/today','/live','/tournaments','/players','/courses','/majors','/pbecast','/news','/all-access',...entities.map(x=>x.path)];
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext();
@@ -39,7 +39,7 @@ try{
    if(entity){assert.match(await page.locator('meta[property="og:title"]').getAttribute('content'),new RegExp(entity.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));assert(await page.locator('script[type="application/ld+json"]').count());}
    const metrics=await page.evaluate(()=>window.__pbeMetrics);
    report.checks.push({width,path,status:response.status(),axe_violations:0,overflow:false,...metrics});
-   if(path==='/'&&[390,1440].includes(width))await page.screenshot({path:`docs/evidence/screenshots/production-home-${width}.png`,fullPage:true});
+   if(path==='/'&&[390,1440,1920].includes(width))await page.screenshot({path:`docs/evidence/screenshots/production-home-${width}.png`,fullPage:true});
   }
   console.log(`Production width ${width}: ${routes.length} pages passed`);
  }
