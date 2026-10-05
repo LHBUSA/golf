@@ -3,7 +3,7 @@ import {adminAllowed} from '../../shared/admin.js';
 import {SourceBlockedError} from '../../shared/http.js';
 import {ingestWikidata} from './wikidata.js';
 import {runCatalog,runSchedule,runResults,loadItems} from './lanes.js';
-import {runMedia} from './media.js';
+import {runMedia,CURATED_COURSE_MEDIA} from './media.js';
 import {runEspn,discover as espnDiscover} from './espn-lane.js';
 import {runEspnStats} from './espn-stats.js';
 import {runWeather} from './weather.js';
@@ -21,7 +21,9 @@ async function mediaSubjects(db){
  const rows=async(t,s,f)=>{const out=[];for(let o=0;;o+=1000){const p=await db(t,`select=${s}${f}&order=id&limit=1000&offset=${o}`);out.push(...p);if(p.length<1000)return out;}};
  const ids=await rows('golf_player_identities','player_id,provider_id,image:evidence->>image','&source_id=eq.wikidata');
  const layouts=await rows('golf_course_layouts','course_id,qid:specifications->>wikidata_id,image:specifications->>image','&specifications->>image=not.is.null');
- return [...layouts.map(l=>({kind:'course',entity_id:l.course_id,qid:l.qid,file:l.image})),...ids.map(i=>({kind:'player',entity_id:i.player_id,qid:i.provider_id,file:i.image}))].filter(s=>s.file);
+ const courses=await rows('golf_courses','id,slug','');
+ const curated=CURATED_COURSE_MEDIA.map(m=>{const c=courses.find(x=>x.slug===m.slug);return c?{kind:'course',entity_id:c.id,qid:null,file:m.file,identity_proof:m.identity_proof}:null;}).filter(Boolean);
+ return [...curated,...layouts.map(l=>({kind:'course',entity_id:l.course_id,qid:l.qid,file:l.image})),...ids.map(i=>({kind:'player',entity_id:i.player_id,qid:i.provider_id,file:i.image}))].filter(s=>s.file);
 }
 export async function runLane(lane,env,db,opts={}){
  const cfg=['espn-discover','espn-stats'].includes(lane)?LANES.espn:['live-backfill','live-reconcile'].includes(lane)?LANES.live:LANES[lane];if(!cfg)throw Error('unknown_lane');
