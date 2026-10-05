@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {selectEditionVideos} from '../src/lib/video.js';
+import {selectEditionVideos,pickVideos,VIDEO_MAX} from '../src/lib/video.js';
 
 const v=(id,type,{round=null,date='2026-10-04'}={})=>({video_id:id,video_type:type,round,published_at:date,title:id,channel:'Official'});
 
@@ -36,4 +36,21 @@ test('edition video: support cap is enforced',()=>{
  const out=selectEditionVideos(Array.from({length:10},(_,i)=>v('v'+i,'other',{date:'2026-10-'+String(10-i).padStart(2,'0')})),{supportMax:3});
  assert.equal(out.support.length,3);
  assert.equal(out.archive.length,6);
+});
+
+test('pickVideos: every page shows exactly three playable videos, edition recap first',()=>{
+ assert.equal(VIDEO_MAX,3);
+ const rows=Array.from({length:20},(_,i)=>v('o'+i,'other',{date:'2026-10-'+String(20-i).padStart(2,'0')}));
+ rows.push(v('tour','tournament_highlights',{date:'2026-09-01'}));
+ const ed=pickVideos(rows,{kind:'edition'});
+ assert.equal(ed.length,3);assert.equal(ed[0].video_id,'tour');
+ assert.equal(pickVideos(rows,{kind:'player'}).length,3);
+ assert.equal(pickVideos(rows.slice(0,2),{kind:'course'}).length,2,'fewer than three: show what exists');
+ assert.deepEqual(pickVideos([],{kind:'edition'}),[]);
+});
+
+test('pickVideos: player/course take one per priority group before filling',()=>{
+ const rows=[v('h1','player_highlights'),v('h2','player_highlights'),v('h3','player_highlights'),v('i1','interview'),v('w1','witb')];
+ const groups=[['hl',x=>/highlights/.test(x.video_type)],['int',x=>x.video_type==='interview'],['witb',x=>x.video_type==='witb']];
+ assert.deepEqual(pickVideos(rows,{kind:'player',groups}).map(x=>x.video_id),['h1','i1','w1']);
 });

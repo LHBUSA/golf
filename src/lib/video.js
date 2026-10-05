@@ -15,10 +15,8 @@ export function videoRail(videos,{title='Official video',max=6}={}){
 }
 
 
-/* Tournament pages deliberately keep video subordinate to the intelligence.
- * One editorially useful recap gets the poster; at most three different
- * supporting purposes are surfaced as compact links. Everything else is an
- * explicit archive so the leaderboard remains the primary product. */
+/* Edition ranking: the most editorially useful recap first, then diverse supporting purposes,
+ * then everything else. pickVideos() keeps only the top VIDEO_MAX of it for display. */
 export function selectEditionVideos(videos,{supportMax=3}={}){
  const vs=(videos||[]).filter(v=>v?.video_id),newest=(a,b)=>String(b.published_at||'').localeCompare(String(a.published_at||''));
  if(!vs.length)return {featured:null,support:[],archive:[]};
@@ -38,4 +36,15 @@ export function selectEditionVideos(videos,{supportMax=3}={}){
  add(v=>v.video_type==='interview'||v.video_type==='press_conference');
  for(const v of [...vs].sort(newest)){if(support.length>=supportMax)break;if(!used.has(v.video_id)){used.add(v.video_id);support.push(v);}}
  return {featured,support,archive:vs.filter(v=>!used.has(v.video_id))};
+}
+// Owner 2026-10-05: every page shows exactly VIDEO_MAX playable videos (no outbound link lists, no archive).
+export const VIDEO_MAX=3;
+// groups: ordered [label, predicate] priorities (player/course pages); one per group first, then fill in order.
+export function pickVideos(videos,{kind='',groups=null,max=VIDEO_MAX}={}){
+ const vs=(videos||[]).filter(v=>v?.video_id);
+ if(kind==='edition'){const p=selectEditionVideos(vs,{supportMax:max-1});return p.featured?[p.featured,...p.support].slice(0,max):[];}
+ const out=[],used=new Set(),take=v=>{if(v&&out.length<max&&!used.has(v.video_id)){used.add(v.video_id);out.push(v);}};
+ for(const [,f] of groups||[])take(vs.find(v=>!used.has(v.video_id)&&f(v)));
+ for(const v of vs)take(v);
+ return out;
 }

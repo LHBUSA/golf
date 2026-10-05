@@ -357,13 +357,14 @@ polyline.gp-0,polyline.gp-1,polyline.gp-2,polyline.gp-3,polyline.gp-4{fill:none}
    one column below 640px. Poster and iframe share the same 16:9 box, so pressing play never changes the footprint. */
 .yt-rail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 22px;max-width:1040px}
 .yt-rail.yt-n1{grid-template-columns:minmax(0,1fr);max-width:780px}
+.yt-rail.yt-n3{grid-template-columns:repeat(3,minmax(0,1fr));max-width:1180px}
 .yt-rail.yt-n1 .yt-play{width:84px;height:84px;font-size:30px}
 .yt-rail.yt-n1 .yt-meta b{font-size:19px;line-height:1.3}
 .yt-rail.yt-n1 .yt-type{font-size:11px;padding:7px 9px;left:12px;top:12px}
 .yt-rail .yt{gap:12px}
 @media(max-width:1100px){.yt-rail.yt-n1{max-width:700px}}
 @media(max-width:860px){.yt-rail.yt-n1{max-width:none}}
-@media(max-width:640px){.yt-rail,.yt-rail.yt-n1{grid-template-columns:minmax(0,1fr);gap:22px}.yt-rail.yt-n1 .yt-play{width:68px;height:68px;font-size:24px}.yt-rail.yt-n1 .yt-meta b{font-size:16px}}
+@media(max-width:640px){.yt-rail,.yt-rail.yt-n1,.yt-rail.yt-n3{grid-template-columns:minmax(0,1fr);gap:22px}.yt-rail.yt-n1 .yt-play{width:68px;height:68px;font-size:24px}.yt-rail.yt-n1 .yt-meta b{font-size:16px}}
 .yt-group{font:700 12px/1.2 var(--sans);letter-spacing:1.4px;text-transform:uppercase;color:var(--pine-2);margin:30px 0 12px}
 .yt-fallback{aspect-ratio:16/9;display:grid;place-items:center;background:#111;color:#fff;padding:16px;text-align:center;border-radius:3px}
 
@@ -924,24 +925,3 @@ body.cv3-lock{overflow:hidden}
 .cv3-th-o,.cv3-th-w{color:var(--c3-mute)}
 .cv3-latest{margin:2px 0 6px;font-size:13px;line-height:1.35}.cv3-latest time{color:var(--c3-mute);margin-right:6px;font-weight:600}
 .cv3-tee{margin-top:2px}
-
-
-/* Tournament video is a supporting module, not the product hierarchy. */
-.video-mount-edition{padding-top:28px;padding-bottom:28px}
-.video-mount-edition>h2{margin-bottom:16px}
-.yt-edition-shell{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.55fr);gap:24px;align-items:start;max-width:1180px}
-.yt-feature{min-width:0}
-.yt-feature .yt{max-width:760px}
-.yt-edition-side{border-left:1px solid var(--line);padding-left:20px;min-width:0}
-.yt-quick-links{display:grid;gap:0;margin-top:8px}
-.yt-quick a,.yt-archive-row a{display:grid;gap:4px;padding:12px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
-.yt-quick a:hover b,.yt-quick a:focus-visible b,.yt-archive-row a:hover b,.yt-archive-row a:focus-visible b{text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
-.yt-quick span,.yt-archive-row span{font:700 9px/1.2 var(--mono);letter-spacing:1.2px;text-transform:uppercase;color:var(--pine-2)}
-.yt-quick b,.yt-archive-row b{font:650 13px/1.35 var(--sans)}
-.yt-quick small,.yt-archive-row small{font:11px/1.3 var(--sans);color:var(--muted)}
-.yt-archive{margin-top:14px}
-.yt-archive summary{cursor:pointer;font:700 11px/1.2 var(--sans);letter-spacing:.5px;color:var(--pine-2);padding:10px 0}
-.yt-archive-list{max-height:320px;overflow:auto;border-top:1px solid var(--line)}
-.yt-archive-row a{padding:10px 0}
-.video-mount-edition>.gnote{margin-top:14px;max-width:780px}
-@media(max-width:800px){.yt-edition-shell{grid-template-columns:1fr}.yt-edition-side{border-left:0;border-top:1px solid var(--line);padding:16px 0 0}.yt-feature .yt{max-width:none}}
