@@ -11,6 +11,8 @@ import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,t
 // @ts-ignore
 import {portrait,e} from './lib/ui.js';
 // @ts-ignore
+import {accessView,statePanel,lockStatus} from './lib/all-access-page.js';
+// @ts-ignore
 import {heroLive,liveRail,liveBoard,playerLive,weatherNow,statusModule} from './lib/live-ui.js';
 // @ts-ignore
 import {castV3} from './lib/cast-v3-live.js';
@@ -80,7 +82,8 @@ if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournam
 async function premium(){
  const locks=$$('[data-premium]');if(!locks.length)return;
  const mem=await api('membership').then(r=>r.ok?r.json():null).catch(()=>null);
- if(!mem?.membership?.entitled){for(const l of locks){const s=$('.premium-status',l);if(s)s.textContent=mem?'Free reader: sign in with All Access to unlock.':'Membership verification unavailable; premium stays locked.';}return;}
+ // An unanswered or failed check is an outage (premium stays locked, never "free reader"); golf-api decides access.
+ if(!mem?.membership?.entitled){const view=accessView(mem,{failed:!mem});for(const l of locks){const s=$('.premium-status',l);if(s)s.textContent=lockStatus(view);}return;}
  const parts=location.pathname.split('/').filter(Boolean);
  for(const l of locks){const mod=l.dataset.premium;let path='';
   if(mod==='player-dna'&&parts[0]==='player')path='player-dna/'+parts[1];else if(mod==='course-fit'&&parts[0]==='course')path='course-dna/'+parts[1];else if(mod==='field'&&parts[0]==='tournament')path='field/'+parts[1];else if(mod==='matchups'&&parts[0]==='matchups')path='matchups/'+parts[1]+'/'+parts[2];
@@ -108,8 +111,9 @@ document.addEventListener('click',ev=>{const t=ev.target as HTMLElement;
  const dn=t.closest?.('a[data-dna-open]') as HTMLElement|null;if(dn)track('pbecast_dna_open',{entity_type:'player',entity_id:dn.dataset.dnaOpen||''});});
 {const seenDim=new Set<string>();document.addEventListener('focusin',ev=>{const g=(ev.target as HTMLElement).closest?.('[data-dna-dim]') as HTMLElement|null;if(!g)return;const k=g.dataset.dnaDim||'';if(seenDim.has(k))return;seenDim.add(k);track('dna_dimension_focus',{entity_type:'player',entity_id:location.pathname.split('/')[2]||'',dna_dimension:k});});}
 if(location.pathname==='/all-access'){
- const badge=$('.entitlement-status .state');
- api('membership').then(r=>r.ok?r.json():null).then(b=>{if(!b?.membership)throw Error('membership_unavailable');if(badge)badge.innerHTML='<i aria-hidden="true"></i>'+(b.membership.entitled?'ALL ACCESS VERIFIED':'FREE READER');}).catch(()=>{if(badge)badge.innerHTML='<i aria-hidden="true"></i>VERIFICATION UNAVAILABLE';});
+ // The page renders golf-api's verdict: Platinum / owner network launcher, honest non-member copy, or the access check.
+ const host=$('[data-aa-state]');
+ api('membership').then(r=>r.ok?r.json():null).catch(()=>null).then(b=>{if(host)host.innerHTML=statePanel(accessView(b,{failed:!b}));});
 }
 
 // Hub pages re-render from the live projection when it is newer than the static build.

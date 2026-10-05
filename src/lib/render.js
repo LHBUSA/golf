@@ -6,12 +6,10 @@ import * as A from './article.js';
 import {SITE,fullTitle,ogImage,photoNode,personNode,courseNode,eventNode} from './seo.js';
 import {videoNode} from './video.js';
 import {familyFooterHtml} from './network.js';
+import {allAccessPage} from './all-access-page.js';
 export const escapeHtml=e;
 export const ALL_ACCESS_URL='https://propbetedge.ai/pro';
 export const NAV=[['/today','Today'],['/live','Live'],['/tournaments','Tournaments'],['/players','Players'],['/matchups','Matchups'],['/courses','Courses'],['/majors','Majors'],['/pbecast','PBEcast'],['/news','News'],['/intelligence','Intelligence'],['/search','Search']];
-function allAccess(){
- return `<section class="access-hero"><div>${kicker('PROPBETEDGE NETWORK MEMBERSHIP')}<h1>One membership.<br>Every edge.</h1><p>Golf intelligence is part of PropBetEdge All Access / Pro Club. There is no Golf-only subscription.</p><div class="access-hero-actions">${go(ALL_ACCESS_URL,'Manage All Access membership','button button-gold')}<span>Existing network entitlement applies</span></div></div><div class="access-membership-seal"><span>PROP</span><strong>ALL<br>ACCESS</strong><span>PRO CLUB</span></div></section><div class="page-body"><div class="entitlement-status">${kicker('YOUR MEMBERSHIP')}<h2>Entitlement is checked by the network.</h2><p>All Access subscribers and owner accounts are recognized through PropBetEdge identity. Golf does not create a separate account or checkout.</p><span class="state state-muted"><i aria-hidden="true"></i>VERIFYING MEMBERSHIP</span></div><div class="free-premium-grid"><section class="free-access-panel"><span class="micro-label">FREE</span><h2>Open to every golf fan.</h2><ul><li>Leaderboards, round scores and scorecards</li><li>Player pages, records, majors and course history</li><li>Player DNA fingerprint (percentiles)</li><li>Course DNA, matchups and PBEcast archive</li></ul></section><section class="premium-access-panel"><span class="micro-label">ALL ACCESS / PRO CLUB</span><h2>The full intelligence layer.</h2><ul><li>Raw DNA values, cohort sizes and both time windows</li><li>Course Fit components for every player and course</li><li>Field intelligence: form and course-history leaders</li><li>Matchup DNA detail</li></ul></section></div><div class="no-golf-checkout">NO GOLF PRO CHECKOUT <span>·</span> NO GOLF-ONLY STRIPE PRODUCT <span>·</span> ONE PROPBETEDGE MEMBERSHIP</div></div>`;
-}
 const notFound=()=>`<section class="page-heading data-heading"><div>${kicker('404')}<h1>This page is out of bounds.</h1><p>The page or record you asked for is not in coverage.</p>${go('/','Return home','button button-gold')}</div></section>`;
 // Index only pages that pass a quality floor; thin entities stay noindex. Every route carries its own
 // title, description, canonical, social image and connected JSON-LD graph (see seo.js).
@@ -40,7 +38,7 @@ export function route(path,data){
  if(clean==='/intelligence')return page(P.intelligence(ix),'Golf Intelligence Methodology','How Player DNA, Course DNA, Bag DNA and Course Fit are calculated, with sources and sample rules.',true,{crumbs:[['Methodology','/intelligence']]});
  if(clean==='/rankings')return page(P.rankings(ix),'Golf Rankings','Ranking source status.',false);
  if(clean==='/search')return page(P.search(),'Search','Search golfers, tournaments and courses.',false);
- if(clean==='/all-access')return page(allAccess(),'All Access','Golf is included in PropBetEdge All Access.',false);
+ if(clean==='/all-access')return page(allAccessPage(),'PropBetEdge All Access on Golf','Golf intelligence is one desk in the PropBetEdge network. All Access adds MLB, NFL, NBA, WNBA, NHL, UFC, Tennis, Soccer and F1 Intelligence, plus PropBetEdge Predictions, for $29/month.',true,{crumbs:[['All Access','/all-access']]});
  if(kind==='majors'&&id){const html=P.series(id,ix);if(html)return page(html,P.seriesName(id),`${P.seriesName(id)}: every champion, leaderboard and edition in our record.`,true,{crumbs:[['Majors','/majors'],[P.seriesName(id),clean]],pageType:'CollectionPage',og:{url:ogImage('majors',id),width:1200,height:630,alt:P.seriesName(id)}});}
  if(kind==='tournament'){const d=data.editions?.get(id);if(d){const full=d.leaderboard.length>0,w=d.leaderboard.find(r=>r.winner);
   const c=d.course?{...d.course,...(data.courses?.get(d.course.slug)||{})}:null;
