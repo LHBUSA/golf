@@ -295,3 +295,10 @@ ODbL note:
 **API.** `GET /v1/courses/:slug/map[?edition=]` (golf-api `src/course-map.js`), `GET /v1/open-data/course-routing`, `/{slug}.geojson`, `/method`.
 
 **UI.** Course page module (setup selector, routing/difficulty toggle, hole keys, focused-hole card with prev/next, mobile bottom card). PBEcast Course View: current hole (next hole in order of play) highlighted as a whole route; scorecard ↔ map selection sync; hole-relative wind (TAILWIND / QUARTERING TAILWIND / CROSSWIND · L→R / R→L / QUARTERING HEADWIND / HEADWIND) only on observed bearings. Archive replay: verified holes show real routing with no ball flight; unmapped holes keep the labelled reconstruction.
+
+**PBEcast Round Replay v2 (2026-10-05).** `src/lib/cast-replay.js` (markup + DOM-free logic: `completeRows`, `createPlayer`, `railHtml`, `cardHtml`, `roundTotal`), `src/lib/cast-replay-live.js` (controller, binds once per root), `src/cast-replay.css`.
+- Data: complete 18-hole cards only (holes 1-18, integer strokes; partial cards dropped, never padded). Par/yards from the map's setup for *this* edition, else the edition layout. Field average / difficulty only when the map's scoring edition is this edition. Round total = published value, shown only when it equals the 18 observed holes.
+- Verified hole: `courseMapSvg(M,{focus})` fitted to the stage aspect ratio, widened ~30% for course context, non-focus routes dimmed, 520 ms viewBox pan (none under reduced motion). No ball, trail or shot marker. OSM/ODbL credit overlaid on the stage while a verified hole shows.
+- Unmapped hole: the existing labelled generic `holeSvg` reconstruction (illustrative ball compressed to fit one beat).
+- Playback = observed scorecard hole by hole, 1.5 s/hole (2x = 0.75 s); never stroke-timed, never shot-by-shot. Prev/Next/rail pause playback; changing player/round resets to hole 1 and stops.
+- Tests: `tests/cast-replay.test.mjs`; browser `Round Replay` tests in `tests/browser/product.spec.js` (2026 Bank of Utah, Smotherman R1, Black Desert; Biltmore for the reconstruction).

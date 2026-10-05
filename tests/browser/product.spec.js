@@ -68,3 +68,35 @@ test('homepage champion uses canonical player media when available',async({page}
   await expect(page.locator('.hero-winner .hero-portrait.identity-mark')).toHaveCount(0);
  }
 });
+// ---- PBEcast Round Replay v2: the production failure case (2026 Bank of Utah, Austin Smotherman R1, Black Desert, verified routing).
+const BOU='/pbecast?tournament=bank-of-utah-championship-q130604671-2026&replay=austin-smotherman-q106782591';
+for(const width of [390,1440])test(`Round Replay ${width}: real card, verified routing, playback and resets`,async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width,height:900});await page.goto(BOU,{waitUntil:'networkidle'});
+ const R=page.locator('[data-cast-replay]'),cells=R.locator('[data-rc-hole]'),no=R.locator('.rc-no'),play=R.locator('[data-rc-play]');
+ await expect(cells).toHaveCount(18);await R.locator('[data-rc-round]').selectOption('1');
+ await expect(R.locator('[data-rc-player] option:checked')).toHaveText('Austin Smotherman');
+ expect((await R.locator('.rc-sc').allTextContents()).map(Number)).toEqual([4,3,3,4,4,4,4,2,4,3,4,4,4,3,3,3,3,4]);
+ await expect(R.locator('.rc-tot')).toContainText('63');await expect(R.locator('.rc-tot')).toContainText('−8');
+ await expect(R.locator('[data-rc-real]')).toBeVisible();await expect(R.locator('[data-rc-recon]')).toBeHidden();
+ await expect(R.locator('[data-rc-attr]')).toBeVisible();await expect(R.locator('[data-rc-attr]')).toContainText('OpenStreetMap contributors');
+ await expect(R.locator('[data-ball],[data-trail],.rc-ball,.rc-trail')).toHaveCount(0);
+ await expect(no).toHaveText('1');await expect(R.locator('[data-rc-prev]')).toBeDisabled();
+ await R.locator('[data-rc-next]').click();await expect(no).toHaveText('2'); // one click = one hole (no duplicate listeners)
+ await expect(R.locator('[data-rc-hole].is-on')).toHaveCount(1);await expect(R.locator('[data-rc-hole="1"]')).toHaveAttribute('aria-current','step');
+ await play.click();await expect(play).toHaveAttribute('aria-pressed','true');
+ await expect(no).toHaveText('3',{timeout:2500});await play.click();await expect(play).toHaveAttribute('aria-pressed','false');
+ const held=await no.textContent();await page.waitForTimeout(1900);await expect(no).toHaveText(held||'');
+ await cells.nth(17).click();await expect(no).toHaveText('18');await expect(R.locator('.rc-run')).toHaveText('−8');await expect(R.locator('[data-rc-next]')).toBeDisabled();
+ await expect(R.locator('[data-cm-host] .cm-route.is-focus, .rc-map .cm-route.is-focus')).toHaveAttribute('data-hole','18');
+ await R.locator('[data-rc-round]').selectOption('2');await expect(no).toHaveText('1');await expect(play).toHaveAttribute('aria-pressed','false');await expect(cells).toHaveCount(18);
+ await R.locator('[data-rc-player]').selectOption('0');await expect(no).toHaveText('1');
+ const t=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,w:innerWidth,small:[...document.querySelectorAll('[data-cast-replay] button,[data-cast-replay] select')].filter(b=>b.getBoundingClientRect().height<44).length,font:parseFloat(getComputedStyle(document.querySelector('[data-rc-player]')).fontSize)}));
+ expect(t.scroll).toBeLessThanOrEqual(t.w);expect(t.small).toBe(0);expect(t.font).toBeGreaterThanOrEqual(16);expect(errors).toEqual([]);
+ const axe=await new AxeBuilder({page}).include('[data-cast-replay]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
+});
+test('Round Replay: an unmapped course keeps the labelled reconstruction and no OSM credit',async({page})=>{
+ await page.goto('/pbecast?tournament=biltmore-championship-asheville-q141566450-2026',{waitUntil:'networkidle'});const R=page.locator('[data-cast-replay]');
+ await expect(R.locator('[data-rc-hole]')).toHaveCount(18);await expect(R.locator('[data-rc-recon]')).toBeVisible();await expect(R.locator('[data-rc-real]')).toBeHidden();
+ await expect(R.locator('[data-rc-attr]')).toBeHidden();await expect(R.locator('[data-rc-note]')).toContainText('generic reconstruction');
+});
