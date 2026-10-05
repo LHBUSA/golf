@@ -18,6 +18,11 @@ for(const width of WIDTHS)for(const path of PAGES)test(`${width} ${path}`,async(
  expect(broken).toEqual([]);expect(errors).toEqual([]);
  expect(await page.locator('body').innerText()).not.toMatch(/\bwill appear\b|\bwhen connected\b|coming soon|lorem ipsum/i);
  const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
+ if(path==='/'&&width>=1024){
+  const hero=await page.locator('.home-hero-content').boundingBox();expect(hero?.width||0).toBeGreaterThan(700);
+  const title=await page.locator('.home-hero h1').boundingBox();expect(title?.width||0).toBeGreaterThan(420);
+  const ribbon=page.locator('.all-access-ribbon');if(await ribbon.count()){const rb=await ribbon.boundingBox();const h2=await ribbon.locator('h2').boundingBox();expect(rb?.width||0).toBeGreaterThan(700);expect(h2?.width||0).toBeGreaterThan(260);}
+ }
  if([390,1440,1920].includes(width)&&process.env.QA_SHOTS)await page.screenshot({path:`docs/evidence/screenshots/${(path.replace(/[^a-z0-9]+/gi,'-')||'home').slice(0,60)}-${width}.png`,fullPage:false});
 });
 test('mobile menu opens, closes with Escape and restores focus',async({page})=>{await page.setViewportSize({width:390,height:850});await page.goto('/');const menu=page.getByRole('button',{name:'Menu'});await menu.click();await expect(menu).toHaveAttribute('aria-expanded','true');await expect(page.locator('#primary-navigation')).toBeVisible();await page.keyboard.press('Escape');await expect(menu).toHaveAttribute('aria-expanded','false');await expect(menu).toBeFocused();});
@@ -51,4 +56,15 @@ test('PBEcast golfer name opens the player profile; row elsewhere selects',async
  await page.goto('/pbecast?tournament='+ev.edition.slug,{waitUntil:'networkidle'});await page.locator('[data-cv3-tower] .cv3-hit').first().waitFor();
  const link=page.locator('[data-cv3-tower] .cv3-row a.cv3-plink-row').nth(2);const href=await link.getAttribute('href');expect(href).toMatch(/^\/player\/[a-z0-9-]+$/);
  await link.focus();await expect(link).toBeFocused();await link.click();await expect(page).toHaveURL(new RegExp(href+'$'));await expect(page.locator('#dna')).toHaveCount(1);
+});
+
+test('homepage champion uses canonical player media when available',async({page})=>{
+ await page.goto('/',{waitUntil:'networkidle'});
+ const link=page.locator('.hero-winner a').first();test.skip(!await link.count(),'no completed-event champion in hero');
+ const href=await link.getAttribute('href');const slug=href?.split('/').filter(Boolean).at(-1);
+ const api=await page.request.get('/api/v1/players/'+slug);const body=await api.json();
+ if(body?.data?.photo?.derivatives||body?.data?.headshot){
+  await expect(page.locator('.hero-winner .hero-portrait img')).toHaveCount(1);
+  await expect(page.locator('.hero-winner .hero-portrait.identity-mark')).toHaveCount(0);
+ }
 });
