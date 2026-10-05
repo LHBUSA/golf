@@ -23,7 +23,7 @@ const {fetchCourseMap,mountCourseMap}=courseMapLive as any;
 import * as courseMapLib from './lib/course-map.js';
 const {courseMapSvg}=courseMapLib as any;
 // @ts-ignore
-import {videoTile,TYPE_LABEL} from './lib/video.js';
+import {videoTile,TYPE_LABEL,selectEditionVideos} from './lib/video.js';
 // @ts-ignore
 import {fillRaw,dnaModel,dnaBody,dnaContext,metricBars,windowFingerprint} from './lib/dna-ui.js';
 // @ts-ignore
@@ -167,8 +167,18 @@ const VIDEO_GROUPS:Record<string,[string,(v:any)=>boolean][]>={
 async function hydrateVideos(){
  for(const m of $$('[data-videos]')){const kind=m.getAttribute('data-videos')||'',slug=m.getAttribute('data-slug')||'';if(!slug||m.dataset.done)continue;m.dataset.done='1';
   const r=await api(`videos?${kind}=${encodeURIComponent(slug)}&limit=18`).then(x=>x.ok?x.json():null).catch(()=>null);const vs=r?.data||[];if(!vs.length)continue;
-  const used=new Set<string>();const groups=(VIDEO_GROUPS[kind]||[['Official video',()=>true]]).map(([t,f])=>{const g=vs.filter((v:any)=>!used.has(v.video_id)&&f(v)).slice(0,6);g.forEach((v:any)=>used.add(v.video_id));return [t,g] as [string,any[]];}).filter(([,g])=>g.length);
-  m.innerHTML=`<p class="eyebrow">OFFICIAL VIDEO</p><h2>Watch</h2>${groups.map(([t,g])=>`<h3 class="yt-group">${e(t)}</h3><div class="yt-rail yt-n${Math.min(g.length,3)}">${g.map((v:any)=>videoTile(v,{label:(v.round?`R${v.round} · ${(TYPE_LABEL as any)[v.video_type]||'Video'}`:null) as any})).join('')}</div>`).join('')}<p class="gnote">Official channels only. Plays from YouTube (privacy-enhanced mode) when you press play.</p>`;m.hidden=false;
+  if(kind==='edition'){
+   const pick=selectEditionVideos(vs,{supportMax:3}),featured=pick.featured;
+   if(!featured)continue;
+   const lab=(v:any)=>v.round?`R${v.round} · ${(TYPE_LABEL as any)[v.video_type]||'Video'}`:((TYPE_LABEL as any)[v.video_type]||'Video');
+   const compact=(v:any,cls:string)=>`<div class="yt ${cls}" data-yt="${e(v.video_id)}" data-yt-title="${e(v.title)}" data-yt-type="${e(v.video_type||'other')}" data-yt-channel="${e(v.channel_id||'')}"><a href="https://www.youtube.com/watch?v=${encodeURIComponent(v.video_id)}" rel="noopener" data-yt-out><span>${e(lab(v))}</span><b>${e(v.title)}</b><small>${e(v.channel||'Official channel')}</small></a></div>`;
+   m.classList.add('video-mount-edition');
+   m.innerHTML=`<p class="eyebrow">OFFICIAL VIDEO</p><h2>Watch the tournament</h2><div class="yt-edition-shell"><div class="yt-feature">${videoTile(featured,{label:lab(featured)})}</div><aside class="yt-edition-side" aria-label="More official tournament video">${pick.support.length?`<p class="micro-label">MORE OFFICIAL VIDEO</p><div class="yt-quick-links">${pick.support.map((v:any)=>compact(v,'yt-quick')).join('')}</div>`:''}${pick.archive.length?`<details class="yt-archive"><summary>View ${pick.archive.length} more official video${pick.archive.length===1?'':'s'}</summary><div class="yt-archive-list">${pick.archive.map((v:any)=>compact(v,'yt-archive-row')).join('')}</div></details>`:''}</aside></div><p class="gnote">Official channels only. The featured video plays from YouTube (privacy-enhanced mode) when you press play.</p>`;
+  }else{
+   const used=new Set<string>();const groups=(VIDEO_GROUPS[kind]||[['Official video',()=>true]]).map(([t,f])=>{const g=vs.filter((v:any)=>!used.has(v.video_id)&&f(v)).slice(0,6);g.forEach((v:any)=>used.add(v.video_id));return [t,g] as [string,any[]];}).filter(([,g])=>g.length);
+   m.innerHTML=`<p class="eyebrow">OFFICIAL VIDEO</p><h2>Watch</h2>${groups.map(([t,g])=>`<h3 class="yt-group">${e(t)}</h3><div class="yt-rail yt-n${Math.min(g.length,3)}">${g.map((v:any)=>videoTile(v,{label:(v.round?`R${v.round} · ${(TYPE_LABEL as any)[v.video_type]||'Video'}`:null) as any})).join('')}</div>`).join('')}<p class="gnote">Official channels only. Plays from YouTube (privacy-enhanced mode) when you press play.</p>`;
+  }
+  m.hidden=false;
   if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{for(const x of es)if(x.isIntersecting){const el=x.target as HTMLElement;track('video_impression',{video_provider:'youtube',video_id:el.dataset.yt||'',video_type:el.dataset.ytType||'',source_channel:el.dataset.ytChannel||''});io.unobserve(el);}},{threshold:.5});$$('.yt',m).forEach(el=>io.observe(el));}
  }
 }
