@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run verify:all-access",
   "outputDirectory": "dist",
   "headers": [
     {
