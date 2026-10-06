@@ -78,3 +78,26 @@ test('Golf local access adapter advertises the current membership contract',()=>
  assert.doesNotMatch(src,/contract:'1\.3\.0'/);
  assert.match(src,/contract:'1\.4\.0'/);
 });
+
+
+test('global Golf header exposes server-verified account state on every page',()=>{
+ const shell=fs.readFileSync('src/lib/render.js','utf8');
+ const client=fs.readFileSync('src/main.ts','utf8');
+ const css=fs.readFileSync('src/styles.css','utf8');
+ assert.match(shell,/data-account-status/);
+ assert.match(shell,/data-account-label>ACCOUNT/);
+ assert.match(shell,/data-account-detail>CHECKING ACCESS/);
+ assert.match(client,/membership\(\)\.then\(paintAccountStatus\)/);
+ assert.match(client,/all_access:\['◆ PLATINUM','ALL ACCESS ACTIVE'\]/);
+ assert.match(client,/owner:\['OWNER','VERIFIED ACCESS'\]/);
+ assert.match(client,/not_member:\['SIGNED IN','ALL ACCESS AVAILABLE'\]/);
+ assert.match(client,/signed_out:\['ALL ACCESS','SIGN IN \/ LEARN'\]/);
+ assert.match(css,/account-status\[data-account-view="all_access"\]/);
+ assert.match(css,/account-status\[data-account-view="owner"\]/);
+});
+
+test('membership lookup is shared by header, premium modules and All Access page',()=>{
+ const client=fs.readFileSync('src/main.ts','utf8');
+ assert.equal((client.match(/api\('membership'\)/g)||[]).length,1,'only the memoized membership request may call the API directly');
+ assert.ok((client.match(/membership\(\)/g)||[]).length>=3,'header and premium/page consumers reuse the same verdict');
+});

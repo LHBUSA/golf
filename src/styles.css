@@ -64,3 +64,17 @@
 @media(max-width:1100px){.aa-sports{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:800px){.aa-hero{grid-template-columns:1fr}.aa-photo{order:-1;min-height:240px}.aa-photo:after{background:linear-gradient(180deg,transparent 40%,var(--pine-dark))}.aa-photo img{object-position:50% 45%}.aa-copy{padding:28px 5% 32px}}
 @media(max-width:560px){.aa-sports{grid-template-columns:1fr 1fr}.aa-open{grid-template-columns:1fr 1fr}.aa-copy h1{font-size:40px}.aa-actions .button{width:100%;justify-content:center}}
+
+
+/* Site-wide verified account state. The label is painted only from golf-api's membership verdict. */
+.account-status{display:flex;align-items:center;gap:9px;min-height:44px;padding:9px 12px;border:1px solid #c8aa6870;color:#e4d2a5;background:#ffffff03;white-space:nowrap}
+.account-status:hover,.account-status:focus-visible{border-color:#d9bf7c;background:#ffffff08}
+.account-status-dot{width:7px;height:7px;border-radius:50%;background:#8b9990;box-shadow:none;flex:none}
+.account-status-copy{display:grid;gap:2px;line-height:1}.account-status-copy b{font:800 10px/1 var(--sans);letter-spacing:1px}.account-status-copy small{font:700 7px/1.15 var(--sans);letter-spacing:1.15px;color:#aabbb0}
+.account-status-arrow{margin-left:5px;font-size:12px}
+.account-status[data-account-view="all_access"]{border-color:#d9bf7c;background:#c8aa6812;color:#f1dda7}.account-status[data-account-view="all_access"] .account-status-dot{background:#7fe0a4;box-shadow:0 0 8px #7fe0a4aa}.account-status[data-account-view="all_access"] .account-status-copy small{color:#bfe9ce}
+.account-status[data-account-view="owner"]{border-color:#d9bf7c;background:#c8aa6818;color:#f2d789}.account-status[data-account-view="owner"] .account-status-dot{background:#e5c76f;box-shadow:0 0 8px #e5c76faa}.account-status[data-account-view="owner"] .account-status-copy small{color:#f0d98f}
+.account-status[data-account-view="not_member"] .account-status-dot{background:#8fd2b0}.account-status[data-account-view="not_member"] .account-status-copy small{color:#b9c8be}
+.account-status[data-account-view="check"]{border-color:#9aa69e66;color:#c5d0c8}.account-status[data-account-view="check"] .account-status-dot{background:#9aa69e}
+@media(max-width:800px){.account-status{min-height:44px;padding:8px 10px}.account-status-arrow{display:none}}
+@media(max-width:560px){.account-status{padding:7px 8px;gap:6px}.account-status-copy b{font-size:8px;letter-spacing:.65px}.account-status-copy small{display:none}.account-status-dot{width:6px;height:6px}}

@@ -44,7 +44,30 @@ menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded'
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&menu?.getAttribute('aria-expanded')==='true'){menu.setAttribute('aria-expanded','false');$('#primary-navigation')?.classList.remove('open');menu.focus();}});
 let indexPromise:Promise<any>|null=null;
 const index=()=>indexPromise||(indexPromise=fetch('/index-snapshot.json').then(r=>r.ok?r.json():null).catch(()=>null));
-const api=(path:string)=>fetch('/api/v1/'+path,{credentials:'same-origin',signal:AbortSignal.timeout(8000)});
+const api=(path:string)=>fetch('/api/v1/'+path,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(8000)});
+let membershipPromise:Promise<any>|null=null;
+const membership=()=>membershipPromise||(membershipPromise=api('membership').then(r=>r.ok?r.json():null).catch(()=>null));
+const ACCOUNT_STATUS:Record<string,[string,string]>={
+ checking:['ACCOUNT','CHECKING ACCESS'],
+ signed_out:['ALL ACCESS','SIGN IN / LEARN'],
+ not_member:['SIGNED IN','ALL ACCESS AVAILABLE'],
+ all_access:['◆ PLATINUM','ALL ACCESS ACTIVE'],
+ owner:['OWNER','VERIFIED ACCESS'],
+ check:['ACCESS CHECK','RETRY ON ALL ACCESS']
+};
+function paintAccountStatus(body:any){
+ const view=accessView(body,{failed:!body});
+ const [label,detail]=ACCOUNT_STATUS[view]||ACCOUNT_STATUS.check;
+ document.querySelectorAll<HTMLElement>('[data-account-status]').forEach(el=>{
+  el.dataset.accountView=view;
+  const l=$<HTMLElement>('[data-account-label]',el),d=$<HTMLElement>('[data-account-detail]',el);
+  if(l)l.textContent=label;if(d)d.textContent=detail;
+  el.setAttribute('aria-label',view==='all_access'?'PropBetEdge Platinum member — All Access active':view==='owner'?'PropBetEdge verified owner access':view==='not_member'?'Signed in to PropBetEdge — All Access not active':view==='signed_out'?'PropBetEdge All Access — sign in or learn more':'PropBetEdge account access check');
+ });
+ document.documentElement.dataset.accountView=view;
+ return view;
+}
+membership().then(paintAccountStatus);
 // Tournament table filters
 const table=$('[data-filter-table]');
 if(table){const sel=$$<HTMLSelectElement>('[data-filter]');const count=$('[data-filter-count]');const apply=()=>{const f=Object.fromEntries(sel.map(s=>[s.dataset.filter,s.value]));let n=0;for(const tr of $$<HTMLTableRowElement>('tbody tr',table)){const show=(!f.division||tr.dataset.division===f.division)&&(!f.major||tr.dataset.major===f.major)&&(!f.year||tr.dataset.year===f.year);tr.hidden=!show;if(show)n++;}if(count)count.textContent=n+' editions';};sel.forEach(s=>s.addEventListener('change',apply));}
@@ -81,7 +104,7 @@ if(castSel){bindCast();const q=new URLSearchParams(location.search).get('tournam
 // Premium modules: values are requested only after server-side All Access verification.
 async function premium(){
  const locks=$$('[data-premium]');if(!locks.length)return;
- const mem=await api('membership').then(r=>r.ok?r.json():null).catch(()=>null);
+ const mem=await membership();
  // An unanswered or failed check is an outage (premium stays locked, never "free reader"); golf-api decides access.
  if(!mem?.membership?.entitled){const view=accessView(mem,{failed:!mem});for(const l of locks){const s=$('.premium-status',l);if(s)s.textContent=lockStatus(view);}return;}
  const parts=location.pathname.split('/').filter(Boolean);
@@ -113,7 +136,7 @@ document.addEventListener('click',ev=>{const t=ev.target as HTMLElement;
 if(location.pathname==='/all-access'){
  // The page renders golf-api's verdict: Platinum / owner network launcher, honest non-member copy, or the access check.
  const host=$('[data-aa-state]');
- api('membership').then(r=>r.ok?r.json():null).catch(()=>null).then(b=>{if(host)host.innerHTML=statePanel(accessView(b,{failed:!b}));});
+ membership().then(b=>{if(host)host.innerHTML=statePanel(accessView(b,{failed:!b}));});
 }
 
 // Hub pages re-render from the live projection when it is newer than the static build.
