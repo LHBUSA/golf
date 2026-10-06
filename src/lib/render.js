@@ -38,7 +38,7 @@ export function route(path,data){
  if(clean==='/intelligence')return page(P.intelligence(ix),'Golf Intelligence Methodology','How Player DNA, Course DNA, Bag DNA and Course Fit are calculated, with sources and sample rules.',true,{crumbs:[['Methodology','/intelligence']]});
  if(clean==='/rankings')return page(P.rankings(ix),'Golf Rankings','Ranking source status.',false);
  if(clean==='/search')return page(P.search(),'Search','Search golfers, tournaments and courses.',false);
- if(clean==='/all-access')return page(allAccessPage(),'PropBetEdge All Access on Golf','Golf intelligence is one desk in the PropBetEdge network. All Access includes 10 sports plus Command Center, Compare and Predictions for $29/month.',true,{crumbs:[['All Access','/all-access']]});
+ if(clean==='/all-access')return page(allAccessPage(),'PropBetEdge All Access on Golf','Golf intelligence is one desk in the PropBetEdge network. All Access includes 10 sports plus Command Center, Compare, Markets and Predictions for $29/month.',true,{crumbs:[['All Access','/all-access']]});
  if(kind==='majors'&&id){const html=P.series(id,ix);if(html)return page(html,P.seriesName(id),`${P.seriesName(id)}: every champion, leaderboard and edition in our record.`,true,{crumbs:[['Majors','/majors'],[P.seriesName(id),clean]],pageType:'CollectionPage',og:{url:ogImage('majors',id),width:1200,height:630,alt:P.seriesName(id)}});}
  if(kind==='tournament'){const d=data.editions?.get(id);if(d){const full=d.leaderboard.length>0,w=d.leaderboard.find(r=>r.winner);
   const c=d.course?{...d.course,...(data.courses?.get(d.course.slug)||{})}:null;
