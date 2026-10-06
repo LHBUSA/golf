@@ -28,7 +28,7 @@ test('view machine follows golf-api verdicts; an outage is the access check',()=
 
 test('designations: Platinum, owner, no FREE anywhere; members and outages never see a purchase action',()=>{
  const p=statePanel('all_access');assert.match(p,/PLATINUM MEMBER/);assert.match(p,/◆ PLATINUM/);assert.match(p,/PLATINUM ACCESS ACTIVE/);assert.ok(p.includes(PLATINUM_TRUTH));
- assert.equal(PLATINUM_TRUTH,'PropBetEdge All Access · 10 sports + Predictions + Compare');
+ assert.equal(PLATINUM_TRUTH,'PropBetEdge All Access · 10 sports + Predictions + Compare + Markets');
  assert.match(statePanel('owner'),/VERIFIED OWNER/);
  for(const v of ['all_access','owner','check','checking'])assert.doesNotMatch(statePanel(v),/See PropBetEdge All Access|\$29/,v);
  for(const v of ['signed_out','not_member','check','checking','all_access','owner'])assert.doesNotMatch(statePanel(v)+lockStatus(v),/\bFREE\b|Free reader|FREE READER/,v);
@@ -36,11 +36,11 @@ test('designations: Platinum, owner, no FREE anywhere; members and outages never
 });
 
 test('network from the vendored registry: 10 sports plus network products, never an 11th sport',()=>{
- assert.equal(OFFER_LINE,'10 sports + Predictions + Compare');
+ assert.equal(OFFER_LINE,'10 sports + Predictions + Compare + Markets');
  assert.deepEqual(SPORTS.map(s=>s.key),fam.sports.map(s=>s.key));
  const html=allAccessPage();
  for(const s of SPORTS)assert.ok(html.includes(s.label),s.key);
- assert.match(html,/F1 Intelligence/);assert.match(html,/YOU ARE HERE/);assert.match(html,/Command Center/);assert.match(html,/Compare/);assert.match(html,/Predictions/);assert.match(html,/ALL ACCESS PRODUCT/);
+ assert.match(html,/F1 Intelligence/);assert.match(html,/YOU ARE HERE/);assert.match(html,/Command Center/);assert.match(html,/Compare/);assert.match(html,/Markets/);assert.match(html,/Predictions/);assert.match(html,/ALL ACCESS PRODUCT/);
  assert.ok(PRODUCTS.every(p=>!SPORTS.some(s=>s.key===p.key)));
  assert.doesNotMatch(html,/11 sports/);
  assert.equal((statePanel('all_access').match(/OPEN →/g)||[]).length,SPORTS.length-1+PRODUCTS.length,'every other sport + every network product is OPEN, Golf is here');
@@ -69,7 +69,7 @@ test('All Access hero cannot collapse into the old narrow copy column',()=>{
  assert.match(css,/\.aa-hero-grid\{display:grid;grid-template-columns:minmax\(0,760px\) minmax\(190px,250px\)/);
  assert.match(css,/@media\(max-width:800px\)[\s\S]*\.aa-hero\{display:grid;min-height:0/);
  assert.match(html,/Golf is one desk/);
- assert.match(html,/Three network products/);
+ assert.match(html,/Four network products/);
  assert.match(html,/SERVER-VERIFIED ACCESS/);
 });
 
