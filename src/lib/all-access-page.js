@@ -11,9 +11,9 @@ export const LOCAL_ALL_ACCESS_PATH='/all-access';
 export const NETWORK_ALL_ACCESS_URL='https://propbetedge.ai/pro';
 export const ALL_ACCESS_CHECKOUT_URL='https://buy.stripe.com/8x2eVdgmOaqy4pv8Ez7wA0N';
 export const PRICE='$29/month';
-export const OFFER_LINE=`${SPORTS.length} sports + Predictions + Compare`;
+export const OFFER_LINE=`${SPORTS.length} sports + Predictions + Compare + Markets`;
 export const PLATINUM_TRUTH=`PropBetEdge All Access · ${OFFER_LINE}`;
-const PRODUCT_COPY=Object.freeze({members:'Your membership command center across the network.',compare:'Cross-market comparison and contract intelligence.',predictions:'Independent model probabilities, market comparison and a scored record.'});
+const PRODUCT_COPY=Object.freeze({members:'Your membership command center across the network.',compare:'Cross-market comparison and contract intelligence.',markets:'Live stocks, crypto, macro and AI market intelligence in one desk.',predictions:'Independent model probabilities, market comparison and a scored record.'});
 
 // The hero: an owner-approved Commons course photograph served from Golf's own media route, credited.
 export const HERO={sha:'8c1643419f05f4c2aeec2807ebeab87e008f849486e8cd2ce9e539470eec259f',course:'Old Course at St Andrews',credit:'paul birrell / CC BY-SA 2.0 / Wikimedia Commons',source:'https://commons.wikimedia.org/wiki/File:18th_Green_and_Clubhouse.jpg'};
@@ -70,7 +70,7 @@ export function allAccessPage(){
  <div class="page-body aa-body">
    <section class="aa-network" aria-labelledby="aa-network-h">
      ${kicker('THE PROPBETEDGE NETWORK')}
-     <div class="aa-network-head"><div><h2 id="aa-network-h">${SPORTS.length} sport desks. Three network products. One membership.</h2><p>Every sport keeps its own product identity. Command Center, Compare and Predictions connect the network without being counted as sports.</p></div><a class="button button-gold" href="${NETWORK_ALL_ACCESS_URL}" rel="noopener">All Access overview →</a></div>
+     <div class="aa-network-head"><div><h2 id="aa-network-h">${SPORTS.length} sport desks. Four network products. One membership.</h2><p>Every sport keeps its own product identity. Command Center, Compare, Markets and Predictions connect the network without being counted as sports.</p></div><a class="button button-gold" href="${NETWORK_ALL_ACCESS_URL}" rel="noopener">All Access overview →</a></div>
      <ul class="aa-sports">${SPORTS.map(s=>s.key===SELF?`<li class="is-here"><span aria-current="page"><b>${e(s.label)}</b><em>YOU ARE HERE</em></span></li>`:`<li><a href="${e(s.url)}" rel="noopener"><b>${e(s.label)}</b><em>OPEN SPORT →</em></a></li>`).join('')}</ul>
      <div class="aa-products">${products}</div>
    </section>
