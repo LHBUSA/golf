@@ -90,6 +90,13 @@
       "url": "https://compare.propbetedge.ai/"
     },
     {
+      "key": "markets",
+      "kind": "product",
+      "label": "Markets",
+      "name": "PropBetEdge Markets Intelligence",
+      "url": "https://markets.propbetedge.ai/"
+    },
+    {
       "key": "predictions",
       "kind": "product",
       "label": "Predictions",
@@ -120,6 +127,13 @@
       "url": "https://compare.propbetedge.ai/"
     },
     {
+      "key": "markets",
+      "kind": "product",
+      "label": "Markets",
+      "name": "PropBetEdge Markets Intelligence",
+      "url": "https://markets.propbetedge.ai/"
+    },
+    {
       "key": "predictions",
       "kind": "product",
       "label": "Predictions",
@@ -143,7 +157,7 @@
       "url": "https://learn.propbetedge.ai/"
     }
   ],
-  "all_access_line": "10 sports + Predictions + Compare · $29/month",
+  "all_access_line": "10 sports + Predictions + Compare + Markets · $29/month",
   "retired_hosts": [
     "hub.propbetedge.ai"
   ]
