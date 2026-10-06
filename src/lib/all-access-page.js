@@ -15,7 +15,7 @@ export const OFFER_LINE=`${SPORTS.length} sports + PropBetEdge Predictions`;
 export const PLATINUM_TRUTH=`PropBetEdge All Access · ${OFFER_LINE.replace('PropBetEdge Predictions','Predictions')}`;
 
 // The hero: an owner-approved Commons course photograph served from Golf's own media route, credited.
-export const HERO={sha:'b2001c4fd1c8d07308e4a6839c6487025fdbb40da6c1a49b083ac3c73c530ff3',course:'Black Desert Resort Golf Course',credit:'Lawnjunkie / CC0 / Wikimedia Commons',source:'https://commons.wikimedia.org/wiki/File:Firefly_autonomous_lawn_mowers_at_a_golf_course.jpg'};
+export const HERO={sha:'8c1643419f05f4c2aeec2807ebeab87e008f849486e8cd2ce9e539470eec259f',course:'Old Course at St Andrews',credit:'paul birrell / CC BY-SA 2.0 / Wikimedia Commons',source:'https://commons.wikimedia.org/wiki/File:18th_Green_and_Clubhouse.jpg'};
 const media=(w,f)=>`/api/v1/media/${HERO.sha}/${w}.${f}`;
 
 // One view per server verdict. Only golf-api decides; nothing here widens access.
