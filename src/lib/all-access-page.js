@@ -11,8 +11,9 @@ export const LOCAL_ALL_ACCESS_PATH='/all-access';
 export const NETWORK_ALL_ACCESS_URL='https://propbetedge.ai/pro';
 export const ALL_ACCESS_CHECKOUT_URL='https://buy.stripe.com/8x2eVdgmOaqy4pv8Ez7wA0N';
 export const PRICE='$29/month';
-export const OFFER_LINE=`${SPORTS.length} sports + PropBetEdge Predictions`;
-export const PLATINUM_TRUTH=`PropBetEdge All Access · ${OFFER_LINE.replace('PropBetEdge Predictions','Predictions')}`;
+export const OFFER_LINE=`${SPORTS.length} sports + Predictions + Compare`;
+export const PLATINUM_TRUTH=`PropBetEdge All Access · ${OFFER_LINE}`;
+const PRODUCT_COPY=Object.freeze({members:'Your membership command center across the network.',compare:'Cross-market comparison and contract intelligence.',predictions:'Independent model probabilities, market comparison and a scored record.'});
 
 // The hero: an owner-approved Commons course photograph served from Golf's own media route, credited.
 export const HERO={sha:'8c1643419f05f4c2aeec2807ebeab87e008f849486e8cd2ce9e539470eec259f',course:'Old Course at St Andrews',credit:'paul birrell / CC BY-SA 2.0 / Wikimedia Commons',source:'https://commons.wikimedia.org/wiki/File:18th_Green_and_Clubhouse.jpg'};
@@ -35,7 +36,7 @@ export function accessView(body,{failed=false}={}){
 }
 
 const offerActions=()=>`<div class="aa-actions"><a class="button button-gold" href="${NETWORK_ALL_ACCESS_URL}" rel="noopener">See PropBetEdge All Access</a></div>`;
-const tiles=owner=>`<ul class="aa-open" aria-label="${owner?'The full network, unlocked':'Your network, unlocked'}">${SPORTS.map(s=>s.key===SELF?`<li class="is-here"><span aria-current="page"><b>${e(s.label)}</b><em>YOU ARE HERE</em></span></li>`:`<li><a href="${e(s.url)}" rel="noopener"><b>${e(s.label)}</b><em>OPEN →</em></a></li>`).join('')}${PRODUCTS.map(p=>`<li class="is-intel"><a href="${e(p.url)}" rel="noopener"><b>◆ ${e(p.label)}</b><em>OPEN →</em></a></li>`).join('')}</ul>`;
+const tiles=owner=>`<ul class="aa-open" aria-label="${owner?'The full network, unlocked':'Your network, unlocked'}">${SPORTS.map(s=>s.key===SELF?`<li class="is-here"><span aria-current="page"><b>${e(s.label)}</b><em>YOU ARE HERE</em></span></li>`:`<li><a href="${e(s.url)}" rel="noopener"><b>${e(s.label)}</b><em>OPEN →</em></a></li>`).join('')}${PRODUCTS.map(p=>`<li class="is-intel"><a href="${e(p.url)}" rel="noopener"><span><b>◆ ${e(p.label)}</b><small>${e(PRODUCT_COPY[p.key]||'PropBetEdge network product.')}</small></span><em>OPEN →</em></a></li>`).join('')}</ul>`;
 
 // The membership panel for a view. Members never see a purchase action; an outage never sells.
 export function statePanel(view){
@@ -54,7 +55,26 @@ export function lockStatus(view){
 
 export function allAccessPage(){
  const srcset=f=>[320,640,960].map(w=>media(w,f)+' '+w+'w').join(', ');
- return `<section class="aa-hero"><div class="aa-copy">${kicker('PROPBETEDGE NETWORK · ALL ACCESS')}<h1>The tournament is<br><em>only one layer.</em></h1><p class="aa-lede">Player DNA, Course DNA, Course Fit and field intelligence are the PropBetEdge Golf desk. All Access opens it, and every other desk in the network: ${e(OFFER_LINE)}.</p><div class="aa-offer"><b>$29</b><span>/month</span><small>${e(OFFER_LINE)}. One membership.</small></div><div class="aa-state" data-aa-state aria-live="polite">${statePanel('checking')}</div></div><figure class="aa-photo"><picture><source type="image/avif" srcset="${srcset('avif')}" sizes="(max-width:800px) 100vw, 42vw"><img src="${media(640,'webp')}" srcset="${srcset('webp')}" sizes="(max-width:800px) 100vw, 42vw" width="960" height="720" alt="${e(HERO.course)}" fetchpriority="high" decoding="async"></picture><figcaption>${e(HERO.course)} · Photo: <a href="${e(HERO.source)}" rel="noopener">${e(HERO.credit)}</a></figcaption></figure></section>`
- +`<div class="page-body aa-body"><section class="aa-network" aria-labelledby="aa-network-h">${kicker('THE PROPBETEDGE NETWORK')}<h2 id="aa-network-h">${SPORTS.length} sport desks. One intelligence product.</h2><p>Every desk is built for how its sport actually works. Features vary by sport; each lists only what it ships.</p><ul class="aa-sports">${SPORTS.map(s=>s.key===SELF?`<li class="is-here"><span aria-current="page"><b>${e(s.label)}</b><em>YOU ARE HERE</em></span></li>`:`<li><a href="${e(s.url)}" rel="noopener"><b>${e(s.label)}</b><em>PropBetEdge ${e(s.label)} →</em></a></li>`).join('')}</ul>${PRODUCTS.map(p=>`<a class="aa-intel" href="${e(p.url)}" rel="noopener"><span>Intelligence product · not a sport</span><b>◆ ${e(p.label)}</b><small>Independent, source-backed forecasts with model probability, market comparison and a scored record.</small></a>`).join('')}</section>`
- +`<div class="free-premium-grid"><section class="free-access-panel"><span class="micro-label">OPEN TO EVERY GOLF FAN</span><h2>Free on PropBetEdge Golf.</h2><ul><li>Leaderboards, round scores and scorecards</li><li>Player pages, records, majors and course history</li><li>Player DNA fingerprint (percentiles)</li><li>Course DNA, matchups and the PBEcast archive</li></ul></section><section class="premium-access-panel"><span class="micro-label">INCLUDED WITH ALL ACCESS</span><h2>The full golf intelligence layer.</h2><ul><li>Raw DNA values, cohort sizes and both time windows</li><li>Course Fit components for every player and course</li><li>Field intelligence: form and course-history leaders</li><li>Matchup DNA detail</li></ul></section></div><div class="no-golf-checkout">NO GOLF-ONLY PLAN <span>·</span> ONE PROPBETEDGE MEMBERSHIP <span>·</span> ${e(OFFER_LINE.toUpperCase())}</div></div>`;
+ const products=PRODUCTS.map(p=>`<a class="aa-product-card aa-product-${e(p.key)}" href="${e(p.url)}" rel="noopener"><span class="aa-product-kicker">ALL ACCESS PRODUCT</span><b>◆ ${e(p.label)}</b><p>${e(PRODUCT_COPY[p.key]||'PropBetEdge network product.')}</p><em>OPEN →</em></a>`).join('');
+ return `<section class="aa-hero">
+   <figure class="aa-photo" aria-label="${e(HERO.course)}"><picture><source type="image/avif" srcset="${srcset('avif')}" sizes="100vw"><img src="${media(960,'webp')}" srcset="${srcset('webp')}" sizes="100vw" width="960" height="720" alt="${e(HERO.course)}" fetchpriority="high" decoding="async"></picture><figcaption>${e(HERO.course)} · Photo: <a href="${e(HERO.source)}" rel="noopener">${e(HERO.credit)}</a></figcaption></figure>
+   <div class="aa-hero-scrim" aria-hidden="true"></div>
+   <div class="aa-copy">${kicker('PROPBETEDGE NETWORK · ALL ACCESS')}
+     <div class="aa-hero-grid">
+       <div class="aa-hero-main"><h1>Golf is one desk.<br><em>Your edge is the network.</em></h1><p class="aa-lede">Player DNA, Course DNA, Course Fit and field intelligence live here. All Access opens the full Golf intelligence layer plus every PropBetEdge sport and the network products you use between them.</p></div>
+       <div class="aa-price-lockup"><span>ALL ACCESS</span><b>$29</b><em>/month</em><small>${e(OFFER_LINE)} · one membership</small></div>
+     </div>
+     <div class="aa-state" data-aa-state aria-live="polite">${statePanel('checking')}</div>
+   </div>
+ </section>
+ <div class="page-body aa-body">
+   <section class="aa-network" aria-labelledby="aa-network-h">
+     ${kicker('THE PROPBETEDGE NETWORK')}
+     <div class="aa-network-head"><div><h2 id="aa-network-h">${SPORTS.length} sport desks. Three network products. One membership.</h2><p>Every sport keeps its own product identity. Command Center, Compare and Predictions connect the network without being counted as sports.</p></div><a class="button button-gold" href="${NETWORK_ALL_ACCESS_URL}" rel="noopener">All Access overview →</a></div>
+     <ul class="aa-sports">${SPORTS.map(s=>s.key===SELF?`<li class="is-here"><span aria-current="page"><b>${e(s.label)}</b><em>YOU ARE HERE</em></span></li>`:`<li><a href="${e(s.url)}" rel="noopener"><b>${e(s.label)}</b><em>OPEN SPORT →</em></a></li>`).join('')}</ul>
+     <div class="aa-products">${products}</div>
+   </section>
+   <section class="aa-golf-layer"><div class="aa-golf-copy"><span class="micro-label">GOLF · PUBLIC LAYER</span><h2>Keep the sport useful before the paywall.</h2><p>Scores, records, majors, player pages, course history and public DNA fingerprints remain open discovery surfaces.</p></div><div class="aa-golf-copy is-premium"><span class="micro-label">GOLF · ALL ACCESS LAYER</span><h2>Unlock the underlying intelligence.</h2><p>Raw DNA values, cohort sizes, both analysis windows, Course Fit components, field intelligence and matchup DNA detail stay behind verified All Access.</p></div></section>
+   <div class="aa-trust-row"><span>NO GOLF-ONLY PLAN</span><span>ONE NETWORK MEMBERSHIP</span><span>SERVER-VERIFIED ACCESS</span><span>${e(OFFER_LINE.toUpperCase())}</span></div>
+ </div>`;
 }
