@@ -14,7 +14,7 @@
     "canary:sources": "node scripts/source-canary.mjs",
     "build:local": "vite build && node scripts/prerender.mjs",
     "guard:source-brand": "node scripts/guard-source-brand.mjs",
-    "verify:all-access": "npm test && npm run check"
+    "verify:all-access": "npm test && npm run check && vite build"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
