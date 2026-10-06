@@ -58,7 +58,7 @@ const ACCOUNT_STATUS:Record<string,[string,string]>={
 function paintAccountStatus(body:any){
  const view=accessView(body,{failed:!body});
  const [label,detail]=ACCOUNT_STATUS[view]||ACCOUNT_STATUS.check;
- $<HTMLElement>('[data-account-status]').forEach(el=>{
+ document.querySelectorAll<HTMLElement>('[data-account-status]').forEach(el=>{
   el.dataset.accountView=view;
   const l=$<HTMLElement>('[data-account-label]',el),d=$<HTMLElement>('[data-account-detail]',el);
   if(l)l.textContent=label;if(d)d.textContent=detail;
