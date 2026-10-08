@@ -5,6 +5,7 @@ import './cast-replay.css';
 import './vendor/kalshi/kalshi-market-ui.css';
 import './kalshi.css';
 import './vendor/kalshi/article-market-ui.css';
+import './kalshi-partner.css';
 import {initAnalytics,track,pageType,destination} from './analytics.js';
 // @ts-ignore shared JS modules
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
@@ -36,6 +37,8 @@ import {mountMovement} from './lib/movement-live.js';
 import {hydrateKalshi,boardWithin,placeCastMarket} from './lib/kalshi-live.js';
 // @ts-ignore Article market module (article-market/1): refreshes the server-painted module while visible
 import {mountArticleMarketSlot} from './lib/article-market.js';
+// @ts-ignore
+import {mountKalshiPartnerFooter} from './lib/kalshi-partner-footer.js';
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -220,6 +223,8 @@ async function initReplay(){
  mountReplay(root,{rows:rr?.data?.rounds||[],layout,map:M,edition:slug,courseMapSvg,track});
 }
 initReplay();
+// ---- Kalshi PERPETUALS partner offer: one commercial module in the network footer, never in game/market UI (fail closed).
+mountKalshiPartnerFooter();
 // ---- Observational analytics (single GA4 instance; allowlisted, slug-only parameters)
 {
  const pt=pageType(location.pathname),parts=location.pathname.split('/').filter(Boolean);

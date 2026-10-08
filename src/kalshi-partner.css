@@ -1,0 +1,15 @@
+/* Kalshi PERPETUALS partner offer (kalshi-partner/2) — footer variant only.
+   Markup comes from src/vendor/kalshi-partner/kalshi-partner.js partnerOffer(); one module per page,
+   mounted by src/lib/kalshi-partner-footer.js after the network footer groups.
+   Restrained and subordinate: muted text, hairline border, outline CTA, small type. */
+.footer-partner{padding:16px 0;border-bottom:1px solid #ffffff25;min-width:0}
+.footer-partner[hidden]{display:none!important}
+.footer-partner .kxo{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;max-width:100%;min-width:0;box-sizing:border-box;padding:10px 12px;border:1px solid #ffffff14;border-radius:6px;background:transparent;color:#a8b8ac;font-size:9.5px;line-height:1.6}
+.footer-partner .kxo>span{max-width:100%;overflow-wrap:anywhere}
+.footer-partner .kxo__kicker{font-size:8px;letter-spacing:2.1px;font-weight:400;text-transform:uppercase;color:#c7d1c8}
+.footer-partner .kxo__title{color:#d4dcd3;font-weight:600}
+.footer-partner .kxo__body,.footer-partner .kxo__sub{flex:1 1 320px;color:#bfcbc2}
+.footer-partner .kxo__cta{display:inline-flex;align-items:center;gap:4px;font-size:8.5px;letter-spacing:1px;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;color:#d4dcd3;border:1px solid #ffffff38;border-radius:4px;padding:6px 9px;background:transparent}
+.footer-partner .kxo__cta:hover,.footer-partner .kxo__cta:focus-visible{color:#fff;border-color:#ead39080}
+.footer-partner .kxo__disc,.footer-partner .kxo__share,.footer-partner .kxo__note{flex-basis:100%;font-size:8.5px;line-height:1.6;color:#8fa295}
+@media (max-width:520px){.footer-partner .kxo{padding:10px}.footer-partner .kxo__cta{white-space:normal}}

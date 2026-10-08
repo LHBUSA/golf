@@ -137,7 +137,9 @@ test('CSP stays same-origin; exact golf market rewrites precede the golf-api cat
  assert.equal(c.rewrites[ev].destination,'https://propsports-markets.sales-fd3.workers.dev/v1/market-intelligence/event/golf/:id');
  const am=idx('/api/markets/v1/article-market/golf/:id([0-9a-f-]+)');assert.ok(am>=0&&am<api);
  assert.equal(c.rewrites[am].destination,'https://propsports-markets.sales-fd3.workers.dev/v1/article-market/golf/:id');
- assert.equal(c.rewrites.filter(r=>/propsports-markets/.test(r.destination)).length,3,'no wildcard proxy to the markets service');
+ // The two fixed partner-offer routes (/go/kalshi-perps, /go/kalshi-perps/config) are pinned in tests/kalshi-partner.test.mjs.
+ assert.equal(c.rewrites.filter(r=>/propsports-markets/.test(r.destination)&&!r.source.startsWith('/go/kalshi-perps')).length,3,'no wildcard proxy to the markets service');
+ assert.equal(c.rewrites.filter(r=>/propsports-markets/.test(r.destination)).length,5);
 });
 
 // ---- Market history (CLOSED / SETTLED). Fixture = the real tennis market-history/1 JSON reshaped to a golf field
