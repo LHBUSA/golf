@@ -18,6 +18,15 @@
       "bucket_name": "golf-public"
     }
   ],
+  "services": [
+    {
+      "binding": "MARKETS",
+      "service": "propsports-markets"
+    }
+  ],
+  "vars": {
+    "PICKS_ENABLED": "1"
+  },
   "observability": {
     "enabled": true
   },

@@ -6,6 +6,7 @@ import {renderNews,feed,newsSitemap,newsUrlset,newsIndex} from './news-ssr.js';
 const ogImage=(...a)=>import('./og.js').then(m=>m.ogImage(...a));
 import {adminAllowed} from '../../shared/admin.js';
 import {noTransform} from './transport.js';
+import {picksPreview} from '../../shared/picks/views.js';
 import {courseMap,openData} from './course-map.js';
 import {DUPLICATE_COURSES} from '../../shared/course-identity.js';
 // Merged duplicate courses (reviewed alias): old IDs 308 to the primary instead of serving a stale pre-merge doc.
@@ -64,6 +65,18 @@ async function route(request,env){
    else if(parts[1]==='history'&&parts[2]){const d=await doc(env,'players/'+parts[2]+'.json');data=d?{results:d.results,seasons:d.seasons}:null;}
    if(!data)return json({...unavailable(ix,'not_found_or_insufficient_sample'),membership:access.membership},404);
    return json({...envelope(ix,data,{method:ix.methods}),membership:access.membership});
+  }
+  // Golf Picks V1 (All Access only). Values come from the PRIVATE ledger (golf-source picks/v1/) and leave only after
+  // server-side verification, always no-store. The public preview carries no golfer, selection or probability.
+  if(parts[0]==='picks'){
+   const idx=env.PICKS?await env.PICKS.get('picks/v1/index.json').then(o=>o?o.json():null).catch(()=>null):null;
+   if(parts[1]==='preview'&&!parts[2]){const items=idx?.items||[];return json(picksPreview(items));}
+   if(parts[1]&&parts[1]!=='track-record')return json({error:'not_found'},404);
+   const access=await golfAccess(request,env);
+   if(!access.granted)return json({error:'all_access_required',membership:access.membership},403);
+   if(!idx)return json({availability:'unavailable',reason:'ledger_unavailable',membership:access.membership},503);
+   if(parts[1]==='track-record')return json({availability:'available',model:idx.model,policy:idx.policy,built_at:idx.built_at,record:idx.record,membership:access.membership});
+   return json({availability:'available',model:idx.model,policy:idx.policy,built_at:idx.built_at,label:'RESEARCH',items:idx.items.slice(0,12),record:{families:idx.record.families},membership:access.membership});
   }
   const ix=await index(env);
   // Server-rendered newsroom and feeds (proxied by the frontend for /news, /feed.xml and news sitemaps).

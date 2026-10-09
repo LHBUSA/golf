@@ -12,6 +12,8 @@ import {runVideo} from './video.js';
 import {runHeadshots} from './headshots.js';
 import {writePlan} from './writer.js';
 import {buildProjection} from '../../shared/projection.js';
+import {runPicks} from './picks.js';
+import {createOnly as picksCreateOnly} from '../../shared/picks/ledger.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
 // lane -> approved source, cadence. Each source is independently disable-able in golf_sources.
 export const LANES={catalog:{source:'wikidata',cadenceMs:86400000},schedule:{source:'wikipedia',cadenceMs:6*3600000},results:{source:'wikipedia',cadenceMs:15*60000},media:{source:'commons',cadenceMs:86400000},espn:{source:'espn',cadenceMs:10*60000},live:{source:'espn-live',cadenceMs:9*60000},weather:{source:'nws',cadenceMs:3*3600000},video:{source:'youtube',cadenceMs:30*60000},headshots:{source:'espn',cadenceMs:6*3600000}};
@@ -91,7 +93,9 @@ async function tick(env){
  // Rebuild when a lane wrote since the last projection (KV flag or durable source-state timestamps).
  const last=await env.STATE.get('projection:last')||'',writes=(await db('golf_source_state','select=last_write')).map(r=>r.last_write||'').sort().at(-1)||'';
  let projection=null;if(await env.STATE.get('projection:dirty')||Date.parse(writes)>Date.parse(last||0))projection=await project(env,db);
- return {live,lane,result,espn,stats,projection};
+ // Golf Picks V1: bounded lock/grade step on the existing full tick (no new cron). Never blocks the lanes above.
+ const picks=await runPicks(env,{budgetMs:60000}).catch(e=>({lane:'picks',status:'error',error:String(e.message).slice(0,200)}));
+ return {live,lane,result,espn,stats,projection,picks};
 }
 export default {
  async fetch(request,env={}){
@@ -114,6 +118,9 @@ export default {
   }
   if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats','live-backfill','live-reconcile'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number),events:list('events').length?list('events'):undefined}));}
   if(path==='/admin/tick')return json(await tick(env));
+  if(path==='/admin/picks')return json(await runPicks(env,{budgetMs:120000}));
+  // Proves the create-only primitive on the real bucket: the second write of the same key must lose.
+  if(path==='/admin/picks-selftest'){const k='picks/v1/selftest/'+Date.now()+'-'+crypto.randomUUID()+'.json';const a=await picksCreateOnly(env.RAW,k,{sha256:'a'});const [b,c]=await Promise.all([picksCreateOnly(env.RAW,k,{sha256:'b'}),env.RAW.put(k,'{"sha256":"c"}',{onlyIf:new Headers({'if-none-match':'*'})})]);const kept=JSON.parse(await (await env.RAW.get(k)).text());await env.RAW.delete(k);return json({key:k,first:a,second:b,raw_conditional_put_returned_null:c===null,kept_sha:kept.sha256,ok:a.created&&!b.created&&c===null&&kept.sha256==='a'});}
   if(path==='/admin/live-budget'){const day=url.searchParams.get('day')||new Date().toISOString().slice(0,10);return json(JSON.parse(await env.STATE.get('live:budget:'+day)||'null')||{day,ticks:null});}
   // Derivatives are produced offline from the archived original and stored under its content hash.
   if(path==='/admin/media-derivative'){

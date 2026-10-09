@@ -8,7 +8,7 @@ const players=new Map(b.players.map(d=>[d.slug,publicPlayer(d)])),editions=new M
 const raw=new Map(b.players.map(d=>[d.slug,d]));
 const data={index:b.index,players,editions,courses,stories:b.stories||[]};
 const template=await fs.readFile('dist/index.html','utf8');
-const pages=['/','/today','/live','/tournaments','/players','/courses','/majors','/matchups','/pbecast','/news','/intelligence','/rankings','/search','/all-access',...b.index.series.filter(s=>s.editions).map(s=>'/majors/'+s.key),...[...editions.keys()].map(s=>'/tournament/'+s),...[...players.keys()].map(s=>'/player/'+s),...[...courses.keys()].map(s=>'/course/'+s)];
+const pages=['/','/today','/live','/tournaments','/players','/courses','/majors','/matchups','/pbecast','/news','/intelligence','/rankings','/search','/all-access','/picks',...b.index.series.filter(s=>s.editions).map(s=>'/majors/'+s.key),...[...editions.keys()].map(s=>'/tournament/'+s),...[...players.keys()].map(s=>'/player/'+s),...[...courses.keys()].map(s=>'/course/'+s)];
 const matchups=(b.index.featured_matchups||[]).map(m=>['/matchups/'+m.a.slug+'/'+m.b.slug,matchupPublic(raw.get(m.a.slug),raw.get(m.b.slug))]).filter(([,m])=>m);
 const sitemap=[];
 async function write(path,r){

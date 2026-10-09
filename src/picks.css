@@ -1,0 +1,19 @@
+/* Golf Picks + Track Record (All Access). Warm card palette; no inline styles (CSP style-src 'self'). */
+.picks-page .pk-families{margin:8px 0 12px;padding-left:20px;line-height:1.8}
+.premium-lock.picks-unlocked{padding:18px 0;border:0;background:none}
+.pk-event{border-top:1px solid var(--line);padding:18px 0}
+.pk-event h3{font:24px var(--serif);margin:2px 0 6px}
+.pk-lockline{font-size:13px;color:var(--muted);margin:0 0 12px;overflow-wrap:anywhere}
+.pk-cards{list-style:none;margin:0;padding:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+.pk-card{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);padding:12px 14px;min-width:0}
+.pk-card.pk-win{border-left-color:var(--pine-2)}.pk-card.pk-loss{border-left-color:var(--red)}.pk-card.pk-void{border-left-color:var(--muted)}
+.pk-fam{font:700 11px var(--sans);letter-spacing:.08em;color:var(--muted);margin:0 0 6px}
+.pk-card dl{margin:0;display:grid;gap:4px}.pk-card dl div{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.pk-card dt{color:var(--muted)}.pk-card dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.pk-grade{letter-spacing:.04em}.pk-card small{display:block;color:var(--muted);font-size:12px}
+.pk-facts{font-size:12px;color:var(--muted);margin:8px 0 0}
+.pk-win{color:var(--pine-2)}.pk-loss{color:var(--red)}.pk-void,.pk-pending{color:var(--muted)}
+.pk-card.pk-win,.pk-card.pk-loss,.pk-card.pk-void,.pk-card.pk-pending{color:var(--ink)}
+.pk-probs{margin-top:12px}.pk-probs summary{cursor:pointer;font-weight:700;padding:6px 0}
+.pk-record{border-top:2px solid var(--gold);margin-top:18px;padding-top:14px}.pk-record h2{font:26px var(--serif)}
+.pk-preview{margin-top:10px}

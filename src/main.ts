@@ -6,6 +6,7 @@ import './vendor/kalshi/kalshi-market-ui.css';
 import './kalshi.css';
 import './vendor/kalshi/article-market-ui.css';
 import './kalshi-partner.css';
+import './picks.css';
 import {initAnalytics,track,pageType,destination} from './analytics.js';
 // @ts-ignore shared JS modules
 import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,today,live} from './lib/pages.js';
@@ -13,6 +14,8 @@ import {pbecast,matchup,premiumDna,premiumFit,premiumField,premiumMatchup,home,t
 import {portrait,e} from './lib/ui.js';
 // @ts-ignore
 import {accessView,statePanel,lockStatus} from './lib/all-access-page.js';
+// @ts-ignore Golf Picks (All Access): member values only after golf-api verification
+import {picksMember,trackRecordMember,picksPreviewHtml} from './lib/picks-ui.js';
 // @ts-ignore
 import {heroLive,liveRail,liveBoard,playerLive,weatherNow,statusModule} from './lib/live-ui.js';
 // @ts-ignore
@@ -113,11 +116,15 @@ async function premium(){
  const parts=location.pathname.split('/').filter(Boolean);
  for(const l of locks){const mod=l.dataset.premium;let path='';
   if(mod==='player-dna'&&parts[0]==='player')path='player-dna/'+parts[1];else if(mod==='course-fit'&&parts[0]==='course')path='course-dna/'+parts[1];else if(mod==='field'&&parts[0]==='tournament')path='field/'+parts[1];else if(mod==='matchups'&&parts[0]==='matchups')path='matchups/'+parts[1]+'/'+parts[2];
+  if(mod==='picks'){const [p,t]=await Promise.all([api('picks').then(r=>r.ok?r.json():null).catch(()=>null),api('picks/track-record').then(r=>r.ok?r.json():null).catch(()=>null)]);
+   if(!p){const s=$('.premium-status',l);if(s)s.textContent=lockStatus(accessView(mem,{failed:false}));continue;}
+   const html=picksMember(p)+trackRecordMember(t?.record);if(!html){l.remove();continue;}l.classList.add('unlocked','picks-unlocked');l.innerHTML=html;continue;}
   if(!path)continue;const r=await api('intelligence/'+path).then(r=>r.ok?r.json():null).catch(()=>null);if(!r?.data){const s=$('.premium-status',l);if(s)s.textContent='All Access verified. Not enough comparable sample for this module.';continue;}
   if(mod==='player-dna'){fillRaw(document,r.data.dna,'data-raw');mountDnaWindows(r.data.dna);}if(mod==='matchups'){fillRaw(document,r.data.a?.dna,'data-raw-a');fillRaw(document,r.data.b?.dna,'data-raw-b');}
   l.classList.add('unlocked');l.innerHTML=mod==='player-dna'?premiumDna(r.data):mod==='course-fit'?premiumFit(r.data):mod==='field'?premiumField(r.data):premiumMatchup(r.data);}
 }
 premium();
+{const pv=$('[data-picks-preview]');if(pv)api('picks/preview').then(r=>r.ok?r.json():null).then(p=>{const h=picksPreviewHtml(p);if(h)pv.innerHTML=h;else pv.remove();}).catch(()=>pv.remove());}
 // All Access: both DNA windows exist only after server-side verification, so the toggle appears only then. Switching
 // re-renders the radar, cards, dimension rows, cohort context and raw values for that window (never mixed).
 function mountDnaWindows(dna:any){

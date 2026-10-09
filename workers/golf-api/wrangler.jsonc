@@ -41,6 +41,10 @@
     {
       "binding": "PUBLIC",
       "bucket_name": "golf-public"
+    },
+    {
+      "binding": "PICKS",
+      "bucket_name": "golf-source"
     }
   ]
 }

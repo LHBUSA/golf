@@ -7,9 +7,10 @@ import {SITE,fullTitle,ogImage,photoNode,personNode,courseNode,eventNode} from '
 import {videoNode} from './video.js';
 import {familyFooterHtml} from './network.js';
 import {allAccessPage} from './all-access-page.js';
+import {picksPage} from './picks-ui.js';
 export const escapeHtml=e;
 export const ALL_ACCESS_URL='https://propbetedge.ai/pro';
-export const NAV=[['/today','Today'],['/live','Live'],['/tournaments','Tournaments'],['/players','Players'],['/matchups','Matchups'],['/courses','Courses'],['/majors','Majors'],['/pbecast','PBEcast'],['/news','News'],['/intelligence','Intelligence'],['/search','Search']];
+export const NAV=[['/today','Today'],['/live','Live'],['/tournaments','Tournaments'],['/players','Players'],['/matchups','Matchups'],['/courses','Courses'],['/majors','Majors'],['/pbecast','PBEcast'],['/picks','Picks'],['/news','News'],['/intelligence','Intelligence'],['/search','Search']];
 const notFound=()=>`<section class="page-heading data-heading"><div>${kicker('404')}<h1>This page is out of bounds.</h1><p>The page or record you asked for is not in coverage.</p>${go('/','Return home','button button-gold')}</div></section>`;
 // Index only pages that pass a quality floor; thin entities stay noindex. Every route carries its own
 // title, description, canonical, social image and connected JSON-LD graph (see seo.js).
@@ -38,6 +39,7 @@ export function route(path,data){
  if(clean==='/intelligence')return page(P.intelligence(ix),'Golf Intelligence Methodology','How Player DNA, Course DNA, Bag DNA and Course Fit are calculated, with sources and sample rules.',true,{crumbs:[['Methodology','/intelligence']]});
  if(clean==='/rankings')return page(P.rankings(ix),'Golf Rankings','Ranking source status.',false);
  if(clean==='/search')return page(P.search(),'Search','Search golfers, tournaments and courses.',false);
+ if(clean==='/picks')return page(picksPage(),'Golf Picks','Golf Picks and Track Record: full-field finish probabilities locked before the first tee and graded after the official result. All Access.',false,{crumbs:[['Picks','/picks']]});
  if(clean==='/all-access')return page(allAccessPage(),'PropBetEdge All Access on Golf','Golf intelligence is one desk in the PropBetEdge network. All Access includes 10 sports plus Command Center, Compare, Markets and Predictions for $29/month.',true,{crumbs:[['All Access','/all-access']]});
  if(kind==='majors'&&id){const html=P.series(id,ix);if(html)return page(html,P.seriesName(id),`${P.seriesName(id)}: every champion, leaderboard and edition in our record.`,true,{crumbs:[['Majors','/majors'],[P.seriesName(id),clean]],pageType:'CollectionPage',og:{url:ogImage('majors',id),width:1200,height:630,alt:P.seriesName(id)}});}
  if(kind==='tournament'){const d=data.editions?.get(id);if(d){const full=d.leaderboard.length>0,w=d.leaderboard.find(r=>r.winner);
