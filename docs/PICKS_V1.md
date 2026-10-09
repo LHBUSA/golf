@@ -161,7 +161,31 @@ Nothing is written to `golf-public`, the projection, the static build or the sit
   card reads "Our selection / Forecast probability / Actual finish / Result", followed by the probability table
   and the track record by family. Nav item "Picks".
 
-## Release gate (not executed)
+## Release state (2026-10-09, owner-approved gated RESEARCH rollout)
+- **golf-ingest** `0392a3b4` (main 014a45c, `PICKS_ENABLED=1`).
+  - Rollback, picks off: `15a28c30`.
+  - Rollback, pre-picks: `6e0bed35`.
+- **golf-api** `82cc361c` (branch 80170e5; golf-api code identical to main 014a45c). Rollback: `d1e4961f`.
+- **Vercel** `dpl_5Pbk3NCZ83uh4LjqdrSMRrffN5t3` (main 80170e5). Rollback: `dpl_HbWcG8D81ZXWcthCijzfeK8yKMSu`.
+- **Real R2 create-only proof** (`POST /admin/picks-selftest`, 2 runs): `ok:true`. The first write was created,
+  the second was refused. A raw conditional `If-None-Match: *` put returned null and the original object was kept.
+- **Production access checks:**
+  - `/v1/picks` and `/v1/picks/track-record` return 403 with no values for a guest and for an invalid session,
+    both directly and through golf.propbetedge.ai/api.
+  - All of these responses are `no-store`.
+  - The preview returns counts only.
+  - `/picks` is noindex and not in the sitemap.
+  - The projection and index snapshot contain no picks.
+- **Model store** built in private R2: 385 full-field editions.
+- **Unchanged surfaces:** the PBEcast, Round Replay, course map, live scoring, newsroom and article source files
+  are byte-identical to the previous main.
+- **Market:** the read-only route answers for the target, but Kalshi shows `UNMATCHED_NOT_OBSERVED_YET`. Snapshots
+  are archived verbatim beside the lock and are never combined with anything.
+- **Target status:** ESPN event 401835172 had 0 competitors published at 2026-10-09 12:55Z. The lock waits for the
+  field. The live window opens 2026-10-14 00:00Z, and the lock is due before the first R1 tee − 30 min.
+
+## Release gate (original)
+
 AGENTS.md: "No production deployment ... without owner approval." The owner needs to approve:
 1. A golf-ingest deploy. It adds the `MARKETS` service binding, `PICKS_ENABLED=1` and the picks step on the full
    tick. Then run `POST /admin/picks-selftest`, which must return `ok:true` to prove create-only on real R2.
