@@ -161,28 +161,42 @@ Nothing is written to `golf-public`, the projection, the static build or the sit
   card reads "Our selection / Forecast probability / Actual finish / Result", followed by the probability table
   and the track record by family. Nav item "Picks".
 
-## Release state (2026-10-09, owner-approved gated RESEARCH rollout)
-- **golf-ingest** `0392a3b4` (main 014a45c, `PICKS_ENABLED=1`).
-  - Rollback, picks off: `15a28c30`.
-  - Rollback, pre-picks: `6e0bed35`.
-- **golf-api** `82cc361c` (branch 80170e5; golf-api code identical to main 014a45c). Rollback: `d1e4961f`.
-- **Vercel** `dpl_5Pbk3NCZ83uh4LjqdrSMRrffN5t3` (main 80170e5). Rollback: `dpl_HbWcG8D81ZXWcthCijzfeK8yKMSu`.
-- **Real R2 create-only proof** (`POST /admin/picks-selftest`, 2 runs): `ok:true`. The first write was created,
-  the second was refused. A raw conditional `If-None-Match: *` put returned null and the original object was kept.
-- **Production access checks:**
+## Release state (2026-10-09 13:35Z): RESEARCH, picks lane OFF pending the Shanghai gate (owner hold)
+- **golf-ingest** `bf77c279` (main fc61bb7, `PICKS_ENABLED=0`): read-only gate and health step on the existing
+  full tick.
+  - It was enabled as `0392a3b4` from 12:54 to 13:02Z. The single tick that ran in that window (13:00) locked
+    nothing; it only built the model store.
+  - Rollbacks: `15a28c30` (picks off, no health step), `6e0bed35` (pre-picks).
+- **golf-api** `3327842b` (main fc61bb7). Rollbacks: `82cc361c`, then `d1e4961f` (pre-picks).
+- **Vercel** `dpl_8aauPr5GHjd6uySudeWmRZwK5Xpx` (main bac9fb2, All Access repairs).
+  Rollbacks: `dpl_G27XDHiUYvm4924PVfDKXD1bz42q` (fc61bb7), then `dpl_HbWcG8D81ZXWcthCijzfeK8yKMSu` (pre-picks).
+- **Real R2 create-only proof** (`POST /admin/picks-selftest`, 2 runs): `ok:true`.
+- **Production-verified access** (real requests, no mocks):
   - `/v1/picks` and `/v1/picks/track-record` return 403 with no values for a guest and for an invalid session,
-    both directly and through golf.propbetedge.ai/api.
-  - All of these responses are `no-store`.
+    both directly and through golf.propbetedge.ai/api. All of these responses are `no-store`.
   - The preview returns counts only.
   - `/picks` is noindex and not in the sitemap.
   - The projection and index snapshot contain no picks.
-- **Model store** built in private R2: 385 full-field editions.
-- **Unchanged surfaces:** the PBEcast, Round Replay, course map, live scoring, newsroom and article source files
-  are byte-identical to the previous main.
-- **Market:** the read-only route answers for the target, but Kalshi shows `UNMATCHED_NOT_OBSERVED_YET`. Snapshots
-  are archived verbatim beside the lock and are never combined with anything.
-- **Target status:** ESPN event 401835172 had 0 competitors published at 2026-10-09 12:55Z. The lock waits for the
-  field. The live window opens 2026-10-14 00:00Z, and the lock is due before the first R1 tee − 30 min.
+- **Simulated-membership QA (NOT a production access test):** the member card, track record and probability-table
+  layout were checked by browser QA with membership mocked at the network edge. A real signed-in All Access check
+  in production is still owed.
+- **Monitoring** (KV `picks:health:v1`, private R2 `picks/v1/health/latest.json`, aggregate on
+  `/v1/source-health` `.picks`):
+  - Every full tick checks: next-event gate, each lock re-hashed from its stored bytes, locked before its sourced
+    start, and graded after the official result.
+  - First real tick record: 2026-10-09T13:16:53Z, PASS, enabled=false, Shanghai NOT_READY.
+  - No alert channel is bound in this repo, so a FAIL is recorded and surfaced, not pushed.
+
+### Re-enable procedure (owner/coordinator, only when the gate is READY)
+1. `node scripts/picks-gate.mjs` must print `READY` (exit 0). Admin: `POST https://golf-api.propbetedge.ai/admin/picks-gate`.
+2. Set `"PICKS_ENABLED": "1"` in `workers/golf-ingest/wrangler.jsonc`, run `npm test`, commit and push, then
+   `npx wrangler deploy -c workers/golf-ingest/wrangler.jsonc`. Do this before the gate's `before_lock_cutoff`
+   time. The next full tick locks.
+3. Verify the lock with `node scripts/picks-gate.mjs --health`. It must show the lock, `seal_verified:true` and
+   `locked_before_start:true`.
+
+For Shanghai: ESPN had published 0 entrants at 2026-10-09 13:05Z. The live window opens 2026-10-14 00:00Z, and
+the cutoff is the first sourced R1 tee − 30 min (about 22:30–23:00Z). If the gate is not READY in time: HOLD.
 
 ## Release gate (original)
 
