@@ -219,3 +219,35 @@ test('public preview: readiness + RESOLVED results only; pending selections and 
  const health={enabled:true,checked_at:'t',status:'PASS',gate:{state:'NOT_READY',checks:{field_published:{ok:false,value:0}},cutoff:null,first_tee:null,checked_at:'t',edition:{name:'2026 Buick LPGA Shanghai',starts_on:'2026-10-15'}}};
  const out=JSON.stringify(picksPreview(items,health));assert.ok(out.includes('Resolved Golfer')&&out.includes('T24'));assert.ok(!out.includes('Pending Golfer')&&!out.includes('Prob Table'));assert.ok(out.includes('Official field published'));
 });
+
+// ---- golf#9: specific readiness reasons (source hold vs technical vs policy vs schedule) + permanent record
+test('readiness names the exact blocker instead of a generic wait',async()=>{
+ const {evaluateGate,readinessReason}=await import('../workers/shared/picks/gate.js');
+ const at=new Date('2026-10-09T15:00:00Z'),opens='2026-10-14T00:00:00.000Z';
+ const none=evaluateGate({snap:null,edition:ed,now:at});
+ let r=readinessReason(none,{snapshot_present:false,observation_opens:opens,prior_field_size:82,source:{competitors:0,checked_at:'2026-10-09T15:00:00Z'}});
+ assert.equal(r.code,'field_unpublished');assert.equal(r.kind,'source_hold');assert.match(r.detail,/0 of ~82 expected/);assert.match(r.detail,/2026-10-14 00:00 UTC/);
+ r=readinessReason(none,{snapshot_present:false,observation_opens:opens,source:{competitors:81,checked_at:'x'}});assert.equal(r.code,'awaiting_observation');
+ r=readinessReason(none,{snapshot_present:false,observation_opens:opens,source:{competitors:null,error:'source_read_failed'}});assert.equal(r.kind,'schedule');
+ r=readinessReason(evaluateGate({snap:null,edition:ed,now:new Date('2026-10-14T05:00:00Z')}),{snapshot_present:false,observation_opens:opens});assert.equal(r.code,'feed_missing');assert.equal(r.kind,'technical');
+ const t=new Date('2026-10-14T20:10:00Z');
+ r=readinessReason(evaluateGate({snap:snapOf({fetched_at:'2026-10-14T18:00:00Z'}),edition:ed,now:t}),{snapshot_present:true});assert.equal(r.code,'feed_stale');
+ r=readinessReason(evaluateGate({snap:snapOf({players:snapOf().players.slice(0,10)}),edition:ed,now:t}),{snapshot_present:true,prior_field_size:82});assert.equal(r.code,'field_unpublished');assert.match(r.detail,/10 of ~82/);
+ r=readinessReason(evaluateGate({snap:snapOf({players:snapOf().players.map((p,i)=>i<30?{...p,slug:null}:p)}),edition:ed,now:t}),{snapshot_present:true});assert.equal(r.code,'mapping');
+ r=readinessReason(evaluateGate({snap:snapOf({fetched_at:'2026-10-14T23:00:00Z'}),edition:ed,now:new Date('2026-10-14T23:05:00Z')}),{snapshot_present:true});assert.equal(r.code,'past_cutoff');assert.equal(r.kind,'policy');
+ r=readinessReason(evaluateGate({snap:snapOf({event_status:{state:'in',name:'STATUS_IN_PROGRESS'}}),edition:ed,now:t}),{snapshot_present:true});assert.equal(r.code,'started');
+ r=readinessReason(evaluateGate({snap:snapOf(),edition:ed,now:t,storeComplete:false}),{snapshot_present:true});assert.equal(r.code,'model_loading');
+ r=readinessReason(evaluateGate({snap:snapOf(),edition:ed,now:t}),{snapshot_present:true});assert.equal(r.code,'ready');
+ assert.equal(readinessReason({state:'NOT_READY',reason:'no_upcoming_edition'}).code,'no_event');
+});
+test('public record is permanent: zero-lock families, versions and lock evidence; never unresolved names',async()=>{
+ const {picksPreview}=await import('../workers/shared/picks/views.js');
+ const empty=picksPreview([],null);assert.equal(empty.record.length,5);assert.ok(empty.record.every(f=>f.WIN===0&&f.PENDING===0));assert.equal(empty.versions.policy,POLICY_VERSION);
+ const items=[{edition:{name:'E',starts_on:'2026-10-15'},locked_at:'2026-10-14T20:10:00Z',start_evidence:{first_tee:'2026-10-14T23:30:00Z'},lock_sha256:'abc',model:MODEL_VERSION,selections:[{family:'top10',name:'Hidden Pending',p:0.4,grade:'PENDING'}]}];
+ const p=picksPreview(items,null);assert.equal(p.record.find(f=>f.family==='top10').PENDING,1);assert.equal(p.locks[0].lock_sha256,'abc');assert.ok(!JSON.stringify(p).includes('Hidden Pending'));
+});
+test('member module never disappears when nothing is locked',async()=>{
+ const {picksMember,trackRecordMember}=await import('../src/lib/picks-ui.js');
+ assert.match(picksMember({items:[],model:MODEL_VERSION,policy:POLICY_VERSION,label:'RESEARCH'}),/No tournament is locked yet/);
+ assert.match(trackRecordMember({families:[{family:'winner',label:'TOURNAMENT WINNER',selections:0,WIN:0,LOSS:0,VOID:0,PENDING:0,hit_rate:null,expected_wins:0,brier:null}],rows:[]}),/TOURNAMENT WINNER/);
+});

@@ -10,7 +10,7 @@ import {allAccessPage} from './all-access-page.js';
 import {picksPage} from './picks-ui.js';
 export const escapeHtml=e;
 export const ALL_ACCESS_URL='https://propbetedge.ai/pro';
-export const NAV=[['/today','Today'],['/live','Live'],['/tournaments','Tournaments'],['/players','Players'],['/matchups','Matchups'],['/courses','Courses'],['/majors','Majors'],['/pbecast','PBEcast'],['/picks','Picks'],['/news','News'],['/intelligence','Intelligence'],['/search','Search']];
+export const NAV=[['/today','Today'],['/live','Live'],['/tournaments','Tournaments'],['/players','Players'],['/matchups','Matchups'],['/courses','Courses'],['/majors','Majors'],['/pbecast','PBEcast'],['/picks','Picks & Record'],['/news','News'],['/intelligence','Intelligence'],['/search','Search']];
 const notFound=()=>`<section class="page-heading data-heading"><div>${kicker('404')}<h1>This page is out of bounds.</h1><p>The page or record you asked for is not in coverage.</p>${go('/','Return home','button button-gold')}</div></section>`;
 // Index only pages that pass a quality floor; thin entities stay noindex. Every route carries its own
 // title, description, canonical, social image and connected JSON-LD graph (see seo.js).

@@ -12,6 +12,7 @@ export function picksPage(){
 <section class="data-section"><h2>What is locked each week</h2>
 <ul class="pk-families"><li><b>Tournament winner</b> probability for every golfer in the published field</li><li><b>Top 10 and Top 20</b> selections (ties count)</li><li><b>Make the cut</b> in events with a 36-hole cut</li><li><b>Head to head</b> finish-ahead selections</li></ul>
 <p class="gnote">Inputs are observed round scores from complete-field results only (missed cuts listed), adjusted for field strength and recency. Every selection is graded WIN, LOSS, VOID or PENDING in its own family and every loss stays on the record. Research forecasts, not betting advice; no sportsbook odds are used.</p></section>
+<section class="pk-record" id="track-record" data-picks-record aria-labelledby="pk-rec-h"><h2 id="pk-rec-h">Track record</h2><p class="gnote">Every prospective lock is counted in its own family: wins, losses, voids and pending. Backtests are never counted.</p></section>
 <div class="premium-lock" data-premium="picks"><span class="lock-mark" aria-hidden="true">◆</span><div><h3>This week’s selections and the full track record</h3><p>Selections, probabilities, actual finishes and grades are included with PropBetEdge All Access.</p><p class="premium-status" role="status">Included with PropBetEdge All Access.</p><a class="button button-gold" href="/all-access">All Access details</a></div></div>
 </div>`;
 }
@@ -19,10 +20,12 @@ export function picksPage(){
 // Only real status facts render; when the API has nothing to say the slot is removed (no empty-state filler).
 const day=d=>d?new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}):'';
 export function readinessHtml(r){
+ if(r&&!r.edition&&r.reason)return `<section class="pk-ready"><p class="eyebrow">NEXT LOCK</p><p class="pk-reason pk-k-${e(r.reason.kind)}"><b>${e(r.reason.headline)}</b></p><p class="pk-ready-meta">${e(r.reason.detail)}</p></section>`;
  if(!r?.edition)return '';
  const done=r.checks.filter(c=>c.ok).length;
  return `<section class="pk-ready" aria-labelledby="pk-ready-h"><p class="eyebrow">NEXT LOCK · ${e(r.edition.tour||'')}</p><h2 id="pk-ready-h">${e(r.edition.name)}</h2>
-<p class="pk-ready-meta">${e(day(r.edition.starts_on))}${r.edition.ends_on?'–'+e(day(r.edition.ends_on)):''} · <b class="${r.state==='READY'?'pk-win':'pk-pending'}">${r.state==='READY'?'READY TO LOCK':'WAITING ON SOURCE DATA'}</b> · ${done} of ${r.checks.length} checks passed</p>
+<p class="pk-ready-meta">${e(day(r.edition.starts_on))}${r.edition.ends_on?'–'+e(day(r.edition.ends_on)):''} · ${done} of ${r.checks.length} checks passed</p>
+<p class="pk-reason pk-k-${e(r.reason?.kind||'other')}"><b>${e(r.reason?.headline||(r.state==='READY'?'READY TO LOCK':'CHECKS PENDING'))}</b>${r.reason?.kind?` <small>${e({source_hold:'Source hold',technical:'Technical',policy:'Lock policy',schedule:'Schedule',ready:'Ready'}[r.reason.kind]||'')}</small>`:''}</p>${r.reason?.detail?`<p class="pk-ready-meta">${e(r.reason.detail)}</p>`:''}
 <p class="pk-ready-meta">Selections lock automatically by ${e(fmt(r.expected_lock_by))} (${e(r.start_basis)}${r.first_tee?`: ${e(fmt(r.first_tee))}`:''}). Nothing locks after play begins.</p>
 <ul class="pk-checks">${r.checks.map(c=>`<li class="${c.ok?'ok':'wait'}"><span aria-hidden="true">${c.ok?'✓':'…'}</span> ${e(c.label)} <small>${c.ok?'passed':'pending'}</small></li>`).join('')}</ul>
 <p class="gnote">Checked ${e(fmt(r.checked_at))}. Status updates every 10 minutes.</p></section>`;
@@ -31,10 +34,16 @@ export function resolvedHtml(rows){
  if(!rows?.length)return '';
  return `<section class="pk-record pk-resolved"><h2>Resolved results</h2><p class="gnote">Every graded selection from locked tournaments, losses included. Research forecasts, not betting advice.</p><div class="table-wrap" tabindex="0" role="region" aria-label="Resolved results"><table class="index-table"><thead><tr><th>Event</th><th>Selection</th><th>Forecast</th><th>Actual</th><th>Result</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${e(r.edition)}</td><td>${e(r.name)} ${e(r.family==='h2h'?'ahead of '+(r.opponent||''):r.proposition)}</td><td>${pct(r.p)}</td><td>${e(r.actual||'—')}</td><td><b class="${GRADE_CLASS[r.grade]||''}">${e(r.grade)}</b></td></tr>`).join('')}</tbody></table></div></section>`;
 }
+export function recordHtml(p){
+ if(!p?.record)return '';
+ const v=p.versions||{};
+ return `<div class="table-wrap" tabindex="0" role="region" aria-label="Track record by family"><table class="index-table"><thead><tr><th>Family</th><th>Win</th><th>Loss</th><th>Void</th><th>Pending</th><th>Hit rate</th></tr></thead><tbody>${p.record.map(f=>`<tr><td>${e(f.label)}</td><td>${e(f.WIN)}</td><td>${e(f.LOSS)}</td><td>${e(f.VOID)}</td><td>${e(f.PENDING)}</td><td>${f.hit_rate===null?'—':pct(f.hit_rate)}</td></tr>`).join('')}</tbody></table></div>
+<p class="gnote">${e(p.tournaments_locked)} tournament${p.tournaments_locked===1?'':'s'} locked · model ${e(v.model||p.model)} · policy ${e(v.policy||'')} · grading ${e(v.grading||'')} · RESEARCH</p>
+${p.locks?.length?`<div class="table-wrap" tabindex="0" role="region" aria-label="Lock evidence"><table class="index-table"><thead><tr><th>Event</th><th>Locked</th><th>First tee</th><th>Seal (sha256)</th><th>Selections</th></tr></thead><tbody>${p.locks.map(l=>`<tr><td>${e(l.edition)}</td><td>${e(fmt(l.locked_at))}</td><td>${e(l.first_tee?fmt(l.first_tee):'conservative rule')}</td><td><code>${e(String(l.lock_sha256||'').slice(0,16))}</code></td><td>${e(l.resolved)}/${e(l.selections)} resolved</td></tr>`).join('')}</tbody></table></div>`:'<p>The record starts at the first prospective lock.</p>'}`;
+}
 export function picksPreviewHtml(p){
  if(!p)return '';
  const parts=[readinessHtml(p.readiness),resolvedHtml(p.resolved)];
- if(p.tournaments_locked)parts.push(`<p class="gnote pk-preview">${e(p.tournaments_locked)} tournament${p.tournaments_locked===1?'':'s'} locked so far · ${e(p.selections_graded)} graded selection${p.selections_graded===1?'':'s'} on the record · model ${e(p.model)} (RESEARCH)</p>`);
  return parts.join('');
 }
 function selectionCard(s){
@@ -45,7 +54,7 @@ function selectionCard(s){
 }
 export function picksMember(data){
  const items=data?.items||[];
- if(!items.length)return '';
+ if(!items.length)return `<h2>Golf Picks</h2><p class="gnote">${e(data?.label||'RESEARCH')} · ${e(data?.model||'')} · ${e(data?.policy||'')}</p><p>No tournament is locked yet. When the next event passes every readiness check, its selections and full probabilities appear here automatically.</p>`;
  return `<h2>Golf Picks</h2><p class="gnote">${e(data.label||'RESEARCH')} · ${e(data.model)} · ${e(data.policy)}</p>`+items.map(it=>`<section class="pk-event"><p class="eyebrow">${e(it.edition.tour||'')} · ${e(it.edition.starts_on)}</p><h3><a class="text-link" href="/tournament/${e(it.edition.slug)}">${e(it.edition.name)}</a></h3>
 <p class="pk-lockline">Locked ${e(fmt(it.locked_at))}${it.start_evidence?.first_tee?` · first tee ${e(fmt(it.start_evidence.first_tee))}`:''} · field ${e(it.field_size)} · ${it.cut?.applies?`cut top ${e(it.cut.rank)} and ties`:'no cut'} · ${e(it.sims)} simulations · seal ${e(String(it.lock_sha256).slice(0,12))}</p>
 <ul class="pk-cards">${it.selections.map(selectionCard).join('')}</ul>
@@ -53,7 +62,7 @@ export function picksMember(data){
 }
 export function trackRecordMember(rec){
  if(!rec)return '';
- const fams=(rec.families||[]).filter(f=>f.selections);
+ const fams=rec.families||[];
  if(!fams.length)return '';
  return `<section class="pk-record"><h2>Track record</h2><p class="gnote">Prospective locks only (locked before the first tee). Backtests never appear here. Expected wins is the sum of the forecast probabilities of graded selections.</p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="Track record by family"><table class="index-table"><thead><tr><th>Family</th><th>Selections</th><th>Win</th><th>Loss</th><th>Void</th><th>Pending</th><th>Hit rate</th><th>Expected wins</th><th>Brier</th></tr></thead><tbody>${fams.map(f=>`<tr><td>${e(f.label)}</td><td>${e(f.selections)}</td><td>${e(f.WIN)}</td><td>${e(f.LOSS)}</td><td>${e(f.VOID)}</td><td>${e(f.PENDING)}</td><td>${f.hit_rate===null?'—':pct(f.hit_rate)}</td><td>${e(f.expected_wins)}</td><td>${f.brier===null?'—':e(f.brier)}</td></tr>`).join('')}</tbody></table></div>

@@ -23,3 +23,7 @@
 .pk-ready h2{font:26px var(--serif);margin:2px 0 6px}.pk-ready-meta{font-size:14px;margin:4px 0;overflow-wrap:anywhere}
 .pk-checks{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
 .pk-checks li{font-size:14px}.pk-checks li.ok span{color:var(--pine-2);font-weight:700}.pk-checks li.wait span{color:var(--muted)}.pk-checks small{color:var(--muted);margin-left:4px}
+.pk-reason{margin:8px 0 2px;font:700 15px var(--sans);letter-spacing:.03em}.pk-reason small{font-weight:400;color:var(--muted);margin-left:6px;letter-spacing:0}
+.pk-k-ready b{color:var(--pine-2)}.pk-k-technical b{color:var(--red)}.pk-k-source_hold b,.pk-k-schedule b,.pk-k-policy b{color:#7a5a1f}
+.pk-record code{font-size:12px;overflow-wrap:anywhere}
+.aa-golf-copy.is-premium .text-link{color:#e4c874;text-decoration:underline;text-underline-offset:2px}

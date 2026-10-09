@@ -3,6 +3,7 @@
 // and records to KV picks:health:v1 + private R2 picks/v1/health/latest.json. No alert channel is bound in this
 // repo, so a FAIL is recorded and surfaced (admin + aggregate on /health); it is not pushed anywhere.
 import {evaluateGate} from '../../shared/picks/gate.js';
+import {CORE,getJSON as espnJSON} from './espn.js';
 import {PREFIX,lockKey,listKeys,getJSON,verifySeal,sha256,canonical} from '../../shared/picks/ledger.js';
 import {formatExcluded} from '../../shared/picks/policy.js';
 import {resultFrom,STORE_KEY} from './picks.js';
@@ -12,7 +13,7 @@ const pj=(b,k)=>b.get(k).then(o=>o?o.json():null).catch(()=>null);
 const slugsOf=keys=>keys.map(k=>k.slice((PREFIX+'locks/').length,-5));
 
 // Next eligible edition + the shared gate (same implementation as the lock step).
-export async function gateCheck(env,now=new Date()){
+export async function gateCheck(env,now=new Date(),{probe=true}={}){
  const t=now.getTime(),ix=await pj(env.PUBLIC,'projection/v2/index.json');if(!ix)return {state:'NOT_READY',reason:'projection_unavailable'};
  const locked=new Set(slugsOf(await listKeys(env.RAW,PREFIX+'locks/')));
  const next=ix.editions.filter(e=>e.starts_on&&!['completed','cancelled'].includes(e.status)&&Date.parse(e.starts_on)+DAY>t&&!formatExcluded(e.slug)&&!locked.has(e.slug)).sort((a,b)=>a.starts_on<b.starts_on?-1:1)[0];
@@ -22,6 +23,15 @@ export async function gateCheck(env,now=new Date()){
  const snap=await pj(env.PUBLIC,'live/v1/events/'+next.slug+'.json');
  const g=evaluateGate({snap,edition:next,now,storeComplete:Boolean(store)&&want.every(e=>have.has(e.slug))});
  g.checks.model_store_complete.value=`${have.size}/${want.length}`;
+ // Context for the specific readiness message (golf#9). The live lane observes an edition from 00:00 UTC the day
+ // before its start date; before that, a read-only ESPN core probe (1 request, approved host) reports whether the
+ // source has published the field yet. Informational only: the gate itself is unchanged.
+ const tslug=next.tournament?.slug||null,prior=tslug?(store?.editions||[]).filter(x=>x.tournament===tslug).at(-1):null;
+ g.context={snapshot_present:Boolean(snap),observation_opens:new Date(Date.parse(next.starts_on+'T00:00:00Z')-DAY).toISOString(),prior_field_size:prior?prior.rows.length:null,source:null};
+ if(!snap&&probe){try{const d=await pj(env.PUBLIC,'projection/v2/editions/'+next.slug+'.json');if(d?.espn?.event_id&&d.espn.league){const id=d.espn.event_id,base=`${CORE}/leagues/${d.espn.league}/events/${id}/competitions/${id}`;
+  const [c,st]=await Promise.all([espnJSON(base+'/competitors?limit=1'),espnJSON(base+'/status')]);g.context.source={competitors:Number.isInteger(c?.count)?c.count:null,status:st?.type?.name||null,checked_at:new Date().toISOString(),provider:'ESPN core (read-only)'};}
+  else g.context.source={competitors:null,status:null,checked_at:new Date().toISOString(),error:'no_source_event_mapping'};}
+ catch(e){g.context.source={competitors:null,status:null,checked_at:new Date().toISOString(),error:'source_read_failed'};}}
  return {...g,edition:{slug:next.slug,name:next.name,starts_on:next.starts_on,ends_on:next.ends_on||null,tour:next.tour?.short||next.tours?.[0]||null}};
 }
 
