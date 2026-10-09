@@ -20,7 +20,7 @@ AGENTS.md requires explicit owner approval for any production deployment (see "R
 - **Frozen params** (tuned on the 2024 fold only): tau 730, k 3, mu0 0.5, kv 40, spread 1.0, rating-uncertainty 0.
   Stage A: Gaussian NLL of 29,880 round residuals over 108 configs. Stage B: sim log loss, 6 configs, 3,000 sims.
 
-### Walk-forward evaluation
+### BACKTEST: walk-forward evaluation (historical research, NOT prospective or verified performance)
 Chronological only. An edition is predicted from editions that ended at least a day before it started.
 Leaderboard rows are shuffled before evaluation, so nothing can tie-break on finishing order.
 Folds: tune 2024 (82 editions), validate 2025-01-01..06-30 (46), **holdout 2025-07-01..2026-10-05 (99)**.
@@ -36,7 +36,7 @@ Baselines:
   snapshots at lock in the holdout**. Golf is RULE_MISMATCH (owner, 2026-10-05): the two venues are never
   combined and never called an edge.
 
-Holdout (10,000 sims). Lower LL/Brier is better. Winner n=98, top-10 rows 11,398, cut rows 9,118, H2H pairs 4,963 (190 void).
+BACKTEST holdout (10,000 sims). These numbers are never shown in the product or the track record. Lower LL/Brier is better. Winner n=98, top-10 rows 11,398, cut rows 9,118, H2H pairs 4,963 (190 void).
 
 ### all:holdout
 | model | n ed | winner LL | winner Brier | top-1 | T10 LL | T10 Brier | T10 ECE | P@10 | T20 LL | T20 Brier | P@20 | cut LL | cut Brier | cut ECE | H2H acc | H2H LL |
@@ -60,7 +60,7 @@ Holdout (10,000 sims). Lower LL/Brier is better. Winner n=98, top-10 rows 11,398
 | naive_history | 39 | 4.3693 | 0.9429 | 0.2308 | 0.2892 | 0.0811 | 0.0128 | 0.3051 | 0.424 | 0.132 | 0.4077 | 0.6605 | 0.234 | 0.0609 | 0.5 | 0.6931 |
 | field_equal | 39 | 4.739 | 0.9908 | 0.0092 | 0.3157 | 0.0874 | 0.0141 | 0.1051 | 0.4599 | 0.1434 | 0.2026 | 0.6867 | 0.2468 | 0.005 | 0.5 | 0.6931 |
 
-Validation (2025 H1, scored before the holdout with the same frozen params):
+BACKTEST validation (2025 H1, scored before the holdout with the same frozen params):
 
 | model | n ed | winner LL | winner Brier | top-1 | T10 LL | T10 Brier | T10 ECE | P@10 | T20 LL | T20 Brier | P@20 | cut LL | cut Brier | cut ECE | H2H acc | H2H LL |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -79,7 +79,7 @@ How to read it:
 - Outside the chalk: for the golfers the model ranks 11th-30th by win probability, top-10 mean p is 0.171 against
   0.156 observed (n=1,955), so it is slightly overconfident there.
 - Small fields (<90) with a cut: make-cut LL is 1.47 (n=116, every model is bad). That is a format-detection weakness.
-- Policy replay on the holdout (backtest only, never in the record), wins against expected:
+- BACKTEST policy replay on the holdout (never in the record), wins against expected:
   - winner: 14/96 graded against 9.4 expected
   - top 10: 84/276 against 88.8
   - top 20: 137/282 against 121.9
@@ -172,4 +172,4 @@ First target: 2026 Buick LPGA Shanghai, starts 2026-10-15 (Thursday local, UTC+8
 2026-10-14 00:00Z. The lock must land before the first R1 tee - 30 min, about 2026-10-14 23:00Z if tee times
 start near 07:30 local. Shanghai has no cut (2023/2025 had a lone WD marked "cut"), so the make-cut family is
 excluded there. Next: Butterfield Bermuda Championship and BMW Ladies Championship (2026-10-22).
-Kill switch: set `PICKS_ENABLED` to anything other than `1` and redeploy golf-ingest.
+Kill switch: `PICKS_ENABLED` in workers/golf-ingest/wrangler.jsonc. Ships as `0` (off); set to `1` only after the storage and timing gates pass, then redeploy golf-ingest.

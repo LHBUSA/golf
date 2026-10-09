@@ -47,3 +47,17 @@ deploying. `tests/deploy-rule.test.mjs` fails if `golf-api` stops sharing the si
 - Only intentional follow-up: when a third real completed-round packet exists, run the round-recap canary on all
   three real packets and promote round recap only if the factual and editorial gates pass.
 - An OpenAI writer comparison is an optional future experiment, not a release blocker.
+
+## Pre-existing gate failures (documented 2026-10-09, Golf Picks release)
+
+Both reproduce on an untouched `origin/main` (f3e7bba) build. Golf Picks does not touch the files involved. Both
+are left for the All Access owner session, because fixing them means editing the vendored All Access contract or
+page styles.
+
+1. `npm run guard` exits 1 with `AssertionError: src/lib/all-access-page.js`. The browser-boundary rule rejects
+   `buy.stripe.com` in `src/`, and `all-access-page.js:12` exports `ALL_ACCESS_CHECKOUT_URL` (a vendored network
+   constant asserted by `tests/all-access.test.mjs:13`; the file says it is not used on this site). With that one
+   file excluded, every other guard assertion passes on the Picks branch.
+2. `qa:browser` has 9 failures, `<width> /all-access` at all 9 widths:
+   `axe color-contrast: span[aria-current="page"] > em`. It reproduced on origin/main at 320 and 1440 (2/2 failed,
+   same node).
