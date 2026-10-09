@@ -4,12 +4,14 @@ const b=JSON.parse(fs.readFileSync('data/public/bundle.json','utf8'));const ix=b
 const full=div=>ix.editions.find(e=>e.coverage==='full_field'&&e.division===div);
 const topPlayer=div=>ix.players.filter(p=>p.division===div).sort((a,c)=>(c.photo?.derivatives?1:0)-(a.photo?.derivatives?1:0)||c.events_observed-a.events_observed)[0];
 const fm=ix.featured_matchups?.[0];
-const PAGES=['/','/today','/live','/tournaments','/players','/courses','/majors','/matchups','/pbecast','/news','/intelligence','/search','/all-access','/majors/masters','/majors/evian',
+const PAGES=['/','/today','/live','/tournaments','/players','/courses','/majors','/matchups','/pbecast','/news','/intelligence','/search','/all-access','/picks','/majors/masters','/majors/evian',
  full('men')&&'/tournament/'+full('men').slug,full('women')&&'/tournament/'+full('women').slug,'/player/'+topPlayer('men').slug,'/player/'+topPlayer('women').slug,'/course/'+ix.courses[0].slug,fm&&`/matchups/${fm.a.slug}/${fm.b.slug}`].filter(Boolean);
 export {PAGES};
 const WIDTHS=(process.env.QA_WIDTHS||'320,360,390,430,768,1024,1440,1600,1920').split(',').map(Number);
 for(const width of WIDTHS)for(const path of PAGES)test(`${width} ${path}`,async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/status of 403/.test(m.text()))errors.push(m.text());});
+ // Local preview proxies production golf-api; until the Picks release ships there, answer its public preview here.
+ if(path==='/picks'&&!process.env.QA_BASE)await page.route('**/api/v1/picks/preview',r=>r.fulfill({json:{availability:'available',tournaments_locked:0,selections_graded:0}}));
  await page.setViewportSize({width,height:900});const res=await page.goto(path,{waitUntil:'networkidle'});expect(res.status()).toBe(200);
  await expect(page.locator('h1')).toHaveCount(1);await expect(page.getByRole('heading',{level:1})).not.toHaveAccessibleName('');
  const ov=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth,off:[...document.querySelectorAll('body *')].filter(el=>{const r=el.getBoundingClientRect();return r.width&&(r.right>innerWidth+1||r.left<-1)&&!el.closest('.table-wrap,.hole-strip')}).slice(0,5).map(el=>el.tagName+'.'+el.className)}));

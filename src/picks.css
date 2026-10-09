@@ -1,6 +1,8 @@
 /* Golf Picks + Track Record (All Access). Warm card palette; no inline styles (CSP style-src 'self'). */
 .picks-page .pk-families{margin:8px 0 12px;padding-left:20px;line-height:1.8}
-.premium-lock.picks-unlocked{padding:18px 0;border:0;background:none}
+.premium-lock.picks-unlocked{padding:18px 0;border:0;background:none;color:var(--ink)}
+.premium-lock.picks-unlocked p,.premium-lock.picks-unlocked .eyebrow{color:var(--muted)}
+.premium-lock.picks-unlocked h2,.premium-lock.picks-unlocked h3{color:var(--ink)}
 .pk-event{border-top:1px solid var(--line);padding:18px 0}
 .pk-event h3{font:24px var(--serif);margin:2px 0 6px}
 .pk-lockline{font-size:13px;color:var(--muted);margin:0 0 12px;overflow-wrap:anywhere}
