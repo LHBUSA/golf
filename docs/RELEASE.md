@@ -72,3 +72,7 @@ Owner GO 2026-10-09 ("OWNER GO — PROPBETEDGE GLOBAL"). Home and All Access are
 - No change to render.js/seo.js/article.js: no golf-api deploy is needed for this release.
 - Compare English output: `PBE_LOCALES=en npm run build:local` (local only; production ignores it).
 - Rollback: Vercel production `dpl_GpaSGup4MEWYdr6CPvoFvj4jn9SH` (main 61096d7).
+- Released 2026-10-09: main `a6c1ec5`, Vercel production `dpl_B4kjo7ahWgfiMLc1FsjkEBphv8se`
+  (golf-cl3dejiz4-justins-projects-ad4f4bb7.vercel.app). Production locale QA 56/56 runs (en/es/ja/ko x home/All Access x
+  320/360/390/430/768/1024/1440, 9 checks each: overflow, console, lang, canonical/hreflang/robots, switch hrefs, CTA hrefs,
+  ja/ko market-free + legal link, price, untranslated residue, switch round trip). CTA/legal targets on propbetedge.ai live.
