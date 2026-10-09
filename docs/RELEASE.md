@@ -48,16 +48,14 @@ deploying. `tests/deploy-rule.test.mjs` fails if `golf-api` stops sharing the si
   three real packets and promote round recap only if the factual and editorial gates pass.
 - An OpenAI writer comparison is an optional future experiment, not a release blocker.
 
-## Pre-existing gate failures (documented 2026-10-09, Golf Picks release)
-
-Both reproduce on an untouched `origin/main` (f3e7bba) build. Golf Picks does not touch the files involved. Both
-are left for the All Access owner session, because fixing them means editing the vendored All Access contract or
-page styles.
-
-1. `npm run guard` exits 1 with `AssertionError: src/lib/all-access-page.js`. The browser-boundary rule rejects
-   `buy.stripe.com` in `src/`, and `all-access-page.js:12` exports `ALL_ACCESS_CHECKOUT_URL` (a vendored network
-   constant asserted by `tests/all-access.test.mjs:13`; the file says it is not used on this site). With that one
-   file excluded, every other guard assertion passes on the Picks branch.
-2. `qa:browser` has 9 failures, `<width> /all-access` at all 9 widths:
-   `axe color-contrast: span[aria-current="page"] > em`. It reproduced on origin/main at 320 and 1440 (2/2 failed,
-   same node).
+## All Access repairs (2026-10-09; previously pre-existing gate failures)
+1. **Guard.** `npm run guard` failed on `src/lib/all-access-page.js` because the file carried an unused copy of
+   the network Stripe Payment Link (`ALL_ACCESS_CHECKOUT_URL`). Golf has never linked to Stripe and the owner
+   rules say never repoint links. The guard is right: keep checkout hosts out of Golf browser code. The canonical
+   link stays with the network `/pro` and the shared commerce system. Fix: the constant was removed; it was never
+   rendered. The test now asserts that Golf exports no checkout constant and that the page contains no Stripe host.
+   The guard is unchanged and passes (rc 0).
+2. **/all-access contrast.** The "YOU ARE HERE" label (`.aa-sports .is-here em`) was #8a6a2c on #f7efd9, about
+   4.4:1. It is now warm brown #7a5a1f, about 5.5:1 (WCAG AA). This fixes all 9 widths.
+3. **Production consent banner.** `#pbe-consent a` is now underlined (axe `link-in-text-block`). Only the Golf copy
+   of `public/pbe-consent-v1.css` changed; other network sites may carry the same rule.

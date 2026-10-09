@@ -1,16 +1,17 @@
 // Native /all-access page and membership-state presentation (owner decisions 2026-10-05).
 // Golf renders golf-api's verdict only: no sign-in, no Golf-only plan, no FREE label, an outage never sells.
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
-import {accessView,statePanel,lockStatus,allAccessPage,LOCAL_ALL_ACCESS_PATH,NETWORK_ALL_ACCESS_URL,ALL_ACCESS_CHECKOUT_URL,OFFER_LINE,PLATINUM_TRUTH,HERO} from '../src/lib/all-access-page.js';
+import {accessView,statePanel,lockStatus,allAccessPage,LOCAL_ALL_ACCESS_PATH,NETWORK_ALL_ACCESS_URL,OFFER_LINE,PLATINUM_TRUTH,HERO} from '../src/lib/all-access-page.js';
 import {route} from '../src/lib/render.js';
 import {SPORTS,PRODUCTS} from '../src/lib/network.js';
 const fam=JSON.parse(fs.readFileSync('src/lib/family.json','utf8'));
 const mem=(state,entitled,verification)=>({membership:{contract:'1.3.0',sport:'golf',state,entitled,access_source:entitled?(state==='owner'?'owner':'all_access'):null,network_url:'https://propbetedge.ai/pro'},verification});
 
-test('three link constants stay separate; Golf has never linked Stripe and still does not',()=>{
+import * as AA from '../src/lib/all-access-page.js';
+test('link constants stay separate; Golf has never linked Stripe and still does not',()=>{
  assert.equal(LOCAL_ALL_ACCESS_PATH,'/all-access');
  assert.equal(NETWORK_ALL_ACCESS_URL,'https://propbetedge.ai/pro');
- assert.equal(ALL_ACCESS_CHECKOUT_URL,'https://buy.stripe.com/8x2eVdgmOaqy4pv8Ez7wA0N');
+ assert.equal(Object.hasOwn(AA,'ALL_ACCESS_CHECKOUT_URL'),false,'Golf carries no Stripe checkout constant');
  for(const v of ['signed_out','not_member','check','checking','all_access','owner'])assert.doesNotMatch(statePanel(v),/buy\.stripe/,v);
  assert.doesNotMatch(allAccessPage(),/buy\.stripe/);
 });

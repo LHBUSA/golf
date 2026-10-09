@@ -1,15 +1,14 @@
 // Native PropBetEdge All Access page on golf.propbetedge.ai (owner decisions 2026-10-05).
 // A real, indexable local page. Golf has no sign-in, no modal and no Golf-only checkout: membership is the
 // network's (`GET /api/v1/membership`, decided server-side by golf-api), and this module only RENDERS it.
-// Three link jobs, three constants: the local page, the network reference, and the canonical Stripe checkout.
-// Golf has never linked to Stripe, so ALL_ACCESS_CHECKOUT_URL is not used on this site (owner rule: never
-// repoint links; purchase moves only on an explicit owner decision).
+// Two link jobs: the local page and the network reference. Golf has never linked to Stripe and carries no copy
+// of the network checkout link (owner rule: never repoint links; purchase moves only on an explicit owner decision;
+// scripts/guard.mjs keeps Stripe checkout hosts out of Golf browser code). The canonical Stripe link lives with the network /pro.
 import {e,kicker} from './ui.js';
 import {SPORTS,PRODUCTS,SELF} from './network.js';
 
 export const LOCAL_ALL_ACCESS_PATH='/all-access';
 export const NETWORK_ALL_ACCESS_URL='https://propbetedge.ai/pro';
-export const ALL_ACCESS_CHECKOUT_URL='https://buy.stripe.com/8x2eVdgmOaqy4pv8Ez7wA0N';
 export const PRICE='$29/month';
 export const OFFER_LINE=`${SPORTS.length} sports + Predictions + Compare + Markets`;
 export const PLATINUM_TRUTH=`PropBetEdge All Access · ${OFFER_LINE}`;

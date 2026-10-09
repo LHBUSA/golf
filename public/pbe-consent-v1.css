@@ -2,7 +2,7 @@
 #pbe-consent *{box-sizing:border-box}
 #pbe-consent h2{margin:0 0 7px;font-size:17px;line-height:1.2;color:#fff}
 #pbe-consent p{margin:0;color:#c8cdc7;font-size:13px;line-height:1.5}
-#pbe-consent a{color:#e1c65d}
+#pbe-consent a{text-decoration:underline;text-underline-offset:2px;color:#e1c65d}
 .pbe-consent-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 .pbe-consent-btn{min-height:42px;padding:10px 14px;border:1px solid #6e6547;border-radius:9px;background:#191c17;color:#f5f2e8;font:700 13px/1 Arial,sans-serif;cursor:pointer}
 .pbe-consent-btn.primary{background:#d4af37;color:#0b0d0b;border-color:#e4c963}
