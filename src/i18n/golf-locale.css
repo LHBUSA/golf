@@ -1,0 +1,20 @@
+/* Golf language selector + Golf-specific CJK adjustments (pbe-locale/1.0.0 proof). Served as /i18n/golf-locale.css by
+   multi-language builds only (scripts/prerender.mjs); production builds never reference it. */
+.pbe-lang{position:relative;flex:none}
+.pbe-lang>summary{list-style:none;display:flex;align-items:center;gap:6px;min-height:44px;min-width:44px;padding:9px 10px;border:1px solid #ffffff40;color:#e4d2a5;font:800 10px/1 var(--sans,Arial,sans-serif);letter-spacing:1px;cursor:pointer;user-select:none}
+.pbe-lang>summary::-webkit-details-marker{display:none}
+.pbe-lang>summary::marker{content:""}
+.pbe-lang>summary:hover,.pbe-lang[open]>summary{border-color:#d9bf7c;background:#ffffff08}
+.pbe-lang>summary:focus-visible{outline:3px solid #96732f;outline-offset:4px}
+.pbe-lang-panel{position:absolute;right:0;top:calc(100% + 6px);z-index:30;display:grid;min-width:168px;padding:6px;background:var(--pine-dark,#09241d);border:1px solid #c8aa6870;box-shadow:0 12px 30px #0006}
+.pbe-lang-panel a{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 12px;color:#d2ddd5;font-size:13px;letter-spacing:0;text-transform:none}
+.pbe-lang-panel a b{font:800 10px/1 var(--sans,Arial,sans-serif);letter-spacing:1px;color:#c8aa68;width:20px}
+.pbe-lang-panel a:hover,.pbe-lang-panel a:focus-visible{background:#ffffff10;color:#fff}
+.pbe-lang-panel a.on{color:#f1dda7}
+.pbe-lang-panel a.on:after{content:"✓";margin-left:auto;color:#c8aa68}
+@media(max-width:560px){.pbe-lang>summary{padding:7px 8px;gap:4px;font-size:8px}.pbe-lang>summary svg{width:14px;height:14px}}
+@media(max-width:360px){.pbe-lang>summary span{display:none}}
+/* Golf headings are tight serif display type tuned for Latin; give CJK headings room and natural breaks. */
+:lang(ja) h1,:lang(ja) h2,:lang(ja) h3{letter-spacing:0;line-height:1.3;word-break:normal;overflow-wrap:anywhere}
+:lang(ja) .home-hero h1{line-height:1.15}
+:lang(ja) .eyebrow,:lang(ja) .micro-label,:lang(ja) .sched-state,:lang(ja) .hero-caption,:lang(ja) .account-status-copy b,:lang(ja) .account-status-copy small{letter-spacing:.04em}

@@ -43,4 +43,8 @@ for(const [g,xs] of Object.entries(groups))if(xs.length)await fs.writeFile(`dist
 const children=[...Object.entries(groups).filter(([,xs])=>xs.length).map(([g])=>`${SITE}/sitemaps/${g}.xml`),`${SITE}/sitemaps/news.xml`];
 await fs.writeFile('dist/sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${children.map(u=>`<sitemap><loc>${u}</loc></sitemap>`).join('')}</sitemapindex>\n`);
 await fs.writeFile('dist/index-snapshot.json',JSON.stringify(b.index));
+// Locale proof (pbe-locale/1.0.0, Global Issue #67): /es/ and /ja/ home + All Access as noindex previews, ONLY when the
+// build publishes more than English (Vercel preview, or PBE_PREVIEW_LOCALES locally). Production: English only, nothing written.
+{const {readyLocales}=await import('../src/i18n/ready.js');const ready=readyLocales(process.env);
+ if(ready.length>1){const {writeLocalePages}=await import('../src/i18n/build.js');const files=await writeLocalePages(ready);console.log(`Locale preview (${ready.join(', ')}): ${files.length} pages, noindex.`);}}
 console.log(`Prerendered ${pages.length+matchups.length+3} pages; ${sitemap.length} indexable in sitemap.`);

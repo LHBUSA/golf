@@ -42,6 +42,13 @@ import {hydrateKalshi,boardWithin,placeCastMarket} from './lib/kalshi-live.js';
 import {mountArticleMarketSlot} from './lib/article-market.js';
 // @ts-ignore
 import {mountKalshiPartnerFooter} from './lib/kalshi-partner-footer.js';
+// Locale proof (pbe-locale/1.0.0, Global Issue #67): compiled in only when the build publishes more than English
+// (vite.config.js define, src/i18n/ready.js). Production builds are English-only: __PBE_I18N__ is false and this is removed.
+declare const __PBE_I18N__:boolean;
+// @ts-ignore
+if(__PBE_I18N__)import('./i18n/client.js').then(m=>m.startLocale()).catch(()=>{});
+// The page's English route: a localized page (/es/all-access) declares it on <html>; otherwise the URL path.
+const PATH=__PBE_I18N__?(document.documentElement.dataset.pbePath||location.pathname):location.pathname;
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -143,7 +150,7 @@ document.addEventListener('click',ev=>{const t=ev.target as HTMLElement;
  const pl=t.closest?.('[data-cv3] a[data-player-slug]') as HTMLElement|null;if(pl)track('pbecast_player_click',{entity_type:'player',entity_id:pl.dataset.playerSlug||''});
  const dn=t.closest?.('a[data-dna-open]') as HTMLElement|null;if(dn)track('pbecast_dna_open',{entity_type:'player',entity_id:dn.dataset.dnaOpen||''});});
 {const seenDim=new Set<string>();document.addEventListener('focusin',ev=>{const g=(ev.target as HTMLElement).closest?.('[data-dna-dim]') as HTMLElement|null;if(!g)return;const k=g.dataset.dnaDim||'';if(seenDim.has(k))return;seenDim.add(k);track('dna_dimension_focus',{entity_type:'player',entity_id:location.pathname.split('/')[2]||'',dna_dimension:k});});}
-if(location.pathname==='/all-access'){
+if(PATH==='/all-access'){
  // The page renders golf-api's verdict: Platinum / owner network launcher, honest non-member copy, or the access check.
  const host=$('[data-aa-state]');
  membership().then(b=>{if(host)host.innerHTML=statePanel(accessView(b,{failed:!b}));});
@@ -151,8 +158,8 @@ if(location.pathname==='/all-access'){
 
 // Hub pages re-render from the live projection when it is newer than the static build.
 const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live};
-const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[location.pathname];
-if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,location.pathname)?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
+const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[PATH];
+if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,PATH)?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
  if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);hydrateKalshi(main);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
 
 // ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
