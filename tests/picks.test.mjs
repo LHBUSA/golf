@@ -165,3 +165,10 @@ test('golf-api forwards the picks admin routes to golf-ingest only with the admi
  let seen=null;const env={INGEST:{fetch:async r=>{seen=new URL(r.url).pathname;return Response.json({ok:true});}},PUBLIC:{get:async()=>null}};
  const r=await api.fetch(new Request('https://golf.test/admin/picks-selftest',{method:'POST'}),env);assert.equal(r.status,401);assert.equal(seen,null);
 });
+test('market snapshot is archived verbatim in the private bucket and referenced by sha from the lock (RULE_MISMATCH)',async()=>{
+ const env=envFixture();const body=JSON.stringify({contract:'market-intel/1',event:{market:{attachment:'ATTACHED'},kalshi:{x:1},pad:'x'.repeat(600000)}});
+ env.MARKETS={fetch:async u=>{assert.match(String(u),/\/v1\/market-intelligence\/event\/golf\/9970587e$/);return new Response(body);}};
+ await runPicks(env,{now:new Date('2026-10-14T20:10:00Z')});const lock=JSON.parse(env.RAW.m.get(lockKey(ed.slug)));
+ assert.equal(lock.market.status,'captured');assert.equal(lock.market.comparability,'RULE_MISMATCH');assert.equal(env.RAW.m.get(lock.market.key),body);
+ assert.ok(![...env.PUBLIC.m.keys()].some(k=>k.includes('market/')&&k.startsWith('picks')));
+});

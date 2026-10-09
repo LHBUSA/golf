@@ -38,13 +38,17 @@ async function refreshStore(env,ix,{limit=40}={}){
  return {store,added,complete,wanted:want.length};
 }
 
-async function marketSnapshot(env,editionId){
- // Read-only, existing propsports-markets route; stored verbatim per venue. Golf is RULE_MISMATCH (owner,
+async function marketSnapshot(env,edition){
+ // Read-only, existing propsports-markets route. The verbatim response is archived create-only beside the lock
+ // (it can be ~2 MB with a full field); the lock carries its key and sha256. Golf is RULE_MISMATCH (owner,
  // 2026-10-05): venues are never combined, compared or called an edge.
  if(!env.MARKETS?.fetch)return {status:'not_captured',reason:'markets_binding_absent'};
- try{const r=await env.MARKETS.fetch('https://propsports-markets/v1/market-intelligence/event/golf/'+editionId,{signal:AbortSignal.timeout(6000)});
-  if(!r.ok)return {status:'not_captured',reason:'http_'+r.status};const text=await r.text();if(text.length>400000)return {status:'not_captured',reason:'too_large'};
-  return {status:'captured',fetched_at:new Date().toISOString(),comparability:'RULE_MISMATCH',use:'separate venue benchmark only; never combined',sha256:await sha256(text),body:JSON.parse(text)};}
+ try{const r=await env.MARKETS.fetch('https://propsports-markets/v1/market-intelligence/event/golf/'+edition.id,{signal:AbortSignal.timeout(8000)});
+  if(!r.ok)return {status:'not_captured',reason:'http_'+r.status};const text=await r.text();if(text.length>8000000)return {status:'not_captured',reason:'too_large'};
+  const fetched_at=new Date().toISOString(),sha=await sha256(text),key=PREFIX+'market/'+edition.slug+'/'+fetched_at.replace(/[:.]/g,'-')+'.json';
+  await env.RAW.put(key,text,{onlyIf:new Headers({'if-none-match':'*'}),httpMetadata:{contentType:'application/json'},customMetadata:{sha256:sha}});
+  let venues=null;try{const j=JSON.parse(text),ev=j.event||{};venues={kalshi:ev.market?.attachment||(ev.kalshi?'ATTACHED':null),polymarket:ev.polymarket?'PRESENT':null};}catch{}
+  return {status:'captured',fetched_at,key,sha256:sha,bytes:text.length,venues,comparability:'RULE_MISMATCH',use:'separate venue benchmark only; never combined'};}
  catch(e){return {status:'not_captured',reason:String(e.message).slice(0,80)};}
 }
 
@@ -67,7 +71,7 @@ export async function lockEdition(env,e,{now,store}){
   freeze:{rule:gate.rule,deadline:gate.deadline},
   feature_cutoff:{editions_ended_before:e.starts_on,editions_used:cutoff.length,latest_edition_used:cutoff.at(-1)?.slug||null,store_sha256:await sha256(canonical(cutoff.map(x=>x.slug)))},
   model:{version:MODEL_VERSION,params:PARAMS,inputs:'full_field round scores only; no strokes-gained, rankings, odds or weather'},policy:POLICY_VERSION,grade_policy:GRADE_VERSION,
-  field:{entrants:entrants.length,unmapped:entrants.filter(x=>!x.mapped).length},forecast:fc,market:await marketSnapshot(env,e.id)});
+  field:{entrants:entrants.length,unmapped:entrants.filter(x=>!x.mapped).length},forecast:fc,market:await marketSnapshot(env,{id:e.id,slug:e.slug})});
  const w=await createOnly(env.RAW,lockKey(e.slug),lock);
  return w.created?{edition:e.slug,status:'locked',sha256:lock.sha256,locked_at:lock.locked_at,first_tee:gate.first_tee,selections:fc.selections.length}:{edition:e.slug,status:'already_locked'};
 }
