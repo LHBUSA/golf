@@ -161,3 +161,7 @@ test('no static/SEO/projection path can carry picks',async()=>{
  const ingest=await fs.readFile('workers/golf-ingest/src/picks.js','utf8');assert.ok(!/PUBLIC\.put/.test(ingest),'picks lane never writes the public bucket');
  const sitemap=await fs.readFile('src/lib/render.js','utf8');assert.ok(!/picks\/v1/.test(sitemap));
 });
+test('golf-api forwards the picks admin routes to golf-ingest only with the admin check',async()=>{
+ let seen=null;const env={INGEST:{fetch:async r=>{seen=new URL(r.url).pathname;return Response.json({ok:true});}},PUBLIC:{get:async()=>null}};
+ const r=await api.fetch(new Request('https://golf.test/admin/picks-selftest',{method:'POST'}),env);assert.equal(r.status,401);assert.equal(seen,null);
+});

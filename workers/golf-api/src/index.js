@@ -30,7 +30,7 @@ function envelope(ix,data,{availability='available',coverage=null,reason=null,so
  return {data:publicDoc(data),availability,reason,source:source||PUBLIC_SOURCE,attribution:PUBLIC_ATTRIBUTION,as_of:ix?.as_of||null,source_age_seconds:age,stale:age===null||age>2*86400,coverage:publicDoc(coverage||ix?.coverage||null),provenance,method,contract_version:CONTRACT};
 }
 const unavailable=(ix,reason,extra={})=>envelope(ix,null,{availability:'unavailable',reason,...extra});
-const ADMIN=new Set(['/admin/bootstrap','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost','/admin/news-compare']);
+const ADMIN=new Set(['/admin/bootstrap','/admin/picks','/admin/picks-selftest','/admin/news-shadow','/admin/run','/admin/tick','/admin/media-derivative','/admin/news-publish','/admin/news-drafts','/admin/news-cost','/admin/news-compare']);
 export default {
  // Every response leaves with no-transform: see transport.js (Vercel cache vs Accept-Encoding).
  async fetch(request,env={}){return noTransform(await route(request,env));}
