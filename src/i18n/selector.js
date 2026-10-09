@@ -17,3 +17,13 @@ export function langMenuHtml(L, locale, path) {
   }).join('');
   return `<details class="pbe-lang" data-lang-menu translate="no"><summary class="pbe-lang-btn" aria-label="${cur.langLabel}: ${cur.native}">${GLOBE}<span>${cur.short}</span></summary><div class="pbe-lang-panel" role="group" aria-label="${cur.langLabel}">${items}</div></details>`;
 }
+
+/** The same choice as an inline row inside the mobile menu (Soccer pattern), for widths where the header bar is full. */
+export function langRowHtml(L, locale, path) {
+  const cur = LOCALE_REGISTRY[locale];
+  const items = L.READY_LOCALES.map(code => {
+    const l = LOCALE_REGISTRY[code];
+    return `<a href="${switchHref(L, path, code)}" data-lang-switch="${code}" hreflang="${l.hreflang}" lang="${l.htmlLang}"${code === locale ? ' aria-current="true" class="on"' : ''}>${l.native}</a>`;
+  }).join('');
+  return `<div class="pbe-lang-row" role="group" aria-label="${cur.langLabel}" translate="no">${GLOBE}${items}</div>`;
+}

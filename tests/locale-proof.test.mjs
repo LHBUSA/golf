@@ -72,6 +72,8 @@ for(const p of LOCALIZED_PATHS)for(const loc of PREVIEW_LOCALES)test(`localized 
  const menu=doc.querySelector('.masthead-right > details.pbe-lang');assert.ok(menu,'selector in the header');
  assert.deepEqual(menu.querySelectorAll('a[data-lang-switch]').map(a=>[a.getAttribute('data-lang-switch'),a.getAttribute('href')]),[['en',p],['es','/es'+(p==='/'?'/':p)],['ja','/ja'+(p==='/'?'/':p)]]);
  assert.equal(menu.querySelector('a[aria-current]').getAttribute('data-lang-switch'),loc);
+ const row=doc.querySelector('#primary-navigation > .pbe-lang-row');assert.ok(row,'same choice inside the mobile menu');
+ assert.deepEqual(row.querySelectorAll('a').map(a=>a.getAttribute('href')),menu.querySelectorAll('a').map(a=>a.getAttribute('href')));
  // link rule: the two localized pages gain the prefix; every other internal link stays English; external untouched
  const hrefs=doc.querySelectorAll('body a[href]:not([data-lang-switch])').map(a=>a.getAttribute('href'));
  assert.ok(hrefs.includes('/'+loc+'/'),'brand links to the localized home');
@@ -90,7 +92,7 @@ test('English page in a preview build gains only the selector, hreflang and the 
   assert.equal(doc.querySelector('html').getAttribute('lang'),'en');
   assert.equal(doc.querySelectorAll('link[rel="alternate"][hreflang]').length,4);
   assert.equal(doc.querySelector('link[rel="canonical"]').getAttribute('href'),'https://golf.propbetedge.ai'+p);
-  const strip=s=>s.replace(/<details class="pbe-lang"[\s\S]*?<\/details>/,'').replace(/<link rel="(?:stylesheet" href="\/i18n\/[^"]+|alternate" hreflang="[^"]+" href="[^"]+)">/g,'');
+  const strip=s=>s.replace(/<details class="pbe-lang"[\s\S]*?<\/details>/,'').replace(/<div class="pbe-lang-row"[\s\S]*?<\/div>/,'').replace(/<link rel="(?:stylesheet" href="\/i18n\/[^"]+|alternate" hreflang="[^"]+" href="[^"]+)">/g,'');
   assert.equal(strip(out),src);
  }
 });

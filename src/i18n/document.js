@@ -8,7 +8,7 @@
 import { parse } from 'node-html-parser';
 import { LOCALE_REGISTRY } from '../vendor/pbe-locale/pbe-locale.js';
 import { SITE, SKIP, localHref, literal } from './locale.js';
-import { langMenuHtml } from './selector.js';
+import { langMenuHtml, langRowHtml } from './selector.js';
 import { ldJson } from '../lib/seo.js';
 
 export const LOCALE_CSS = ['/i18n/pbe-locale.css', '/i18n/golf-locale.css'];
@@ -52,11 +52,17 @@ const headLinks = (L, path) => [
   ...L.alternateLinks(path).map(a => `<link rel="alternate" hreflang="${a.hreflang}" href="${escAttr(a.url)}">`),
 ].join('');
 
+// Header globe (wide screens) + an inline row at the end of the mobile menu (narrow screens; golf-locale.css decides).
+function addSelector(root, L, locale, path) {
+  root.querySelector('.masthead-right')?.insertAdjacentHTML('afterbegin', langMenuHtml(L, locale, path));
+  root.querySelector('#primary-navigation')?.insertAdjacentHTML('beforeend', langRowHtml(L, locale, path));
+}
+
 /** The English page in a multi-language build: + selector, hreflang alternates and the locale stylesheet. */
 export function previewEnglishDocument(html, { path, L }) {
   const root = P(html);
   root.querySelector('head').insertAdjacentHTML('beforeend', headLinks(L, path));
-  root.querySelector('.masthead-right')?.insertAdjacentHTML('afterbegin', langMenuHtml(L, 'en', path));
+  addSelector(root, L, 'en', path);
   return root.toString();
 }
 
@@ -91,7 +97,7 @@ export function localizeDocument(html, { path, locale, L }) {
     } catch { /* leave the English graph untouched rather than emit a broken one */ }
   }
   head.insertAdjacentHTML('beforeend', headLinks(L, path));
-  root.querySelector('.masthead-right')?.insertAdjacentHTML('afterbegin', langMenuHtml(L, locale, path));
+  addSelector(root, L, locale, path);
   translateTree(body, L, locale);
   return root.toString();
 }

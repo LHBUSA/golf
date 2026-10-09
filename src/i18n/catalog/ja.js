@@ -128,7 +128,7 @@ export default {
     'GOLF · PUBLIC LAYER': 'ゴルフ · 公開レイヤー', 'Keep the sport useful before the paywall.': '有料エリアの手前でも役立つゴルフ情報を。',
     'Scores, records, majors, player pages, course history and public DNA fingerprints remain open discovery surfaces.':
       'スコア、記録、メジャー、選手ページ、コースの歴史、公開 DNA プロファイルは、引き続きどなたでも閲覧できます。',
-    'GOLF · ALL ACCESS LAYER': 'ゴルフ · ALL ACCESS レイヤー', 'Unlock the underlying intelligence.': 'その根拠となるインテリジェンスまで。',
+    'GOLF · ALL ACCESS LAYER': 'ゴルフ · ALL ACCESS レイヤー', 'Unlock the underlying intelligence.': '分析の根拠まで、すべて解放。',
     'Raw DNA values, cohort sizes, both analysis windows, Course Fit components, field intelligence and matchup DNA detail stay behind verified All Access.':
       'DNA の実数値、コホートの規模、2つの分析期間、コース適性の内訳、フィールド分析、対戦比較の DNA 詳細は、認証済みの All Access 会員限定です。',
     'Golf Picks': 'ゴルフ・ピック', 'Track Record': '実績', ': locked full-field forecasts, graded in public.': '：全選手を対象に事前に確定し、結果を公開で採点する予測です。',
@@ -169,5 +169,7 @@ export default {
       range: (d1, m1, d2, m2, y) => `${y}年${m1}月${d1}日～${m2}月${d2}日`,
     }),
   ],
+  // Headings with markup: phrase breaks chosen by hand so a narrow phone never splits a katakana word.
+  html: { 'Golf is one desk.<br><em>Your edge is the network.</em>': '<span class="pbe-nb">ゴルフは、</span><span class="pbe-nb">ひとつのデスク。</span><br><em><span class="pbe-nb">強みは、</span><span class="pbe-nb">ネットワーク。</span></em>' },
   literal: { '$29': 'US$29' },
 };

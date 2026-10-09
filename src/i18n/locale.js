@@ -9,7 +9,7 @@ export const SITE = 'https://golf.propbetedge.ai';
 export const CATALOGS = Object.freeze({ es, ja });
 // Protected content stays exactly as published: Kalshi market modules and the Kalshi partner offer (third-party
 // commercial copy from its canonical client), player/tournament/course links (names), the language selector.
-export const SKIP = '.kx-mount, [data-kalshi-edition], [data-kalshi-line], [data-kalshi-cast], .kxo, #golf-kxo, .footer-partner, .player-link, [data-player-slug], .pbe-lang';
+export const SKIP = '.kx-mount, [data-kalshi-edition], [data-kalshi-line], [data-kalshi-cast], .kxo, #golf-kxo, .footer-partner, .player-link, [data-player-slug], .pbe-lang, .pbe-lang-row';
 
 /** The site locale object for a build's ready list (routing, hreflang, catalogs). */
 export const golfLocale = (ready = ['en']) => createLocale({ ready, site: SITE, catalogs: CATALOGS, skip: SKIP });
