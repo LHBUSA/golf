@@ -2,17 +2,16 @@
 // rewrites or deletes a lock or grade. Runs as a bounded step on the existing golf-ingest full tick (no new cron)
 // and records to KV picks:health:v1 + private R2 picks/v1/health/latest.json. No alert channel is bound in this
 // repo, so a FAIL is recorded and surfaced (admin + aggregate on /health); it is not pushed anywhere.
-import {firstTee} from '../../shared/live.js';
+import {evaluateGate} from '../../shared/picks/gate.js';
 import {PREFIX,lockKey,listKeys,getJSON,verifySeal,sha256,canonical} from '../../shared/picks/ledger.js';
 import {formatExcluded} from '../../shared/picks/policy.js';
-import {resultFrom,STORE_KEY,LOCK_MARGIN_MS,SNAPSHOT_MAX_AGE_MS} from './picks.js';
+import {resultFrom,STORE_KEY} from './picks.js';
 import {DAY} from '../../shared/picks/model.js';
 export const HEALTH_KEY='picks:health:v1',STATUS_KEY='picks:status:v1';
 const pj=(b,k)=>b.get(k).then(o=>o?o.json():null).catch(()=>null);
 const slugsOf=keys=>keys.map(k=>k.slice((PREFIX+'locks/').length,-5));
 
-// READY only when: field published (>=30 active), >=60% mapped to canonical golfers, a sourced R1 tee time exists,
-// event pre-start with no posted scores, snapshot fresh, now before first tee - 30 min, model store complete.
+// Next eligible edition + the shared gate (same implementation as the lock step).
 export async function gateCheck(env,now=new Date()){
  const t=now.getTime(),ix=await pj(env.PUBLIC,'projection/v2/index.json');if(!ix)return {state:'NOT_READY',reason:'projection_unavailable'};
  const locked=new Set(slugsOf(await listKeys(env.RAW,PREFIX+'locks/')));
@@ -21,20 +20,9 @@ export async function gateCheck(env,now=new Date()){
  const store=await getJSON(env.RAW,STORE_KEY),want=ix.editions.filter(e=>e.coverage==='full_field'&&e.status==='completed'&&e.ends_on&&Date.parse(e.ends_on)+DAY<t);
  const have=new Set([...(store?.editions||[]).map(e=>e.slug),...(store?.skipped||[])]);
  const snap=await pj(env.PUBLIC,'live/v1/events/'+next.slug+'.json');
- const active=(snap?.players||[]).filter(p=>!['withdrawn','disqualified','dns'].includes(p.status));
- const mapped=active.filter(p=>p.slug).length,ft=snap?firstTee(snap,1):null,cutoff=ft?Date.parse(ft)-LOCK_MARGIN_MS:null;
- const scored=active.some(p=>(Number.isInteger(p.thru)&&p.thru>0)||(p.rounds||[]).some(r=>r.strokes!==null&&r.strokes!==undefined));
- const checks={
-  model_store_complete:{ok:Boolean(store)&&want.every(e=>have.has(e.slug)),value:`${have.size}/${want.length}`},
-  field_published:{ok:active.length>=30,value:active.length},
-  field_mapped:{ok:active.length>0&&mapped/active.length>=0.6,value:active.length?Math.round(mapped/active.length*100)/100:0},
-  first_tee_sourced:{ok:Boolean(ft),value:ft},
-  pre_start:{ok:snap?.event_status?.state==='pre'&&!snap?.event_status?.completed,value:snap?.event_status?.name||null},
-  no_scores_posted:{ok:Boolean(snap)&&!scored,value:!scored},
-  snapshot_fresh:{ok:Boolean(snap)&&t-Date.parse(snap.fetched_at)<=SNAPSHOT_MAX_AGE_MS,value:snap?.fetched_at||null},
-  before_lock_cutoff:{ok:cutoff!==null&&t<=cutoff,value:cutoff?new Date(cutoff).toISOString():null}};
- const ready=Object.values(checks).every(c=>c.ok);
- return {state:ready?'READY':'NOT_READY',checked_at:now.toISOString(),edition:{slug:next.slug,name:next.name,starts_on:next.starts_on},checks,failing:Object.entries(checks).filter(([,c])=>!c.ok).map(([k])=>k)};
+ const g=evaluateGate({snap,edition:next,now,storeComplete:Boolean(store)&&want.every(e=>have.has(e.slug))});
+ g.checks.model_store_complete.value=`${have.size}/${want.length}`;
+ return {...g,edition:{slug:next.slug,name:next.name,starts_on:next.starts_on,ends_on:next.ends_on||null,tour:next.tour?.short||next.tours?.[0]||null}};
 }
 
 // Ledger integrity: every lock re-hashed from its STORED BYTES, locked before its sourced start, graded after the

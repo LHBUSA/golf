@@ -19,3 +19,7 @@
 .pk-probs{margin-top:12px}.pk-probs summary{cursor:pointer;font-weight:700;padding:6px 0}
 .pk-record{border-top:2px solid var(--gold);margin-top:18px;padding-top:14px}.pk-record h2{font:26px var(--serif)}
 .pk-preview{margin-top:10px}
+.pk-ready{border:1px solid var(--line);border-left:4px solid var(--gold);background:var(--paper);padding:16px 18px;margin:18px 0}
+.pk-ready h2{font:26px var(--serif);margin:2px 0 6px}.pk-ready-meta{font-size:14px;margin:4px 0;overflow-wrap:anywhere}
+.pk-checks{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+.pk-checks li{font-size:14px}.pk-checks li.ok span{color:var(--pine-2);font-weight:700}.pk-checks li.wait span{color:var(--muted)}.pk-checks small{color:var(--muted);margin-left:4px}

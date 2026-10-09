@@ -83,7 +83,7 @@ test('head to head: made cut beats missed cut, 36-hole totals split missed cuts,
 });
 
 // ---- lock gate (first actual competitive start)
-const snapOf=(over={})=>({fetched_at:'2026-10-14T20:00:00Z',event_status:{state:'pre',name:'STATUS_SCHEDULED',completed:false,period:1},players:[{slug:'a',thru:null,rounds:[{round:1,strokes:null,tee_time:'2026-10-14T23:30:00Z'}]},{slug:'b',thru:null,rounds:[{round:1,strokes:null,tee_time:'2026-10-15T00:10:00Z'}]}],...over});
+const snapOf=(over={})=>({fetched_at:'2026-10-14T20:00:00Z',event_status:{state:'pre',name:'STATUS_SCHEDULED',completed:false,period:1},players:Array.from({length:40},(_,i)=>({slug:'g'+i,thru:null,rounds:[{round:1,strokes:null,tee_time:i===0?'2026-10-14T23:30:00Z':'2026-10-15T00:10:00Z'}]})),...over});
 const ed={slug:'buick-lpga-shanghai-q60750304-2026',starts_on:'2026-10-15'};
 test('lock gate: before first sourced tee time minus 30 min only; scores or in-progress state block; no tee time -> conservative or HOLD',()=>{
  const ok=lockGate(snapOf(),ed,new Date('2026-10-14T20:10:00Z'));assert.equal(ok.ok,true);assert.equal(ok.first_tee,'2026-10-14T23:30:00Z');assert.equal(ok.deadline,'2026-10-14T23:00:00.000Z');
@@ -91,7 +91,7 @@ test('lock gate: before first sourced tee time minus 30 min only; scores or in-p
  assert.equal(lockGate(snapOf({event_status:{state:'in',name:'STATUS_IN_PROGRESS'}}),ed,new Date('2026-10-14T20:10:00Z')).reason,'event_not_pre_start');
  const scored=snapOf();scored.players[0].thru=2;assert.equal(lockGate(scored,ed,new Date('2026-10-14T20:10:00Z')).reason,'scores_posted');
  assert.equal(lockGate(snapOf(),ed,new Date('2026-10-14T22:00:00Z')).reason,'snapshot_stale');
- const nt=snapOf({players:[{slug:'a',thru:null,rounds:[]}]});
+ const nt=snapOf({players:Array.from({length:40},(_,i)=>({slug:'g'+i,thru:null,rounds:[]}))});
 
  const nt2={...nt,fetched_at:'2026-10-14T10:30:00Z'};assert.equal(lockGate(nt2,ed,new Date('2026-10-14T10:40:00Z')).reason,'hold_no_tee_time_after_conservative_deadline');
  const nt3={...nt,fetched_at:'2026-10-14T08:30:00Z'};assert.equal(lockGate(nt3,ed,new Date('2026-10-14T08:40:00Z')).rule,'conservative_utc_plus_14_midnight');
@@ -185,7 +185,7 @@ test('gate: NOT_READY until the model store, field, mapping and a sourced tee ti
  assert.equal((await gateCheck(env2,new Date('2026-10-14T23:05:00Z'))).state,'NOT_READY');
  const noTee=envFixture();noTee.RAW.m.set('picks/v1/model/editions.json',env.RAW.m.get('picks/v1/model/editions.json'));
  const s=JSON.parse(noTee.PUBLIC.m.get('live/v1/events/'+ed.slug+'.json'));s.players=s.players.map(p=>({...p,rounds:[]}));noTee.PUBLIC.m.set('live/v1/events/'+ed.slug+'.json',JSON.stringify(s));
- assert.deepEqual((await gateCheck(noTee,now)).failing,['first_tee_sourced','before_lock_cutoff']);
+ assert.deepEqual((await gateCheck(noTee,now)).failing,['before_lock_cutoff'],'no tee time: conservative rule, whose cutoff (10:00Z) has passed');
  const empty=envFixture();empty.RAW.m.set('picks/v1/model/editions.json',env.RAW.m.get('picks/v1/model/editions.json'));empty.PUBLIC.m.delete('live/v1/events/'+ed.slug+'.json');
  assert.ok((await gateCheck(empty,now)).failing.includes('field_published'));
 });
@@ -203,4 +203,19 @@ test('health: PASS on an intact lock, FAIL on tampered bytes, a lock after start
  // tampered bytes
  const k='picks/v1/locks/'+ed.slug+'.json',doc=JSON.parse(env.RAW.m.get(k));env.RAW.m.set(k,JSON.stringify({...doc,locked_at:'2026-10-15T01:00:00.000Z'}));
  h=await picksHealth(env,{now:new Date('2026-10-15T02:00:00Z'),write:false});assert.ok(h.fails.some(f=>f.fail==='lock_hash_mismatch'));assert.ok(h.fails.some(f=>f.fail==='lock_not_before_start'));
+});
+
+test('one gate implementation: lock step, gate route and readiness agree; field size and mapping are enforced',async()=>{
+ const {evaluateGate,lockDecision,readinessView}=await import('../workers/shared/picks/gate.js');
+ const small=snapOf({players:snapOf().players.slice(0,12)});const g=evaluateGate({snap:small,edition:ed,now:new Date('2026-10-14T20:10:00Z')});
+ assert.equal(g.state,'NOT_READY');assert.deepEqual(g.failing,['field_published']);assert.equal(lockGate(small,ed,new Date('2026-10-14T20:10:00Z')).reason,'field_not_published');
+ const unmapped=snapOf({players:snapOf().players.map((p,i)=>i<20?{...p,slug:null}:p)});assert.equal(lockGate(unmapped,ed,new Date('2026-10-14T20:10:00Z')).reason,'field_not_mapped');
+ const ok=evaluateGate({snap:snapOf(),edition:ed,now:new Date('2026-10-14T20:10:00Z')});assert.equal(ok.state,'READY');assert.equal(lockDecision(ok,snapOf()).ok,true);
+ const v=readinessView(ok,{name:'X',starts_on:'2026-10-15'});assert.ok(v.checks.every(c=>typeof c.label==='string'&&c.ok===true));assert.ok(!JSON.stringify(v).includes('g0'));
+});
+test('public preview: readiness + RESOLVED results only; pending selections and probability tables never public',async()=>{
+ const {picksPreview}=await import('../workers/shared/picks/views.js');
+ const items=[{edition:{name:'E',starts_on:'2026-10-15'},locked_at:'x',selections:[{family:'top10',proposition:'TOP 10',name:'Pending Golfer',p:0.4,grade:'PENDING'},{family:'top20',proposition:'TOP 20',name:'Resolved Golfer',p:0.3,grade:'LOSS',actual:'T24'}],probabilities:[{name:'Prob Table',win:0.2}]}];
+ const health={enabled:true,checked_at:'t',status:'PASS',gate:{state:'NOT_READY',checks:{field_published:{ok:false,value:0}},cutoff:null,first_tee:null,checked_at:'t',edition:{name:'2026 Buick LPGA Shanghai',starts_on:'2026-10-15'}}};
+ const out=JSON.stringify(picksPreview(items,health));assert.ok(out.includes('Resolved Golfer')&&out.includes('T24'));assert.ok(!out.includes('Pending Golfer')&&!out.includes('Prob Table'));assert.ok(out.includes('Official field published'));
 });

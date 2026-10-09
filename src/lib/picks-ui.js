@@ -8,17 +8,34 @@ const GRADE_CLASS={WIN:'pk-win',LOSS:'pk-loss',VOID:'pk-void',PENDING:'pk-pendin
 export function picksPage(){
  return `<section class="page-heading data-heading"><div><p class="eyebrow">GOLF PICKS · RESEARCH</p><h1>Golf Picks and Track Record</h1><p>Full-field finish probabilities from one joint simulation of every round and the cut, locked before the first tee time of each PGA TOUR and LPGA event and graded after the official result.</p></div></section>
 <div class="page-body data-body picks-page">
+<div data-picks-preview></div>
 <section class="data-section"><h2>What is locked each week</h2>
 <ul class="pk-families"><li><b>Tournament winner</b> probability for every golfer in the published field</li><li><b>Top 10 and Top 20</b> selections (ties count)</li><li><b>Make the cut</b> in events with a 36-hole cut</li><li><b>Head to head</b> finish-ahead selections</li></ul>
 <p class="gnote">Inputs are observed round scores from complete-field results only (missed cuts listed), adjusted for field strength and recency. Every selection is graded WIN, LOSS, VOID or PENDING in its own family and every loss stays on the record. Research forecasts, not betting advice; no sportsbook odds are used.</p></section>
 <div class="premium-lock" data-premium="picks"><span class="lock-mark" aria-hidden="true">◆</span><div><h3>This week’s selections and the full track record</h3><p>Selections, probabilities, actual finishes and grades are included with PropBetEdge All Access.</p><p class="premium-status" role="status">Included with PropBetEdge All Access.</p><a class="button button-gold" href="/all-access">All Access details</a></div></div>
-<div data-picks-preview></div>
 </div>`;
 }
-// Public preview (counts only, from /api/v1/picks/preview). Rendered only when there is something to say.
+// Public view (from /api/v1/picks/preview): readiness of the next supported tournament and resolved results.
+// Only real status facts render; when the API has nothing to say the slot is removed (no empty-state filler).
+const day=d=>d?new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}):'';
+export function readinessHtml(r){
+ if(!r?.edition)return '';
+ const done=r.checks.filter(c=>c.ok).length;
+ return `<section class="pk-ready" aria-labelledby="pk-ready-h"><p class="eyebrow">NEXT LOCK · ${e(r.edition.tour||'')}</p><h2 id="pk-ready-h">${e(r.edition.name)}</h2>
+<p class="pk-ready-meta">${e(day(r.edition.starts_on))}${r.edition.ends_on?'–'+e(day(r.edition.ends_on)):''} · <b class="${r.state==='READY'?'pk-win':'pk-pending'}">${r.state==='READY'?'READY TO LOCK':'WAITING ON SOURCE DATA'}</b> · ${done} of ${r.checks.length} checks passed</p>
+<p class="pk-ready-meta">Selections lock automatically by ${e(fmt(r.expected_lock_by))} (${e(r.start_basis)}${r.first_tee?`: ${e(fmt(r.first_tee))}`:''}). Nothing locks after play begins.</p>
+<ul class="pk-checks">${r.checks.map(c=>`<li class="${c.ok?'ok':'wait'}"><span aria-hidden="true">${c.ok?'✓':'…'}</span> ${e(c.label)} <small>${c.ok?'passed':'pending'}</small></li>`).join('')}</ul>
+<p class="gnote">Checked ${e(fmt(r.checked_at))}. Status updates every 10 minutes.</p></section>`;
+}
+export function resolvedHtml(rows){
+ if(!rows?.length)return '';
+ return `<section class="pk-record pk-resolved"><h2>Resolved results</h2><p class="gnote">Every graded selection from locked tournaments, losses included. Research forecasts, not betting advice.</p><div class="table-wrap" tabindex="0" role="region" aria-label="Resolved results"><table class="index-table"><thead><tr><th>Event</th><th>Selection</th><th>Forecast</th><th>Actual</th><th>Result</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${e(r.edition)}</td><td>${e(r.name)} ${e(r.family==='h2h'?'ahead of '+(r.opponent||''):r.proposition)}</td><td>${pct(r.p)}</td><td>${e(r.actual||'—')}</td><td><b class="${GRADE_CLASS[r.grade]||''}">${e(r.grade)}</b></td></tr>`).join('')}</tbody></table></div></section>`;
+}
 export function picksPreviewHtml(p){
- if(!p||!p.tournaments_locked)return '';
- return `<p class="gnote pk-preview">${e(p.tournaments_locked)} tournament${p.tournaments_locked===1?'':'s'} locked so far · ${e(p.selections_graded)} graded selection${p.selections_graded===1?'':'s'} on the record · model ${e(p.model)}</p>`;
+ if(!p)return '';
+ const parts=[readinessHtml(p.readiness),resolvedHtml(p.resolved)];
+ if(p.tournaments_locked)parts.push(`<p class="gnote pk-preview">${e(p.tournaments_locked)} tournament${p.tournaments_locked===1?'':'s'} locked so far · ${e(p.selections_graded)} graded selection${p.selections_graded===1?'':'s'} on the record · model ${e(p.model)} (RESEARCH)</p>`);
+ return parts.join('');
 }
 function selectionCard(s){
  const prop=s.family==='h2h'?`${e(s.name)} to finish ahead of ${e(s.opponent?.name||'')}`:`${e(s.name)} ${e(s.proposition)}`;

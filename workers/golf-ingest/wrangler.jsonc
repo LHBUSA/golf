@@ -25,7 +25,7 @@
     }
   ],
   "vars": {
-    "PICKS_ENABLED": "0"
+    "PICKS_ENABLED": "1"
   },
   "observability": {
     "enabled": true

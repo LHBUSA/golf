@@ -118,13 +118,13 @@ async function premium(){
   if(mod==='player-dna'&&parts[0]==='player')path='player-dna/'+parts[1];else if(mod==='course-fit'&&parts[0]==='course')path='course-dna/'+parts[1];else if(mod==='field'&&parts[0]==='tournament')path='field/'+parts[1];else if(mod==='matchups'&&parts[0]==='matchups')path='matchups/'+parts[1]+'/'+parts[2];
   if(mod==='picks'){const [p,t]=await Promise.all([api('picks').then(r=>r.ok?r.json():null).catch(()=>null),api('picks/track-record').then(r=>r.ok?r.json():null).catch(()=>null)]);
    if(!p){const s=$('.premium-status',l);if(s)s.textContent=lockStatus(accessView(mem,{failed:false}));continue;}
-   const html=picksMember(p)+trackRecordMember(t?.record);if(!html){l.remove();continue;}l.classList.add('unlocked','picks-unlocked');l.innerHTML=html;continue;}
+   const html=picksMember(p)+trackRecordMember(t?.record);if(!html){l.remove();continue;}l.classList.add('unlocked','picks-unlocked');l.innerHTML=html;document.querySelectorAll('.pk-resolved').forEach(x=>x.remove());document.documentElement.dataset.picksMember='1';continue;}
   if(!path)continue;const r=await api('intelligence/'+path).then(r=>r.ok?r.json():null).catch(()=>null);if(!r?.data){const s=$('.premium-status',l);if(s)s.textContent='All Access verified. Not enough comparable sample for this module.';continue;}
   if(mod==='player-dna'){fillRaw(document,r.data.dna,'data-raw');mountDnaWindows(r.data.dna);}if(mod==='matchups'){fillRaw(document,r.data.a?.dna,'data-raw-a');fillRaw(document,r.data.b?.dna,'data-raw-b');}
   l.classList.add('unlocked');l.innerHTML=mod==='player-dna'?premiumDna(r.data):mod==='course-fit'?premiumFit(r.data):mod==='field'?premiumField(r.data):premiumMatchup(r.data);}
 }
 premium();
-{const pv=$('[data-picks-preview]');if(pv)api('picks/preview').then(r=>r.ok?r.json():null).then(p=>{const h=picksPreviewHtml(p);if(h)pv.innerHTML=h;else pv.remove();}).catch(()=>pv.remove());}
+{const pv=$('[data-picks-preview]');if(pv)api('picks/preview').then(r=>r.ok?r.json():null).then(p=>{const h=picksPreviewHtml(document.documentElement.dataset.picksMember?{...p,resolved:[]}:p);if(h)pv.innerHTML=h;else pv.remove();}).catch(()=>pv.remove());}
 // All Access: both DNA windows exist only after server-side verification, so the toggle appears only then. Switching
 // re-renders the radar, cards, dimension rows, cohort context and raw values for that window (never mixed).
 function mountDnaWindows(dna:any){

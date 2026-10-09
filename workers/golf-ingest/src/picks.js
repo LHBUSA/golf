@@ -5,27 +5,15 @@
 import {compactEdition,cutApplied,RatingBook,byEnd,fieldModel,PARAMS,MODEL_VERSION,DAY} from '../../shared/picks/model.js';
 import {forecast,POLICY_VERSION,GRADE_VERSION,formatExcluded} from '../../shared/picks/policy.js';
 import {lockKey,gradeKey,INDEX_KEY,PREFIX,seal,createOnly,getJSON,listKeys,gradeRevision,joinLock,trackRecord,sha256,canonical,LEDGER_VERSION} from '../../shared/picks/ledger.js';
-import {firstTee} from '../../shared/live.js';
+import {evaluateGate,lockDecision,LOCK_MARGIN_MS,SNAPSHOT_MAX_AGE_MS,CONSERVATIVE_LEAD_MS} from '../../shared/picks/gate.js';
+export {LOCK_MARGIN_MS,SNAPSHOT_MAX_AGE_MS,CONSERVATIVE_LEAD_MS};
 export const STORE_KEY=PREFIX+'model/editions.json';
 const STATUS_KEY='picks:status:v1';
-export const LOCK_MARGIN_MS=30*60000,SNAPSHOT_MAX_AGE_MS=70*60000,CONSERVATIVE_LEAD_MS=14*3600000;
 const pj=(b,k)=>b.get(k).then(o=>o?o.json():null).catch(()=>null);
 
-// Pre-start proof from one observed snapshot. Returns {ok, rule, deadline, first_tee, reason}.
-export function lockGate(snap,edition,now){
- const t=now.getTime();
- if(!snap)return {ok:false,reason:'no_field_snapshot'};
- if(t-Date.parse(snap.fetched_at)>SNAPSHOT_MAX_AGE_MS)return {ok:false,reason:'snapshot_stale'};
- const st=snap.event_status||{};
- if(st.state!=='pre'||st.completed)return {ok:false,reason:'event_not_pre_start'};
- const scored=(snap.players||[]).some(p=>(Number.isInteger(p.thru)&&p.thru>0)||(p.rounds||[]).some(r=>r.strokes!==null&&r.strokes!==undefined));
- if(scored)return {ok:false,reason:'scores_posted'};
- const ft=firstTee(snap,1);
- if(ft){const d=Date.parse(ft)-LOCK_MARGIN_MS;return t<=d?{ok:true,rule:'first_sourced_tee_time_minus_30m',deadline:new Date(d).toISOString(),first_tee:ft}:{ok:false,reason:'past_lock_deadline',first_tee:ft};}
- // No sourced tee time: freeze before the earliest possible local midnight of the start date (UTC+14), else HOLD.
- const d=Date.parse(edition.starts_on+'T00:00:00Z')-CONSERVATIVE_LEAD_MS;
- return t<=d?{ok:true,rule:'conservative_utc_plus_14_midnight',deadline:new Date(d).toISOString(),first_tee:null}:{ok:false,reason:'hold_no_tee_time_after_conservative_deadline'};
-}
+// Pre-start proof: the shared gate (workers/shared/picks/gate.js) is the ONLY implementation; the lock step,
+// health record, admin gate route and public readiness all evaluate the same checks.
+export function lockGate(snap,edition,now,storeComplete=true){return lockDecision(evaluateGate({snap,edition,now,storeComplete}),snap);}
 
 async function refreshStore(env,ix,{limit=40}={}){
  const store=await getJSON(env.RAW,STORE_KEY)||{schema:'golf-picks-model-store/1',editions:[]};

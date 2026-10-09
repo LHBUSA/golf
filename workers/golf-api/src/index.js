@@ -70,7 +70,7 @@ async function route(request,env){
   // server-side verification, always no-store. The public preview carries no golfer, selection or probability.
   if(parts[0]==='picks'){
    const idx=env.PICKS?await env.PICKS.get('picks/v1/index.json').then(o=>o?o.json():null).catch(()=>null):null;
-   if(parts[1]==='preview'&&!parts[2]){const items=idx?.items||[];return json(picksPreview(items));}
+   if(parts[1]==='preview'&&!parts[2]){const items=idx?.items||[];const health=env.PICKS?await env.PICKS.get('picks/v1/health/latest.json').then(o=>o?o.json():null).catch(()=>null):null;return json(picksPreview(items,health));}
    if(parts[1]&&parts[1]!=='track-record')return json({error:'not_found'},404);
    const access=await golfAccess(request,env);
    if(!access.granted)return json({error:'all_access_required',membership:access.membership},403);

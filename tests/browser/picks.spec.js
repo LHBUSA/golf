@@ -9,29 +9,32 @@ const item={edition:{slug:'qa-fixture-edition',name:'QA Fixture Championship (te
  probabilities:Array.from({length:12},(_,i)=>({slug:'qa-golfer-'+i,name:'Golfer '+i+' (test)',win:0.14/(i+1),top10:0.5/(1+i*0.2),top20:0.7/(1+i*0.15),make_cut:null,rounds_rated:40+i}))};
 const record={families:[{family:'winner',label:'TOURNAMENT WINNER',selections:1,WIN:0,LOSS:1,VOID:0,PENDING:0,hit_rate:0,expected_wins:0.1,brier:0.0202},{family:'top10',label:'TOP 10',selections:1,WIN:1,LOSS:0,VOID:0,PENDING:0,hit_rate:1,expected_wins:0.4,brier:0.3481}],
  rows:[{edition_name:'QA Fixture Championship (test data)',name:'Golfer B (test)',family:'top10',proposition:'TOP 10',p:0.41,actual:'T10',grade:'WIN'},{edition_name:'QA Fixture Championship (test data)',name:'Golfer A (test)',family:'winner',proposition:'WIN',p:0.142,actual:'T3',grade:'LOSS'}]};
+const PREVIEW={availability:'available',model:'golf-prob/1.0.0',label:'RESEARCH',tournaments_locked:1,selections_graded:3,resolved:[{edition:'QA Fixture Championship (test data)',family:'top10',proposition:'TOP 10',name:'Golfer B (test)',p:0.41,actual:'T10',grade:'WIN'}],
+ readiness:{state:'NOT_READY',edition:{name:'QA Fixture Open (test data)',starts_on:'2026-10-15',ends_on:'2026-10-18',tour:'LPGA'},checked_at:'2026-10-09T13:16:53Z',expected_lock_by:'2026-10-14T10:00:00.000Z',start_basis:'conservative pre-start rule',first_tee:null,
+  checks:[['Complete-field scoring history loaded',true],['Official field published',false],['Field matched to verified golfer identities',false],['First-round start time sourced',false],['Tournament not started',false],['No scores posted',false],['Field observed within the last 70 minutes',false],['Before the lock cutoff',true]].map(([label,ok],i)=>({key:'k'+i,label,ok}))}};
 async function asMember(page){
  await page.route('**/api/v1/membership',r=>r.fulfill({json:{membership:{contract:'1.4.0',sport:'golf',state:'all_access',entitled:true,access_source:'all_access'},verification:'network'}}));
  await page.route('**/api/v1/picks/track-record',r=>r.fulfill({json:{availability:'available',record}}));
- await page.route('**/api/v1/picks/preview',r=>r.fulfill({json:{availability:'available',tournaments_locked:1,selections_graded:3,model:'golf-prob/1.0.0'}}));
+ await page.route('**/api/v1/picks/preview',r=>r.fulfill({json:PREVIEW}));
  await page.route('**/api/v1/picks',r=>r.fulfill({json:{availability:'available',label:'RESEARCH',model:'golf-prob/1.0.0',policy:'golf-picks-policy/1.0.0',items:[item]}}));
 }
 test('static /picks HTML carries no selection or probability',async({request})=>{const h=await (await request.get('/picks')).text();expect(h).not.toMatch(/pk-card|Forecast probability|qa-golfer/);expect(h).toMatch(/noindex/);});
 for(const width of WIDTHS){
  test(`picks guest ${width}: lock only, no values`,async({page})=>{
   await page.route('**/api/v1/membership',r=>r.fulfill({json:{membership:{sport:'golf',state:'free',entitled:false},verification:'no_session'}}));
-  await page.route('**/api/v1/picks/preview',r=>r.fulfill({json:{availability:'available',tournaments_locked:0,selections_graded:0}}));
+  await page.route('**/api/v1/picks/preview',r=>r.fulfill({json:{...PREVIEW,tournaments_locked:0,selections_graded:0,resolved:[]}}));
   await page.setViewportSize({width,height:900});await page.goto('/picks',{waitUntil:'networkidle'});
   await expect(page.locator('[data-premium="picks"] .premium-status')).toBeVisible();await expect(page.locator('.pk-card')).toHaveCount(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(await page.locator('[style]').count()).toBe(0);
   await page.screenshot({path:`../qa-shots/picks-guest-${width}.png`,fullPage:true});
  });
- test(`picks member ${width}: selection / probability / actual / result, record, axe`,async({page})=>{
+ test(`picks SIMULATED membership ${width}: selection / probability / actual / result, record, axe`,async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await asMember(page);await page.setViewportSize({width,height:900});await page.goto('/picks',{waitUntil:'networkidle'});
   await expect(page.locator('.pk-card')).toHaveCount(5);
   const first=page.locator('.pk-card').nth(1);for(const t of ['Our selection','Forecast probability','Actual finish','Result'])await expect(first).toContainText(t);
   await expect(first).toContainText('41%');await expect(first).toContainText('T10');await expect(first).toContainText('WIN');
-  await expect(page.locator('.pk-record')).toContainText('TOURNAMENT WINNER');await expect(page.locator('.pk-preview')).toContainText('1 tournament locked');
+  await expect(page.locator('.pk-record:not(.pk-resolved)')).toContainText('TOURNAMENT WINNER');await expect(page.locator('.pk-preview')).toContainText('1 tournament locked');await expect(page.locator('.pk-ready')).toBeVisible();
   const ov=await page.evaluate(()=>({s:document.documentElement.scrollWidth,w:innerWidth}));expect(ov.s<=ov.w,JSON.stringify(ov)).toBe(true);
   expect(await page.locator('[style]').count()).toBe(0);expect(errors).toEqual([]);
   const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
