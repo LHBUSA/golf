@@ -161,6 +161,32 @@ Nothing is written to `golf-public`, the projection, the static build or the sit
   card reads "Our selection / Forecast probability / Actual finish / Result", followed by the probability table
   and the track record by family. Nav item "Picks".
 
+## golf#9 (2026-10-09 16:42Z): specific readiness reasons, permanent record, entry points
+- **Diagnosis (read-only ESPN core evidence, 2026-10-09 15:04Z and 16:42Z).** Event 401835172 (Buick LPGA Shanghai)
+  lists `competitors count 0` with status STATUS_SCHEDULED. The field is genuinely unpublished by the source.
+  - The mapping is correct: the projection has `espn.event_id 401835172`, league `lpga`.
+  - It is not an ingestion defect.
+  - No other eligible event is being skipped: Baycurrent is in progress; Bermuda and BMW Ladies start 10-22.
+  - By design the live lane observes an edition from 00:00 UTC the day before its start date (2026-10-14 00:00Z
+    for Shanghai).
+- **Message.** The UI now names the exact condition, for example: "FIELD NOT YET PUBLISHED BY SOURCE · 0 of ~82
+  expected (last edition's field) entrants listed by the official scoring source (checked 16:37 UTC). Field
+  observation opens 2026-10-14 00:00 UTC." Each reason is classed as Source hold, Technical, Lock policy or Schedule.
+- **Unchanged:** the eight gate checks, the automatic lock rule, create-only storage, the model, the scorer and the
+  no-backfill policy.
+- **Versions:**
+  - golf-ingest `02b6740f`. Rollback: `c2d01d45`.
+  - golf-api `d12dd7a5`. Rollback: `9a7586b0`.
+  - Vercel `dpl_HvwipGRhyd2SCJPFoDhLGpsSoMkT`. Rollback: `dpl_3egYrXz6TTbqPXiSTQJudun38wkt`.
+- **Owner self-test checklist (signed in with All Access, on golf.propbetedge.ai):**
+  1. "Picks & Record" appears in the desktop nav and in the mobile menu. The /all-access page links to Golf Picks
+     and Track Record.
+  2. /picks shows the next event, the specific reason, "checks passed" and the expected lock time.
+  3. The member box reads "No tournament is locked yet …" until the first lock; it is never hidden.
+  4. The track record shows Win/Loss/Void/Pending per family, the versions and the lock evidence.
+  5. After the first lock, the selection cards and probabilities appear for members only. Signed out, the same page
+     shows readiness, counts and resolved results only.
+
 ## Release state (2026-10-09 14:52Z): RESEARCH, automated readiness LIVE (owner standing approval)
 - **PICKS_ENABLED=1 is only the master kill switch.** Each event locks automatically only when the shared gate
   (`workers/shared/picks/gate.js`) is READY. The lock step, the health record, `POST /admin/picks-gate`
