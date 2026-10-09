@@ -1,10 +1,11 @@
-// Browser side of the Golf locale proof (pbe-locale/1.0.0). Loaded only by multi-language builds: main.ts imports it
-// behind the compile-time __PBE_I18N__ flag, which is false for production, so production bundles never contain it.
+// Browser side of Golf's public languages (pbe-locale/1.0.0). main.ts imports it lazily, behind the compile-time
+// __PBE_I18N__ flag; on English pages it only wires the language menu (close on Escape / outside click).
 //
 // The prerender already wrote the page in its language. This keeps what main.ts paints later (account status, the
 // All Access membership panel, live hero/rails, hub refreshes, the consent banner) in the same language, using the
-// vendored observeLocale() with Golf's catalogs and protected containers.
-import { golfLocale, localHref } from './locale.js';
+// vendored observeLocale() with Golf's catalogs and protected containers. On Japanese and Korean pages it also keeps
+// prediction-market mounts out of anything painted later (main.ts never hydrates them there).
+import { golfLocale, localHref, isAcquisition, MARKET_MODULES } from './locale.js';
 
 const SEL_A = 'a[href]:not([data-lang-switch])';
 
@@ -20,15 +21,19 @@ export function startLocale(doc = document) {
   const locale = doc.documentElement.dataset.pbeLocale;
   if (!locale || locale === 'en') return null;
   // Translation-only instance (ready = English only): the package's own href pass then never rewrites a link, because
-  // in this proof only LOCALIZED_PATHS exist in other languages. Links to those two pages are prefixed below.
+  // only LOCALIZED_PATHS exist in other languages. Links to those pages (and the network All Access page) are fixed below.
   const T = golfLocale(['en']);
   const L = golfLocale(['en', locale]);
-  const fixLinks = root => {
-    const list = root.nodeType === 1 ? [...(root.matches?.(SEL_A) ? [root] : []), ...root.querySelectorAll(SEL_A)] : [];
+  const noMarkets = isAcquisition(locale);
+  const fix = root => {
+    if (root.nodeType !== 1) return;
+    if (noMarkets) { if (root.matches?.(MARKET_MODULES)) { root.remove(); return; } for (const el of root.querySelectorAll(MARKET_MODULES)) el.remove(); }
+    const list = [...(root.matches?.(SEL_A) ? [root] : []), ...root.querySelectorAll(SEL_A)];
     for (const a of list) { const h = a.getAttribute('href'); const l = localHref(L, h, locale); if (l !== h) a.setAttribute('href', l); }
   };
-  const mo = new MutationObserver(records => { for (const r of records) for (const n of r.addedNodes) fixLinks(n); });
+  const mo = new MutationObserver(records => { for (const r of records) for (const n of r.addedNodes) fix(n); });
   mo.observe(doc.body, { childList: true, subtree: true });
+  fix(doc.body);
   T.observeLocale(doc.body, locale);
   return { locale, T, L };
 }

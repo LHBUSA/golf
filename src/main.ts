@@ -42,13 +42,15 @@ import {hydrateKalshi,boardWithin,placeCastMarket} from './lib/kalshi-live.js';
 import {mountArticleMarketSlot} from './lib/article-market.js';
 // @ts-ignore
 import {mountKalshiPartnerFooter} from './lib/kalshi-partner-footer.js';
-// Locale proof (pbe-locale/1.0.0, Global Issue #67): compiled in only when the build publishes more than English
-// (vite.config.js define, src/i18n/ready.js). Production builds are English-only: __PBE_I18N__ is false and this is removed.
+// Public languages (pbe-locale/1.0.0, Global Issue #67): es, ja, ko home + All Access (src/i18n/ready.js). The locale
+// client is a lazy chunk; __PBE_I18N__ (vite.config.js define) is false only for an English-only local build.
 declare const __PBE_I18N__:boolean;
 // @ts-ignore
 if(__PBE_I18N__)import('./i18n/client.js').then(m=>m.startLocale()).catch(()=>{});
 // The page's English route: a localized page (/es/all-access) declares it on <html>; otherwise the URL path.
 const PATH=__PBE_I18N__?(document.documentElement.dataset.pbePath||location.pathname):location.pathname;
+// Japanese and Korean pages present Golf as sports data and analysis: no prediction-market or partner modules there.
+const NO_MARKETS=__PBE_I18N__&&['ja','ko'].includes(document.documentElement.dataset.pbeLocale||'');
 initAnalytics();
 const $=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>root.querySelector<T>(s);
 const $$=<T extends Element=HTMLElement>(s:string,root:ParentNode=document)=>[...root.querySelectorAll<T>(s)];
@@ -159,8 +161,8 @@ if(PATH==='/all-access'){
 // Hub pages re-render from the live projection when it is newer than the static build.
 const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live};
 const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[PATH];
-if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,PATH)?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
- if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);hydrateKalshi(main);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
+if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,PATH)&&!NO_MARKETS?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
+ if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);if(!NO_MARKETS)hydrateKalshi(main);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
 
 // ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
 const LIVE_SHOWN=new Set(['live','stale','suspended','round_complete','pre','final']);
@@ -185,7 +187,7 @@ async function hydrateLive(){
 const liveFirstPass=hydrateLive();
 // Kalshi prediction-market mounts (tournament card, PBEcast strip, card lines). Never blocks any other module;
 // the tournament card's first paint joins the live-scoring pass (bounded) so the page shifts once, not twice.
-hydrateKalshi(document,{after:liveFirstPass});
+if(!NO_MARKETS)hydrateKalshi(document,{after:liveFirstPass});
 // Article market module on news articles (server first paint; nothing rendered -> no slot -> nothing mounted).
 mountArticleMarketSlot(document);
 // Course View in news articles: only when the course has verified/partial routing (never decorative geometry).
@@ -238,7 +240,7 @@ async function initReplay(){
 }
 initReplay();
 // ---- Kalshi PERPETUALS partner offer: one commercial module in the network footer, never in game/market UI (fail closed).
-mountKalshiPartnerFooter();
+if(!NO_MARKETS)mountKalshiPartnerFooter();
 // ---- Observational analytics (single GA4 instance; allowlisted, slug-only parameters)
 {
  const pt=pageType(location.pathname),parts=location.pathname.split('/').filter(Boolean);

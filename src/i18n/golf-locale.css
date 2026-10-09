@@ -1,5 +1,5 @@
-/* Golf language selector + Golf-specific CJK adjustments (pbe-locale/1.0.0 proof). Served as /i18n/golf-locale.css by
-   multi-language builds only (scripts/prerender.mjs); production builds never reference it. */
+/* Golf language selector + Golf-specific CJK adjustments (pbe-locale/1.0.0). Served as /i18n/golf-locale.css and linked
+   only by the localized home + All Access pages and their English originals (scripts/prerender.mjs). */
 .pbe-lang{position:relative;flex:none}
 .pbe-lang>summary{list-style:none;display:flex;align-items:center;gap:6px;min-height:44px;min-width:44px;padding:9px 10px;border:1px solid #ffffff40;color:#e4d2a5;font:800 10px/1 var(--sans,Arial,sans-serif);letter-spacing:1px;cursor:pointer;user-select:none}
 .pbe-lang>summary::-webkit-details-marker{display:none}
@@ -26,9 +26,15 @@
 :lang(ja) h1,:lang(ja) h2,:lang(ja) h3{letter-spacing:0;line-height:1.3;word-break:auto-phrase;overflow-wrap:anywhere}
 :lang(ja) .home-hero h1{line-height:1.15}
 :lang(ja) .eyebrow,:lang(ja) .micro-label,:lang(ja) .sched-state,:lang(ja) .hero-caption,:lang(ja) .account-status-copy b,:lang(ja) .account-status-copy small{letter-spacing:.04em}
+/* Korean: words (eojeol) never split (pbe-locale.css keep-all); headings get the same room as Japanese. */
+:lang(ko) h1,:lang(ko) h2,:lang(ko) h3{letter-spacing:0;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
+:lang(ko) .home-hero h1{line-height:1.15}
+:lang(ko) .eyebrow,:lang(ko) .micro-label,:lang(ko) .sched-state,:lang(ko) .hero-caption,:lang(ko) .account-status-copy b,:lang(ko) .account-status-copy small{letter-spacing:.02em}
+/* ja/ko price lockup: the period word (月額 / 월) sits before the amount. */
+:lang(ja) .aa-price-lockup>em,:lang(ko) .aa-price-lockup>em{padding-bottom:8px}
 /* Home All Access ribbon: the base grid (text | 190px button) leaves ~30px for the text column on phones. CJK text has no
    word minimum, so it collapsed to one glyph per line; stack the button under the copy on localized pages. (The same
    squeeze clips the English heading at 320px in production today: reported to the owner, not changed here.) */
-@media(max-width:560px){:lang(es) .all-access-ribbon,:lang(ja) .all-access-ribbon{grid-template-columns:minmax(0,1fr)}:lang(es) .all-access-ribbon .button,:lang(ja) .all-access-ribbon .button{justify-self:start}}
+@media(max-width:560px){:lang(es) .all-access-ribbon,:lang(ja) .all-access-ribbon,:lang(ko) .all-access-ribbon{grid-template-columns:minmax(0,1fr)}:lang(es) .all-access-ribbon .button,:lang(ja) .all-access-ribbon .button,:lang(ko) .all-access-ribbon .button{justify-self:start}}
 /* Hand-set phrase units in catalog html (ja): a line may break between them, never inside one. */
 .pbe-nb{display:inline-block}

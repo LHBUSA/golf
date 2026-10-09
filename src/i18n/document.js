@@ -1,13 +1,14 @@
-// Build-time (Node) localization of prerendered Golf pages, pbe-locale/1.0.0 proof. Imported only by
-// scripts/prerender.mjs and tests, never by the browser bundle. Runs ONLY when the build publishes more than English
-// (src/i18n/ready.js); a production build never calls it, so production HTML is untouched.
+// Build-time (Node) localization of prerendered Golf pages, pbe-locale/1.0.0. Imported only by scripts/prerender.mjs
+// and tests, never by the browser bundle. Runs when the build publishes more than English (src/i18n/ready.js).
 //
 // It does on the server what observeLocale() does in the browser (same catalogs, same skip rules), so a localized page
 // is complete before any script runs: html[lang], title, description, social tags, self-canonical, reciprocal hreflang,
-// noindex (preview), the language selector, the CJK stylesheet and every visible UI string.
+// the language selector, the CJK stylesheet and every visible UI string. Japanese and Korean (acquisition) pages also
+// drop every prediction-market / partner mount, link the localized network All Access page, show the monthly price in
+// the reader's word order and carry the main site's legal disclosure link in the footer.
 import { parse } from 'node-html-parser';
 import { LOCALE_REGISTRY } from '../vendor/pbe-locale/pbe-locale.js';
-import { SITE, SKIP, localHref, literal } from './locale.js';
+import { SITE, SKIP, MARKET_MODULES, LEGAL_FOOTER, isAcquisition, localHref, literal } from './locale.js';
 import { langMenuHtml, langRowHtml } from './selector.js';
 import { ldJson } from '../lib/seo.js';
 
@@ -58,6 +59,16 @@ function addSelector(root, L, locale, path) {
   root.querySelector('#primary-navigation')?.insertAdjacentHTML('beforeend', langRowHtml(L, locale, path));
 }
 
+/** Japanese / Korean page rules (sports data and analysis only; see src/i18n/ready.js ACQUISITION_LOCALES). */
+function acquisition(root, locale) {
+  for (const el of root.querySelectorAll(MARKET_MODULES)) el.remove();
+  // "月額 US$29" / "월 US$29": the period word reads before the amount (the amount itself never changes).
+  const lock = root.querySelector('.aa-price-lockup'), amount = lock?.querySelector('b'), per = lock?.querySelector('em');
+  if (amount && per) { per.remove(); per.set_content(locale === 'ja' ? '月額' : '월'); per.setAttribute('translate', 'no'); amount.insertAdjacentHTML('beforebegin', per.toString()); }
+  const legal = LEGAL_FOOTER[locale], links = root.querySelector('footer .footer-links');
+  if (legal && links) links.insertAdjacentHTML('beforeend', `<a href="${escAttr(legal.href)}" lang="${locale}">${esc(legal.label)}</a>`);
+}
+
 /** The English page in a multi-language build: + selector, hreflang alternates and the locale stylesheet. */
 export function previewEnglishDocument(html, { path, L }) {
   const root = P(html);
@@ -84,8 +95,6 @@ export function localizeDocument(html, { path, locale, L }) {
   setMeta(head, 'meta[property="og:locale"]', 'content', loc.og);
   setMeta(head, 'meta[property="og:url"]', 'content', url);
   setMeta(head, 'link[rel="canonical"]', 'href', url);
-  // Proof languages are previews: never indexed until the owner promotes them (Global Issue #67 release gate).
-  setMeta(head, 'meta[name="robots"]', 'content', 'noindex,follow');
   // JSON-LD: the WebPage node describes this language version; every other node (organization, people, events) is shared.
   const ld = head.querySelector('script[type="application/ld+json"]');
   if (ld) {
@@ -98,6 +107,7 @@ export function localizeDocument(html, { path, locale, L }) {
   }
   head.insertAdjacentHTML('beforeend', headLinks(L, path));
   addSelector(root, L, locale, path);
+  if (isAcquisition(locale)) acquisition(root, locale);
   translateTree(body, L, locale);
   return root.toString();
 }

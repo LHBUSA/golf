@@ -59,3 +59,16 @@ deploying. `tests/deploy-rule.test.mjs` fails if `golf-api` stops sharing the si
    4.4:1. It is now warm brown #7a5a1f, about 5.5:1 (WCAG AA). This fixes all 9 widths.
 3. **Production consent banner.** `#pbe-consent a` is now underlined (axe `link-in-text-block`). Only the Golf copy
    of `public/pbe-consent-v1.css` changed; other network sites may carry the same rule.
+
+## Public languages: es, ja, ko (2026-10-09, Global Issue #67)
+Owner GO 2026-10-09 ("OWNER GO — PROPBETEDGE GLOBAL"). Home and All Access are public in Spanish, Japanese and Korean:
+`/es/`, `/ja/`, `/ko/`, `/es/all-access`, `/ja/all-access`, `/ko/all-access` (pbe-locale/1.0.0, `src/i18n/`).
+- Every build publishes them (`src/i18n/ready.js` PUBLIC_LOCALES). Pages are self-canonical, indexable, with reciprocal
+  hreflang (en/es/ja/ko + x-default), a language switch (header globe; menu row on narrow phones) and sitemap entries with
+  xhtml:link alternates (`sitemaps/pages.xml`). English pages change only by the alternates, the switch and the locale CSS.
+- ja/ko are acquisition pages: no prediction-market, partner or sportsbook modules (removed at build and never hydrated by
+  main.ts), All Access CTA to `https://propbetedge.ai/{ja,ko}/pro?via=golf`, price `月額 US$29` / `월 US$29`, footer legal
+  link (特定商取引法に基づく表記 / 사업자 정보). Spanish keeps the English `/pro` link.
+- No change to render.js/seo.js/article.js: no golf-api deploy is needed for this release.
+- Compare English output: `PBE_LOCALES=en npm run build:local` (local only; production ignores it).
+- Rollback: Vercel production `dpl_GpaSGup4MEWYdr6CPvoFvj4jn9SH` (main 61096d7).

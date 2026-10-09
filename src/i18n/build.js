@@ -1,6 +1,7 @@
-// Prerender step for the locale proof (pbe-locale/1.0.0). Called once at the end of scripts/prerender.mjs.
-// With an English-only ready list (every production build) it returns immediately and writes nothing: no /es/ or /ja/
-// file exists, so those URLs answer 404 exactly as before, and the English pages stay byte-for-byte unchanged.
+// Prerender step for Golf's public languages (pbe-locale/1.0.0, Global Issue #67). Called by scripts/prerender.mjs.
+// For every LOCALIZED_PATHS page it writes /<lang>/ versions from the English prerender and adds the hreflang
+// alternates + language switch to the English page (its content is otherwise unchanged). An English-only ready list
+// (PBE_LOCALES=en, local builds only) writes nothing.
 import fs from 'node:fs/promises';
 import { LOCALIZED_PATHS } from './ready.js';
 import { golfLocale } from './locale.js';
@@ -9,13 +10,28 @@ import { localizeDocument, previewEnglishDocument } from './document.js';
 const fileOf = (dist, path) => `${dist}${path === '/' ? '/index.html' : path + '.html'}`;
 const localFileOf = (dist, locale, path) => `${dist}/${locale}${path === '/' ? '/index.html' : path + '.html'}`;
 
-/** Planned outputs for a ready list: [{file, from, locale}] (pure; used by tests and by writeLocalePages). */
+/** Planned outputs for a ready list: [{file, path, locale}] (pure; used by tests and by writeLocalePages). */
 export function localePlan(ready, dist = 'dist') {
   if (!Array.isArray(ready) || ready.length < 2) return [];
   return LOCALIZED_PATHS.flatMap(path => [
     { file: fileOf(dist, path), path, locale: 'en' },
     ...ready.filter(c => c !== 'en').map(locale => ({ file: localFileOf(dist, locale, path), path, locale })),
   ]);
+}
+
+/**
+ * Sitemap additions for a ready list: the localized URL paths, and the reciprocal alternates (hreflang + x-default) of
+ * any sitemap path that has language versions (English or localized), else null.
+ */
+export function localeSitemap(ready) {
+  if (!Array.isArray(ready) || ready.length < 2) return { paths: [], alternatesOf: () => null };
+  const L = golfLocale(ready);
+  const byUrl = new Map();
+  for (const path of LOCALIZED_PATHS) for (const code of L.READY_LOCALES) byUrl.set(L.localizePath(path, code), L.alternateLinks(path));
+  return {
+    paths: LOCALIZED_PATHS.flatMap(path => L.READY_LOCALES.filter(c => c !== 'en').map(c => L.localizePath(path, c))),
+    alternatesOf: p => byUrl.get(p) || null,
+  };
 }
 
 export async function writeLocalePages(ready, { dist = 'dist', srcRoot = 'src' } = {}) {

@@ -24,6 +24,7 @@ export function datePatterns({ day, full, range }) {
 const EXTRA = {
   es: { England: 'Inglaterra', Scotland: 'Escocia', Wales: 'Gales', 'Northern Ireland': 'Irlanda del Norte', "People's Republic of China": 'China', 'Chinese Taipei': 'China Taipéi', 'United States': 'Estados Unidos', 'United Kingdom': 'Reino Unido', 'South Korea': 'Corea del Sur' },
   ja: { England: 'イングランド', Scotland: 'スコットランド', Wales: 'ウェールズ', 'Northern Ireland': '北アイルランド', "People's Republic of China": '中国', 'Chinese Taipei': 'チャイニーズタイペイ', 'United States': 'アメリカ', 'United Kingdom': 'イギリス', 'South Korea': '韓国' },
+  ko: { England: '잉글랜드', Scotland: '스코틀랜드', Wales: '웨일스', 'Northern Ireland': '북아일랜드', "People's Republic of China": '중국', 'Chinese Taipei': '차이니즈 타이베이', 'United States': '미국', 'United Kingdom': '영국', 'South Korea': '대한민국' },
 };
 export function regionNames(locale) {
   const out = {};

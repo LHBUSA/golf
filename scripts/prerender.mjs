@@ -34,17 +34,19 @@ let shellTpl=template;
 for(const m of template.matchAll(/\/assets\/(index-[A-Za-z0-9_-]+)\.(js|css)/g)){await fs.copyFile(`dist/assets/${m[1]}.${m[2]}`,`dist/assets/ssr-app.${m[2]}`);shellTpl=shellTpl.replace(`/assets/${m[1]}.${m[2]}`,`/assets/ssr-app.${m[2]}`);}
 await fs.writeFile('dist/_shell.html',shellTpl);
 await fs.writeFile('dist/robots.txt',`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /matchup-view\nDisallow: /_shell\nSitemap: ${SITE}/sitemap.xml\nSitemap: ${SITE}/news-sitemap.xml\n`);
+// Public languages (pbe-locale/1.0.0, Global Issue #67): /es/, /ja/, /ko/ home + All Access, written from the English
+// pages above. Each language version is a sitemap URL carrying its reciprocal xhtml:link alternates.
+const {readyLocales}=await import('../src/i18n/ready.js');const ready=readyLocales(process.env);let alternatesOf=()=>null;
+if(ready.length>1){const {writeLocalePages,localeSitemap}=await import('../src/i18n/build.js');const files=await writeLocalePages(ready);const ls=localeSitemap(ready);
+ for(const path of ls.paths)sitemap.push({path,lastmod:null});alternatesOf=ls.alternatesOf;console.log(`Locales (${ready.join(', ')}): ${files.length} pages.`);}
+const alt=x=>(alternatesOf(x.path)||[]).map(a=>`<xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.url}"/>`).join('');
 // Sitemap index: static children by entity type; news children are served live by golf-api.
 const groups={pages:[],players:[],tournaments:[],courses:[],matchups:[],majors:[]};
 for(const x of sitemap){const k=x.path.split('/')[1];const g=k==='player'?'players':k==='tournament'?'tournaments':k==='course'?'courses':k==='matchups'&&x.path.split('/').length>3?'matchups':k==='majors'?'majors':'pages';groups[g].push(x);}
-const urlset=xs=>`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${xs.map(x=>`<url><loc>${SITE}${x.path}</loc>${x.lastmod?`<lastmod>${x.lastmod}</lastmod>`:''}</url>`).join('')}</urlset>\n`;
+const urlset=xs=>`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${xs.some(x=>alternatesOf(x.path))?' xmlns:xhtml="http://www.w3.org/1999/xhtml"':''}>${xs.map(x=>`<url><loc>${SITE}${x.path}</loc>${x.lastmod?`<lastmod>${x.lastmod}</lastmod>`:''}${alt(x)}</url>`).join('')}</urlset>\n`;
 await fs.mkdir('dist/sitemaps',{recursive:true});
 for(const [g,xs] of Object.entries(groups))if(xs.length)await fs.writeFile(`dist/sitemaps/${g}.xml`,urlset(xs));
 const children=[...Object.entries(groups).filter(([,xs])=>xs.length).map(([g])=>`${SITE}/sitemaps/${g}.xml`),`${SITE}/sitemaps/news.xml`];
 await fs.writeFile('dist/sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${children.map(u=>`<sitemap><loc>${u}</loc></sitemap>`).join('')}</sitemapindex>\n`);
 await fs.writeFile('dist/index-snapshot.json',JSON.stringify(b.index));
-// Locale proof (pbe-locale/1.0.0, Global Issue #67): /es/ and /ja/ home + All Access as noindex previews, ONLY when the
-// build publishes more than English (Vercel preview, or PBE_PREVIEW_LOCALES locally). Production: English only, nothing written.
-{const {readyLocales}=await import('../src/i18n/ready.js');const ready=readyLocales(process.env);
- if(ready.length>1){const {writeLocalePages}=await import('../src/i18n/build.js');const files=await writeLocalePages(ready);console.log(`Locale preview (${ready.join(', ')}): ${files.length} pages, noindex.`);}}
 console.log(`Prerendered ${pages.length+matchups.length+3} pages; ${sitemap.length} indexable in sitemap.`);
