@@ -13,6 +13,7 @@ import {runHeadshots} from './headshots.js';
 import {writePlan} from './writer.js';
 import {buildProjection} from '../../shared/projection.js';
 import {runPicks} from './picks.js';
+import {picksHealth,gateCheck,healthAggregate,HEALTH_KEY} from './picks-health.js';
 import {createOnly as picksCreateOnly} from '../../shared/picks/ledger.js';
 const json=(b,s=200)=>Response.json(b,{status:s,headers:{'cache-control':'no-store'}});
 // lane -> approved source, cadence. Each source is independently disable-able in golf_sources.
@@ -95,16 +96,18 @@ async function tick(env){
  let projection=null;if(await env.STATE.get('projection:dirty')||Date.parse(writes)>Date.parse(last||0))projection=await project(env,db);
  // Golf Picks V1: bounded lock/grade step on the existing full tick (no new cron). Never blocks the lanes above.
  const picks=await runPicks(env,{budgetMs:60000}).catch(e=>({lane:'picks',status:'error',error:String(e.message).slice(0,200)}));
- return {live,lane,result,espn,stats,projection,picks};
+ // Picks health (always, enabled or not): read-only ledger integrity + next-event gate, recorded to KV/private R2.
+ const picks_health=await picksHealth(env).then(r=>({status:r.status,enabled:r.enabled,gate:r.gate?.state,locks:r.locks.length,fails:r.fails.length})).catch(e=>({status:'error',error:String(e.message).slice(0,200)}));
+ return {live,lane,result,espn,stats,projection,picks,picks_health};
 }
 export default {
  async fetch(request,env={}){
   const url=new URL(request.url),path=url.pathname,db=store(env);
   if(path==='/health'){
    if(!db||!env.STATE)return json({mode:'unconfigured'},503);
-   const [states,sources,ls,items]=await Promise.all([db('golf_source_state','select=*'),db('golf_sources','select=id,verdict,automated_access'),laneState(env),loadItems(env)]);
+   const [states,sources,ls,items,ph]=await Promise.all([db('golf_source_state','select=*'),db('golf_sources','select=id,verdict,automated_access'),laneState(env),loadItems(env),env.STATE.get(HEALTH_KEY).then(v=>v?JSON.parse(v):null).catch(()=>null)]);
    const tally={};for(const i of Object.values(items))tally[i.status]=(tally[i.status]||0)+1;
-   return json({mode:'production_ingestion',publication_enabled:false,scoring_feed:'espn-live',sources:states.map(s=>({...s,verdict:sources.find(x=>x.id===s.source_id)?.verdict,automated_access:sources.find(x=>x.id===s.source_id)?.automated_access,source_age_seconds:s.last_write?Math.floor((Date.now()-Date.parse(s.last_write))/1000):null})),lanes:Object.fromEntries(Object.entries(LANES).map(([k,v])=>[k,{source:v.source,cadence_seconds:v.cadenceMs/1000,last_ok:ls[k]?.last_ok?new Date(ls[k].last_ok).toISOString():null,next_run_after:ls[k]?.last_ok?new Date(ls[k].last_ok+v.cadenceMs).toISOString():'due',last_result:ls[k]?.result||null}])),items:tally});
+   return json({mode:'production_ingestion',publication_enabled:false,picks:healthAggregate(ph),scoring_feed:'espn-live',sources:states.map(s=>({...s,verdict:sources.find(x=>x.id===s.source_id)?.verdict,automated_access:sources.find(x=>x.id===s.source_id)?.automated_access,source_age_seconds:s.last_write?Math.floor((Date.now()-Date.parse(s.last_write))/1000):null})),lanes:Object.fromEntries(Object.entries(LANES).map(([k,v])=>[k,{source:v.source,cadence_seconds:v.cadenceMs/1000,last_ok:ls[k]?.last_ok?new Date(ls[k].last_ok).toISOString():null,next_run_after:ls[k]?.last_ok?new Date(ls[k].last_ok+v.cadenceMs).toISOString():'due',last_result:ls[k]?.result||null}])),items:tally});
   }
   if(request.method!=='POST')return json({error:'not_found'},404);
   if(!await adminAllowed(request,env))return json({error:'unauthorized'},401);
@@ -119,6 +122,8 @@ export default {
   if(path==='/admin/run'){const lane=url.searchParams.get('lane');if(lane==='project')return json(await project(env,db));if(!LANES[lane]&&!['espn-discover','espn-stats','live-backfill','live-reconcile'].includes(lane))return json({error:'unknown_lane'},400);const list=k=>(url.searchParams.get(k)||'').split(',').filter(Boolean);return json(await runLane(lane,env,db,{limit:Number(url.searchParams.get('limit'))||undefined,budgetMs:Number(url.searchParams.get('budget'))||undefined,leagues:list('leagues'),seasons:list('seasons').map(Number),events:list('events').length?list('events'):undefined}));}
   if(path==='/admin/tick')return json(await tick(env));
   if(path==='/admin/picks')return json(await runPicks(env,{budgetMs:120000}));
+  if(path==='/admin/picks-gate')return json(await gateCheck(env));
+  if(path==='/admin/picks-health')return json(await picksHealth(env));
   // Proves the create-only primitive on the real bucket: the second write of the same key must lose.
   if(path==='/admin/picks-selftest'){const k='picks/v1/selftest/'+Date.now()+'-'+crypto.randomUUID()+'.json';const a=await picksCreateOnly(env.RAW,k,{sha256:'a'});const [b,c]=await Promise.all([picksCreateOnly(env.RAW,k,{sha256:'b'}),env.RAW.put(k,'{"sha256":"c"}',{onlyIf:new Headers({'if-none-match':'*'})})]);const kept=JSON.parse(await (await env.RAW.get(k)).text());await env.RAW.delete(k);return json({key:k,first:a,second:b,raw_conditional_put_returned_null:c===null,kept_sha:kept.sha256,ok:a.created&&!b.created&&c===null&&kept.sha256==='a'});}
   if(path==='/admin/live-budget'){const day=url.searchParams.get('day')||new Date().toISOString().slice(0,10);return json(JSON.parse(await env.STATE.get('live:budget:'+day)||'null')||{day,ticks:null});}

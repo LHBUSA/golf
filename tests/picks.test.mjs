@@ -172,3 +172,35 @@ test('market snapshot is archived verbatim in the private bucket and referenced 
  assert.equal(lock.market.status,'captured');assert.equal(lock.market.comparability,'RULE_MISMATCH');assert.equal(env.RAW.m.get(lock.market.key),body);
  assert.ok(![...env.PUBLIC.m.keys()].some(k=>k.includes('market/')&&k.startsWith('picks')));
 });
+
+// ---- gate check + persistent health (owner 2026-10-09)
+import {gateCheck,picksHealth,healthAggregate} from '../workers/golf-ingest/src/picks-health.js';
+test('gate: NOT_READY until the model store, field, mapping and a sourced tee time exist; READY only before the cutoff',async()=>{
+ const env=envFixture();const now=new Date('2026-10-14T20:10:00Z');
+ let g=await gateCheck(env,now);assert.equal(g.state,'NOT_READY');assert.ok(g.failing.includes('model_store_complete'));
+ await runPicks(env,{now});// builds the store and locks (fixture: enabled)
+ // the locked edition drops out; recreate a fresh unlocked env with the built store to test READY
+ const env2=envFixture();env2.RAW.m.set('picks/v1/model/editions.json',env.RAW.m.get('picks/v1/model/editions.json'));
+ g=await gateCheck(env2,now);assert.equal(g.state,'READY',JSON.stringify(g.failing));assert.equal(g.edition.slug,ed.slug);
+ assert.equal((await gateCheck(env2,new Date('2026-10-14T23:05:00Z'))).state,'NOT_READY');
+ const noTee=envFixture();noTee.RAW.m.set('picks/v1/model/editions.json',env.RAW.m.get('picks/v1/model/editions.json'));
+ const s=JSON.parse(noTee.PUBLIC.m.get('live/v1/events/'+ed.slug+'.json'));s.players=s.players.map(p=>({...p,rounds:[]}));noTee.PUBLIC.m.set('live/v1/events/'+ed.slug+'.json',JSON.stringify(s));
+ assert.deepEqual((await gateCheck(noTee,now)).failing,['first_tee_sourced','before_lock_cutoff']);
+ const empty=envFixture();empty.RAW.m.set('picks/v1/model/editions.json',env.RAW.m.get('picks/v1/model/editions.json'));empty.PUBLIC.m.delete('live/v1/events/'+ed.slug+'.json');
+ assert.ok((await gateCheck(empty,now)).failing.includes('field_published'));
+});
+test('health: PASS on an intact lock, FAIL on tampered bytes, a lock after start, or a missing grade after the result; never writes the ledger',async()=>{
+ const env=envFixture();await runPicks(env,{now:new Date('2026-10-14T20:10:00Z')});
+ const before=[...env.RAW.m.entries()].filter(([k])=>/locks|grades/.test(k));
+ let h=await picksHealth({...env,PICKS_ENABLED:'0'},{now:new Date('2026-10-15T00:00:00Z')});
+ assert.equal(h.status,'PASS',JSON.stringify(h.fails));assert.equal(h.locks[0].seal_verified,true);assert.equal(h.locks[0].locked_before_start,true);
+ assert.equal(JSON.parse(await env.STATE.get('picks:status:v1')).status,'disabled');assert.ok(env.RAW.m.has('picks/v1/health/latest.json'));
+ assert.deepEqual([...env.RAW.m.entries()].filter(([k])=>/locks|grades/.test(k)),before,'health never touches locks or grades');
+ const agg=healthAggregate(h);assert.ok(!JSON.stringify(agg).match(/sha|p0|slug/));assert.equal(agg.locks,1);
+ // official result posted, no grade written (lane disabled) -> FAIL after 2 days
+ env.PUBLIC.m.set('projection/v2/editions/'+ed.slug+'.json',JSON.stringify({...env.target,status:'completed',coverage:'full_field',leaderboard:field(100)}));
+ h=await picksHealth({...env,PICKS_ENABLED:'0'},{now:new Date('2026-10-21T00:00:00Z'),write:false});assert.deepEqual(h.fails.map(f=>f.fail),['missing_grade_after_official_result']);
+ // tampered bytes
+ const k='picks/v1/locks/'+ed.slug+'.json',doc=JSON.parse(env.RAW.m.get(k));env.RAW.m.set(k,JSON.stringify({...doc,locked_at:'2026-10-15T01:00:00.000Z'}));
+ h=await picksHealth(env,{now:new Date('2026-10-15T02:00:00Z'),write:false});assert.ok(h.fails.some(f=>f.fail==='lock_hash_mismatch'));assert.ok(h.fails.some(f=>f.fail==='lock_not_before_start'));
+});
