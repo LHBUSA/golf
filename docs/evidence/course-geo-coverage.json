@@ -5,27 +5,27 @@
    "total": 267,
    "audited": 267,
    "full": 99,
-   "partial": 20,
-   "held": 115,
+   "partial": 21,
+   "held": 114,
    "no_routing": 33,
    "reviewed": 0,
    "scorecard_only": 7,
    "no_layout": 26,
    "unaudited": 0,
-   "exact": 135
+   "exact": 136
   },
   "pga": {
    "total": 144,
    "audited": 144,
    "full": 42,
-   "partial": 8,
-   "held": 89,
+   "partial": 9,
+   "held": 88,
    "no_routing": 5,
    "reviewed": 0,
    "scorecard_only": 2,
    "no_layout": 3,
    "unaudited": 0,
-   "exact": 51
+   "exact": 52
   },
   "lpga": {
    "total": 65,
@@ -4997,30 +4997,28 @@
   {
    "slug": "yokohama-country-club-ec11328",
    "name": "Yokohama Country Club",
-   "status": "held",
-   "decision": "review_auto_identity_insufficient",
+   "status": "partial",
+   "decision": "exact",
    "duplicate_of": null,
-   "auto_identity": {
-    "pass": false,
-    "checks": {
-     "exact": true,
-     "proven": 0,
-     "length_agree": 0,
-     "setup_table": true,
-     "name": true,
-     "shared_name": 0
-    },
-    "rule": "auto-identity-v1: exact + >=15 proven + >=15 setup-length agreements + name + no shared-name neighbour"
-   },
+   "auto_identity": null,
    "human_review": null,
    "setup_table": true,
    "candidate": "way/248384113",
-   "holes_mapped": 0,
-   "osm_course": "way/248384113",
+   "holes_mapped": 17,
+   "osm_course": "relation/2194674",
    "retrieved_at": "2026-10-03T13:18:36.654Z",
-   "cleared_by": null,
-   "par_conflicts": [],
-   "features": null
+   "cleared_by": "yokohama-2026-10-10",
+   "par_conflicts": [
+    9,
+    12
+   ],
+   "features": {
+    "fairway": 42,
+    "green": 43,
+    "tee": 79,
+    "bunker": 167,
+    "water": 7
+   }
   },
   {
    "slug": "adare-manor-hotel-golf-resort-ec11166",
@@ -6067,5 +6065,6 @@
    "par_conflicts": [],
    "features": null
   }
- ]
+ ],
+ "generated_at_note": "2026-10-10: yokohama-country-club-ec11328 row patched in place (golf#11); other rows unchanged from 2026-10-03T15:29:01.143Z"
 }
