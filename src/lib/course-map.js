@@ -36,7 +36,7 @@ export function resolveHoles(osmHoles,setupHoles=new Map()){
  const by=new Map();for(const h of valid){const n=Number(h.ref);by.set(n,[...(by.get(n)||[]),h]);}
  const accepted=[],rejected=[];
  for(const [n,c] of [...by].sort((a,b)=>a[0]-b[0])){
-  if(c.length===1){accepted.push({...c[0],hole:n,proof:'unique_ref'});continue;}
+  if(c.length===1){accepted.push({...c[0],hole:n,proof:c[0].proof||'unique_ref'});continue;}
   const s=setupHoles.get(n);const yd=s?.yards,par=s?.par;
   const ok=c.filter(h=>Number.isInteger(par)&&Number(h.par)===par&&Number.isInteger(yd)&&Math.abs(routeLengthM(h.coords)/0.9144-yd)/yd<=0.2);
   if(ok.length===1)accepted.push({...ok[0],hole:n,proof:'duplicate_ref_resolved_by_par_and_length'});else rejected.push({ref:n,candidates:c.length,reason:ok.length?'duplicate_ref_ambiguous':'duplicate_ref_no_par_length_match'});
@@ -155,7 +155,7 @@ export function holePanel(M,hole,{wind=null,today=null,live=null,measure=null,na
  if(hz){const n=hz.fairway_bunkers.left+hz.fairway_bunkers.right+hz.greenside_bunkers+hz.water.length;dna.push(['Hazards near the route',String(n),'mapped bunkers + water within 45 m of the verified route']);}
  if(wc)dna.push(['Wind exposure now',`${comp(wc.cross)} mph across · ${comp(wc.along)} mph along`,'current weather observation × verified bearing']);
  const dnaSec=dna.length?`<details class="cm-sec cm-dna"><summary>HOLE DNA <small>individual dimensions · no composite score</small></summary><dl class="cm-dl cm-dlrows">${dna.map(([k,v,b])=>`<div><dt>${e(k)}</dt><dd>${e(v)} <small>${e(b)}</small></dd></div>`).join('')}</dl></details>`:'';
- const route=h.geometry_status==='verified'?'':h.geometry_status==='withheld'?`<p class="cm-note">Hole ${h.hole} routing withheld pending identity verification.</p>`:tierOf(M)==='C'?'':`<p class="cm-note">Hole ${h.hole} routing is not mapped.</p>`;
+ const route=h.geometry_status==='verified'?'':h.geometry_status==='withheld'?`<p class="cm-note">${withheldText(h.hole,h.withheld_reason)}</p>`:tierOf(M)==='C'?'':`<p class="cm-note">Hole ${h.hole} routing is not mapped.</p>`;
  const prev=hole>1?hole-1:18,next=hole<18?hole+1:1;
  const id=[h.setup?.par!=null?`PAR ${e(h.setup.par)}`:null,h.setup?.yards!=null?`${e(h.setup.yards)} YDS`:null].filter(Boolean).join(' · ');
  return `<div class="cm-panel" data-cm-panel><p class="cm-k">HOLE ${h.hole}</p>${id?`<p class="cm-big">${id}</p>`:`<p class="cm-note">Hole par and yardage are not published for this setup.</p>`}${M.setup?`<p class="cm-sub">${e(yr)} CHAMPIONSHIP SETUP</p>`:''}${route}${sc}${dist}${courseSec}${distBlock(ts||es)}${w}${lv}${dnaSec}${nav?`<div class="cm-nav"><button type="button" data-cm-hole="${prev}" aria-label="Previous hole, ${prev}">◀ ${prev}</button><button type="button" data-cm-hole="${next}" aria-label="Next hole, ${next}">${next} ▶</button></div>`:''}</div>`;
@@ -204,7 +204,11 @@ export function scorecardTable(M){
 export function yardageBook(M){
  return `<div class="cm-book" role="group" aria-label="Hole par and yardage">${M.holes.map(h=>`<button type="button" class="cm-card" data-cm-hole="${h.hole}" aria-label="Hole ${h.hole}, par ${h.setup?.par??'unknown'}, ${h.setup?.yards??'unknown'} yards"><b>${h.hole}</b><span>PAR ${e(h.setup?.par??'—')}</span><small>${e(h.setup?.yards??'—')} YDS</small></button>`).join('')}</div>`;
 }
-const withheldNote=M=>(M.coverage?.withheld||[]).length?`<p class="cm-note cm-withheld">${M.coverage.withheld.map(w=>`Hole ${e(w.hole)} routing withheld pending identity verification.`).join(' ')}</p>`:'';
+// Why a mapped route is withheld. Identity/numbering holds share one sentence; a setup that changed after the hole was
+// mapped (tee or green moved) says so, because the mapped route is real but no longer the championship hole.
+const WITHHELD_WHY={setup_changed_after_mapping:'the championship tee and green were moved after this hole was mapped'};
+export const withheldText=(hole,reason)=>WITHHELD_WHY[reason]?`Hole ${e(hole)} routing withheld: ${WITHHELD_WHY[reason]}.`:`Hole ${e(hole)} routing withheld pending identity verification.`;
+const withheldNote=M=>(M.coverage?.withheld||[]).length?`<p class="cm-note cm-withheld">${M.coverage.withheld.map(w=>withheldText(w.hole,w.reason)).join(' ')}</p>`:'';
 const conflictNote=M=>{const c=M.geometry_metadata_conflicts||[],p=c.filter(x=>x.field==='par').map(x=>x.hole),l=c.filter(x=>x.field==='length').map(x=>x.hole);return (p.length?` OpenStreetMap tags list a different par on hole${p.length>1?'s':''} ${p.join(', ')}.`:'')+(l.length?` The mapped route on hole${l.length>1?'s':''} ${l.join(', ')} differs in length from the setup yardage.`:'')+(c.length?' Par and yardage shown come from the tournament setup.':'');};
 export function attributionLine(M){return tierOf(M)==='C'?'':`<p class="cm-attrib"><a href="${ATTRIBUTION.url}">© OpenStreetMap contributors</a> · course routing available under the <a href="${ATTRIBUTION.licence_url}">Open Database License</a> (<a href="/api/v1/open-data/course-routing">download</a>). Map geometry shows current mapping, not a historical setup.${e(conflictNote(M))}</p>`;}
 /**

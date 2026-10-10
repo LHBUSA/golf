@@ -50,3 +50,23 @@ test('reviewed identity: no coords -> held; evidence clears exactly its element;
  const missing=matchWithEvidence(noCoords,els,SH,{osm_course:'way/99',evidence_id:'e3',clears:['review_no_canonical_coords']});assert.notEqual(missing.decision,'exact');
  const notListed=matchWithEvidence(noCoords,els,SH,{osm_course:'way/1',evidence_id:'e4',clears:['review_multiple_containing']});assert.notEqual(notListed.decision,'exact','only listed decisions may be cleared');
 });
+// golf#11 composite routing (Yokohama: two club courses numbered 1-18 inside one boundary).
+test('reviewed crosswalk: composite routing maps club refs to championship holes; withheld hole kept off; incomplete -> review',async()=>{
+ const {matchWithEvidence}=await import('../workers/shared/course-geo.js');
+ const west=Array.from({length:18},(_,i)=>hole(2000+i,i+1,20.001+0.0005*i,10.002)),east=Array.from({length:18},(_,i)=>hole(3000+i,i+1,20.011+0.0005*i,10.002));
+ const els=[course(1,'横浜カントリークラブ',20,10),...west,...east],noCoords={...canon,name:'Yokohama Country Club',latitude:null,longitude:null};
+ // Without a crosswalk the duplicate refs cannot be resolved into a championship routing.
+ assert.notEqual(matchWithEvidence(noCoords,els,SH,{osm_course:'way/1',evidence_id:'x',clears:['review_no_canonical_coords']}).evidence.proven,18);
+ // Championship 1-16 = west 3..18, 17-18 = east 17-18.
+ const crosswalk=Object.fromEntries([...Array.from({length:16},(_,i)=>[i+1,'way/'+(2002+i)]),[17,'way/3016'],[18,'way/3017']]);
+ const ev={osm_course:'way/1',evidence_id:'yk',clears:['review_no_canonical_coords','review_weak_identity'],crosswalk,withhold:{18:'setup_changed_after_mapping'}};
+ const ok=matchWithEvidence(noCoords,els,SH,ev);
+ assert.equal(ok.decision,'exact');assert.equal(ok.state,'PARTIAL ROUTING');assert.equal(ok.evidence.proven,17);
+ assert.deepEqual(ok.evidence.accepted.map(h=>[h.hole,h.id,h.osm_ref,h.proof]).slice(0,1),[[1,'way/2002','3','reviewed_crosswalk']]);
+ assert.equal(ok.evidence.accepted.find(h=>h.hole===17).id,'way/3016');assert.equal(ok.evidence.accepted.find(h=>h.hole===18),undefined);
+ assert.deepEqual(ok.evidence.withheld,[{ref:18,candidates:1,reason:'setup_changed_after_mapping'}]);
+ // Same crosswalk when canonical coordinates exist: never falls back to ref matching.
+ const withCoords=matchWithEvidence({...noCoords,latitude:10.01,longitude:20.01},els,SH,ev);assert.equal(withCoords.decision,'exact');assert.equal(withCoords.evidence.accepted.find(h=>h.hole===1).id,'way/2002');
+ // An OSM edit that removes a listed way sends the whole course back to review.
+ const gone=matchWithEvidence(noCoords,els.filter(e=>e.id!==2005),SH,ev);assert.equal(gone.decision,'review_crosswalk_incomplete');assert.equal(gone.state,'REVIEW_OR_NONE');
+});

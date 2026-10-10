@@ -67,7 +67,7 @@ function setupFor(slug){const e=defaultEdition(edByCourse.get(slug));const d=e&&
 // centre lies inside it. Neighbouring courses inside the extract radius are never drawn or attached.
 const centre=g=>{const xs=g.map(p=>p.lon),ys=g.map(p=>p.lat);return [(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2];};
 const toOsm=(els,target,accepted)=>({course:{id:target.type+'/'+target.id,outer:outerRings(target).sort((a,b)=>b.length-a.length)[0]||[]},
- holes:(accepted||[]).map(h=>({id:h.id,ref:String(h.hole),par:h.par,coords:h.coords})),
+ holes:(accepted||[]).map(h=>({id:h.id,ref:String(h.hole),osm_ref:h.osm_ref??null,proof:h.proof,par:h.par,coords:h.coords})),
  features:els.filter(e=>e.type==='way'&&e.geometry&&(e.tags?.golf&&e.tags.golf!=='hole'||e.tags?.natural==='water')&&inside(centre(e.geometry),target)).map(f=>({id:'way/'+f.id,golf:f.tags.golf||null,natural:f.tags.natural||null,coords:f.geometry.map(p=>[p.lon,p.lat]),closed:f.geometry.length>3&&f.geometry[0].lat===f.geometry.at(-1).lat&&f.geometry[0].lon===f.geometry.at(-1).lon}))});
 
 const CANDIDATES=fs.existsSync(path.join(CACHE,'_candidates.json'))?JSON.parse(fs.readFileSync(path.join(CACHE,'_candidates.json'),'utf8')):{};
@@ -117,7 +117,7 @@ function prepare(){
    // ODbL derivative dataset (machine-readable, lon/lat, OSM ids): the routes we attached and the features we draw.
    const accepted=new Set(web.holes.filter(h=>h.source_feature_id).map(h=>h.source_feature_id));
    const gj={type:'FeatureCollection',license:'ODbL-1.0',license_url:ATTRIBUTION.licence_url,attribution:'© OpenStreetMap contributors',source:'https://www.openstreetmap.org/copyright',retrieved_at:r.retrieved_at,course:{slug:r.slug,name:r.name,osm_element:r.osm_course.id},
-    features:[...osm.holes.filter(h=>accepted.has(h.id)).map(h=>({type:'Feature',id:h.id,properties:{kind:'hole_route',hole:web.holes.find(x=>x.source_feature_id===h.id).hole,osm_ref:h.ref??null,osm_par:h.par??null},geometry:{type:'LineString',coordinates:h.coords}})),
+    features:[...osm.holes.filter(h=>accepted.has(h.id)).map(h=>({type:'Feature',id:h.id,properties:{kind:'hole_route',hole:web.holes.find(x=>x.source_feature_id===h.id).hole,osm_ref:h.osm_ref??h.ref??null,osm_par:h.par??null},geometry:{type:'LineString',coordinates:h.coords}})),
      ...osm.features.filter(f=>f.closed).map(f=>({type:'Feature',id:f.id,properties:{kind:f.golf||f.natural},geometry:{type:'Polygon',coordinates:[f.coords]}}))]};
    fs.writeFileSync(path.join(OUT,'dataset',r.slug+'.geojson'),JSON.stringify(gj));r.dataset_bytes=Buffer.byteLength(JSON.stringify(gj));}
  }

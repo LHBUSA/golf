@@ -118,3 +118,24 @@ test('target label: dark chip in on-screen units, kept inside the viewBox, meani
  }
  assert.doesNotMatch(fs.readFileSync(new URL('../src/course-map.css',import.meta.url),'utf8').match(/\.cm-tg text\{[^}]*\}/)[0],/stroke-width/,'no fixed-unit halo on the label');
 });
+test('withheld routes say why: setup moved after mapping vs identity hold',async()=>{
+ const {withheldText}=await import('../src/lib/course-map.js');
+ assert.equal(withheldText(18,'setup_changed_after_mapping'),'Hole 18 routing withheld: the championship tee and green were moved after this hole was mapped.');
+ assert.equal(withheldText(7,'routing_numbering_differs_from_setup'),'Hole 7 routing withheld pending identity verification.');
+});
+// golf#11: Yokohama CC composite routing (reviewed crosswalk), real prepared payload; 2026 setup as stored (ESPN).
+test('Yokohama: reviewed composite routing PARTIAL 17/18, 18th withheld because the 2026 tee/green moved after mapping',async()=>{
+ const Y='yokohama-country-club-ec11328',YK=fx('course-map-yokohama.json');
+ const card=[[4,475],[4,418],[3,168],[5,536],[4,436],[5,529],[3,182],[4,357],[4,432],[4,431],[4,510],[4,458],[4,337],[4,508],[4,387],[3,237],[4,439],[4,475]];
+ const ed={slug:'baycurrent-classic-q60987711-2026',year:2026,name:'2026 Baycurrent Classic',layout:{label:'2026 Baycurrent Classic setup',par:71,yardage:7315,holes:card.map(([par,yards],i)=>({hole:i+1,par,yards}))},leaderboard:[]};
+ const yix={courses:[{slug:Y,name:'Yokohama Country Club'}],editions:[{slug:ed.slug,year:2026,name:ed.name,starts_on:'2026-10-08',status:'in_progress',coverage:'full_field',course:{slug:Y}}]};
+ const M=(await courseMap(envOf({['osm-routing/v1/courses/'+Y+'.json']:YK,['projection/v2/editions/'+ed.slug+'.json']:ed}),yix,Y,null,new Date('2026-10-10T12:00:00Z'))).body;
+ assert.equal(tierOf(M),'B');assert.equal(M.coverage.holes_mapped,17);assert.equal(M.source.identity.cleared_by,'yokohama-2026-10-10');
+ const h18=M.holes.find(h=>h.hole===18);assert.equal(h18.geometry_status,'withheld');assert.equal(h18.route,null);assert.equal(h18.setup.yards,475);
+ assert.ok(M.holes.filter(h=>h.hole<18).every(h=>h.route&&h.geometry_status==='verified'));
+ const mod=courseMapModule(M,{mode:'cast',current:18});
+ assert.match(mod,/17 OF 18 HOLE ROUTES VERIFIED/);assert.match(mod,/Hole 18 routing withheld: the championship tee and green were moved after this hole was mapped/);
+ assert.equal((courseMapSvg(M).match(/class="cm-route/g)||[]).length,17);assert.doesNotMatch(courseMapSvg(M),/data-hole="18"/);
+ assert.match(mod,/different par on holes 9, 12\./);assert.match(mod,/© OpenStreetMap contributors/);
+ assert.match(holePanel(M,18),/tee and green were moved/);
+});

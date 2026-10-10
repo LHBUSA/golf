@@ -22,6 +22,26 @@ export const IDENTITY_EVIDENCE=[
    'LPGA (lpga.com, 2022): Hoakalei Country Club hosts the LOTTE Championship; our 2026 LOTTE Championship edition names Hoakalei Country Club',
    'Within 6 km the only other OSM courses are differently named (Coral Creek, Ewa Beach Golf Club, Hawaii Prince, Kapolei, West Loch, Ewa Villages) plus one unnamed polygon (way/221300526) that contains 0 hole ways and does not overlap Hoakalei (0/25 vertices inside)',
    'Exactly 18 golf=hole ways with unique refs 1-18 lie inside the relation boundary (11 others within 2 km belong to neighbouring courses)']},
+ {slug:'yokohama-country-club-ec11328',evidence_id:'yokohama-2026-10-10',osm_course:'relation/2194674',
+  // No canonical coordinates on our side; locate at the Wikidata Q11542847 point (ja.wikipedia agrees). The name is
+  // Japanese-only in OSM, so name scoring cannot confirm it; identity rests on the wikidata tag + hole evidence below.
+  locate:{lat:35.445972,lon:139.548972},clears:['review_no_canonical_coords','review_weak_identity'],
+  decided:'2026-10-10 (owner GO, golf#11: connect the verified Baycurrent Classic routing)',
+  // Composite championship routing (club West + East courses in one OSM boundary, both numbered 1-18): championship hole
+  // -> OSM golf=hole way. West 2 and West 3 are not used. Club refs are kept as osm_ref in the ODbL dataset.
+  crosswalk:{1:'way/1441603126',2:'way/1437063187',3:'way/1441603793',4:'way/1437065629',5:'way/1441604888',6:'way/1441605695',7:'way/1437060907',8:'way/1441604882',9:'way/1437063725',
+   10:'way/1436094748',11:'way/1441597932',12:'way/1441597941',13:'way/1437061094',14:'way/1441599747',15:'way/1441603118',16:'way/1437065636',17:'way/1442826044',18:'way/1442828482'},
+  // 2026: the 18th tee and green were relocated (PGA TOUR, 2026-10-05). The OSM route (way/1442828482 v1, 2025-10-17)
+  // predates that, so it is not drawn as the championship 18th until the mapping is updated and re-reviewed.
+  withhold:{18:'setup_changed_after_mapping'},
+  evidence:[
+   'OSM relation/2194674 name "横浜カントリークラブ", wikidata=Q11542847, wikipedia=ja:横浜カントリークラブ; Wikidata Q11542847 P625 35.445972,139.548972 (Hodogaya-ku, Yokohama). Not Q8054619 (Yokohama Country & Athletic Club).',
+   'The earlier auto candidate way/248384113 (YOKOHAMA SPORTS COMPLEX driving range) was correctly rejected (0 holes) and is not used.',
+   'Inside the relation: 36 golf=hole ways = two complete 1-18 sets (western set = West course, eastern set = East course); all hole ways mapped 2025-10-12..17 (v1).',
+   'Crosswalk (Golf Digest Minna, 2025-10-07, golfdigest-minna.jp/_ct/17794285): championship 1-9 = West 10-18, 10-16 = West 1 and West 4-9 (West 2/3 dropped), 17-18 = East 17-18. PGA TOUR facts & figures 2026-10-06: "combines 16 holes from the West Course and two holes from the East Course"; Power Rankings 2026-10-05: closing pair of par 4s "commissioned from the East Course", +7 yards all at the 18th.',
+   'Geometry agreement with the 2026 PGA TOUR card (course-stats R2026527): all 18 mapped routes within 25% of setup yards (W16 182/182, W8 387/387, W6 336/337, W9 230/237, W13 525/536); the three par 3s fall exactly on championship 3, 7, 16.',
+   'Routing coherence: green-to-next-tee 40-163 m for every consecutive pair except the clubhouse turn (9->10 220 m, 18->1 207 m) and the West->East crossover (16->17 326 m).',
+   'OSM par tags differ on championship 9, 12 and 18 (club par 5s played as par 4s): metadata conflicts only; setup par/yardage come from tournament sources.']},
 ];
 // Canonical duplicates proven to be the same physical course. The duplicate never takes geometry (and never holds the
 // primary's geometry hostage); the identity merge itself is a database operation prepared in docs/evidence.

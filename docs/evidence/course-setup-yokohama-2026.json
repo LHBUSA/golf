@@ -1,0 +1,17 @@
+{
+ "issue": "golf#11",
+ "course": "yokohama-country-club-ec11328",
+ "edition": "baycurrent-classic-q60987711-2026",
+ "checked_at": "2026-10-10",
+ "stored": {"source": "ESPN event course (2026 layout row)", "par": 71, "yardage": 7315, "front": 3533, "back": 3782, "hole_18_yards": 475},
+ "official_2026": {"par": 71, "yardage": 7322, "front": 3533, "back": 3789, "hole_18_yards": 482,
+  "holes": [[4,475],[4,418],[3,168],[5,536],[4,436],[5,529],[3,182],[4,357],[4,432],[4,431],[4,510],[4,458],[4,337],[4,508],[4,387],[3,237],[4,439],[4,482]],
+  "sources": [
+   {"url": "https://www.pgatour.com/tournaments/2026/baycurrent-classic/R2026527/course-stats", "note": "2026 event (Oct 8-11, 2026) scorecard: Out 36/3533, In 35/3789, Total 71/7322, hole 18 par 4 482"},
+   {"url": "https://www.pgatour.com/article/news/power-rankings/2026/10/05/rankings-baycurrent-classic-yokohama-country-club-odds-betting-fantasy-picks", "quote": "Length is capped at 7,322 yards ... an increase of seven yards over 2025, all of which at the 18th hole, where both the tee and green were relocated to accommodate fans at the finish line."},
+   {"url": "https://www.pgatour.com/article/news/latest/2026/10/06/baycurrent-classic-facts-and-figures-yokohama-country-club-yokohama-2026", "quote": "Par: 71 ... Yardage: 7,322 yards ... combines 16 holes from the West Course and two holes from the East Course."}]},
+ "finding": "Stored 2026 layout carries the 2025 card (7,315; 18 = 475; 2025 card per golfdigest-minna.jp/_ct/17794285 and PGA TOUR 2025-10-08). Only hole 18 differs; holes 1-17 and par match.",
+ "proposed_correction": {"table": "golf_course_layouts + golf_holes", "scope": "2026 Baycurrent Classic layout row only (never the 2025 row)", "changes": {"layout.yardage": [7315, 7322], "hole 18 yardage": [475, 482]}, "valid_from": "2026-10-08"},
+ "status": "NOT APPLIED. The canonical writer only accepts captures from APPROVED automated sources (DB rule 'unapproved capture'); PGA TOUR remains a HOLD source for Golf. Applying needs an owner decision to approve pgatour.com as a cited evidence source for published championship scorecards (or an approved source that publishes the 2026 card).",
+ "routing_link": "Hole 18 routing is withheld for the same reason the yardage changed: the OSM route (way/1442828482 v1, 2025-10-17) predates the 2026 tee/green relocation."
+}
