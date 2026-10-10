@@ -21,7 +21,8 @@ test('verified/partial routing remains eligible',()=>{
  assert.equal(canShowCoursePanel({...M,geometry:{bounds:[0,0,1,1]}}),true);
 });
 
-// Production payload (2026-10-10): sourced 2026 setup, no OSM routing.
+// Production payload captured 2026-10-10 BEFORE Yokohama routing went live (golf#11 / #13): kept as the canonical
+// tier-C (setup, no routing) example. Production now serves PARTIAL 17/18 for this course.
 const prod=JSON.parse(readFileSync(new URL('./fixtures/course-map-yokohama-2026.json',import.meta.url),'utf8'));
 test('Baycurrent production payload: scorecard-only Course View, no map, no OSM credit',()=>{
  assert.equal(prod.geometry,null);
@@ -32,4 +33,20 @@ test('Baycurrent production payload: scorecard-only Course View, no map, no OSM 
  assert.equal((h.match(/<th scope="col">\d+<\/th>/g)||[]).length,18);
  assert.match(h,/7,315/);
  assert.doesNotMatch(h,/<svg|OpenStreetMap|cm-current/);
+});
+
+// golf#18: a failed /map answer must not be memoised for the whole session (the panel could never appear).
+test('fetchCourseMap: non-OK and network failures are retried; OK answers are memoised per course+edition',async()=>{
+ const {fetchCourseMap}=await import('../src/lib/course-map-live.js');const calls=[];const real=globalThis.fetch;
+ let mode='500';globalThis.fetch=async u=>{calls.push(u);if(mode==='net')throw new Error('offline');return mode==='500'?{ok:false,json:async()=>null}:{ok:true,json:async()=>({setup:{year:2026}})};};
+ try{
+  assert.equal(await fetchCourseMap('x-course','ed-1'),null);mode='net';assert.equal(await fetchCourseMap('x-course','ed-1'),null);
+  mode='ok';assert.deepEqual(await fetchCourseMap('x-course','ed-1'),{setup:{year:2026}});await fetchCourseMap('x-course','ed-1');
+  assert.equal(calls.length,3);assert.match(calls[0],/\/api\/v1\/courses\/x-course\/map\?edition=ed-1$/);
+ }finally{globalThis.fetch=real;}
+});
+test('hole-linked live events promise only what every course can do: show the hole (map or golfer panel)',async()=>{
+ const {pulseList}=await import('../src/lib/cast-v3.js');
+ const h=pulseList([{t:'2026-10-10T10:00:00Z',text:'Birdie at 7',hole:7,keys:['p1'],who:[]}]);
+ assert.match(h,/aria-label="[^"]*Show hole 7"/);assert.doesNotMatch(h,/Course View/);assert.match(h,/data-pulse-hole="7"/);
 });

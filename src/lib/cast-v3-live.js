@@ -82,7 +82,10 @@ export const canShowCoursePanel=M=>Boolean(M&&(M.geometry||M.setup));
 function syncMap(s,{refocus=false}={}){
  if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));s.map.setContext(mapCtx(s));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));return;}
  const slug=s.ev?.course?.slug;if(!slug||s.mapReq)return;
- s.mapReq=fetchCourseMap(slug).then(M=>{if(!canShowCoursePanel(M)||!s.root.isConnected)return;
+ // The live edition's own setup (golf#18), falling back to the course default when that edition is not selectable.
+ // No usable answer -> allow one retry a minute later instead of giving up for the session.
+ const ed=s.ev?.edition?.slug||null;
+ s.mapReq=fetchCourseMap(slug,ed).then(M=>M||(ed?fetchCourseMap(slug):null)).then(M=>{if(!canShowCoursePanel(M)){if(!M)setTimeout(()=>{if(!s.map)s.mapReq=null;},60000);return;}if(!s.root.isConnected)return;
   s.cmapEl.hidden=false;
   s.map=mountCourseMap(s.cmapEl,M,{mode:'cast',current:curHole(s),wind:windOf(s.weather),focus:s.selHole??(narrow()?curHole(s):null),
    onSelect:h=>{s.selHole=h;renderFocus(s);if(h!=null)s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.classList.add('is-on');}});

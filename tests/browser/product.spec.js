@@ -114,7 +114,8 @@ for(const width of [390,1440])test(`PBEcast Course View ${width}: Baycurrent sco
  else{await expect(C.locator('.cm-svg')).toBeVisible();await expect(C.locator('.cm-attrib')).toContainText('OpenStreetMap');}
  // A hole-linked live event scrolls to the golfer panel when the course view cannot show that hole (scorecard only).
  const ev=page.locator('[data-pulse-hole]').first();
- if(tier==='C'&&await ev.count()){await ev.click();await page.waitForTimeout(700);const vis=await page.locator('[data-cv3-focus]').evaluate(el=>{const r=el.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;});expect(vis).toBe(true);}
+ if(tier==='C'&&await ev.count()){await ev.click();await page.waitForTimeout(700);const top=await page.locator('[data-cv3-focus]').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=-1&&r.top<innerHeight;});expect(top).toBe(true);}
+ else test.info().annotations.push({type:'skipped-check',description:'event-tap scroll: course is mapped or no hole-linked live event right now'});
  const ov=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,w:innerWidth}));expect(ov.scroll).toBeLessThanOrEqual(ov.w);
  expect(await page.locator('[style]').count()).toBe(0);
  const axe=await new AxeBuilder({page}).include('[data-cv3-cmap]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);

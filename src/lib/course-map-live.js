@@ -6,7 +6,7 @@ import {measureYards} from './hole-intel.js';
 
 const memo=new Map();
 export function fetchCourseMap(slug,edition=null){
- const k=slug+'|'+(edition||'');if(!memo.has(k))memo.set(k,fetch('/api/v1/courses/'+encodeURIComponent(slug)+'/map'+(edition?'?edition='+encodeURIComponent(edition):''),{signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>{memo.delete(k);return null;}));
+ const k=slug+'|'+(edition||'');if(!memo.has(k))memo.set(k,fetch('/api/v1/courses/'+encodeURIComponent(slug)+'/map'+(edition?'?edition='+encodeURIComponent(edition):''),{signal:AbortSignal.timeout(10000)}).then(r=>{if(r.ok)return r.json();memo.delete(k);return null;}).catch(()=>{memo.delete(k);return null;}));
  return memo.get(k);
 }
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
