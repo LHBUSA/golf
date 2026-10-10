@@ -223,6 +223,8 @@ figure{margin:0}figcaption{font-size:10px;line-height:1.5;color:var(--muted);mar
 .live-card b{font:400 19px/1.2 var(--serif)}
 .live-card .live-badge{justify-self:start;font-size:10px;padding:6px 9px}
 .lc-lead{font-weight:700}
+/* Reserved live-layer boxes (src/lib/live-slots.js): same line boxes as the live paint, no visible content. */
+.live-skel{visibility:hidden}
 .live-card small{opacity:.7}
 .live-card .micro-label{color:#c8aa68}
 .live-board-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:12px}
