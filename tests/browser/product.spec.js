@@ -123,4 +123,3 @@ for(const width of [390,1440])test(`PBEcast Course View ${width}: Baycurrent sco
  await expect(page.locator('[data-cv3-cmap] .cm-svg')).toBeVisible();await expect(page.locator('[data-cv3-cmap] .cm-attrib')).toContainText('OpenStreetMap');
  expect(errors).toEqual([]);
 });
-

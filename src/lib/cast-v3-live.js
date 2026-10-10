@@ -92,7 +92,7 @@ function syncMap(s,{refocus=false}={}){
  const slug=s.ev?.course?.slug,ed=s.ev?.edition?.slug||null;
  if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));s.map.setContext(mapCtx(s));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));
   // Mounted on the fallback: re-check the live edition at most once a minute; switch once it carries a hole table.
-  if(ed&&s.mapEdition!==ed&&!s.edCheck&&Date.now()-(s.edCheckedAt||0)>60000){s.edCheckedAt=Date.now();s.edCheck=fetchCourseMap(slug,ed).then(M=>{s.edCheck=null;if(hasHoleTable(M)&&s.map){s.map.update(M);s.mapEdition=ed;}});}
+  if(ed&&s.mapEdition!==ed&&!s.edCheck&&Date.now()-(s.edCheckedAt||0)>60000){s.edCheckedAt=Date.now();s.edCheck=fetchCourseMap(slug,ed,{fresh:true}).then(M=>{s.edCheck=null;if(hasHoleTable(M)&&s.map){s.map.update(M);s.mapEdition=ed;}});}
   return;}
  if(!slug||s.mapReq)return;
  // The live edition's own setup (golf#18) when it has a hole table, else the course default. No usable answer -> one

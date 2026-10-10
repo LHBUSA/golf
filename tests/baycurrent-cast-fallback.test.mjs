@@ -62,3 +62,8 @@ test('chooseCourseMap: live edition only when it has a hole table; else the defa
  assert.equal(chooseCourseMap({geometry:null,setup:null,holes:[]},null),null);
  const noTableDefault={setup:{edition:'x'},geometry:null,holes:[]};assert.equal(chooseCourseMap(live,noTableDefault),live);
 });
+test('fetchCourseMap fresh:true bypasses the session memo (live-edition re-check can see a newly published table)',async()=>{
+ const {fetchCourseMap}=await import('../src/lib/course-map-live.js');const real=globalThis.fetch;let n=0;
+ globalThis.fetch=async()=>({ok:true,json:async()=>({v:++n})});
+ try{assert.deepEqual(await fetchCourseMap('fresh-c','e'),{v:1});assert.deepEqual(await fetchCourseMap('fresh-c','e'),{v:1});assert.deepEqual(await fetchCourseMap('fresh-c','e',{fresh:true}),{v:2});}finally{globalThis.fetch=real;}
+});
