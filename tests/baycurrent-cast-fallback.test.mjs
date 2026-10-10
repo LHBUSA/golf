@@ -50,3 +50,15 @@ test('hole-linked live events promise only what every course can do: show the ho
  const h=pulseList([{t:'2026-10-10T10:00:00Z',text:'Birdie at 7',hole:7,keys:['p1'],who:[]}]);
  assert.match(h,/aria-label="[^"]*Show hole 7"/);assert.doesNotMatch(h,/Course View/);assert.match(h,/data-pulse-hole="7"/);
 });
+// golf#18 review: an explicit live edition without a published hole table must not strip a mapped course's par/yardage.
+test('chooseCourseMap: live edition only when it has a hole table; else the default; bare edition only as last resort',async()=>{
+ const {chooseCourseMap}=await import('../src/lib/cast-v3-live.js');
+ const table=(ed,par)=>({setup:{edition:ed},geometry:{bounds:[0,0,1,1]},holes:Array.from({length:18},(_,i)=>({hole:i+1,setup:{edition:ed,par,yards:par?400:null}}))});
+ const live=table('open-2026',null),prior=table('open-2017',4),liveT=table('open-2026',4);
+ assert.equal(chooseCourseMap(liveT,prior),liveT,'live edition with a table wins');
+ assert.equal(chooseCourseMap(live,prior),prior,'200 without a table falls back to the default (U.S. Open / The Open / Evian case)');
+ assert.equal(chooseCourseMap(null,prior),prior,'404 / failure falls back');
+ assert.equal(chooseCourseMap(live,null),live,'nothing better: the honest bare setup');
+ assert.equal(chooseCourseMap({geometry:null,setup:null,holes:[]},null),null);
+ const noTableDefault={setup:{edition:'x'},geometry:null,holes:[]};assert.equal(chooseCourseMap(live,noTableDefault),live);
+});

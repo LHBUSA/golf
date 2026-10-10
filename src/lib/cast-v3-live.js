@@ -25,7 +25,7 @@ function mount(host,slug){
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
   // Scoring Pulse event with a proven hole -> select that golfer and focus that hole (map + scorecard).
-  if(t.dataset.pulseKey){const h=t.dataset.pulseHole?Number(t.dataset.pulseHole):null,k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);if(h==null){return;}s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.map&&s.map.tier!=='C'?s.cmapEl:s.focus).scrollIntoView?.({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
+  if(t.dataset.pulseKey){const h=t.dataset.pulseHole?Number(t.dataset.pulseHole):null,k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);if(h==null){return;}s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.map&&s.map.tier!=='C'?s.cmapEl:s.focus).scrollIntoView?.({block:s.map&&s.map.tier!=='C'?'nearest':'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
   if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.map?.setFocus(s.selHole??(narrow()?curHole(s):null));s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
   if(t.dataset.cv3Filter){s.filter=t.dataset.cv3Filter;renderTimeline(s);return;}
   if(t.dataset.cv3Series){const k=t.dataset.cv3Series;if((s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);return;}
@@ -76,16 +76,29 @@ const windOf=w=>w&&Number.isFinite(w.wind_from_deg)?{from_deg:w.wind_from_deg,di
 // A sourced championship setup is still worth showing when physical routing is not: courseMapModule renders its
 // scorecard-only Level C state (no SVG, no OSM attribution) until routing is verified.
 export const canShowCoursePanel=M=>Boolean(M&&(M.geometry||M.setup));
+const hasHoleTable=M=>Boolean(M?.holes?.some(h=>h.setup?.par!=null));
+/** golf#18: the live edition's setup when it carries a hole table; otherwise the course default (latest started edition
+ * with a table, labelled with its own year) so a mapped course never loses par/yardage; the bare live-edition answer
+ * only when nothing better exists. */
+export function chooseCourseMap(edM,defM){
+ if(hasHoleTable(edM))return edM;
+ if(canShowCoursePanel(defM)&&(hasHoleTable(defM)||!canShowCoursePanel(edM)))return defM;
+ return canShowCoursePanel(edM)?edM:canShowCoursePanel(defM)?defM:null;
+}
 
 // PBEcast Course View: the real routing of the course being played (when mapped). Highlights the selected golfer's
 // current hole as a whole route; map and scorecard selections drive each other. No golfer, ball or position marker.
 function syncMap(s,{refocus=false}={}){
- if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));s.map.setContext(mapCtx(s));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));return;}
- const slug=s.ev?.course?.slug;if(!slug||s.mapReq)return;
- // The live edition's own setup (golf#18), falling back to the course default when that edition is not selectable.
- // No usable answer -> allow one retry a minute later instead of giving up for the session.
- const ed=s.ev?.edition?.slug||null;
- s.mapReq=fetchCourseMap(slug,ed).then(M=>M||(ed?fetchCourseMap(slug):null)).then(M=>{if(!canShowCoursePanel(M)){if(!M)setTimeout(()=>{if(!s.map)s.mapReq=null;},60000);return;}if(!s.root.isConnected)return;
+ const slug=s.ev?.course?.slug,ed=s.ev?.edition?.slug||null;
+ if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));s.map.setContext(mapCtx(s));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));
+  // Mounted on the fallback: re-check the live edition at most once a minute; switch once it carries a hole table.
+  if(ed&&s.mapEdition!==ed&&!s.edCheck&&Date.now()-(s.edCheckedAt||0)>60000){s.edCheckedAt=Date.now();s.edCheck=fetchCourseMap(slug,ed).then(M=>{s.edCheck=null;if(hasHoleTable(M)&&s.map){s.map.update(M);s.mapEdition=ed;}});}
+  return;}
+ if(!slug||s.mapReq)return;
+ // The live edition's own setup (golf#18) when it has a hole table, else the course default. No usable answer -> one
+ // retry a minute later instead of giving up for the session.
+ s.mapReq=Promise.all([ed?fetchCourseMap(slug,ed):null,fetchCourseMap(slug)]).then(([edM,defM])=>{const M=chooseCourseMap(edM,defM);
+  if(!M){setTimeout(()=>{if(!s.map)s.mapReq=null;},60000);return;}if(!s.root.isConnected)return;s.mapEdition=M.setup?.edition===ed&&hasHoleTable(M)?ed:null;s.edCheckedAt=Date.now();
   s.cmapEl.hidden=false;
   s.map=mountCourseMap(s.cmapEl,M,{mode:'cast',current:curHole(s),wind:windOf(s.weather),focus:s.selHole??(narrow()?curHole(s):null),
    onSelect:h=>{s.selHole=h;renderFocus(s);if(h!=null)s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.classList.add('is-on');}});
