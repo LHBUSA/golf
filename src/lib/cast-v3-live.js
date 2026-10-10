@@ -73,12 +73,12 @@ function render(s){
 function row(s){return (s.ev.leaderboard||[]).find(x=>key(x)===s.selected);}
 function curHole(s){return currentHole(row(s));}
 const windOf=w=>w&&Number.isFinite(w.wind_from_deg)?{from_deg:w.wind_from_deg,dir:w.wind_dir,mph:w.wind_mph,precision:w.precision}:null;
-// PBEcast Course View: the real routing of the course being played (when mapped). Highlights the selected golfer's
+// A real 18-hole championship setup is still worth showing when physical routing is not sourced.\n// courseMapModule already renders its honest scorecard-only Level C fallback.\nexport const canShowCoursePanel = M => Boolean(M && (M.geometry || M.setup));\n\n// PBEcast Course View: the real routing of the course being played (when mapped). Highlights the selected golfer's
 // current hole as a whole route; map and scorecard selections drive each other. No golfer, ball or position marker.
 function syncMap(s,{refocus=false}={}){
  if(s.map){s.map.setCurrent(curHole(s));s.map.setWind(windOf(s.weather));s.map.setContext(mapCtx(s));if(refocus)s.map.setFocus(s.selHole??(narrow()?curHole(s):null));return;}
  const slug=s.ev?.course?.slug;if(!slug||s.mapReq)return;
- s.mapReq=fetchCourseMap(slug).then(M=>{if(!M||!M.geometry||!s.root.isConnected)return;
+ s.mapReq=fetchCourseMap(slug).then(M=>{if(!canShowCoursePanel(M)||!s.root.isConnected)return;
   s.cmapEl.hidden=false;
   s.map=mountCourseMap(s.cmapEl,M,{mode:'cast',current:curHole(s),wind:windOf(s.weather),focus:s.selHole??(narrow()?curHole(s):null),
    onSelect:h=>{s.selHole=h;renderFocus(s);if(h!=null)s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.classList.add('is-on');}});
