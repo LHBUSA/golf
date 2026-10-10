@@ -108,9 +108,13 @@ const BAYCURRENT='/pbecast?tournament=baycurrent-classic-q60987711-2026';
 for(const width of [390,1440])test(`PBEcast Course View ${width}: Baycurrent scorecard-only, Bank of Utah mapped`,async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.setViewportSize({width,height:900});await page.goto(BAYCURRENT,{waitUntil:'networkidle'});
- const C=page.locator('[data-cv3-cmap]');await expect(C).toBeVisible();await expect(C.locator('[data-course-map]')).toHaveAttribute('data-tier','C');
- await expect(C.locator('.cm-sc th[scope=col]')).toHaveCount(20);
- expect(await C.locator('svg').count()).toBe(0);expect(await C.innerText()).not.toMatch(/OpenStreetMap/);
+ const C=page.locator('[data-cv3-cmap]');await expect(C).toBeVisible();const tier=await C.locator('[data-course-map]').getAttribute('data-tier');
+ // Scorecard-only until routing is verified; once mapped, a drawn map with OSM credit (never both, never neither).
+ if(tier==='C'){await expect(C.locator('.cm-sc th[scope=col]')).toHaveCount(20);expect(await C.locator('svg').count()).toBe(0);expect(await C.innerText()).not.toMatch(/OpenStreetMap/);}
+ else{await expect(C.locator('.cm-svg')).toBeVisible();await expect(C.locator('.cm-attrib')).toContainText('OpenStreetMap');}
+ // A hole-linked live event scrolls to the golfer panel when the course view cannot show that hole (scorecard only).
+ const ev=page.locator('[data-pulse-hole]').first();
+ if(tier==='C'&&await ev.count()){await ev.click();await page.waitForTimeout(700);const vis=await page.locator('[data-cv3-focus]').evaluate(el=>{const r=el.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;});expect(vis).toBe(true);}
  const ov=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,w:innerWidth}));expect(ov.scroll).toBeLessThanOrEqual(ov.w);
  expect(await page.locator('[style]').count()).toBe(0);
  const axe=await new AxeBuilder({page}).include('[data-cv3-cmap]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);

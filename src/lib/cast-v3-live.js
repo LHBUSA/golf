@@ -25,7 +25,7 @@ function mount(host,slug){
  root.addEventListener('click',ev=>{const t=ev.target.closest?.('button');if(!t||!root.contains(t))return;
   if(t.dataset.cv3Pick){select(s,t.dataset.cv3Pick);return;}
   // Scoring Pulse event with a proven hole -> select that golfer and focus that hole (map + scorecard).
-  if(t.dataset.pulseKey){const h=t.dataset.pulseHole?Number(t.dataset.pulseHole):null,k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);if(h==null){return;}s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.cmapEl&&!s.cmapEl.hidden?s.cmapEl:s.focus).scrollIntoView?.({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
+  if(t.dataset.pulseKey){const h=t.dataset.pulseHole?Number(t.dataset.pulseHole):null,k=t.dataset.pulseKey;if(k&&(s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);if(h==null){return;}s.selHole=h;renderFocus(s);s.map?.setFocus(h);(s.map&&s.map.tier!=='C'?s.cmapEl:s.focus).scrollIntoView?.({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
   if(t.dataset.cv3Hole){const h=Number(t.dataset.cv3Hole);s.selHole=s.selHole===h?null:h;renderFocus(s);s.map?.setFocus(s.selHole??(narrow()?curHole(s):null));s.focus.querySelector(`[data-cv3-hole="${h}"]`)?.focus();return;}
   if(t.dataset.cv3Filter){s.filter=t.dataset.cv3Filter;renderTimeline(s);return;}
   if(t.dataset.cv3Series){const k=t.dataset.cv3Series;if((s.ev.leaderboard||[]).some(x=>key(x)===k))select(s,k);return;}
