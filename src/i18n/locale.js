@@ -20,9 +20,13 @@ export const isAcquisition = locale => ACQUISITION_LOCALES.includes(locale);
 export const golfLocale = (ready = ['en']) => createLocale({ ready, site: SITE, catalogs: CATALOGS, skip: SKIP });
 
 // The network All Access page. Japanese and Korean readers go to its localized edition on the main site (tagged
-// ?via=golf); Spanish keeps the English page.
+// ?via=golf). Spanish keeps the English page (no public /es/pro yet) but is tagged ?lang=es&via=golf, so the /pro
+// checkout carries locale=es + client_reference_id=pbe-es-pro-golf on the SAME Payment Link (Global #67, M1;
+// propbetedge-news-site src/global/attribution.js). English is unchanged.
 export const NETWORK_PRO = 'https://propbetedge.ai/pro';
-export const networkProUrl = locale => (isAcquisition(locale) ? `https://propbetedge.ai/${locale}/pro?via=golf` : NETWORK_PRO);
+export const ATTRIBUTED_EN_PRO_LOCALES = Object.freeze(['es']);
+export const networkProUrl = locale => (isAcquisition(locale) ? `https://propbetedge.ai/${locale}/pro?via=golf`
+  : ATTRIBUTED_EN_PRO_LOCALES.includes(locale) ? `${NETWORK_PRO}?lang=${locale}&via=golf` : NETWORK_PRO);
 // The legal disclosure each acquisition language links in its footer (main-site pages).
 export const LEGAL_FOOTER = Object.freeze({
   ja: Object.freeze({ label: '特定商取引法に基づく表記', href: 'https://propbetedge.ai/ja/legal/tokushoho' }),
