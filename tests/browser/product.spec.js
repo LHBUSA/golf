@@ -102,3 +102,19 @@ test('Round Replay: an unmapped course keeps the labelled reconstruction and no 
  await expect(R.locator('[data-rc-hole]')).toHaveCount(18);await expect(R.locator('[data-rc-recon]')).toBeVisible();await expect(R.locator('[data-rc-real]')).toBeHidden();
  await expect(R.locator('[data-rc-attr]')).toBeHidden();await expect(R.locator('[data-rc-note]')).toContainText('generic reconstruction');
 });
+
+// ---- golf#11: a sourced setup with no verified routing still gets a Course View (scorecard only, never a drawn map).
+const BAYCURRENT='/pbecast?tournament=baycurrent-classic-q60987711-2026';
+for(const width of [390,1440])test(`PBEcast Course View ${width}: Baycurrent scorecard-only, Bank of Utah mapped`,async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width,height:900});await page.goto(BAYCURRENT,{waitUntil:'networkidle'});
+ const C=page.locator('[data-cv3-cmap]');await expect(C).toBeVisible();await expect(C.locator('[data-course-map]')).toHaveAttribute('data-tier','C');
+ await expect(C.locator('.cm-sc th[scope=col]')).toHaveCount(20);
+ expect(await C.locator('svg').count()).toBe(0);expect(await C.innerText()).not.toMatch(/OpenStreetMap/);
+ const ov=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,w:innerWidth}));expect(ov.scroll).toBeLessThanOrEqual(ov.w);
+ expect(await page.locator('[style]').count()).toBe(0);
+ const axe=await new AxeBuilder({page}).include('[data-cv3-cmap]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>v.id+': '+v.nodes.slice(0,2).map(n=>n.target).join(' | '))).toEqual([]);
+ await page.goto('/pbecast?tournament=bank-of-utah-championship-q130604671-2026',{waitUntil:'networkidle'});
+ await expect(page.locator('[data-cv3-cmap] .cm-svg')).toBeVisible();await expect(page.locator('[data-cv3-cmap] .cm-attrib')).toContainText('OpenStreetMap');
+ expect(errors).toEqual([]);
+});

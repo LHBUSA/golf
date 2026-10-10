@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { canShowCoursePanel } from '../src/lib/cast-v3-live.js';
 import { courseMapModule } from '../src/lib/course-map.js';
 
@@ -18,4 +19,17 @@ test('course panel remains gated if neither sourced setup nor routing exists',()
 });
 test('verified/partial routing remains eligible',()=>{
  assert.equal(canShowCoursePanel({...M,geometry:{bounds:[0,0,1,1]}}),true);
+});
+
+// Production payload (2026-10-10): sourced 2026 setup, no OSM routing.
+const prod=JSON.parse(readFileSync(new URL('./fixtures/course-map-yokohama-2026.json',import.meta.url),'utf8'));
+test('Baycurrent production payload: scorecard-only Course View, no map, no OSM credit',()=>{
+ assert.equal(prod.geometry,null);
+ assert.equal(canShowCoursePanel(prod),true);
+ const h=courseMapModule(prod,{mode:'cast',current:7});
+ assert.match(h,/data-tier="C"/);
+ assert.match(h,/SCORECARD LAYOUT ONLY/);
+ assert.equal((h.match(/<th scope="col">\d+<\/th>/g)||[]).length,18);
+ assert.match(h,/7,315/);
+ assert.doesNotMatch(h,/<svg|OpenStreetMap|cm-current/);
 });
