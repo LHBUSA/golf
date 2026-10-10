@@ -4,7 +4,7 @@ import {stableId} from '../../shared/store.js';
 import {capture,qid} from './capture.js';
 import {fetchSeries,fetchEditions,fetchPlayers,fetchVenues,SERIES} from './wdqs.js';
 import {parseEditionArticle,parseSeasonArticle,WP_PARSER} from './wikipedia.js';
-import {planCatalog,planResults,planPlayer,Plan,slug,TOURS,tourId,seriesByQid,editionStatus} from './plan.js';
+import {planCatalog,planResults,planPlayer,Plan,slug,TOURS,tourId,seriesByQid,editionStatus,knownCoords} from './plan.js';
 import {writePlan} from './writer.js';
 export const RESULTS_FROM=2000;
 const ITEMS='items:v1';
@@ -50,7 +50,7 @@ async function courseFor(env,db,titleMap,candidates,venueQid){
   const id=await stableId('golf_courses:'+q);
   if((await db('golf_courses','select=id&id=eq.'+id)).length)return {id,qid:q,plan:null};
   const [v]=await fetchVenues(env,db,[q]);if(!v?.golf_venue||!v.name)continue;
-  const plan=new Plan();await plan.add('golf_courses',v.qid,v.capture_id,{name:v.name,slug:slug(v.name,v.qid),country_code:v.country_code,locality:v.locality,latitude:v.latitude,longitude:v.longitude});
+  const plan=new Plan();await plan.add('golf_courses',v.qid,v.capture_id,{name:v.name,slug:slug(v.name,v.qid),country_code:v.country_code,locality:v.locality,...knownCoords(v)});
   await plan.add('golf_course_layouts',v.qid+':metadata',v.capture_id,{course_id:id,version_label:'Venue metadata only; tournament routing unavailable',par:null,yardage:null,routing_basis:null,specifications:{coverage:'venue identity only',wikidata_id:v.qid,description:v.description,country_name:v.country_name,architects:v.architects,opened_year:v.opened_year,image:v.image,enwiki_article:v.article,entity_modified:v.modified}});
   return {id,qid:q,plan};
  }

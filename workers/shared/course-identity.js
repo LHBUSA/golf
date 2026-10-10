@@ -46,7 +46,7 @@ export const IDENTITY_EVIDENCE=[
 // Canonical duplicates proven to be the same physical course. The duplicate never takes geometry (and never holds the
 // primary's geometry hostage); the identity merge itself is a database operation prepared in docs/evidence.
 export const DUPLICATE_COURSES=[
- {slug:'st-andrews-links-old-course-ec37',duplicate_of:'old-course-at-st-andrews-q167245',evidence_id:'st-andrews-2026-10-02',merge:'docs/evidence/course-merge-st-andrews.json',
+ {slug:'st-andrews-links-old-course-ec37',name:'St Andrews Links (Old Course)',duplicate_of:'old-course-at-st-andrews-q167245',evidence_id:'st-andrews-2026-10-02',merge:'docs/evidence/course-merge-st-andrews.json',
   // 2026-10-03 owner-approved merge (proven same course): applied as a projection alias, DB rows untouched; /course/<ec37> 308s.
   alias:true,
   evidence:[
@@ -55,7 +55,7 @@ export const DUPLICATE_COURSES=[
    '2027 stub hole yardages match the 2022 Open setup on Q167245 within renovation tolerance (e.g. 376/375, 453/452, 618/614)',
    'Coordinates 1.0 km apart: ec37 is a town-centre point (56.343,-2.803); Q167245 is the course (56.3515,-2.8161)',
    'Not merged on name similarity: Siam Country Club (Pattaya Old Course) is a different course and stays separate']},
- {slug:'tpc-sawgrass-the-players-stadium-course-ec19',duplicate_of:'tpc-sawgrass-q4586108',evidence_id:'tpc-sawgrass-2026-10-03',merge:'docs/evidence/course-review-tpc-sawgrass.json',
+ {slug:'tpc-sawgrass-the-players-stadium-course-ec19',name:'TPC Sawgrass (THE PLAYERS Stadium Course)',duplicate_of:'tpc-sawgrass-q4586108',evidence_id:'tpc-sawgrass-2026-10-03',merge:'docs/evidence/course-review-tpc-sawgrass.json',
   // 2026-10-03 owner decision: alias the ESPN Stadium Course record into the 42-edition Players history record.
   alias:true,
   evidence:[
@@ -69,3 +69,11 @@ export const DUPLICATE_COURSES=[
 // auto-identity-v1 (which requires >=15 setup-length agreements) and is labelled so on every surface.
 // Each entry: {slug, osm_course, evidence_id, reviewer, decided, checks:{...}, evidence:[...]} -- added only on approval.
 export const HUMAN_REVIEWED_LAYOUTS=[];
+
+// golf#14: reviewed revocations for the routing publish parity gate (workers/shared/routing-parity.js). A course that
+// is mapped live may only lose status/holes/element in a full republish when it is listed here with evidence and the
+// exact regression kinds allowed. A missing export field (coords_missing) is never a revocation reason.
+// Entry: {slug, evidence_id, decided, reason, allow:[kind...]} with kinds 'status_downgrade' | 'holes_lost' |
+// 'osm_element_changed' | 'row_removed' | 'features_lost' | 'review_lost' | 'candidate_lost' | 'older_extract'.
+// features_lost can also follow web-payload trimming of small bunkers (60 KB budget): check the dataset before revoking.
+export const ROUTING_REVOCATIONS=[];

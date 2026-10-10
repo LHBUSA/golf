@@ -302,3 +302,27 @@ ODbL note:
 - Unmapped hole: the existing labelled generic `holeSvg` reconstruction (illustrative ball compressed to fit one beat).
 - Playback = observed scorecard hole by hole, 1.5 s/hole (2x = 0.75 s); never stroke-timed, never shot-by-shot. Prev/Next/rail pause playback; changing player/round resets to hole 1 and stops.
 - Tests: `tests/cast-replay.test.mjs`; browser `Round Replay` tests in `tests/browser/product.spec.js` (2026 Bank of Utah, Smotherman R1, Black Desert; Biltmore for the reconstruction).
+
+## Publishing the routing index (golf#14, 2026-10-10)
+
+`node scripts/osm-routing.mjs upload` is the only supported way to publish `golf-public/osm-routing/v1/`. It:
+
+1. Reads the **live** R2 index. If it can't, it refuses (it never publishes blind).
+2. Runs the parity gate (`workers/shared/routing-parity.js`). Every live course must keep its status rank, its mapped
+   hole count and its OSM element. No row may disappear, and a course that had been located may not fall back to
+   `no_canonical_coords`.
+   - Any of these fails the run, and nothing is written.
+   - A genuine removal must be listed in `ROUTING_REVOCATIONS` (`workers/shared/course-identity.js`) with evidence and
+     the exact kinds allowed. `coords_missing` is a data defect and can never be revoked.
+3. Backs up the live index to `D:\Workers\releases\osm-routing\<stamp>\index.live-backup.json`.
+4. Uploads course and dataset objects first. It re-reads the live index and refuses the switch if it changed
+   meanwhile (a concurrent publish).
+5. Switches the index last and reads it back. On a mismatch it restores the backup.
+
+`node scripts/osm-routing.mjs diff` runs the same check without writing anything. Rollback is to re-put that run's
+`index.live-backup.json`.
+
+Root cause of golf#14: on 2026-10-02 at 17:42Z the Wikidata catalog lane re-upserted 11 courses with
+`latitude/longitude = null`. Wikidata has no P625 for them, so the null overwrote the coordinates the venue lane had
+sourced from Wikipedia 16 hours earlier. Catalog writes now send coordinates only when they are known (`knownCoords`
+in `workers/golf-ingest/src/plan.js`).

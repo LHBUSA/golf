@@ -8,7 +8,9 @@
 import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';
 import {prepareCourseMap,ATTRIBUTION} from '../src/lib/course-map.js';
 import {matchCourse,matchWithEvidence,autoIdentityOk,nameScore,subCourseTokens,norm,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
-import {IDENTITY_EVIDENCE,DUPLICATE_COURSES,HUMAN_REVIEWED_LAYOUTS} from '../workers/shared/course-identity.js';
+import {IDENTITY_EVIDENCE,DUPLICATE_COURSES,HUMAN_REVIEWED_LAYOUTS,ROUTING_REVOCATIONS} from '../workers/shared/course-identity.js';
+import {publishRouting} from '../workers/shared/routing-parity.js';
+import crypto from 'node:crypto';import os from 'node:os';
 import {defaultEdition,setupOptions} from '../workers/shared/course-setup.js';
 
 const ROOT=path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1')),'..');
@@ -72,6 +74,8 @@ const toOsm=(els,target,accepted)=>({course:{id:target.type+'/'+target.id,outer:
 
 const CANDIDATES=fs.existsSync(path.join(CACHE,'_candidates.json'))?JSON.parse(fs.readFileSync(path.join(CACHE,'_candidates.json'),'utf8')):{};
 function prepare(){
+ // Start clean so files from an earlier prepare are never re-uploaded (golf#14 review).
+ for(const d of ['courses','dataset'])fs.rmSync(path.join(OUT,d),{recursive:true,force:true});
  fs.mkdirSync(path.join(OUT,'courses'),{recursive:true});fs.mkdirSync(path.join(OUT,'dataset'),{recursive:true});
  const ev=new Map(IDENTITY_EVIDENCE.map(x=>[x.slug,x]));const rows=[];
  const barriers=new Set((fs.existsSync(path.join(CACHE,'_barriers.json'))?JSON.parse(fs.readFileSync(path.join(CACHE,'_barriers.json'),'utf8')):[]).map(x=>x.slug));
@@ -96,6 +100,8 @@ function prepare(){
   const r={...base,auto:m.auto||null,human:m.human?{evidence_id:m.human.evidence_id,reviewer:m.human.reviewer,decided:m.human.decided}:null,setup_table:shownScorecard(c.slug),decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
   r._m=m;r._els=els;r._raw=raw;rows.push(r);
  }
+ // Projection aliases are no longer public courses, but their held duplicate rows stay in the index (golf#14).
+ for(const d of DUPLICATE_COURSES)if(!rows.some(r=>r.slug===d.slug)){const pe=edByCourse.get(d.duplicate_of)||[];rows.push({slug:d.slug,name:d.name||null,editions:0,major:pe.some(e=>e.is_major),tours:[...new Set(pe.flatMap(e=>e.tours||[e.tour]).filter(Boolean).map(String))],coords:false,status:'held',decision:'duplicate_canonical_merge_prepared',duplicate_of:d.duplicate_of});}
  holdSharedTargets(rows.filter(r=>r._m));
  for(const r of rows.filter(r=>r._m)){
   if(r.decision!=='exact'){r.status=/^no_/.test(r.decision)?'no-routing':'held';continue;}
@@ -125,15 +131,33 @@ function prepare(){
  const count=(f)=>({total:pub.filter(f).length,audited:pub.filter(r=>f(r)&&!['unaudited'].includes(r.status)).length,full:pub.filter(r=>f(r)&&r.status==='full').length,partial:pub.filter(r=>f(r)&&r.status==='partial').length,held:pub.filter(r=>f(r)&&r.status==='held').length,no_routing:pub.filter(r=>f(r)&&r.status==='no-routing').length,reviewed:pub.filter(r=>f(r)&&r.status==='reviewed').length,scorecard_only:pub.filter(r=>f(r)&&r.status==='no-routing'&&r.setup_table).length,no_layout:pub.filter(r=>f(r)&&r.status==='no-routing'&&!r.setup_table).length,unaudited:pub.filter(r=>f(r)&&r.status==='unaudited').length,exact:pub.filter(r=>f(r)&&r.decision==='exact').length});
  const index={version:'osm-routing/v1',generated_at:new Date().toISOString(),licence:'ODbL-1.0',attribution:ATTRIBUTION,method:'/v1/open-data/course-routing/method',
   counts:{all:count(()=>true),pga:count(r=>r.tours.some(t=>/PGA TOUR/i.test(t))),lpga:count(r=>r.tours.some(t=>/LPGA/i.test(t))),majors:count(r=>r.major)},
-  courses:pub.map(r=>({slug:r.slug,name:r.name,status:r.status,decision:r.decision,duplicate_of:r.duplicate_of||null,auto_identity:r.auto||null,human_review:r.human||null,setup_table:Boolean(r.setup_table),candidate:CANDIDATES[r.slug]?.candidate?.osm_course||null,holes_mapped:r.holes_mapped??0,osm_course:r.osm_course?.id||null,retrieved_at:r.retrieved_at||null,cleared_by:r.cleared_by||null,par_conflicts:r.par_conflicts||[],features:r.features||null,web_bytes:r.web_bytes||null,dataset_bytes:r.dataset_bytes||null}))};
+  courses:pub.map(r=>({slug:r.slug,name:r.name,coords:Boolean(r.coords),status:r.status,decision:r.decision,duplicate_of:r.duplicate_of||null,auto_identity:r.auto||null,human_review:r.human||null,setup_table:Boolean(r.setup_table),candidate:CANDIDATES[r.slug]?.candidate?.osm_course||null,holes_mapped:r.holes_mapped??0,osm_course:r.osm_course?.id||null,retrieved_at:r.retrieved_at||null,cleared_by:r.cleared_by||null,par_conflicts:r.par_conflicts||[],features:r.features||null,web_bytes:r.web_bytes||null,dataset_bytes:r.dataset_bytes||null}))};
  fs.writeFileSync(path.join(OUT,'index.json'),JSON.stringify(index,null,1));
  fs.writeFileSync(path.join(ROOT,'docs/evidence/course-geo-coverage.json'),JSON.stringify({generated_at:index.generated_at,counts:index.counts,courses:index.courses.map(({web_bytes,dataset_bytes,...x})=>x)},null,1));
  console.log(JSON.stringify(index.counts,null,1));
 }
-function upload(){
+// Guarded publish (golf#14): parity vs the LIVE index (fail closed), backups of the index and of every object that
+// changes or is removed, unchanged objects skipped, objects first, index last, refused if the live index changed
+// meanwhile, everything restored if the switch fails. `diff` = the same check and staging, no writes.
+// One operator at a time: there is no cross-process lock beyond the live-index sha check.
+const R2=args=>execFileSync(process.execPath,[path.join(ROOT,'node_modules/wrangler/bin/wrangler.js'),'r2','object',...args,'--remote'],{cwd:path.join(ROOT,'workers/golf-api'),stdio:['ignore','pipe','pipe']});
+const RELEASES=process.env.OSM_RELEASES_DIR||'D:/Workers/releases/osm-routing',sha=t=>crypto.createHash('sha256').update(t).digest('hex');
+async function upload({dryRun=false}={}){
+ const stamp=new Date().toISOString().replace(/[:.]/g,'-'),dir=dryRun?fs.mkdtempSync(path.join(os.tmpdir(),'osm-diff-')):path.join(RELEASES,stamp);fs.mkdirSync(dir,{recursive:true});
  const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(x=>x.isDirectory()?walk(path.join(d,x.name)):[path.join(d,x.name)]);
- for(const f of walk(OUT)){const key='osm-routing/v1/'+path.relative(OUT,f).replace(/\\/g,'/');const ct=f.endsWith('.geojson')?'application/geo+json':'application/json';
-  execFileSync(process.execPath,[path.join(ROOT,'node_modules/wrangler/bin/wrangler.js'),'r2','object','put','golf-public/'+key,'--file',f,'--content-type',ct,'--remote'],{stdio:['ignore','ignore','inherit'],cwd:path.join(ROOT,'workers/golf-api')});console.log('put',key);}
+ const objects=walk(OUT).filter(f=>path.basename(f)!=='index.json').map(f=>({key:'osm-routing/v1/'+path.relative(OUT,f).split(path.sep).join('/'),file:f,contentType:f.endsWith('.geojson')?'application/geo+json':'application/json'}));
+ const tmp=path.join(dir,'_get.tmp'),missing=e=>/The specified key does not exist|NoSuchKey/i.test(String(e?.stderr||'')+String(e?.stdout||'')+String(e?.message||''));
+ // A missing object is null; any other wrangler failure (auth, network) throws with its stderr so it is never mistaken for "missing".
+ const get=key=>{fs.rmSync(tmp,{force:true});try{R2(['get','golf-public/'+key,'--file',tmp]);}catch(e){if(missing(e))return null;throw Error('wrangler get '+key+': '+String(e.stderr||e.message).slice(0,400));}return fs.existsSync(tmp)?{text:fs.readFileSync(tmp,'utf8')}:null;};
+ const put=(key,body,ct)=>{const f=path.join(dir,'_put.tmp');fs.writeFileSync(f,body.text);R2(['put','golf-public/'+key,'--file',f,'--content-type',ct]);console.log('put',key);};
+ const io={getLiveIndex:async()=>get('osm-routing/v1/index.json'),getObject:async k=>get(k),readFile:f=>fs.readFileSync(f,'utf8'),
+  backup:async(name,t)=>{const p=path.join(dir,name);fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,t);return p;},
+  putObject:async(k,body,ct)=>put(k,body,ct),deleteObject:async k=>{R2(['delete','golf-public/'+k]);console.log('delete',k);},
+  putIndexText:async t=>put('osm-routing/v1/index.json',{text:t},'application/json'),sha};
+ const res=await publishRouting({io,localIndexText:fs.readFileSync(path.join(OUT,'index.json'),'utf8'),objects,revocations:ROUTING_REVOCATIONS,dryRun});
+ fs.writeFileSync(path.join(dir,'release.json'),JSON.stringify({...res,objects:objects.length,at:new Date().toISOString()},null,1));
+ const p=res.parity;console.log(JSON.stringify({published:res.published,reason:res.reason||null,error:res.error||null,restore:res.restore||null,regressions:p.regressions,explained:p.explained,improvements:p.improvements.length,added:p.added,changed:res.changed||[],removed:res.removed||[],removeFailed:res.removeFailed||[],record:dir},null,1));
+ if(!res.published&&res.reason!=='dry_run')process.exitCode=1;
 }
 // Extracts collected with `out geom tags` carry relations without members (bounds only). Re-fetch only those relations
 // with full geometry, one query per file, and merge them in place (recorded as relations_refetched_at).
@@ -200,4 +224,4 @@ async function centres(){const out=JSON.parse(fs.readFileSync(CANDS,'utf8'));
   const e=j.elements?.[0];const ce=e?.center||(e?.lat?{lat:e.lat,lon:e.lon}:null);if(!ce)continue;v.candidate.lat=ce.lat;v.candidate.lon=ce.lon;delete v.candidate.needs_centre;console.log('centre',slug);await sleep(3000);}
  fs.writeFileSync(CANDS,JSON.stringify(out,null,1));}
 const cmd=process.argv[2];
-if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='resolve')resolve();else if(cmd==='centres')await centres();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')upload();else if(cmd)console.error('usage: collect|prepare|upload');
+if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='resolve')resolve();else if(cmd==='centres')await centres();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')await upload();else if(cmd==='diff')await upload({dryRun:true});else if(cmd)console.error('usage: collect|prepare|diff|upload');
