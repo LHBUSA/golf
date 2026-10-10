@@ -70,3 +70,13 @@ test('reviewed crosswalk: composite routing maps club refs to championship holes
  // An OSM edit that removes a listed way sends the whole course back to review.
  const gone=matchWithEvidence(noCoords,els.filter(e=>e.id!==2005),SH,ev);assert.equal(gone.decision,'review_crosswalk_incomplete');assert.equal(gone.state,'REVIEW_OR_NONE');
 });
+test('reviewed crosswalk must list 18 distinct holes on 18 distinct ways; withheld holes leave the par tally',async()=>{
+ const {matchWithEvidence}=await import('../workers/shared/course-geo.js');
+ const west=Array.from({length:18},(_,i)=>hole(2000+i,i+1,20.001+0.0005*i,10.002)),els=[course(1,'X',20,10),...west];
+ const noCoords={...canon,latitude:null,longitude:null},base={osm_course:'way/1',evidence_id:'v',clears:['review_no_canonical_coords']};
+ const cw=Object.fromEntries(Array.from({length:18},(_,i)=>[i+1,'way/'+(2000+i)]));
+ const dup={...cw,18:'way/2016'};assert.equal(matchWithEvidence(noCoords,els,SH,{...base,crosswalk:dup}).decision,'review_crosswalk_incomplete');
+ const short=Object.fromEntries(Object.entries(cw).slice(0,17));assert.equal(matchWithEvidence(noCoords,els,SH,{...base,crosswalk:short}).decision,'review_crosswalk_incomplete');
+ const ok=matchWithEvidence(noCoords,els,SH,{...base,crosswalk:cw,withhold:{18:'setup_changed_after_mapping'}});
+ assert.equal(ok.decision,'exact');assert.equal(ok.evidence.par.compared,17);assert.equal(ok.evidence.par.agree,17);
+});

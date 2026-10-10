@@ -50,7 +50,10 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
   let holes=(elements||[]).filter(e=>e.tags?.golf==='hole').filter(h=>{const m=mid(h);return m&&inside(m,target);});
   ev.holes_in_boundary=holes.length;
   // Reviewed composite routing: the club ref is kept as osm_ref; the championship number replaces it for matching.
-  if(crosswalk){const found=holes.filter(h=>crosswalk.has('way/'+h.id));ev.crosswalk={listed:crosswalk.size,found:found.length,missing:[...crosswalk.keys()].filter(id=>!found.some(h=>'way/'+h.id===id))};
+  if(crosswalk){const found=holes.filter(h=>crosswalk.has('way/'+h.id)),nums=new Set(crosswalk.values());
+   // Malformed record (a way listed twice, or not exactly holes 1-18) counts as incomplete: never publish a partial guess.
+   const malformed=crosswalk.size!==18||nums.size!==18||[...nums].some(n=>!(Number.isInteger(n)&&n>=1&&n<=18));
+   ev.crosswalk={listed:crosswalk.size,found:found.length,malformed,missing:malformed?['malformed_crosswalk']:[...crosswalk.keys()].filter(id=>!found.some(h=>'way/'+h.id===id))};
    holes=found.map(h=>({...h,osm_ref:h.tags.ref??null,tags:{...h.tags,ref:String(crosswalk.get('way/'+h.id))}}));}
   const res=resolveHoles(holes.map(h=>({id:'way/'+h.id,ref:h.tags.ref,osm_ref:h.osm_ref??h.tags.ref??null,par:h.tags.par,coords:h.geometry.map(p=>[p.lon,p.lat])})),setupHoles);
   if(crosswalk)for(const h of res.accepted)h.proof='reviewed_crosswalk';
@@ -65,7 +68,10 @@ export function matchCourse(canon,elements,setupHoles=new Map(),{namedId=null,re
   ev.length_conflicts=chk.filter(c=>c.len&&!renumbered).map(c=>({hole:c.h.hole,mapped_yards:Math.round(c.y),setup_yards:c.s.yards}));
   res.accepted=chk.filter(c=>{if(c.len&&renumbered){bad.push({ref:c.h.hole,candidates:1,reason:'routing_numbering_differs_from_setup',mapped_yards:Math.round(c.y),setup_yards:c.s.yards});return false;}return true;}).map(c=>c.h);
   const held=withhold?res.accepted.filter(h=>withhold.has(h.hole)).map(h=>({ref:h.hole,candidates:1,reason:withhold.get(h.hole)})):[];
-  if(held.length){res.accepted=res.accepted.filter(h=>!withhold.has(h.hole));ev.par.disagree=ev.par.disagree.filter(n=>!withhold.has(n));}
+  if(held.length){res.accepted=res.accepted.filter(h=>!withhold.has(h.hole));
+   // Par evidence covers only holes that are still attached.
+   const cmp=res.accepted.filter(h=>setupHoles.get(h.hole)&&h.par!=null&&Number.isInteger(Number(h.par)));
+   ev.par={compared:cmp.length,agree:cmp.filter(h=>Number(h.par)===setupHoles.get(h.hole).par).length,disagree:cmp.filter(h=>Number(h.par)!==setupHoles.get(h.hole).par).map(h=>h.hole)};}
   ev.withheld=held;ev.length_mismatch=bad;ev.rejected=[...ev.rejected,...bad,...held];ev.proven=res.accepted.length;
   ev.accepted=res.accepted;
   // Shared-name resort: another course in the extract matches our canonical name at least as well as the target
@@ -109,7 +115,8 @@ function holdSharedPlain(rows){const by=new Map();for(const r of rows){const id=
 export function matchWithEvidence(canon,elements,setupHoles=new Map(),evidence=null){
  const noCoords=canon.latitude==null||canon.longitude==null;
  if(noCoords&&!evidence?.osm_course)return matchCourse({...canon,latitude:null,longitude:null},elements,setupHoles);
- // Crosswalk/withhold belong to the reviewed element only; they are applied when the matcher lands on that element.
+ // Crosswalk/withhold come from the reviewed record. They are applied to whatever element the matcher lands on; on any
+ // element other than evidence.osm_course the listed ways are absent, so the course goes to review (fails safe).
  const rv=evidence?.crosswalk?{crosswalk:new Map(Object.entries(evidence.crosswalk).map(([h,id])=>[id,Number(h)])),withhold:new Map(Object.entries(evidence.withhold||{}).map(([h,r])=>[Number(h),r]))}:{};
  let m=noCoords?matchCourse({...canon,latitude:null,longitude:null},elements,setupHoles,{namedId:evidence.osm_course,...rv}):matchCourse(canon,elements,setupHoles,rv);
  const id=m.target?m.target.type+'/'+m.target.id:null;
