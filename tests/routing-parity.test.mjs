@@ -100,3 +100,11 @@ test('publish: a reviewed revocation takes the course map down (objects removed 
  assert.equal(r.published,true);assert.equal(K('augusta') in st.store,false);assert.equal(st.backups['objects/'+K('augusta')],'G1');
  assert.deepEqual(st.log,['put index','delete '+K('augusta'),'delete osm-routing/v1/dataset/augusta.geojson']);
 });
+test('publish: an error before the switch never touches the live index; a failed revocation delete is reported',async()=>{
+ const {st,io}=fakeR2(L,{[K('aronimink')]:'A1'},{failPutKey:K('crooked')});
+ await publishRouting({io,localIndexText:L,objects:[obj('aronimink','A2'),obj('crooked','C2')]});assert.equal(st.log.includes('put index'),false);
+ const next=JSON.stringify({courses:live.courses.map(c=>c.slug==='augusta'?{...c,status:'held',holes_mapped:0,features:null}:c)});
+ const f=fakeR2(L,{[K('augusta')]:'G1'});f.io.deleteObject=async()=>{throw Error('denied');};
+ const r=await publishRouting({io:f.io,localIndexText:next,objects:[],revocations:[{slug:'augusta',evidence_id:'rev',allow:['status_downgrade','holes_lost','features_lost']}]});
+ assert.equal(r.published,true);assert.deepEqual(r.removeFailed.map(x=>x.key),[K('augusta')]);
+});

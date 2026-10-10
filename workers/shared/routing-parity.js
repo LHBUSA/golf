@@ -6,7 +6,7 @@
 export const RANK={full:3,reviewed:3,partial:2,held:1,'no-routing':0,unaudited:0};
 const rank=s=>RANK[s]??0;
 // Decisions that only the canonical-coordinate path of the matcher can produce (course-geo.js matchCourse).
-const COORD_DECISIONS=new Set(['review_multiple_containing','review_point_outside_boundary','no_match_point_outside_boundary','no_osm_course','review_country_conflict','review_crosswalk_incomplete','review_routing_differs_from_setup','review_resort_shared_name','review_weak_identity']);
+const COORD_DECISIONS=new Set(['review_multiple_containing','review_point_outside_boundary','no_match_point_outside_boundary','no_osm_course','review_country_conflict','review_routing_differs_from_setup','review_resort_shared_name','review_weak_identity']);
 /** Did this row have canonical coordinates? Rows prepared since golf#14 say so (`coords`); older live rows are inferred
  * conservatively from decisions only the coordinate path produces (unknown -> false, so no false alarm). */
 export const hadCoords=r=>typeof r?.coords==='boolean'?r.coords:COORD_DECISIONS.has(r?.decision)||(r?.decision==='exact'&&!r?.cleared_by&&!r?.auto_identity?.pass);
@@ -72,19 +72,21 @@ export async function publishRouting({io,localIndexText,objects,revocations=[],d
  if(dryRun)return {published:false,reason:'dry_run',parity,changed:changes.map(c=>c.key),removed:gone.map(g=>g.key)};
  const backupPath=await io.backup('index.live-backup.json',before.text);
  for(const c of [...changes,...gone])if(c.prev!=null)await io.backup('objects/'+c.key,c.prev);
- const done=[];
+ const done=[];let switched=false;
  const undo=async()=>{for(const c of done.reverse()){if(c.prev==null)await io.deleteObject(c.key);else await io.putObject(c.key,{text:c.prev},c.contentType||'application/json');}};
  try{
   for(const c of changes){await io.putObject(c.key,{text:c.text},c.contentType);done.push(c);}
   const again=await io.getLiveIndex();
   if(io.sha(again?.text||'')!==io.sha(before.text)){await undo();return {published:false,reason:'live_index_changed_during_publish',parity,backupPath};}
-  await io.putIndexText(localIndexText);
+  switched=true;await io.putIndexText(localIndexText);
   let after=null;for(let i=0;i<3&&!after?.text;i++)after=await io.getLiveIndex();
   if(io.sha(after?.text||'')!==io.sha(localIndexText)){await io.putIndexText(before.text);await undo();return {published:false,reason:'index_readback_mismatch_restored',parity,backupPath};}
  }catch(err){
-  const restore=[];try{await io.putIndexText(before.text);await undo();restore.push('restored');}catch(e2){restore.push('RESTORE FAILED: '+e2.message);}
+  // The index is restored only if this run switched it (never overwrite a concurrent publisher's index).
+  const restore=[];try{if(switched)await io.putIndexText(before.text);await undo();restore.push('restored');}catch(e2){restore.push('RESTORE FAILED: '+e2.message);}
   return {published:false,reason:'publish_error',error:String(err?.message||err),restore,parity,backupPath};
  }
- for(const g of gone){await io.deleteObject(g.key);}
- return {published:true,parity,backupPath,changed:changes.map(c=>c.key),removed:gone.map(g=>g.key),live_sha_before:io.sha(before.text),live_sha_after:io.sha(localIndexText)};
+ // Revoked maps come down after the switch; a failed delete is reported (backups exist), never thrown past the record.
+ const removeFailed=[];for(const g of gone){try{await io.deleteObject(g.key);}catch(e){removeFailed.push({key:g.key,error:String(e?.message||e)});}}
+ return {published:true,parity,backupPath,changed:changes.map(c=>c.key),removed:gone.map(g=>g.key).filter(k=>!removeFailed.some(f=>f.key===k)),removeFailed,live_sha_before:io.sha(before.text),live_sha_after:io.sha(localIndexText)};
 }

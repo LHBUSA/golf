@@ -146,7 +146,7 @@ async function upload({dryRun=false}={}){
  const stamp=new Date().toISOString().replace(/[:.]/g,'-'),dir=dryRun?fs.mkdtempSync(path.join(os.tmpdir(),'osm-diff-')):path.join(RELEASES,stamp);fs.mkdirSync(dir,{recursive:true});
  const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(x=>x.isDirectory()?walk(path.join(d,x.name)):[path.join(d,x.name)]);
  const objects=walk(OUT).filter(f=>path.basename(f)!=='index.json').map(f=>({key:'osm-routing/v1/'+path.relative(OUT,f).split(path.sep).join('/'),file:f,contentType:f.endsWith('.geojson')?'application/geo+json':'application/json'}));
- const tmp=path.join(dir,'_get.tmp'),missing=e=>/not found|does not exist|NoSuchKey|404/i.test(String(e?.stderr||'')+String(e?.stdout||'')+String(e?.message||''));
+ const tmp=path.join(dir,'_get.tmp'),missing=e=>/The specified key does not exist|NoSuchKey/i.test(String(e?.stderr||'')+String(e?.stdout||'')+String(e?.message||''));
  // A missing object is null; any other wrangler failure (auth, network) throws with its stderr so it is never mistaken for "missing".
  const get=key=>{fs.rmSync(tmp,{force:true});try{R2(['get','golf-public/'+key,'--file',tmp]);}catch(e){if(missing(e))return null;throw Error('wrangler get '+key+': '+String(e.stderr||e.message).slice(0,400));}return fs.existsSync(tmp)?{text:fs.readFileSync(tmp,'utf8')}:null;};
  const put=(key,body,ct)=>{const f=path.join(dir,'_put.tmp');fs.writeFileSync(f,body.text);R2(['put','golf-public/'+key,'--file',f,'--content-type',ct]);console.log('put',key);};
@@ -156,7 +156,7 @@ async function upload({dryRun=false}={}){
   putIndexText:async t=>put('osm-routing/v1/index.json',{text:t},'application/json'),sha};
  const res=await publishRouting({io,localIndexText:fs.readFileSync(path.join(OUT,'index.json'),'utf8'),objects,revocations:ROUTING_REVOCATIONS,dryRun});
  fs.writeFileSync(path.join(dir,'release.json'),JSON.stringify({...res,objects:objects.length,at:new Date().toISOString()},null,1));
- const p=res.parity;console.log(JSON.stringify({published:res.published,reason:res.reason||null,error:res.error||null,restore:res.restore||null,regressions:p.regressions,explained:p.explained,improvements:p.improvements.length,added:p.added,changed:res.changed||[],removed:res.removed||[],record:dir},null,1));
+ const p=res.parity;console.log(JSON.stringify({published:res.published,reason:res.reason||null,error:res.error||null,restore:res.restore||null,regressions:p.regressions,explained:p.explained,improvements:p.improvements.length,added:p.added,changed:res.changed||[],removed:res.removed||[],removeFailed:res.removeFailed||[],record:dir},null,1));
  if(!res.published&&res.reason!=='dry_run')process.exitCode=1;
 }
 // Extracts collected with `out geom tags` carry relations without members (bounds only). Re-fetch only those relations

@@ -73,5 +73,7 @@ export const HUMAN_REVIEWED_LAYOUTS=[];
 // golf#14: reviewed revocations for the routing publish parity gate (workers/shared/routing-parity.js). A course that
 // is mapped live may only lose status/holes/element in a full republish when it is listed here with evidence and the
 // exact regression kinds allowed. A missing export field (coords_missing) is never a revocation reason.
-// Entry: {slug, evidence_id, decided, reason, allow:['status_downgrade'|'holes_lost'|'osm_element_changed'|'row_removed']}
+// Entry: {slug, evidence_id, decided, reason, allow:[kind...]} with kinds 'status_downgrade' | 'holes_lost' |
+// 'osm_element_changed' | 'row_removed' | 'features_lost' | 'review_lost' | 'candidate_lost' | 'older_extract'.
+// features_lost can also follow web-payload trimming of small bunkers (60 KB budget): check the dataset before revoking.
 export const ROUTING_REVOCATIONS=[];
