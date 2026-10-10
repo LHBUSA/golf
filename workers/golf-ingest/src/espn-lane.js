@@ -89,7 +89,7 @@ export async function runEspn(env,db,{budgetMs=200000,limit=20,now=new Date(),fo
    if(p.course){
     courseId=setup?.course_id||ecs[0]?.golf_course_layouts?.course_id||xw.course[p.course.espn_id]||null;
     if(!courseId){const same=courseByName.get(norm(p.course.name))||[];if(same.length===1)courseId=same[0].id;}
-    if(!courseId){courseId=await plan.add('golf_courses','espn:course:'+p.course.espn_id,cap.id,{name:p.course.name,slug:slug(p.course.name,'ec'+p.course.espn_id),country_code:null,locality:[p.course.city,p.course.state].filter(Boolean).join(', ')||null,latitude:null,longitude:null});courseByName.set(norm(p.course.name),[{id:courseId,name:p.course.name}]);}
+    if(!courseId){courseId=await plan.add('golf_courses','espn:course:'+p.course.espn_id,cap.id,{name:p.course.name,slug:slug(p.course.name,'ec'+p.course.espn_id),country_code:null,locality:[p.course.city,p.course.state].filter(Boolean).join(', ')||null});courseByName.set(norm(p.course.name),[{id:courseId,name:p.course.name}]);}
     xw.course[p.course.espn_id]=courseId;
     if(setup){layoutId=setup.id;if(setup.par&&p.course.par&&setup.par!==p.course.par)espnRules.conflicts.push({field:'layout.par',existing:setup.par,espn:p.course.par});}
     else{layoutId=await plan.add('golf_course_layouts',(edKey||edId)+':espn-setup',cap.id,{course_id:courseId,version_label:`${item.season} ${ev.name.replace(/^\d{4}\s+/,'')} setup (ESPN)`,valid_from:ev.starts_on,valid_to:ev.ends_on,par:p.course.par,yardage:p.course.yards,routing_basis:null,specifications:{source:'espn',event_id:ev.espn_id,espn_course_id:p.course.espn_id,routing:'not sourced; no hole routing or hazards inferred'}});

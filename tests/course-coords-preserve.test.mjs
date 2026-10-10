@@ -16,3 +16,10 @@ test('knownCoords: half or non-numeric coordinates are treated as unknown',()=>{
  assert.deepEqual(knownCoords({latitude:1,longitude:null}),{});assert.deepEqual(knownCoords({latitude:NaN,longitude:2}),{});assert.deepEqual(knownCoords(null),{});
  assert.deepEqual(knownCoords({latitude:0,longitude:0}),{latitude:0,longitude:0});
 });
+// golf#14 review: no ingest writer may send an explicit null coordinate for golf_courses (an upsert onto an existing
+// row would erase coordinates another lane sourced). Inserts default to null without the keys.
+test('no golf-ingest writer upserts golf_courses with literal null coordinates',async()=>{
+ const fs=await import('node:fs');const dir=new URL('../workers/golf-ingest/src/',import.meta.url);
+ for(const f of fs.readdirSync(dir).filter(f=>f.endsWith('.js'))){const src=fs.readFileSync(new URL(f,dir),'utf8');
+  for(const m of src.matchAll(/add\('golf_courses'[^\n]*/g))assert.doesNotMatch(m[0],/latitude:\s*null|longitude:\s*null/,f);}
+});
