@@ -8,7 +8,9 @@
 import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';
 import {prepareCourseMap,ATTRIBUTION} from '../src/lib/course-map.js';
 import {matchCourse,matchWithEvidence,autoIdentityOk,nameScore,subCourseTokens,norm,holdSharedTargets,outerRings,inside} from '../workers/shared/course-geo.js';
-import {IDENTITY_EVIDENCE,DUPLICATE_COURSES,HUMAN_REVIEWED_LAYOUTS} from '../workers/shared/course-identity.js';
+import {IDENTITY_EVIDENCE,DUPLICATE_COURSES,HUMAN_REVIEWED_LAYOUTS,ROUTING_REVOCATIONS} from '../workers/shared/course-identity.js';
+import {publishRouting} from '../workers/shared/routing-parity.js';
+import crypto from 'node:crypto';
 import {defaultEdition,setupOptions} from '../workers/shared/course-setup.js';
 
 const ROOT=path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1')),'..');
@@ -96,6 +98,8 @@ function prepare(){
   const r={...base,auto:m.auto||null,human:m.human?{evidence_id:m.human.evidence_id,reviewer:m.human.reviewer,decided:m.human.decided}:null,setup_table:shownScorecard(c.slug),decision:m.decision,osm_course:m.target?{id:m.target.type+'/'+m.target.id,name:m.target.tags?.name||null}:null,proven:m.evidence.proven,par_conflicts:m.evidence.par.disagree,retrieved_at:raw.retrieved_at,cleared_by:m.cleared_by||null};
   r._m=m;r._els=els;r._raw=raw;rows.push(r);
  }
+ // Projection aliases are no longer public courses, but their held duplicate rows stay in the index (golf#14).
+ for(const d of DUPLICATE_COURSES)if(!rows.some(r=>r.slug===d.slug))rows.push({slug:d.slug,name:d.name||null,editions:0,major:false,tours:[],coords:false,status:'held',decision:'duplicate_canonical_merge_prepared',duplicate_of:d.duplicate_of});
  holdSharedTargets(rows.filter(r=>r._m));
  for(const r of rows.filter(r=>r._m)){
   if(r.decision!=='exact'){r.status=/^no_/.test(r.decision)?'no-routing':'held';continue;}
@@ -130,10 +134,23 @@ function prepare(){
  fs.writeFileSync(path.join(ROOT,'docs/evidence/course-geo-coverage.json'),JSON.stringify({generated_at:index.generated_at,counts:index.counts,courses:index.courses.map(({web_bytes,dataset_bytes,...x})=>x)},null,1));
  console.log(JSON.stringify(index.counts,null,1));
 }
-function upload(){
+// Guarded publish (golf#14): parity vs the LIVE index (fail closed), live index backed up, objects first, index last,
+// refused if the live index changed meanwhile, restored if the read-back differs. `diff` = the same check, no writes.
+const R2=(args,opts={})=>execFileSync(process.execPath,[path.join(ROOT,'node_modules/wrangler/bin/wrangler.js'),'r2','object',...args,'--remote'],{cwd:path.join(ROOT,'workers/golf-api'),stdio:['ignore','pipe','pipe'],...opts});
+const RELEASES='D:/Workers/releases/osm-routing',sha=t=>crypto.createHash('sha256').update(t).digest('hex');
+async function upload({dryRun=false}={}){
+ const stamp=new Date().toISOString().replace(/[:.]/g,'-'),dir=path.join(RELEASES,stamp);fs.mkdirSync(dir,{recursive:true});
  const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(x=>x.isDirectory()?walk(path.join(d,x.name)):[path.join(d,x.name)]);
- for(const f of walk(OUT)){const key='osm-routing/v1/'+path.relative(OUT,f).replace(/\\/g,'/');const ct=f.endsWith('.geojson')?'application/geo+json':'application/json';
-  execFileSync(process.execPath,[path.join(ROOT,'node_modules/wrangler/bin/wrangler.js'),'r2','object','put','golf-public/'+key,'--file',f,'--content-type',ct,'--remote'],{stdio:['ignore','ignore','inherit'],cwd:path.join(ROOT,'workers/golf-api')});console.log('put',key);}
+ const objects=walk(OUT).filter(f=>path.basename(f)!=='index.json').map(f=>({key:'osm-routing/v1/'+path.relative(OUT,f).split(path.sep).join('/'),file:f,contentType:f.endsWith('.geojson')?'application/geo+json':'application/json'}));
+ const tmp=path.join(dir,'_live.json');
+ const io={getLiveIndex:async()=>{try{R2(['get','golf-public/osm-routing/v1/index.json','--file',tmp]);return {text:fs.readFileSync(tmp,'utf8')};}catch{return null;}},
+  backup:async t=>{const p=path.join(dir,'index.live-backup.json');fs.writeFileSync(p,t);return p;},
+  putObject:async(key,file,ct)=>{R2(['put','golf-public/'+key,'--file',file,'--content-type',ct]);console.log('put',key);},
+  putIndexText:async t=>{const p=path.join(dir,'_index.put.json');fs.writeFileSync(p,t);R2(['put','golf-public/osm-routing/v1/index.json','--file',p,'--content-type','application/json']);console.log('put osm-routing/v1/index.json');},sha};
+ const res=await publishRouting({io,localIndexText:fs.readFileSync(path.join(OUT,'index.json'),'utf8'),objects,revocations:ROUTING_REVOCATIONS,dryRun});
+ fs.writeFileSync(path.join(dir,'release.json'),JSON.stringify({...res,objects:objects.length,at:new Date().toISOString()},null,1));
+ const p=res.parity;console.log(JSON.stringify({published:res.published,reason:res.reason||null,regressions:p.regressions,explained:p.explained,improvements:p.improvements.length,added:p.added,record:dir},null,1));
+ if(!res.published&&res.reason!=='dry_run')process.exitCode=1;
 }
 // Extracts collected with `out geom tags` carry relations without members (bounds only). Re-fetch only those relations
 // with full geometry, one query per file, and merge them in place (recorded as relations_refetched_at).
@@ -200,4 +217,4 @@ async function centres(){const out=JSON.parse(fs.readFileSync(CANDS,'utf8'));
   const e=j.elements?.[0];const ce=e?.center||(e?.lat?{lat:e.lat,lon:e.lon}:null);if(!ce)continue;v.candidate.lat=ce.lat;v.candidate.lon=ce.lon;delete v.candidate.needs_centre;console.log('centre',slug);await sleep(3000);}
  fs.writeFileSync(CANDS,JSON.stringify(out,null,1));}
 const cmd=process.argv[2];
-if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='resolve')resolve();else if(cmd==='centres')await centres();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')upload();else if(cmd)console.error('usage: collect|prepare|upload');
+if(cmd==='collect')await collect();else if(cmd==='candidates')await candidates();else if(cmd==='resolve')resolve();else if(cmd==='centres')await centres();else if(cmd==='relations')await relations();else if(cmd==='prepare')prepare();else if(cmd==='upload')await upload();else if(cmd==='diff')await upload({dryRun:true});else if(cmd)console.error('usage: collect|prepare|diff|upload');

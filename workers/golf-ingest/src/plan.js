@@ -3,6 +3,10 @@
 import {stableId} from '../../shared/store.js';
 import {SERIES} from './wdqs.js';
 import {finalRoundHoles,WP_PARSER} from './wikipedia.js';
+// Course coordinates are written only when this source has them. A catalog row without Wikidata P625 must never
+// overwrite coordinates another approved lane sourced (golf#14: 11 courses lost theirs this way on 2026-10-02 and fell
+// out of course-map matching). The write RPC updates only the keys it is given.
+export const knownCoords=v=>Number.isFinite(v?.latitude)&&Number.isFinite(v?.longitude)?{latitude:v.latitude,longitude:v.longitude}:{};
 export const slug=(name,id)=>name.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+String(id).toLowerCase().replace(/[^a-z0-9]+/g,'');
 export const TOURS={'pga-tour':{qid:'Q910409',division:'men'},'lpga':{qid:'Q17162079',division:'women'}};
 export const tourId=key=>stableId('golf_tours:'+TOURS[key].qid);
@@ -32,7 +36,7 @@ export async function planCatalog({series,editions,players,venues,existing},now=
  for(const s of series){const cfg=seriesByQid.get(s.qid);if(!cfg||!s.name){plan.hold({kind:'tournament',provider_id:s.qid,reason:'missing_series_label'});continue;}
   tids.set(s.qid,await plan.add('golf_tournaments',s.qid,s.capture_id,{name:s.name,slug:slug(s.name,s.qid),major_division:cfg.major_from?cfg.division:null,organizer:s.organizer||'Not supplied by source'}));}
  for(const v of venues){if(!v.golf_venue||!v.name){plan.hold({kind:'course',provider_id:v.qid,reason:'venue_not_verified_as_golf_course'});continue;}
-  const cid=await plan.add('golf_courses',v.qid,v.capture_id,{name:v.name,slug:slug(v.name,v.qid),country_code:v.country_code,locality:v.locality,latitude:v.latitude,longitude:v.longitude});cids.set(v.qid,cid);
+  const cid=await plan.add('golf_courses',v.qid,v.capture_id,{name:v.name,slug:slug(v.name,v.qid),country_code:v.country_code,locality:v.locality,...knownCoords(v)});cids.set(v.qid,cid);
   await plan.add('golf_course_layouts',v.qid+':metadata',v.capture_id,{course_id:cid,version_label:'Venue metadata only; tournament routing unavailable',par:null,yardage:null,routing_basis:null,specifications:{coverage:'venue identity only',wikidata_id:v.qid,description:v.description,country_name:v.country_name,architects:v.architects,opened_year:v.opened_year,image:v.image,enwiki_article:v.article,entity_modified:v.modified}});}
  for(const p of players){const id=await planPlayer(plan,p,'championship_winner_assertion');if(id)pids.set(p.qid,id);}
  for(const e of editions){
