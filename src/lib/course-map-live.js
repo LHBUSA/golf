@@ -56,8 +56,10 @@ export function mountCourseMap(host,M,{mode='page',focus=null,current=null,wind=
  let w=host.clientWidth;if('ResizeObserver' in window)new ResizeObserver(()=>{if(Math.abs(host.clientWidth-w)>40){w=host.clientWidth;render();}}).observe(host);
  render();
  return {
-  setFocus:h=>{if(st.focus!==h)setFocus(h);},
-  setCurrent:h=>{if(st.current!==h){st.current=h;render();}},
+  // Scorecard-only (tier C) markup does not depend on focus/current: keep state, skip the re-render so a scrolled or
+  // keyboard-focused scorecard is not reset on every live poll.
+  setFocus:h=>{if(st.focus!==h){if(tierOf(st.M)==='C'){st.focus=h;return;}setFocus(h);}},
+  setCurrent:h=>{if(st.current!==h){st.current=h;if(tierOf(st.M)!=='C')render();}},
   setWind:wd=>{st.wind=wd;const p=host.querySelector('[data-cm-panelhost]');if(p&&st.focus!=null)p.innerHTML=holePanel(st.M,st.focus,{wind:wd,today:st.today,live:st.live?.(st.focus)||null,measure:st.measure});},
   update:(M2,{focus}={})=>{st.M=M2;if(focus!==undefined)st.focus=focus;render();},
   setContext:({today,live})=>{st.today=today??st.today;st.live=live??st.live;const p=host.querySelector('[data-cm-panelhost]');if(p&&st.focus!=null)p.innerHTML=holePanel(st.M,st.focus,{wind:st.wind,today:st.today,live:st.live?.(st.focus)||null,measure:st.measure});},
