@@ -234,7 +234,7 @@ export function pulseList(events,{seen=null,empty='No provable scoring changes b
   const names=who.map(w=>playerName({slug:w.slug,name:w.name},{cls:'pl-name',label:w.label})).join(', ');
   const mv=x.move?`<span class="pl-mv ${x.move.delta>0?'up':'down'}" aria-label="${x.move.delta>0?'up':'down'} ${Math.abs(x.move.delta)}, ${e(x.move.from)} to ${e(x.move.to)}">${x.move.delta>0?'▲':'▼'}${Math.abs(x.move.delta)} <small>${e(x.move.from)}→${e(x.move.to)}</small></span>`:'';
   const bodyTxt=x.prefix?'':e(x.rest??x.text);
-  const body=x.prefix?`<button type="button" class="pl-go" data-pulse-key="${e(x.keys[0])}" aria-label="${e(x.text)}. Focus in PBEcast">${e(x.prefix)}</button> ${names}`:`${names?names+' ':''}<button type="button" class="pl-go" data-pulse-key="${e(x.keys[0])}"${Number.isInteger(x.hole)?` data-pulse-hole="${e(x.hole)}"`:''} aria-label="${e(x.text)}. ${Number.isInteger(x.hole)?`Show hole ${e(x.hole)} in the Course View`:'Focus in PBEcast'}">${bodyTxt}</button>`;
+  const body=x.prefix?`<button type="button" class="pl-go" data-pulse-key="${e(x.keys[0])}" aria-label="${e(x.text)}. Focus in PBEcast">${e(x.prefix)}</button> ${names}`:`${names?names+' ':''}<button type="button" class="pl-go" data-pulse-key="${e(x.keys[0])}"${Number.isInteger(x.hole)?` data-pulse-hole="${e(x.hole)}"`:''} aria-label="${e(x.text)}. ${Number.isInteger(x.hole)?`Show hole ${e(x.hole)}`:'Focus in PBEcast'}">${bodyTxt}</button>`;
   return `<li class="pl-${x.type}${x.kind?' pl-'+x.kind:''}${seen&&!seen.has(id)?' is-new':''}"><time datetime="${e(x.t)}">${e(clock(x.t))}</time><span class="pl-body">${body}${mv}</span></li>`;}).join('');
 }
 export function fieldPanel(f){
