@@ -161,23 +161,31 @@ if(PATH==='/all-access'){
 // Hub pages re-render from the live projection when it is newer than the static build.
 const hubs:Record<string,(ix:any)=>string>={'/':home,'/today':today,'/live':live};
 const stamp=$('[data-asof]'),hub:((ix:any)=>string)|undefined=hubs[PATH];
-if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000)}).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,PATH)&&!NO_MARKETS?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
- if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);if(!NO_MARKETS)hydrateKalshi(main);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
+if(stamp){Promise.all([fetch('/api/v1/projection/index.json',{signal:AbortSignal.timeout(8000),priority:'low'} as RequestInit).then(r=>r.ok?r.json():null),Object.hasOwn(hubs,PATH)&&!NO_MARKETS?boardWithin():null]).then(([ix])=>{const st=$('[data-freshness]');if(!ix?.as_of){if(st)st.textContent='Saved snapshot · API unavailable';return;}
+ if(ix.as_of>(stamp.getAttribute('data-asof')||'')){if(hub){const main=$('main');if(main){main.innerHTML=hub(ix);if(liveTop)paintLiveTop(liveTop);if(!NO_MARKETS)hydrateKalshi(main);hydrateLive();}}const s2=$('[data-freshness]');if(s2)s2.textContent=hub!==undefined?'Updated from live projection':'Newer data available on next refresh';}else if(st)st.textContent='Current projection';}).catch(()=>{const st=$('[data-freshness]');if(st)st.textContent='Saved snapshot · API unavailable';});}
 
 // ---- Live scoring (observed ESPN snapshots via /api/v1/live). The server decides the state; this only renders it.
 const LIVE_SHOWN=new Set(['live','stale','suspended','round_complete','pre','final']);
-let liveBusy=false,liveAgain=false,liveHot=false;
+let liveBusy=false,liveAgain=false,liveHot=false,liveTop:any[]|null=null;
+// Hero, rails and the live page. Targets are looked up at paint time: a hub re-render may have replaced <main> while
+// the request was in flight. The page reserves the live layout before this paint (src/lib/live-slots.js); reserved
+// boxes are dropped once the answer shows nothing will fill them, and a failed poll keeps the last observation.
+function paintLiveTop(events:any[]){
+ const hero=$('[data-live-hero]'),rails=$$('[data-live-rail]'),page=$('[data-live-page]');
+ if(events.length)liveTop=events;else if(!liveTop)liveTop=[];
+ if(events.length){
+  if(hero){const pref=hero.getAttribute('data-edition');const ev=events.find((x:any)=>x.state!=='final')||events[0];if(ev&&(ev.state!=='final'||ev.edition.slug===pref))hero.innerHTML=heroLive(ev);}
+  for(const rail of rails)rail.innerHTML=liveRail(events);
+  if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${statusModule(ev,{compact:true})}${liveBoard(ev,{limit:40})}</section>`).join('');
+ }
+ for(const n of $$('[data-live-skeleton],[data-live-skel]'))n.remove();
+}
 async function hydrateLive(){
  if(liveBusy){liveAgain=true;return;}liveBusy=true;
  try{
- const hero=$('[data-live-hero]'),rails=$$('[data-live-rail]'),board=$('[data-live-board]'),pl=$('[data-live-player]'),cast=$('[data-live-cast]'),page=$('[data-live-page]');
+ const board=$('[data-live-board]'),pl=$('[data-live-player]'),cast=$('[data-live-cast]');
  const get=(q:string)=>api('live'+q).then(r=>r.ok?r.json():null).catch(()=>null);
- if(hero||rails.length||page){const r=await get('?top=500');const events=(r?.events||[]).filter((x:any)=>LIVE_SHOWN.has(x.state));
-  if(events.length){
-   if(hero){const pref=hero.getAttribute('data-edition');const ev=events.find((x:any)=>x.state!=='final')||events[0];if(ev&&(ev.state!=='final'||ev.edition.slug===pref))hero.innerHTML=heroLive(ev);}
-   for(const rail of rails)rail.innerHTML=liveRail(events);
-   if(page)page.innerHTML=events.map((ev:any)=>`<section class="data-section live-board"><p class="eyebrow">${e(ev.tour)}</p><h2><a class="text-link" href="/tournament/${e(ev.edition.slug)}#live">${e(ev.edition.name)}</a></h2>${statusModule(ev,{compact:true})}${liveBoard(ev,{limit:40})}</section>`).join('');
-  }}
+ if($('[data-live-hero]')||$('[data-live-rail]')||$('[data-live-page]')){const r=await get('?top=500');paintLiveTop((r?.events||[]).filter((x:any)=>LIVE_SHOWN.has(x.state)));}
  if(board||cast){const slug=(board||cast)!.getAttribute('data-edition');const [r,mv,tape]=slug?await Promise.all([get('/'+encodeURIComponent(slug)),get('/'+encodeURIComponent(slug)+'/movement'),cast?get('/'+encodeURIComponent(slug)+'/tape'):null]):[null,null,null];liveHot=['live','suspended'].includes(r?.event?.state);
   if(r?.event&&LIVE_SHOWN.has(r.event.state)){if(board){board.innerHTML=`<p class="eyebrow">LIVE LEADERBOARD</p>${statusModule(r.event)}${weatherNow(r.weather_now)}${liveBoard(r.event)}<div data-mvx-host></div>`;mountMovement($('[data-mvx-host]',board),mv?.points||[],{title:'Who moved, and when'});}if(cast){castV3(cast,r,mv,tape);cast.dataset.liveState=r.event.state;}}else if(r?.event&&cast?.querySelector('[data-cv3]')){cast.innerHTML='';cast.dataset.liveState='';} // cleared only when the server says the event is not castable; a failed poll keeps the last observation on screen and the cast ages it to SCORING UPDATE DELAYED
   if(cast)placeCastMarket();}
