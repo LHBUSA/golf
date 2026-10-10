@@ -101,7 +101,7 @@ for(const p of LOCALIZED_PATHS)for(const loc of PUBLIC_LOCALES)test(`localized d
   assert.ok(!hrefs.includes('https://propbetedge.ai/pro'),'no English /pro link left on '+loc);
   assert.ok(!/kx-mount|data-kalshi|kalshi|golf-kxo|footer-partner|sportsbook|draftkings|fanduel/i.test(doc.querySelector('body').toString()),'no market, partner or sportsbook module on '+loc);
   const legal=doc.querySelector('footer .footer-links a[href="'+LEGAL_FOOTER[loc].href+'"]');assert.ok(legal,'legal footer link');assert.equal(legal.text,LEGAL_FOOTER[loc].label);
- }else{assert.equal(networkProUrl(loc),'https://propbetedge.ai/pro');assert.ok(!doc.querySelector('a[href*="/legal/tokushoho"],a[href*="/legal/business"]'));}
+ }else{assert.equal(networkProUrl(loc),'https://propbetedge.ai/pro?lang='+loc+'&via=golf','Spanish: English /pro tagged for checkout attribution');assert.ok(!hrefs.includes('https://propbetedge.ai/pro'),'no untagged /pro link left on '+loc);assert.ok(!doc.querySelector('a[href*="/legal/tokushoho"],a[href*="/legal/business"]'));}
  const ld=JSON.parse(doc.querySelector('script[type="application/ld+json"]').text);
  const page=ld['@graph'].find(n=>n.url===self);assert.ok(page);assert.equal(page.inLanguage,loc);
  if(p==='/all-access'){const lock=doc.querySelector('.aa-price-lockup');assert.equal(lock.querySelector('b').text,'US$29','amount unchanged, currency unambiguous');assert.match(doc.querySelector('meta[name="description"]').getAttribute('content'),/US\$29/);
@@ -200,5 +200,5 @@ test('catalog hygiene: protected values never change — price amount, names and
  assert.equal(CATALOGS.ko.patterns.length,CATALOGS.ja.patterns.length);
  // no betting call to action on acquisition pages
  for(const loc of ACQUISITION_LOCALES)for(const v of Object.values(CATALOGS[loc].exact))assert.ok(!/ベット|賭け|배팅|베팅|도박|\bbet now\b|\bwager\b/i.test(v),loc+': '+v);
- assert.equal(localHref(L,'/all-access#x','ja'),'/ja/all-access#x');assert.equal(localHref(L,'/players','ja'),'/players');assert.equal(localHref(L,'https://propbetedge.ai/pro','es'),'https://propbetedge.ai/pro');
+ assert.equal(localHref(L,'/all-access#x','ja'),'/ja/all-access#x');assert.equal(localHref(L,'/players','ja'),'/players');assert.equal(localHref(L,'https://propbetedge.ai/pro','es'),'https://propbetedge.ai/pro?lang=es&via=golf');assert.equal(networkProUrl('en'),'https://propbetedge.ai/pro','English unchanged');
 });
